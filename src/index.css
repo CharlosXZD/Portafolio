@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Brand blue sampled from Carlos's LinkedIn banner (deep navy + cobalt wave lines) */
+@theme {
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #dbe4ff;
+  --color-brand-300: #93a9ff;
+  --color-brand-400: #5b7cf5;
+  --color-brand-500: #3357e8;
+  --color-brand-600: #2542c9;
+  --color-brand-700: #1e2f8f;
+  --color-brand-900: #0f1642;
+  --color-brand-950: #0a0f30;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  @apply bg-white text-neutral-800 dark:bg-neutral-950 dark:text-neutral-200;
+  font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
