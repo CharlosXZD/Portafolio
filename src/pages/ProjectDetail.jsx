@@ -1,15 +1,19 @@
 import { lazy, Suspense } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Reveal from '../components/Reveal.jsx'
+import FeatureSection from '../components/FeatureSection.jsx'
+import PhoneMockup from '../components/PhoneMockup.jsx'
+import BrowserMockup from '../components/BrowserMockup.jsx'
+import { useLanguage } from '../i18n/LanguageContext.jsx'
 import { projects } from '../data/projects.js'
 import NotFound from './NotFound.jsx'
 
-const Phone3D = lazy(() => import('../components/Phone3D.jsx'))
 const Robot3D = lazy(() => import('../components/Robot3D.jsx'))
 
 function ProjectDetail() {
   const { slug } = useParams()
   const project = projects.find((p) => p.slug === slug)
+  const { t, pick } = useLanguage()
 
   if (!project) {
     return <NotFound />
@@ -19,13 +23,13 @@ function ProjectDetail() {
     <section className="mx-auto max-w-3xl px-6 py-24">
       <Reveal>
         <Link to="/#projects" className="text-sm text-neutral-500 hover:underline">
-          &larr; Back to projects
+          {t('projectDetail.back')}
         </Link>
         <h1 className="mt-4 text-3xl font-semibold tracking-tight">{project.title}</h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          {project.role} · {project.period}
+          {pick(project.role)} · {pick(project.period)}
         </p>
-        <p className="mt-6 text-neutral-600 dark:text-neutral-400">{project.tagline}</p>
+        <p className="mt-6 text-neutral-600 dark:text-neutral-400">{pick(project.tagline)}</p>
 
         <ul className="mt-6 flex flex-wrap gap-2">
           {project.tech.map((tech) => (
@@ -39,13 +43,15 @@ function ProjectDetail() {
         </ul>
       </Reveal>
 
-      {project.mockScreen && (
-        <Reveal delay={0.1}>
-          <Suspense fallback={<div className="h-80 w-full sm:h-[26rem]" />}>
-            <Phone3D screen={project.mockScreen} />
-          </Suspense>
-          <p className="-mt-2 text-center text-xs text-neutral-400 dark:text-neutral-600">
-            Mock screen preview — real screenshots coming soon
+      {project.screens && (
+        <Reveal delay={0.1} className="mt-12">
+          {project.screenType === 'browser' ? (
+            <BrowserMockup screens={project.screens} />
+          ) : (
+            <PhoneMockup screens={project.screens} />
+          )}
+          <p className="mt-4 text-center text-xs text-neutral-400 dark:text-neutral-600">
+            {t('projectDetail.liveCaption')}
           </p>
         </Reveal>
       )}
@@ -56,20 +62,70 @@ function ProjectDetail() {
             <Robot3D url={project.model3d} />
           </Suspense>
           <p className="-mt-2 text-center text-xs text-neutral-400 dark:text-neutral-600">
-            Actual CAD model — drag to rotate, scroll to zoom
+            {t('projectDetail.robotCaption')}
           </p>
+        </Reveal>
+      )}
+
+      {project.features && (
+        <div className="mt-16 space-y-16 sm:space-y-24">
+          {project.features.map((feature, i) => (
+            <Reveal key={feature.image ?? pick(feature.headline)} delay={0.1 + i * 0.05}>
+              <FeatureSection
+                eyebrow={feature.eyebrow}
+                headline={feature.headline}
+                body={feature.body}
+                image={feature.image}
+                reverse={i % 2 === 1}
+              />
+            </Reveal>
+          ))}
+        </div>
+      )}
+
+      {project.securityNotes && (
+        <Reveal delay={0.15}>
+          <div className="mt-16 rounded-2xl border border-neutral-800 bg-neutral-950 p-6 sm:p-8">
+            <div className="flex items-center gap-2 text-brand-400">
+              <svg
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 1a4 4 0 0 0-4 4v2H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-1V5a4 4 0 0 0-4-4Zm2 6V5a2 2 0 1 0-4 0v2h4Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <h2 className="text-xs font-semibold uppercase tracking-wider">
+                {t('projectDetail.securityNotes')}
+              </h2>
+            </div>
+            <ul className="mt-5 space-y-3">
+              {pick(project.securityNotes).map((note) => (
+                <li key={note} className="flex gap-3 text-sm text-neutral-300">
+                  <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-500" />
+                  {note}
+                </li>
+              ))}
+            </ul>
+          </div>
         </Reveal>
       )}
 
       {project.stats && (
         <Reveal delay={0.15}>
           <ul className="mt-10 grid grid-cols-3 gap-4 rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
-            {project.stats.map((stat) => (
-              <li key={stat.label} className="text-center">
+            {project.stats.map((stat, i) => (
+              <li key={stat.value + i} className="text-center">
                 <p className="text-2xl font-semibold tracking-tight text-brand-600 dark:text-brand-400">
                   {stat.value}
                 </p>
-                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{stat.label}</p>
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                  {pick(stat.label)}
+                </p>
               </li>
             ))}
           </ul>
@@ -79,10 +135,10 @@ function ProjectDetail() {
       {project.highlights && (
         <Reveal delay={0.2}>
           <h2 className="mt-10 text-sm font-medium text-neutral-500 dark:text-neutral-400">
-            What&apos;s impressive here
+            {t('projectDetail.whatsImpressive')}
           </h2>
           <ul className="mt-4 space-y-3">
-            {project.highlights.map((highlight) => (
+            {pick(project.highlights).map((highlight) => (
               <li
                 key={highlight}
                 className="rounded-lg border border-brand-100 bg-brand-50/60 px-4 py-3 text-sm text-neutral-700 dark:border-brand-900 dark:bg-brand-950/40 dark:text-neutral-300"
@@ -96,10 +152,10 @@ function ProjectDetail() {
 
       <Reveal delay={0.25}>
         <h2 className="mt-10 text-sm font-medium text-neutral-500 dark:text-neutral-400">
-          What I did
+          {t('projectDetail.whatIDid')}
         </h2>
         <ul className="mt-4 list-disc space-y-2 pl-5 text-neutral-700 dark:text-neutral-300">
-          {project.bullets.map((bullet) => (
+          {pick(project.bullets).map((bullet) => (
             <li key={bullet}>{bullet}</li>
           ))}
         </ul>
@@ -111,7 +167,7 @@ function ProjectDetail() {
             rel="noreferrer"
             className="mt-8 inline-block text-sm font-medium text-brand-600 hover:underline dark:text-brand-400"
           >
-            View code on GitHub &rarr;
+            {t('projectDetail.viewCode')}
           </a>
         )}
       </Reveal>

@@ -31,7 +31,7 @@ function RobotModel({ url }) {
         {geometry.hasColors ? (
           <meshStandardMaterial vertexColors roughness={0.5} metalness={0.25} />
         ) : (
-          <meshStandardMaterial color="#c4c4c8" roughness={0.5} metalness={0.3} />
+          <meshStandardMaterial color="#ca6a04" roughness={0.5} metalness={0.25} />
         )}
       </mesh>
     </group>

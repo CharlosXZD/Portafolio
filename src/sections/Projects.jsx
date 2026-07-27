@@ -1,25 +1,34 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import Reveal from '../components/Reveal.jsx'
+import { useLanguage } from '../i18n/LanguageContext.jsx'
 import { projects, comingSoonProjects } from '../data/projects.js'
 
+const MotionLink = motion(Link)
+
 function Projects() {
+  const { t, pick } = useLanguage()
+
   return (
     <section id="projects" className="mx-auto max-w-5xl px-6 py-24">
       <Reveal>
-        <h2 className="text-2xl font-semibold tracking-tight">Projects</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">{t('projects.heading')}</h2>
       </Reveal>
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
         {projects.map((project, i) => (
           <Reveal key={project.slug} delay={i * 0.08}>
-            <Link
+            <MotionLink
               to={`/projects/${project.slug}`}
-              className="group flex h-full flex-col rounded-xl border border-neutral-200 p-6 transition-colors hover:border-brand-300 dark:border-neutral-800 dark:hover:border-brand-700"
+              whileHover={{ y: -6 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+              className="group flex h-full flex-col rounded-xl border border-neutral-200 p-6 transition-colors hover:border-brand-300 hover:shadow-xl hover:shadow-brand-500/5 dark:border-neutral-800 dark:hover:border-brand-700"
             >
               <h3 className="font-medium tracking-tight group-hover:text-brand-600 dark:group-hover:text-brand-400">
                 {project.title}
               </h3>
               <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                {project.tagline}
+                {pick(project.tagline)}
               </p>
               <ul className="mt-4 flex flex-wrap gap-2">
                 {project.tech.map((tech) => (
@@ -33,28 +42,28 @@ function Projects() {
               </ul>
               {project.stats && (
                 <ul className="mt-6 grid grid-cols-3 gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-                  {project.stats.map((stat) => (
-                    <li key={stat.label}>
+                  {project.stats.map((stat, si) => (
+                    <li key={stat.value + si}>
                       <p className="text-lg font-semibold tracking-tight text-brand-600 dark:text-brand-400">
                         {stat.value}
                       </p>
                       <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                        {stat.label}
+                        {pick(stat.label)}
                       </p>
                     </li>
                   ))}
                 </ul>
               )}
-            </Link>
+            </MotionLink>
           </Reveal>
         ))}
         {comingSoonProjects.map((project, i) => (
           <Reveal key={project.title} delay={(projects.length + i) * 0.08}>
             <div className="flex h-full flex-col rounded-xl border border-dashed border-neutral-300 p-6 text-neutral-400 dark:border-neutral-700 dark:text-neutral-600">
               <h3 className="font-medium tracking-tight">{project.title}</h3>
-              <p className="mt-2 text-sm">{project.tagline}</p>
+              <p className="mt-2 text-sm">{pick(project.tagline)}</p>
               <span className="mt-4 inline-block w-fit text-xs uppercase tracking-wide">
-                Coming soon
+                {t('projects.comingSoon')}
               </span>
             </div>
           </Reveal>

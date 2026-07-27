@@ -1,9 +1,12 @@
 import { lazy, Suspense } from 'react'
 import { motion } from 'framer-motion'
+import { useLanguage } from '../i18n/LanguageContext.jsx'
 
 const Hero3D = lazy(() => import('../components/Hero3D.jsx'))
 
 function Hero() {
+  const { t } = useLanguage()
+
   return (
     <section
       id="hero"
@@ -21,7 +24,7 @@ function Hero() {
         transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
         className="relative text-4xl font-semibold tracking-tight sm:text-6xl"
       >
-        Hi, I&apos;m Carlos de la Peña.
+        {t('hero.heading')}
       </motion.h1>
       <motion.p
         initial={{ opacity: 0, y: 16 }}
@@ -29,8 +32,7 @@ function Hero() {
         transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
         className="relative max-w-xl text-neutral-600 dark:text-neutral-400"
       >
-        Dual-degree Computer &amp; Electrical Engineering student building full-stack products and
-        hardware-adjacent projects.
+        {t('hero.subtitle')}
       </motion.p>
       <motion.div
         initial={{ opacity: 0 }}
@@ -42,7 +44,7 @@ function Hero() {
           <Hero3D />
         </Suspense>
         <p className="text-xs uppercase tracking-wide text-neutral-400 dark:text-neutral-600">
-          Drag to look around
+          {t('hero.dragHint')}
         </p>
       </motion.div>
     </section>

@@ -1,36 +1,58 @@
 import Reveal from '../components/Reveal.jsx'
-
-const skills = [
-  {
-    label: 'Languages & Frameworks',
-    items: ['JavaScript', 'React', 'Vite', 'CSS', 'HTML', 'Dart (Flutter)', 'C++ (Arduino)'],
-  },
-  {
-    label: 'Tools & Platforms',
-    items: ['Firebase', 'Stripe', 'Git/GitHub', 'Arduino IDE', 'CAD (3D Modeling)'],
-  },
-  {
-    label: 'Hardware & Systems',
-    items: ['PC assembly & repair', 'Windows OS', 'Embedded systems (Arduino)'],
-  },
-  {
-    label: 'Spoken Languages',
-    items: ['Spanish (Native)', 'English (Fluent)', 'French (A2/B1)'],
-  },
-]
+import { useLanguage } from '../i18n/LanguageContext.jsx'
 
 function About() {
+  const { t } = useLanguage()
+
+  const skills = [
+    {
+      label: t('about.skills.languagesFrameworks'),
+      items: ['JavaScript', 'React', 'Vite', 'CSS', 'HTML', 'Dart (Flutter)', 'C++ (Arduino)'],
+    },
+    {
+      label: t('about.skills.toolsPlatforms'),
+      items: ['Firebase', 'Stripe', 'Git/GitHub', 'Arduino IDE', 'CAD (3D Modeling)'],
+    },
+    {
+      label: t('about.skills.hardwareSystems'),
+      items: [
+        t('about.skills.pcRepair'),
+        t('about.skills.windowsOs'),
+        t('about.skills.embeddedSystems'),
+      ],
+    },
+    {
+      label: t('about.skills.spokenLanguages'),
+      items: [t('about.skills.spanish'), t('about.skills.english'), t('about.skills.french')],
+    },
+  ]
+
   return (
     <section id="about" className="mx-auto max-w-5xl px-6 py-24">
       <Reveal>
-        <h2 className="text-2xl font-semibold tracking-tight">About</h2>
-        <p className="mt-4 max-w-2xl text-neutral-600 dark:text-neutral-400">
-          I&apos;m a dual-degree BSE Computer Engineering &amp; Electrical Engineering student at the
-          University of Michigan–Dearborn. I've shipped a live e-commerce platform end-to-end,
-          co-founded and led development on a cross-platform tutoring startup, and built embedded
-          systems projects like a CAD-designed, Arduino-driven autonomous robot. I like working
-          across the stack, from firmware to frontend.
-        </p>
+        <h2 className="text-2xl font-semibold tracking-tight">{t('about.heading')}</h2>
+        <p className="mt-4 max-w-2xl text-neutral-600 dark:text-neutral-400">{t('about.bio')}</p>
+        <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+          <div className="flex gap-1.5">
+            <dt className="text-neutral-400 dark:text-neutral-500">{t('about.email')}:</dt>
+            <dd>
+              <a
+                href="mailto:carlosalbertodelapenagonzalez@gmail.com"
+                className="hover:text-brand-600 dark:hover:text-brand-400"
+              >
+                carlosalbertodelapenagonzalez@gmail.com
+              </a>
+            </dd>
+          </div>
+          <div className="flex gap-1.5">
+            <dt className="text-neutral-400 dark:text-neutral-500">{t('about.phone')}:</dt>
+            <dd>
+              <a href="tel:+17345104024" className="hover:text-brand-600 dark:hover:text-brand-400">
+                +1 (734) 510-4024
+              </a>
+            </dd>
+          </div>
+        </dl>
       </Reveal>
       <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {skills.map((group, i) => (
