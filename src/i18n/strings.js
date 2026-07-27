@@ -55,6 +55,11 @@ const strings = {
     en: 'Engineering & security notes',
     es: 'Notas de ingeniería y seguridad',
   },
+  'projectDetail.downloadApk': { en: 'Download for Android (APK)', es: 'Descargar para Android (APK)' },
+  'projectDetail.downloadApkCaption': {
+    en: 'Always links to the latest build, straight from GitHub Releases.',
+    es: 'Siempre enlaza a la última versión, directo desde GitHub Releases.',
+  },
   'projectDetail.whatIDid': { en: 'What I did', es: 'Lo que hice' },
   'projectDetail.viewCode': { en: 'View code on GitHub →', es: 'Ver código en GitHub →' },
 

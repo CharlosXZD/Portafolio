@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import Reveal from '../components/Reveal.jsx'
 import FeatureSection from '../components/FeatureSection.jsx'
 import PhoneMockup from '../components/PhoneMockup.jsx'
@@ -9,6 +10,18 @@ import { projects } from '../data/projects.js'
 import NotFound from './NotFound.jsx'
 
 const Robot3D = lazy(() => import('../components/Robot3D.jsx'))
+
+function DownloadIcon(props) {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" {...props}>
+      <path
+        fillRule="evenodd"
+        d="M10 2a.75.75 0 0 1 .75.75v7.19l2.22-2.22a.75.75 0 1 1 1.06 1.06l-3.5 3.5a.75.75 0 0 1-1.06 0l-3.5-3.5a.75.75 0 1 1 1.06-1.06l2.22 2.22V2.75A.75.75 0 0 1 10 2ZM4 13.25a.75.75 0 0 1 .75.75v1.5c0 .28.22.5.5.5h9.5a.5.5 0 0 0 .5-.5v-1.5a.75.75 0 0 1 1.5 0v1.5A2 2 0 0 1 14.75 17.5h-9.5A2 2 0 0 1 3.25 15.5v-1.5a.75.75 0 0 1 .75-.75Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  )
+}
 
 function ProjectDetail() {
   const { slug } = useParams()
@@ -41,6 +54,23 @@ function ProjectDetail() {
             </li>
           ))}
         </ul>
+
+        {project.apkUrl && (
+          <div className="mt-6">
+            <motion.a
+              href={project.apkUrl}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-brand-600/20 transition-colors hover:bg-brand-500"
+            >
+              <DownloadIcon className="h-4 w-4" />
+              {t('projectDetail.downloadApk')}
+            </motion.a>
+            <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-600">
+              {t('projectDetail.downloadApkCaption')}
+            </p>
+          </div>
+        )}
       </Reveal>
 
       {project.screens && (

@@ -252,6 +252,7 @@ export const projects = [
     },
     screenType: 'phone',
     screens: ['/screenshots/project-wellness-onboarding.png'],
+    apkUrl: 'https://github.com/CharlosXZD/Project-Wellness/releases/latest/download/ProjectWellness.apk',
     features: [
       {
         eyebrow: { en: 'PRIVACY', es: 'PRIVACIDAD' },
