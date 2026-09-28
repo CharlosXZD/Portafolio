@@ -1,13 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
+import ThemeToggle from './ThemeToggle.jsx'
 
 const links = [
-  { href: '/#about', key: 'nav.about' },
   { href: '/#projects', key: 'nav.projects' },
+  { href: '/#about', key: 'nav.about' },
   { href: '/#resume', key: 'nav.resume' },
   { href: '/#contact', key: 'nav.contact' },
+  { href: '/games/elementa', key: 'nav.play' },
 ]
 
 function LanguageToggle({ className }) {
@@ -19,7 +21,7 @@ function LanguageToggle({ className }) {
       aria-label="Toggle language"
       className={
         className ??
-        'rounded-full border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-500 transition-colors hover:text-brand-600 dark:border-neutral-800 dark:text-neutral-400 dark:hover:text-brand-400'
+        'pressable rounded-full px-2.5 py-1 text-xs font-medium text-neutral-500 ring-1 ring-neutral-200 transition-colors ring-inset hover:text-neutral-900 dark:text-neutral-400 dark:ring-neutral-800 dark:hover:text-white'
       }
     >
       {lang === 'en' ? 'ES' : 'EN'}
@@ -29,12 +31,31 @@ function LanguageToggle({ className }) {
 
 function Navbar() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const { t } = useLanguage()
 
+  // The divider is a scroll-edge effect: it only exists once content is actually underneath
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
-    <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-md dark:border-neutral-800 dark:bg-neutral-950/80">
-      <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link to="/" className="text-sm font-medium tracking-tight" onClick={() => setOpen(false)}>
+    <header
+      className={`sticky top-0 z-50 border-b bg-white/70 backdrop-blur-xl backdrop-saturate-150 transition-colors duration-300 dark:bg-neutral-950/70 ${
+        scrolled || open
+          ? 'border-neutral-200/80 dark:border-neutral-800/80'
+          : 'border-transparent'
+      }`}
+    >
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
+        <Link
+          to="/"
+          className="text-sm font-semibold tracking-[-0.01em] text-neutral-900 dark:text-white"
+          onClick={() => setOpen(false)}
+        >
           Carlos de la Peña
         </Link>
         <div className="hidden items-center gap-6 sm:flex">
@@ -43,17 +64,21 @@ function Navbar() {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="transition-colors hover:text-brand-600 dark:hover:text-brand-400"
+                  className="transition-colors hover:text-neutral-900 dark:hover:text-white"
                 >
                   {t(link.key)}
                 </a>
               </li>
             ))}
           </ul>
-          <LanguageToggle />
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <ThemeToggle />
+          </div>
         </div>
-        <div className="flex items-center gap-3 sm:hidden">
+        <div className="flex items-center gap-2 sm:hidden">
           <LanguageToggle />
+          <ThemeToggle />
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
@@ -82,15 +107,15 @@ function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden border-t border-neutral-200 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400 sm:hidden"
+            transition={{ type: 'spring', bounce: 0, duration: 0.35 }}
+            className="overflow-hidden border-t border-neutral-200/80 text-sm text-neutral-600 dark:border-neutral-800 dark:text-neutral-400 sm:hidden"
           >
             {links.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="block px-6 py-3 transition-colors hover:text-brand-600 dark:hover:text-brand-400"
+                  className="block px-6 py-3 transition-colors hover:text-neutral-900 dark:hover:text-white"
                 >
                   {t(link.key)}
                 </a>

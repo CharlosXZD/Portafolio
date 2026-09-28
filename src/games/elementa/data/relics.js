@@ -1,0 +1,451 @@
+// Relics are passive, purely data-driven modifiers. Each relic's `effects`
+// object is read directly by the scoring engine (engine/scoring.js) and the
+// game reducer (engine/gameReducer.js); no relic ever carries executable
+// code, which keeps the whole list easy to scan, balance, and extend.
+//
+// Design intent (GDD.md §7): relics should mostly amplify an element's
+// existing identity rather than introduce unrelated systems.
+//
+// Every relic also carries an `itemConcept`: a concrete, drawable object
+// (see GDD.md's art brief) standing in for the abstract effect, since each
+// relic is meant to be represented by a distinct hand-drawn item, not text.
+// `iconSrc` is left undefined until real art exists; components fall back
+// to a generated placeholder glyph when it's missing.
+
+export const RARITY = {
+  COMMON: 'common',
+  UNCOMMON: 'uncommon',
+  RARE: 'rare',
+  EPIC: 'epic',
+  LEGENDARY: 'legendary',
+}
+
+// Order matters: used for round-gating (index into RARITY_UNLOCK_ROUND) and
+// for picking a "next rarity up" when needed.
+export const RARITY_ORDER = [
+  RARITY.COMMON,
+  RARITY.UNCOMMON,
+  RARITY.RARE,
+  RARITY.EPIC,
+  RARITY.LEGENDARY,
+]
+
+export const RARITY_COST = {
+  [RARITY.COMMON]: 5,
+  [RARITY.UNCOMMON]: 8,
+  [RARITY.RARE]: 12,
+  [RARITY.EPIC]: 18,
+  [RARITY.LEGENDARY]: 28,
+}
+
+// The glow color behind an item's icon, in the shop row and in the
+// inspector popup. Kept separate from element colors so rarity is always
+// legible regardless of what element (if any) an item belongs to.
+export const RARITY_GLOW = {
+  [RARITY.COMMON]: '#9ca3af',
+  [RARITY.UNCOMMON]: '#38bdf8',
+  [RARITY.RARE]: '#ef4444',
+  [RARITY.EPIC]: '#8b5cf6',
+  [RARITY.LEGENDARY]: '#eab308',
+}
+
+export const RELICS = [
+  {
+    id: 'molten_core',
+    name: 'Molten Core',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: 'fire',
+    itemConcept: 'a cracked obsidian core with glowing lava veins',
+    description: 'Every explosion adds +2 flat Base Value.',
+    effects: { explodeFlatBonus: 2 },
+  },
+  {
+    id: 'riverstone',
+    name: 'Riverstone',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: 'water',
+    itemConcept: 'a smooth blue-grey river stone with a faint ripple aura',
+    description: 'Locking a Water-family die grants +2 rerolls instead of +1.',
+    effects: { waterLockRerollBonus: 1 },
+  },
+  {
+    id: 'stormcaller',
+    name: 'Stormcaller',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: 'air',
+    itemConcept: 'a brass wind-vane with a small lightning arc',
+    description: 'Straight bonus grants +1 additional Multiplier.',
+    effects: { setBonusMultBonus: { pair: 0, three: 0, straight: 1 } },
+  },
+  {
+    id: 'bedrock',
+    name: 'Bedrock',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: 'earth',
+    itemConcept: 'a layered stone slab chunk',
+    description: 'Pure Earth dice contribute ×1.5 to Base Value.',
+    effects: { earthPipMultiplier: 1.5 },
+  },
+  {
+    id: 'glass_cannon',
+    name: 'Glass Cannon',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: 'fire',
+    itemConcept: 'a cracked hourglass filled with embers',
+    description:
+      'Explosions add double value, but a die that fizzles on a 1 also zeroes one random other die.',
+    effects: { fireExplodeDouble: true, fizzleSpreadsZero: true },
+  },
+  {
+    id: 'undertow',
+    name: 'Undertow',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: 'water',
+    itemConcept: 'a spiral conch shell',
+    description: 'Locking a free-lock die also rerolls one random unheld die for free.',
+    effects: { undertowRippleReroll: true },
+  },
+  {
+    id: 'petrify',
+    name: 'Petrify',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: null,
+    itemConcept: 'a small grey stone charm with a carved eye',
+    description: 'Once per round, freeze any single die’s face for free, regardless of element.',
+    effects: { freezeChargePerRound: 1 },
+  },
+  {
+    id: 'wildfire',
+    name: 'Wildfire',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: 'fire',
+    itemConcept: 'a bundle of kindling wrapped in red ribbon, sparking',
+    description: 'Each explosion has a 20% chance to also trigger an explosion on another Fire-family die.',
+    effects: { wildfireChainChance: 0.2 },
+  },
+  {
+    id: 'tidal_pool',
+    name: 'Tidal Pool',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: 'water',
+    itemConcept: 'a tide-pool rock with a glowing anemone',
+    description: 'The set bonus is doubled if every die in the matching set is Water-family.',
+    effects: { waterFamilySetBonusDouble: true },
+  },
+  {
+    id: 'groundswell',
+    name: 'Groundswell',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: 'earth',
+    itemConcept: 'a mossy boulder with cracks of light beneath',
+    description: 'If the entire pool is pure Earth dice, Base Value is +50%.',
+    effects: { pureEarthBaseBonusPct: 0.5 },
+  },
+  {
+    id: 'static_charge',
+    name: 'Static Charge',
+    kind: 'relic',
+    rarity: RARITY.LEGENDARY,
+    element: 'air',
+    itemConcept: 'a glass leyden jar crackling with electricity',
+    description: 'Explosion chains no longer have an iteration cap.',
+    effects: { explodeChainUncapped: true },
+  },
+  {
+    id: 'momentum',
+    name: 'Momentum',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: null,
+    itemConcept: 'a spinning gyroscope',
+    description: 'Beating the target by 2x or more grants +1 permanent reroll for the rest of the run.',
+    effects: { momentumRerollOnOverkill: true },
+  },
+  {
+    id: 'shard_vault',
+    name: 'Shard Vault',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: null,
+    itemConcept: 'a small chest studded with shard gems',
+    description: 'Interest cap raised from +5 to +8 Shards per round.',
+    effects: { interestCapBonus: 3 },
+  },
+  {
+    id: 'discount_merchant',
+    name: 'Discount Merchant',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: null,
+    itemConcept: 'a brass coin scale',
+    description: 'All shop prices are reduced by 10%.',
+    effects: { shopDiscountPct: 0.1 },
+  },
+  {
+    id: 'overclock',
+    name: 'Overclock',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: null,
+    itemConcept: 'an overheating, cracked gear',
+    description: '+1 max reroll per round, but each die has a 10% chance to reset to its minimum face when rerolled.',
+    effects: { overclockRerollBonus: 1, overclockZeroChance: 0.1 },
+  },
+  {
+    id: 'fossil',
+    name: 'Fossil',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: 'earth',
+    itemConcept: 'a fossilized ammonite in stone',
+    description: 'Earth dice are wildcards for the set bonus: they match any face value.',
+    effects: { earthWildcardForSets: true },
+  },
+  {
+    id: 'fusion_catalyst',
+    name: 'Fusion Catalyst',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: null,
+    itemConcept: 'a glowing alchemical crucible',
+    description: 'Forging a fusion die at the Forge costs 2 fewer Shards.',
+    effects: { forgeDiscount: 2 },
+  },
+  {
+    id: 'deep_pockets',
+    name: 'Deep Pockets',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: null,
+    itemConcept: 'a patched leather coin pouch',
+    description: 'Rerolling the shop’s offers costs 1 fewer Shard.',
+    effects: { shopRerollDiscount: 1 },
+  },
+  {
+    id: 'windfall',
+    name: 'Windfall',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: null,
+    itemConcept: 'a small pile of shards, sparkling',
+    description: 'Interest is earned per 2 unspent Shards instead of per 3.',
+    effects: { interestDivisor: 2 },
+  },
+  {
+    id: 'hoarder',
+    name: 'Hoarder',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: null,
+    itemConcept: 'a magpie’s nest with one shiny gem',
+    description: 'Selling a die or relic returns +1 extra Shard.',
+    effects: { sellBonus: 1 },
+  },
+  {
+    id: 'steadfast',
+    name: 'Steadfast',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: null,
+    itemConcept: 'a worn anchor charm',
+    description: 'Missing the target still grants +3 Shards as a consolation.',
+    effects: { lifeLostShardBonus: 3 },
+  },
+  {
+    id: 'safety_net',
+    name: 'Safety Net',
+    kind: 'relic',
+    rarity: RARITY.LEGENDARY,
+    element: null,
+    itemConcept: 'a four-leaf clover talisman',
+    description: 'The first time you would run out of lives, survive with 1 instead.',
+    effects: { preventFirstDeath: true },
+  },
+  // --- Second wave (GDD §23): more build-arounds per element, plus a few
+  // element-agnostic scaling pieces so non-fire builds can reach big Mult.
+  {
+    id: 'loaded_die',
+    name: 'Loaded Die',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: null,
+    itemConcept: 'a tiny bone die with a lead weight showing through one face',
+    description: 'Dice showing their highest face add +3 Base.',
+    effects: { maxFaceBaseBonus: 3 },
+  },
+  {
+    id: 'tide_chart',
+    name: 'Tide Chart',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: 'water',
+    itemConcept: 'a rolled sea chart tied with a strand of kelp',
+    description: 'Each locked or frozen die adds +3 Base.',
+    effects: { lockedDieBaseBonus: 3 },
+  },
+  {
+    id: 'feather_charm',
+    name: 'Feather Charm',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: 'air',
+    itemConcept: 'a white feather bound with silver thread',
+    description: 'Pairs grant +1 extra Multiplier.',
+    effects: { pairMultBonus: 1 },
+  },
+  {
+    id: 'lucky_coin',
+    name: 'Lucky Coin',
+    kind: 'relic',
+    rarity: RARITY.COMMON,
+    element: null,
+    itemConcept: 'a gold coin stamped with a flame on one side and a wave on the other',
+    description: 'Clearing a round grants +1 Shard for every explosion in the winning roll.',
+    effects: { shardPerExplosion: 1 },
+  },
+  {
+    id: 'ember_heart',
+    name: 'Ember Heart',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: 'fire',
+    itemConcept: 'a pulsing ember sealed inside a glass locket',
+    description: 'Each die that explodes adds +1 Multiplier.',
+    effects: { multPerExplodingDie: 1 },
+  },
+  {
+    id: 'keystone',
+    name: 'Keystone',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: 'earth',
+    itemConcept: 'a carved arch keystone with a glowing rune',
+    description: '+1 Multiplier if no die scores 0 this roll.',
+    effects: { noZeroMultBonus: 1 },
+  },
+  {
+    id: 'hourglass',
+    name: 'Patient Hourglass',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: null,
+    itemConcept: 'a small hourglass filled with violet sand',
+    description: '+0.5 Multiplier for each reroll you did not use when you cast.',
+    effects: { multPerUnusedReroll: 0.5 },
+  },
+  {
+    id: 'prism_lens',
+    name: 'Prism Lens',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: null,
+    itemConcept: 'a triangular crystal splitting light into four colors',
+    description: '+0.5 Multiplier for each different element in your pool.',
+    effects: { multPerDistinctElement: 0.5 },
+  },
+  {
+    id: 'glacier_heart',
+    name: 'Glacier Heart',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: 'water',
+    itemConcept: 'a shard of blue ice that never melts',
+    description: 'Locked and frozen dice score double.',
+    effects: { lockedDieDouble: true },
+  },
+  {
+    id: 'fusion_crucible',
+    name: 'Fusion Crucible',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: null,
+    itemConcept: 'an alchemical crucible glowing with four swirling colors',
+    description: 'Fusion dice score x1.5.',
+    effects: { fusionContribMult: 1.5 },
+  },
+  {
+    id: 'aether_crown',
+    name: 'Aether Crown',
+    kind: 'relic',
+    rarity: RARITY.LEGENDARY,
+    element: null,
+    itemConcept: 'a thin circlet set with four elemental gems',
+    description: 'Your final Multiplier is x1.5.',
+    effects: { finalMultFactor: 1.5 },
+  },
+  // --- Third wave (GDD §24): reactions and placement. ---
+  {
+    id: 'alchemists_table',
+    name: "Alchemist's Table",
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: null,
+    itemConcept: 'a small wooden table crowded with bubbling flasks',
+    description: 'Every reaction also adds +2 Base.',
+    effects: { reactionBaseBonus: 2 },
+  },
+  {
+    id: 'bookends',
+    name: 'Bookends',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: null,
+    itemConcept: 'a pair of carved stone bookends shaped like owls',
+    description: 'Your first and last dice each score +4.',
+    effects: { bookendsBonus: 4 },
+  },
+  {
+    id: 'catalyst_stone',
+    name: 'Catalyst Stone',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: null,
+    itemConcept: 'a cracked grey stone leaking colored sparks',
+    description: 'Reactions that give Mult give +0.5 more.',
+    effects: { reactionMultBonus: 0.5 },
+  },
+  {
+    id: 'heart_of_circle',
+    name: 'Heart of the Circle',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: null,
+    itemConcept: 'a ring of runestones around a glowing center gem',
+    description: 'The middle die (or two) of your pool scores double.',
+    effects: { middleDouble: true },
+  },
+  {
+    id: 'ley_line',
+    name: 'Ley Line',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: null,
+    itemConcept: 'a loop of glowing rope tied in an endless knot',
+    description: 'Your first and last dice count as neighbors, so they can react.',
+    effects: { wrapAdjacency: true },
+  },
+]
+
+export function relicById(id) {
+  return RELICS.find((r) => r.id === id)
+}
+
+export function costForRelic(relic, discountPct = 0) {
+  const base = RARITY_COST[relic.rarity]
+  return Math.max(1, Math.round(base * (1 - discountPct)))
+}
+
+// Selling always pays out less than buying (see GDD.md §6).
+export function sellValueForRelic(relic) {
+  return Math.max(1, Math.round(RARITY_COST[relic.rarity] / 2))
+}

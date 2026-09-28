@@ -1,4 +1,5 @@
 import Reveal from '../components/Reveal.jsx'
+import SectionHeader from '../components/SectionHeader.jsx'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
 
 function About() {
@@ -7,11 +8,15 @@ function About() {
   const skills = [
     {
       label: t('about.skills.languagesFrameworks'),
-      items: ['JavaScript', 'React', 'Vite', 'CSS', 'HTML', 'Dart (Flutter)', 'C++ (Arduino)'],
+      items: ['JavaScript', 'React', 'Vite', 'Tailwind CSS', 'Framer Motion', 'HTML & CSS', 'Dart (Flutter)', 'C++ (Arduino)'],
     },
     {
       label: t('about.skills.toolsPlatforms'),
-      items: ['Firebase', 'Stripe', 'Git/GitHub', 'Arduino IDE', 'CAD (3D Modeling)'],
+      items: ['Firebase', 'Stripe', 'Git/GitHub', 'Canvas & Web Audio APIs', 'Arduino IDE', 'CAD (3D Modeling)'],
+    },
+    {
+      label: t('about.skills.aiDesign'),
+      items: ['Claude Code', 'ChatGPT', 'Gemini', t('about.skills.figma')],
     },
     {
       label: t('about.skills.hardwareSystems'),
@@ -28,11 +33,12 @@ function About() {
   ]
 
   return (
-    <section id="about" className="mx-auto max-w-5xl px-6 py-24">
-      <Reveal>
-        <h2 className="text-2xl font-semibold tracking-tight">{t('about.heading')}</h2>
-        <p className="mt-4 max-w-2xl text-neutral-600 dark:text-neutral-400">{t('about.bio')}</p>
-        <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
+    <section id="about" className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
+      <SectionHeader eyebrow={t('about.eyebrow')} heading={t('about.heading')}>
+        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-neutral-600 dark:text-neutral-400">
+          {t('about.bio')}
+        </p>
+        <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-1 text-sm text-neutral-600 dark:text-neutral-400">
           <div className="flex gap-1.5">
             <dt className="text-neutral-400 dark:text-neutral-500">{t('about.email')}:</dt>
             <dd>
@@ -53,11 +59,11 @@ function About() {
             </dd>
           </div>
         </dl>
-      </Reveal>
-      <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      </SectionHeader>
+      <div className="mt-14 grid grid-cols-1 border-t border-neutral-200 pt-10 dark:border-neutral-800 gap-8 sm:grid-cols-3 lg:grid-cols-5">
         {skills.map((group, i) => (
           <Reveal key={group.label} delay={i * 0.08}>
-            <h3 className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            <h3 className="text-eyebrow text-neutral-500 dark:text-neutral-400">
               {group.label}
             </h3>
             <ul className="mt-3 space-y-1.5 text-sm text-neutral-700 dark:text-neutral-300">

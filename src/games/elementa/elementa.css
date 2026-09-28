@@ -1,0 +1,360 @@
+/* Pixel-art shell for the Elementa game only. Scoped under .elementa-root
+   so it never leaks into the rest of the portfolio site. Everything here is
+   CSS-only: when hand-drawn art arrives (see ASSETS.md) the panel/button
+   classes below are the ones that swap to `border-image` 9-slices. */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600&display=swap');
+
+/* The game owns its own palette instead of following the site's light/dark
+   theme: it is a night-sky arcane world regardless of how the portfolio is
+   set. ElementaGame.jsx also pins data-theme="dark" on the root so every
+   existing `dark:` utility inside the game resolves to its dark variant. */
+.elementa-root {
+  --ink: #120c1a;
+  --night-0: #0b0914;
+  --night-1: #151126;
+  --night-2: #1f1936;
+  --stone-0: #1d1829;
+  --stone-1: #282236;
+  --stone-2: #352d47;
+  --stone-3: #4a4061;
+  --stone-hi: #62567f;
+  --wood-0: #3b2215;
+  --wood-1: #5a3620;
+  --wood-2: #744528;
+  --wood-3: #9a5f34;
+  --wood-hi: #c9874a;
+  --gold-hi: #ffe8a3;
+  --gold-1: #ffd166;
+  --gold-2: #f2a93b;
+  --gold-3: #c46a24;
+  --arcane: #8f6bff;
+  --arcane-hi: #c8b6ff;
+  --text: #efe6d8;
+  --text-dim: #b3a7c4;
+  --text-mute: #7a6f8e;
+  --good: #5fd38a;
+  --bad: #ff5a5a;
+  --pixel-shadow-color: rgba(0, 0, 0, 0.6);
+
+  /* Remap the site's brand scale to arcane gold inside the game, so any
+     leftover `brand-*` utility reads as part of this world, not the site. */
+  --color-brand-300: #ffe8a3;
+  --color-brand-400: #ffd166;
+  --color-brand-500: #f2a93b;
+  --color-brand-600: #d88a2a;
+
+  font-family: 'Pixelify Sans', ui-monospace, monospace;
+  color: var(--text);
+  background: var(--night-0);
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+/* Press Start 2P ships one weight (400). Letting a `font-bold`/`font-semibold`
+   utility sit next to it makes the browser synthesize a fake bold, which
+   garbles the already-blocky glyphs at small sizes. Force normal weight. */
+.elementa-root .pixel-heading {
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  text-shadow: 3px 3px 0 var(--pixel-shadow-color);
+}
+
+.elementa-root .pixel-score {
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-weight: 400 !important;
+}
+
+/* Small uppercase section label, the one place tiny caps are used. */
+.elementa-root .el-label {
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 8px;
+  line-height: 1.6;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+/* ---- Logo: banded gold letters, ink outline, deep drop (like a title
+   sprite) built from a hard-stop gradient + stacked drop-shadow filters. */
+.elementa-root .el-logo {
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-weight: 400;
+  line-height: 1.1;
+  background: linear-gradient(
+    to bottom,
+    var(--gold-hi) 0 22%,
+    var(--gold-1) 22% 48%,
+    var(--gold-2) 48% 74%,
+    var(--gold-3) 74% 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(3px 0 0 var(--ink)) drop-shadow(-3px 0 0 var(--ink)) drop-shadow(0 3px 0 var(--ink))
+    drop-shadow(0 -3px 0 var(--ink)) drop-shadow(0 6px 0 #3b1a0e);
+}
+
+/* Note: none of these classes set `position`, so Tailwind's absolute/fixed/
+   relative utilities always win when combined with them. */
+
+/* ---- Pixel border helper. Four one-axis shadows draw a 3px ink border
+   with notched (missing) corners, the classic pixel-art box. */
+.elementa-root .el-panel,
+.elementa-root .el-btn,
+.elementa-root .el-chip {
+  --b: 3px;
+  --edge: var(--ink);
+}
+
+/* Hard-edged panel: square corners, thick border, solid offset shadow. */
+.elementa-root .pixel-panel {
+  border-radius: 0;
+  border-width: 3px;
+  box-shadow: 5px 5px 0 var(--pixel-shadow-color);
+}
+
+.elementa-root .el-panel {
+  background: var(--stone-1);
+  box-shadow:
+    0 calc(var(--b) * -1) 0 0 var(--edge),
+    0 var(--b) 0 0 var(--edge),
+    calc(var(--b) * -1) 0 0 0 var(--edge),
+    var(--b) 0 0 0 var(--edge),
+    inset 0 3px 0 0 var(--stone-3),
+    inset 0 -3px 0 0 var(--stone-0),
+    6px 9px 0 0 rgba(0, 0, 0, 0.35);
+}
+.elementa-root .el-panel--dark {
+  background: var(--stone-0);
+  box-shadow:
+    0 calc(var(--b) * -1) 0 0 var(--edge),
+    0 var(--b) 0 0 var(--edge),
+    calc(var(--b) * -1) 0 0 0 var(--edge),
+    var(--b) 0 0 0 var(--edge),
+    inset 0 3px 0 0 var(--stone-2),
+    inset 0 -3px 0 0 #120e1c,
+    6px 9px 0 0 rgba(0, 0, 0, 0.35);
+}
+/* Recessed well: for slots and trays that things sit *in*. */
+.elementa-root .el-well {
+  background: rgba(8, 6, 14, 0.55);
+  box-shadow:
+    inset 0 3px 0 0 rgba(0, 0, 0, 0.55),
+    inset 0 -2px 0 0 rgba(255, 255, 255, 0.05);
+}
+/* Wooden sign: horizontal planks with hard seams and a lit top edge. */
+.elementa-root .el-panel--wood {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      var(--wood-2) 0 11px,
+      var(--wood-1) 11px 12px,
+      var(--wood-0) 12px 14px
+    );
+  box-shadow:
+    0 calc(var(--b) * -1) 0 0 var(--edge),
+    0 var(--b) 0 0 var(--edge),
+    calc(var(--b) * -1) 0 0 0 var(--edge),
+    var(--b) 0 0 0 var(--edge),
+    inset 0 3px 0 0 var(--wood-hi),
+    inset 3px 0 0 0 var(--wood-3),
+    inset -3px 0 0 0 var(--wood-1),
+    inset 0 -3px 0 0 var(--wood-0),
+    6px 9px 0 0 rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Buttons. Bevel = lit top edge + dark bottom lip; pressing drops the
+   face 2px and removes the lip, so it reads as physically pushed. */
+.elementa-root .el-btn {
+  --face: var(--stone-2);
+  --lit: var(--stone-hi);
+  --lip: var(--stone-0);
+  --fg: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem 0.75rem;
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg);
+  background: var(--face);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 60ms steps(1), filter 80ms steps(2);
+  box-shadow:
+    0 calc(var(--b) * -1) 0 0 var(--edge),
+    0 var(--b) 0 0 var(--edge),
+    calc(var(--b) * -1) 0 0 0 var(--edge),
+    var(--b) 0 0 0 var(--edge),
+    inset 0 3px 0 0 var(--lit),
+    inset 0 -4px 0 0 var(--lip);
+}
+.elementa-root .el-btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+.elementa-root .el-btn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    0 calc(var(--b) * -1) 0 0 var(--edge),
+    0 var(--b) 0 0 var(--edge),
+    calc(var(--b) * -1) 0 0 0 var(--edge),
+    var(--b) 0 0 0 var(--edge),
+    inset 0 2px 0 0 var(--lip);
+}
+.elementa-root .el-btn:focus-visible {
+  outline: 2px solid var(--gold-1);
+  outline-offset: 5px;
+}
+.elementa-root .el-btn:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.7) brightness(0.65);
+}
+.elementa-root .el-btn--gold {
+  --face: var(--gold-2);
+  --lit: var(--gold-1);
+  --lip: var(--gold-3);
+  --fg: var(--ink);
+}
+.elementa-root .el-btn--arcane {
+  --face: #6a4fd6;
+  --lit: #9d86ff;
+  --lip: #3f2c94;
+  --fg: #fff;
+}
+.elementa-root .el-btn--green {
+  --face: #3f9f5f;
+  --lit: #6fd38a;
+  --lip: #256a3c;
+  --fg: #0c1f12;
+}
+.elementa-root .el-btn--danger {
+  --face: #a8323a;
+  --lit: #de5a5f;
+  --lip: #641a22;
+  --fg: #fff;
+}
+.elementa-root .el-btn--ghost {
+  --face: transparent;
+  --lit: transparent;
+  --lip: transparent;
+  --edge: transparent;
+  color: var(--text-dim);
+}
+.elementa-root .el-btn--ghost:hover:not(:disabled) {
+  color: var(--gold-1);
+  filter: none;
+}
+.elementa-root .el-btn--lg {
+  padding: 0.95rem 1.6rem 1.1rem;
+  font-size: 13px;
+}
+.elementa-root .el-btn--sm {
+  padding: 0.35rem 0.6rem 0.5rem;
+  font-size: 8px;
+}
+
+/* Keyboard hint inside a button, e.g. [R]. */
+.elementa-root .el-key {
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 2px 3px 1px;
+  font-size: 7px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.28);
+  color: inherit;
+  opacity: 0.8;
+}
+
+/* Small inline chip (tier badge, status tags). */
+.elementa-root .el-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2px 5px 1px;
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 7px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  --b: 2px;
+  box-shadow:
+    0 calc(var(--b) * -1) 0 0 var(--edge),
+    0 var(--b) 0 0 var(--edge),
+    calc(var(--b) * -1) 0 0 0 var(--edge),
+    var(--b) 0 0 0 var(--edge);
+}
+
+/* Pixel range slider for the Options screen. */
+.elementa-root input[type='range'].el-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 10px;
+  background: var(--stone-0);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.6), 0 0 0 2px var(--ink);
+}
+.elementa-root input[type='range'].el-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 18px;
+  background: var(--gold-2);
+  box-shadow: inset 0 3px 0 var(--gold-1), inset 0 -3px 0 var(--gold-3), 0 0 0 2px var(--ink);
+  cursor: pointer;
+}
+.elementa-root input[type='range'].el-range::-moz-range-thumb {
+  width: 14px;
+  height: 18px;
+  border: 0;
+  border-radius: 0;
+  background: var(--gold-2);
+  box-shadow: inset 0 3px 0 var(--gold-1), inset 0 -3px 0 var(--gold-3), 0 0 0 2px var(--ink);
+}
+
+/* Pixel toggle switch. */
+.elementa-root .el-toggle {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  background: var(--stone-0);
+  box-shadow: 0 0 0 2px var(--ink), inset 0 2px 0 rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.elementa-root .el-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: var(--stone-hi);
+  transition: transform 90ms steps(3);
+}
+.elementa-root .el-toggle[aria-checked='true'] {
+  background: #2f7a4a;
+}
+.elementa-root .el-toggle[aria-checked='true']::after {
+  transform: translateX(16px);
+  background: var(--gold-1);
+}
+
+.elementa-root canvas.el-backdrop {
+  image-rendering: pixelated;
+}
+
+/* Every art asset dropped in later should render crisp, never smoothed. */
+.elementa-root img {
+  image-rendering: pixelated;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .elementa-root * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

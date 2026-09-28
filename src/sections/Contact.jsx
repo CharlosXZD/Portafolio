@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Reveal from '../components/Reveal.jsx'
+import SectionHeader from '../components/SectionHeader.jsx'
 import ContactForm from '../components/ContactForm.jsx'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
 
@@ -84,14 +85,14 @@ function Contact() {
   }
 
   return (
-    <section id="contact" className="mx-auto max-w-3xl px-6 py-24">
-      <Reveal>
-        <h2 className="text-2xl font-semibold tracking-tight">{t('contact.heading')}</h2>
-        <p className="mt-4 max-w-md text-neutral-600 dark:text-neutral-400">
+    <section id="contact" className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
+      <SectionHeader eyebrow={t('contact.eyebrow')} heading={t('contact.heading')}>
+        <p className="mt-6 max-w-md text-lg text-neutral-600 dark:text-neutral-400">
           {t('contact.blurb')}
         </p>
-      </Reveal>
+      </SectionHeader>
 
+      <div className="max-w-3xl">
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
         {cards.map((card, i) => {
           const Icon = card.icon
@@ -103,9 +104,8 @@ function Contact() {
                 target={card.href.startsWith('http') ? '_blank' : undefined}
                 rel={card.href.startsWith('http') ? 'noreferrer' : undefined}
                 onClick={isEmail ? copyEmail : undefined}
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
                 className="group relative flex h-full flex-col gap-3 rounded-2xl border border-neutral-200 p-5 transition-colors hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/5 dark:border-neutral-800 dark:hover:border-brand-700"
               >
                 <div className="flex items-center justify-between">
@@ -154,6 +154,7 @@ function Contact() {
         </p>
         <ContactForm />
       </Reveal>
+      </div>
     </section>
   )
 }

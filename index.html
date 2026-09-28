@@ -4,7 +4,27 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carlos de la Peña — Portfolio</title>
+    <title>Carlos de la Peña · Portfolio</title>
+    <meta name="description" content="Carlos de la Peña, Computer &amp; Electrical Engineering student at the University of Michigan–Dearborn. Full-stack products and embedded systems, from firmware to frontend." />
+    <meta name="author" content="Carlos de la Peña" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Carlos de la Peña · Portfolio" />
+    <meta property="og:description" content="Carlos de la Peña, Computer &amp; Electrical Engineering student at the University of Michigan–Dearborn. Full-stack products and embedded systems, from firmware to frontend." />
+    <meta name="twitter:card" content="summary" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <script>
+      // Resolve the theme before first paint so there's no flash of the wrong one
+      try {
+        var saved = localStorage.getItem('theme')
+        var theme = saved === 'light' || saved === 'dark'
+          ? saved
+          : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

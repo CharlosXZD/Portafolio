@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Reveal from '../components/Reveal.jsx'
+import SectionHeader from '../components/SectionHeader.jsx'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
 import { education, experience, sideProjects, additional } from '../data/resume.js'
 
@@ -41,27 +42,22 @@ function Resume() {
   const { t, pick } = useLanguage()
 
   return (
-    <section id="resume" className="mx-auto max-w-3xl px-6 py-24">
-      <Reveal>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-semibold tracking-tight">{t('resume.heading')}</h2>
-            <p className="mt-4 max-w-md text-neutral-600 dark:text-neutral-400">
-              {t('resume.blurb')}
-            </p>
-          </div>
-          <motion.a
+    <section id="resume" className="mx-auto max-w-6xl px-6 py-24 sm:py-32">
+      <SectionHeader eyebrow={t('resume.eyebrow')} heading={t('resume.heading')}>
+        <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
+          <p className="max-w-md text-neutral-600 dark:text-neutral-400">{t('resume.blurb')}</p>
+          <a
             href="/Carlos_de_la_Pena_Resume.pdf"
             download
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand-600 px-5 py-2.5 text-sm font-medium text-white shadow-sm shadow-brand-600/20 transition-colors hover:bg-brand-500"
+            className="pressable inline-flex shrink-0 items-center gap-2 rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
             <DownloadIcon className="h-4 w-4" />
             {t('resume.download')}
-          </motion.a>
+          </a>
         </div>
-      </Reveal>
+      </SectionHeader>
+
+      <div className="max-w-3xl">
 
       {/* Education */}
       <Reveal delay={0.08} className="mt-12">
@@ -104,7 +100,7 @@ function Resume() {
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: 0.1 + i * 0.08, ease: 'backOut' }}
+                  transition={{ type: 'spring', bounce: 0, duration: 0.5, delay: 0.1 + i * 0.08 }}
                   className="absolute -left-[1.72rem] top-1.5 h-3 w-3 rounded-full border-2 border-white bg-brand-500 dark:border-neutral-950"
                 />
                 <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -143,7 +139,7 @@ function Resume() {
         <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-600">
           {t('resume.sideProjects')}
         </span>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {sideProjects.map((project) => (
             <Link
               key={pick(project.title)}
@@ -164,6 +160,7 @@ function Resume() {
       <Reveal delay={0.12} className="mt-10">
         <p className="text-xs text-neutral-400 dark:text-neutral-600">{pick(additional)}</p>
       </Reveal>
+      </div>
     </section>
   )
 }

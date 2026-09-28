@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* dark: follows the data-theme attribute (set before paint in index.html), so the toggle can override the OS */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 /* Brand blue sampled from Carlos's LinkedIn banner (deep navy + cobalt wave lines) */
 @theme {
   --color-brand-50: #eef2ff;
@@ -17,14 +20,67 @@
   color-scheme: light dark;
 }
 
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
 html {
   scroll-behavior: smooth;
+  /* Anchor jumps land below the sticky nav instead of under it */
+  scroll-padding-top: 4.5rem;
 }
 
 body {
   margin: 0;
   @apply bg-white text-neutral-800 dark:bg-neutral-950 dark:text-neutral-200;
-  font: 16px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+  font: 100%/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tracking and leading are size-specific: large type tightens, small caps loosen */
+@utility text-display {
+  font-size: clamp(2.5rem, 6vw, 4.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+}
+
+@utility text-title {
+  font-size: clamp(1.875rem, 4vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+}
+
+@utility text-eyebrow {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Press feedback lives on pointer-down, and it's instant */
+@utility pressable {
+  transition: transform 120ms ease-out;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  header {
+    @apply bg-white backdrop-blur-none dark:bg-neutral-950;
+  }
 }

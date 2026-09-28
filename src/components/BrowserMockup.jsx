@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
-function BrowserMockup({ screens, url = 'tigerprice.app' }) {
+function BrowserMockup({ screens, url }) {
+  url = url ?? 'tigerprice.app'
   const list = Array.isArray(screens) ? screens : [screens]
   const [index, setIndex] = useState(0)
 

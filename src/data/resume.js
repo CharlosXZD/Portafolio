@@ -15,8 +15,8 @@ export const education = {
 export const experience = [
   {
     org: 'Tiger Price',
-    role: { en: 'Lead Full-Stack Developer — E-Commerce Platform', es: 'Desarrollador Full-Stack Principal — Plataforma de E-Commerce' },
-    period: { en: 'Jul 2025 – Present', es: 'Jul 2025 – Presente' },
+    role: { en: 'Lead Full-Stack Developer, E-Commerce Platform', es: 'Desarrollador Full-Stack Principal, Plataforma de E-Commerce' },
+    period: { en: 'Jul 2025 – Aug 2026', es: 'Jul 2025 – Ago 2026' },
     location: { en: 'Remote', es: 'Remoto' },
     bullets: {
       en: [
@@ -34,7 +34,7 @@ export const experience = [
   },
   {
     org: 'KinPOS',
-    role: { en: 'Technology Intern — Point of Sale Systems', es: 'Pasante de Tecnología — Sistemas de Punto de Venta' },
+    role: { en: 'Technology Intern, Point of Sale Systems', es: 'Pasante de Tecnología, Sistemas de Punto de Venta' },
     period: { en: 'Apr 2024', es: 'Abr 2024' },
     location: { en: 'Colombia', es: 'Colombia' },
     bullets: {
@@ -69,6 +69,12 @@ export const experience = [
 ]
 
 export const sideProjects = [
+  {
+    title: 'Elementa',
+    role: { en: 'Solo Game Designer & Developer', es: 'Diseñador y Desarrollador de Juego' },
+    period: { en: '2026 · Playable alpha', es: '2026 · Alpha jugable' },
+    link: '/projects/elementa',
+  },
   {
     title: 'Tootor',
     role: { en: 'Co-Founder & Lead Developer', es: 'Cofundador y Desarrollador Principal' },

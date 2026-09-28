@@ -6,19 +6,17 @@ function Stats() {
   const { pick } = useLanguage()
 
   return (
-    <section className="border-y border-neutral-200 dark:border-neutral-800">
-      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 px-6 py-16 sm:grid-cols-4">
+    <section className="mx-auto max-w-6xl px-6">
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-8 border-t border-neutral-200 py-10 sm:grid-cols-4 dark:border-neutral-800">
         {stats.map((stat, i) => (
-          <Reveal key={stat.value + i} delay={i * 0.08} y={16} className="text-center">
-            <p className="text-3xl font-semibold tracking-tight text-brand-600 dark:text-brand-400 sm:text-4xl">
+          <Reveal key={stat.value + i} delay={i * 0.05} y={12} className="flex flex-col">
+            <dt className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{pick(stat.label)}</dt>
+            <dd className="order-first text-3xl font-semibold tracking-[-0.03em] text-neutral-900 tabular-nums dark:text-white">
               {stat.value}
-            </p>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              {pick(stat.label)}
-            </p>
+            </dd>
           </Reveal>
         ))}
-      </div>
+      </dl>
     </section>
   )
 }
