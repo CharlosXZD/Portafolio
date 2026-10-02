@@ -12,6 +12,43 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.6',
+    name: L('Three Paths', 'Tres Caminos'),
+    date: null,
+    highlights: [
+      L(
+        'Your choices now decide the ending: walk into round 15 leaning toward the Split, toward the Primordial, or neither.',
+        'Tus decisiones ahora deciden el final: entra a la ronda 15 inclinado hacia la División, hacia el Primordial, o hacia ninguno.',
+      ),
+      L(
+        'The Split path: face the Primordial Unbound, which fuses your dice back together as you reroll.',
+        'El camino de la División: enfréntate al Primordial Desatado, que vuelve a fusionar tus dados mientras relanzas.',
+      ),
+      L(
+        'The Primordial path: fight the four gods who made the Split, one by one, holding the Primordial die as it grows.',
+        'El camino del Primordial: lucha contra los cuatro dioses que hicieron la División, uno a uno, con el dado Primordial creciendo en tu mano.',
+      ),
+      L(
+        'Win once to see the gods. Their visions teach you their recipes and open both new paths.',
+        'Gana una vez para ver a los dioses. Sus visiones te enseñan sus recetas y abren los dos caminos nuevos.',
+      ),
+      L(
+        'Four god dice, Gaea, Ognen, Varuna and Zephyr: a new Divine rarity, forged from four pure dice, each with a power and a price.',
+        'Cuatro dados dioses, Gaea, Ognen, Varuna y Zephyr: una nueva rareza Divina, forjados con cuatro dados puros, cada uno con un poder y un precio.',
+      ),
+      L('Two new relics: Chain Break and Pantheon.', 'Dos reliquias nuevas: Cadena Rota y Panteón.'),
+      L(
+        'Three endings to collect, an Endings tab in the Gallery, and completion marks on every loadout.',
+        'Tres finales por coleccionar, una pestaña de Finales en la Galería y marcas de progreso en cada equipo.',
+      ),
+      L(
+        'Pip, Aeris, Nix and the Primordial itself drop hints about where your run is heading.',
+        'Pip, Aeris, Nix y el propio Primordial dejan pistas sobre hacia dónde va tu partida.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.5',
     name: L('Allegiance', 'Lealtad'),
     date: null,

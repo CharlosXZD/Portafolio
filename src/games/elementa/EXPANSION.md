@@ -503,6 +503,14 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
 
+### Alpha v0.6 "Three Paths" (in development, unreleased)
+- **The three paths:** the Accord locks a path when you walk into round 15. Neutral fights the Primordial as before; the Split path faces Primordial Unbound (target x1.5, it fuses your pure dice as you reroll); the Primordial path is a four-stage gauntlet of the gods, with the lent Primordial die absorbing each one.
+- **God visions:** the first Neutral win shows Gaea, Ognen, Varuna and Zephyr and teaches their recipes, opening both new paths.
+- **God dice:** Gaea, Ognen, Varuna and Zephyr, a new Divine rarity, forged from 4 pure dice, one at a time.
+- **New relics:** Chain Break (Fire explodes on its top two faces, uncaps Ognen) and Pantheon (a second god, Bazaar only).
+- **Endings:** three ending cards, an Endings tab in the Gallery, and completion marks per loadout.
+- **Hints:** Pip at round 14, the Primordial's line in round 15, and a tinted arena on the Split and Primordial paths.
+
 ### Alpha v0.5 "Allegiance" (in development, unreleased)
 - **New Nix pacts:** Gambler's Oath, Hollow Crown, Shadow Twin, The Long Night, Bound Tongue.
 - **Betrayal pacts:** Broken Vow, Unspoken Prayer, Stolen Breath, Severed Grace, offered when you hold the Aeris blessing they break.
