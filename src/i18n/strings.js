@@ -368,6 +368,10 @@ const strings = {
   'elementa.toast.achievement': { en: 'Achievement unlocked', es: 'Logro desbloqueado' },
   'elementa.toast.secretReaction': { en: 'Secret reaction found', es: 'Reacción secreta descubierta' },
   'elementa.toast.recipe': { en: 'New recipe', es: 'Nueva receta' },
+  'elementa.options.rollAnimation': { en: 'Dice roll animation', es: 'Animación de tirada' },
+  'elementa.options.rollTumble': { en: 'Tumble', es: 'Voltereta' },
+  'elementa.options.rollClassic': { en: 'Classic', es: 'Clásica' },
+  'elementa.options.rollReducedNote': { en: 'Reduced motion is on, so dice use Classic.', es: 'Movimiento reducido está activo, así que los dados usan Clásica.' },
   'elementa.roundResult.toCamp': { en: 'Rest at camp', es: 'Descansar en el campamento' },
   'elementa.roundResult.campHint': {
     en: "Tobb's camp is close: a few Shards and a small shop, then try this round again.",

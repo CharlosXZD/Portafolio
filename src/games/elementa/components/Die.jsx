@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useAnimationControls } from 'framer-motion'
 import { ELEMENTS, FLAGS, describeElement, rarityForElement } from '../data/elements.js'
 import { RARITY, RARITY_GLOW } from '../data/relics.js'
 import { playClick, playLock, playFreeze } from '../utils/sound.js'
@@ -14,8 +14,13 @@ import DieSprite, { dieNumberY } from './DieSprite.jsx'
 import { mix } from '../utils/color.js'
 import { dieColors } from './DieToken.jsx'
 
+// Classic: the face flickers in place. Tumble: four quarter turns, a new
+// face on each, over about the same total time so rerolls don't slow down.
 const FLICKER_TICK_MS = 45
 const FLICKER_TICKS = 7
+const TUMBLE_TICK_MS = 90
+const TUMBLE_TICKS = 4
+const TUMBLE_SECONDS = 0.4
 
 /** A 5x3 pixel arrow for the Drift buttons. */
 function PixelArrow({ up }) {
@@ -58,8 +63,10 @@ export default function Die({
   canGust = false,
   onGust,
 }) {
-  const { reducedMotion } = useGameSettings()
+  const { reducedMotion, display } = useGameSettings()
   const { lang, t } = useLanguage()
+  const tumble = display.rollAnimation !== 'classic' && !reducedMotion
+  const tumbleControls = useAnimationControls()
   const def = ELEMENTS[die.elementId]
   const elementName = localize(lang, def.name, ELEMENTS_ES, die.elementId, 'name')
   const canFreeLock = def.flags[FLAGS.FREE_LOCK] && !die.locked && !lockBlocked
@@ -88,17 +95,34 @@ export default function Die({
     mountedRollId.current = die.rollId
 
     setRolling(true)
+    if (tumble) {
+      // Each die picks its own spin direction and hop height from its roll
+      // id, so a pool doesn't move in lockstep. Purely visual.
+      const spin = die.rollId * 1000 % 1 < 0.5 ? -1 : 1
+      const hop = size * (0.22 + ((die.rollId * 7919) % 1) * 0.16)
+      tumbleControls
+        .start({
+          y: [0, -hop, -hop * 0.7, 0, -hop * 0.12, 0],
+          rotate: [0, spin * 90, spin * 180, spin * 270, spin * 360, spin * 360],
+          // A horizontal squeeze mid-turn fakes the third dimension; the
+          // last keyframes squash on landing and bounce back.
+          scaleX: [1, 0.6, 1, 0.6, 1.1, 1],
+          scaleY: [1, 1.08, 0.96, 1.08, 0.86, 1],
+          transition: { duration: TUMBLE_SECONDS, times: [0, 0.22, 0.45, 0.7, 0.86, 1], ease: 'easeOut' },
+        })
+        .then(() => tumbleControls.set({ rotate: 0 }))
+    }
     let ticks = 0
     const interval = setInterval(() => {
       ticks += 1
       setDisplayValue(1 + Math.floor(Math.random() * die.sides))
-      if (ticks >= FLICKER_TICKS) {
+      if (ticks >= (tumble ? TUMBLE_TICKS : FLICKER_TICKS)) {
         clearInterval(interval)
         setDisplayValue(die.value)
         setRolling(false)
         setSettleKey((k) => k + 1)
       }
-    }, FLICKER_TICK_MS)
+    }, tumble ? TUMBLE_TICK_MS : FLICKER_TICK_MS)
 
     return () => clearInterval(interval)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -195,24 +219,9 @@ export default function Die({
             filter: rarityGlow && !die.held && !die.locked ? `drop-shadow(0 0 10px ${rarityGlow}66)` : undefined,
           }}
         >
+          {/* The body, mark and face tumble together; chips and bars don't. */}
+          <motion.span animate={tumbleControls} className="pointer-events-none absolute inset-0 block">
           <DieSprite tier={die.tierId} size={size} {...colors} ringColor={ringColor} />
-
-          {/* Reaction bar in the gap to the right neighbor: one segment per
-              reaction on this link, centered in the gap so bars never overlap. */}
-          {linkColors && (
-            <span
-              className="pointer-events-none absolute top-1/4 flex h-1/2 w-1.5 flex-col"
-              style={{
-                right: -(linkGap / 2) - 3,
-                boxShadow: `0 0 10px 2px ${linkColors[0]}`,
-              }}
-            >
-              {linkColors.map((c) => (
-                <span key={c} className="flex-1" style={{ background: c }} />
-              ))}
-            </span>
-          )}
-
           <span className="pointer-events-none absolute left-[18%] top-[16%]" style={die.tierId === 'd3' ? { left: '43%', top: '26%' } : undefined}>
             <PixelIcon name={die.elementId} size={size >= 90 ? 14 : 7} color="#fffaf0" hi={def.color} />
           </span>
@@ -231,6 +240,24 @@ export default function Die({
           >
             {showFace ? displayValue : '?'}
           </motion.span>
+          </motion.span>
+
+          {/* Reaction bar in the gap to the right neighbor: one segment per
+              reaction on this link, centered in the gap so bars never overlap. */}
+          {linkColors && (
+            <span
+              className="pointer-events-none absolute top-1/4 flex h-1/2 w-1.5 flex-col"
+              style={{
+                right: -(linkGap / 2) - 3,
+                boxShadow: `0 0 10px 2px ${linkColors[0]}`,
+              }}
+            >
+              {linkColors.map((c) => (
+                <span key={c} className="flex-1" style={{ background: c }} />
+              ))}
+            </span>
+          )}
+
           {die.explosions > 0 && !rolling && showFace && (
             <motion.span
               initial={{ scale: 0 }}

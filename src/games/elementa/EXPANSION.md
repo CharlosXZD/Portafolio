@@ -421,6 +421,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Element symbols:** dice in the shop, boss reward and load screen show their element's symbol in the middle instead of "d6" (the shape already tells the size).
 - **Boons as icons:** active blessings and pacts show as a row of icons with a status dot during rounds and in shops; click one for the details. Run Info and the run summary keep the full list.
 - **Safety camp:** missing a round now shows a centered screen over the dimmed table, then Tobb's camp: a few free Shards and a small shop before you try the round again.
+- **Tumbling dice:** dice now hop and turn when they roll. Options has "Dice roll animation: Tumble / Classic" (Reduced motion uses Classic).
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -524,7 +525,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E6. A real rolling animation
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note:** rolling should look like the dice are actually rotating. It doesn't need to be perfect, just motion. Add a setting to pick this or the legacy version.
 - **Proposal:**

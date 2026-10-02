@@ -121,6 +121,9 @@ export const DISPLAY_DEFAULTS = {
   glows: true,
   keyHints: true,
   ledgerOpen: true,
+  // How a die rolls: 'tumble' (hops and turns, EXPANSION.md E6) or
+  // 'classic' (the face flickers in place). Reduced motion forces classic.
+  rollAnimation: 'tumble',
 }
 export function getDisplay() {
   try {

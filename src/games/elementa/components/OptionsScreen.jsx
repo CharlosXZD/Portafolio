@@ -196,6 +196,16 @@ export default function OptionsScreen({ onClose }) {
             { value: 'off', label: t('elementa.options.reactionsOff') },
           ]}
         />
+        <div className="text-base">{t('elementa.options.rollAnimation')}</div>
+        <Segmented
+          value={reducedMotion ? 'classic' : display.rollAnimation}
+          onChange={(v) => updateDisplay({ rollAnimation: v })}
+          options={[
+            { value: 'tumble', label: t('elementa.options.rollTumble') },
+            { value: 'classic', label: t('elementa.options.rollClassic') },
+          ]}
+        />
+        {reducedMotion && <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.options.rollReducedNote')}</p>}
         <Toggle label={t('elementa.options.glows')} checked={display.glows} onChange={(v) => updateDisplay({ glows: v })} />
         <Toggle label={t('elementa.options.keyHints')} checked={display.keyHints} onChange={(v) => updateDisplay({ keyHints: v })} />
         <Toggle label={t('elementa.options.ledgerOpen')} checked={display.ledgerOpen} onChange={(v) => updateDisplay({ ledgerOpen: v })} />
