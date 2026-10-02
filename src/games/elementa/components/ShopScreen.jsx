@@ -448,7 +448,7 @@ export default function ShopScreen({ state, dispatch }) {
           </SlotGrid>
         </InventorySection>
 
-        <BoonsList state={state} />
+        <BoonsList state={state} icons />
       </aside>
 
       {/* Center: everything for sale. */}

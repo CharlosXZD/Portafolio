@@ -130,7 +130,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
         </div>
       )}
 
-      <BoonsList state={state} />
+      <BoonsList state={state} icons />
 
       <section className="flex flex-col gap-3">
         <h3 className="el-label">

@@ -91,7 +91,8 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
   }, [onClose])
 
   if (!item) return null
-  const glow = RARITY_GLOW[item.rarity] || RARITY_GLOW.common
+  // A boon has no rarity: it brings its own badge (status) and color.
+  const glow = item.badge?.color ?? (RARITY_GLOW[item.rarity] || RARITY_GLOW.common)
   const p = PLACEMENT[placement] ?? PLACEMENT.top
 
   return (
@@ -112,12 +113,13 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
           className="el-chip shrink-0 text-[var(--ink)]"
           style={{ backgroundColor: glow, '--edge': 'var(--ink)' }}
         >
-          {RARITY_LABEL[lang][item.rarity]}
+          {item.badge?.label ?? RARITY_LABEL[lang][item.rarity]}
         </span>
       </div>
       {/* Dice and forge recipes show their families next to the rarity (E2). */}
       {(item.kind === 'die' || item.kind === 'forge') && <FamilyTags elementId={item.id} className="px-3 pb-2" />}
       <p className="px-3 pb-3 text-[15px] leading-snug text-[var(--text-dim)]">{highlightDescription(item.description)}</p>
+      {item.footnote && <p className="-mt-1 px-3 pb-3 text-sm text-[var(--text-mute)]">{item.footnote}</p>}
       {actions.length > 0 && (
         <div className="flex flex-wrap gap-3 border-t-2 border-[var(--ink)] bg-black/20 px-3 py-3">
           {actions.map((a) => (

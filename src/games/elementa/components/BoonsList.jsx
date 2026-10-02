@@ -1,9 +1,16 @@
+import { useState } from 'react'
+import { AnimatePresence } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { blessingById, dealById, PROPHECY } from '../data/shops.js'
 import { bossById, PRIMORDIAL } from '../data/bossModifiers.js'
 import { localizeBossModifier } from '../data/i18n.js'
 import KeeperSprite from './KeeperSprite.jsx'
 import BossAvatar from './BossAvatar.jsx'
+import ItemInspector from './ItemInspector.jsx'
+import { playClick } from '../utils/sound.js'
+
+const SOURCE_COLOR = { nix: '#8a5cff', aeris: '#9fd8ff' }
+const STATUS_COLOR = { active: '#5fd38a', pending: '#ffd166' }
 
 // Blessings and deals that keep working for the rest of the run.
 const PERMANENT = ['gale', 'hollow_pact']
@@ -44,14 +51,74 @@ function boonText(boon, lang, t) {
 }
 
 /**
+ * The round HUD and shop sidebar version (EXPANSION.md E1): one icon per
+ * live boon (Aeris or Nix, or the foretold boss for a Prophecy) with a
+ * status dot; clicking one opens the same anchored popover relics use.
+ */
+function BoonIcons({ state, boons }) {
+  const { t, lang } = useLanguage()
+  const [open, setOpen] = useState(null)
+  return (
+    <section className="flex flex-col gap-2">
+      <h3 className="el-label">{t('elementa.boons.title')}</h3>
+      <div className="flex flex-wrap gap-2 p-1">
+        {boons.map((b, i) => {
+          const key = `${b.id}-${b.round}-${i}`
+          const { name, body, bossId } = boonText(b, lang, t)
+          const status = boonStatus(b, state)
+          const color = SOURCE_COLOR[b.source] ?? SOURCE_COLOR.aeris
+          return (
+            <div key={key} className="relative">
+              <button
+                type="button"
+                title={name}
+                aria-label={`${name}: ${t(`elementa.boons.${status}`)}`}
+                onClick={() => {
+                  playClick()
+                  setOpen(open === key ? null : key)
+                }}
+                className="el-well relative flex h-11 w-11 items-center justify-center"
+                style={{ boxShadow: `inset 0 -3px 0 ${color}` }}
+              >
+                {bossId ? <BossAvatar id={bossId} size={28} /> : <KeeperSprite id={b.source === 'nix' ? 'nix' : 'aeris'} size={28} />}
+                <span
+                  className="absolute -right-1 -top-1 h-2.5 w-2.5"
+                  style={{ background: STATUS_COLOR[status], boxShadow: '0 0 0 2px var(--ink)' }}
+                />
+              </button>
+              <AnimatePresence>
+                {open === key && (
+                  <ItemInspector
+                    placement="right"
+                    item={{
+                      name,
+                      description: body,
+                      badge: { label: t(`elementa.boons.${status}`), color },
+                      footnote: t('elementa.boons.round').replace('{n}', b.round),
+                    }}
+                    onClose={() => setOpen(null)}
+                  />
+                )}
+              </AnimatePresence>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+/**
  * Aeris's blessings and Nix's deals. `all` lists every one taken (the run
  * summary); otherwise only the ones still doing something, so a
- * Prophecy or a Blessing of Wind is always one glance away.
+ * Prophecy or a Blessing of Wind is always one glance away. `icons` shows
+ * them as a row of inspectable icons (round HUD, shop sidebar).
  */
-export default function BoonsList({ state, all = false, compact = false, summary = false }) {
+export default function BoonsList({ state, all = false, compact = false, summary = false, icons = false }) {
   const { t, lang } = useLanguage()
   const boons = (state.boons || []).filter((b) => all || boonStatus(b, state) !== 'spent')
   if (boons.length === 0) return null
+  if (icons) return <BoonIcons state={state} boons={boons} />
   return (
     <section className="flex flex-col gap-2">
       <h3 className="el-label">{t('elementa.boons.title')}</h3>

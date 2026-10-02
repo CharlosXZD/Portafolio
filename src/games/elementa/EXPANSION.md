@@ -419,6 +419,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Clearer dice:** Held, Locked and Frozen tags now sit above the die; buttons and hotkeys stay below, and nothing shifts when they change.
 - **Family tags:** a die's families show as colored tags with the element's mark, the same in the shop, on the table and in the Gallery.
 - **Element symbols:** dice in the shop, boss reward and load screen show their element's symbol in the middle instead of "d6" (the shape already tells the size).
+- **Boons as icons:** active blessings and pacts show as a row of icons with a status dot during rounds and in shops; click one for the details. Run Info and the run summary keep the full list.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -465,7 +466,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E1. Boons panel: icons only
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note (Carlos, 2026-10-01):** persistent blessings and pacts should only show their icon; clicking it should show all the information.
 - **Proposal:**
