@@ -6,16 +6,17 @@ import PixelIcon from './PixelIcon.jsx'
 import { playSuccess, playFail, playLifeLost } from '../utils/sound.js'
 
 /**
- * Result of the last cast. Two sizes: the big card on a miss (with the
- * retry button), and a `compact` summary at the top of the shop.
+ * Result of the last cast. Two sizes: the big card on a miss (with the way
+ * to Tobb's camp), and a `compact` summary at the top of the shop.
  */
-export default function RoundResult({ state, dispatch, onRetry, compact = false }) {
+export default function RoundResult({ state, dispatch, compact = false }) {
   const { t } = useLanguage()
   const r = state.lastResult
   const missed = state.phase === 'missed'
 
   useEffect(() => {
-    if (!r) return
+    // The camp's summary of a miss already played its sound on the miss.
+    if (!r || (compact && !r.passed)) return
     if (r.passed) playSuccess()
     else {
       playFail()
@@ -28,7 +29,7 @@ export default function RoundResult({ state, dispatch, onRetry, compact = false 
     if (!missed) return
     function onKey(e) {
       if (e.key === 'Enter' && !(e.target instanceof HTMLElement && e.target.closest('button'))) {
-        dispatch({ type: 'RETRY_ROUND' })
+        dispatch({ type: 'GO_TO_CAMP' })
       }
     }
     window.addEventListener('keydown', onKey)
@@ -83,14 +84,13 @@ export default function RoundResult({ state, dispatch, onRetry, compact = false 
       )}
       {r.secondWindTriggered && <p className="text-base text-[var(--arcane-hi)]">{t('elementa.roundResult.safetyNet')}</p>}
       {missed && (
-        <button
-          type="button"
-          onClick={() => (onRetry ? onRetry() : dispatch({ type: 'RETRY_ROUND' }))}
-          className="el-btn el-btn--gold el-btn--lg"
-        >
-          {t('elementa.roundResult.tryAgain')}
-          <span className="el-key">Enter</span>
-        </button>
+        <>
+          <p className="max-w-xs text-base leading-snug text-[var(--text-dim)]">{t('elementa.roundResult.campHint')}</p>
+          <button type="button" onClick={() => dispatch({ type: 'GO_TO_CAMP' })} className="el-btn el-btn--gold el-btn--lg">
+            {t('elementa.roundResult.toCamp')}
+            <span className="el-key">Enter</span>
+          </button>
+        </>
       )}
     </motion.div>
   )

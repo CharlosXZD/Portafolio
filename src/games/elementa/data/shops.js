@@ -14,6 +14,7 @@
 //   discount          extra price cut on everything here (0 to 1)
 //   consumableDiscount extra cut on consumables only
 //   reroll            the offers can be rerolled for Shards
+//   camp              the safety camp after a missed round (not on the Road)
 const L = (en, es) => ({ en, es })
 
 export const SHOP_TYPES = {
@@ -117,6 +118,28 @@ export const SHOP_TYPES = {
     discount: 0.25,
     reroll: true,
     legendary: true,
+  },
+  // Not a Road stop: after a missed round, Tobb sets up camp (EXPANSION.md
+  // E10). A few Shards on arrival, a small Market, then retry the round.
+  camp: {
+    id: 'camp',
+    keeper: 'tobb',
+    name: L('Camp', 'Campamento'),
+    blurb: L(
+      'After a missed round: a few Shards and a small shop, then try the round again.',
+      'Tras fallar una ronda: unos Fragmentos y una tienda pequeña, y luego reintentas la ronda.',
+    ),
+    color: '#e8a86b',
+    music: 'shop_market',
+    line: L(
+      'Sit, Caster. Nobody wins every fight. Have some tea, then try again.',
+      'Siéntate, Lanzador. Nadie gana todas las peleas. Tómate un té y vuelve a intentarlo.',
+    ),
+    dice: 2,
+    items: 2,
+    itemKinds: ['relic', 'consumable'],
+    reroll: true,
+    camp: true,
   },
 }
 

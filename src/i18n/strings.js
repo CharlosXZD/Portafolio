@@ -368,6 +368,12 @@ const strings = {
   'elementa.toast.achievement': { en: 'Achievement unlocked', es: 'Logro desbloqueado' },
   'elementa.toast.secretReaction': { en: 'Secret reaction found', es: 'Reacción secreta descubierta' },
   'elementa.toast.recipe': { en: 'New recipe', es: 'Nueva receta' },
+  'elementa.roundResult.toCamp': { en: 'Rest at camp', es: 'Descansar en el campamento' },
+  'elementa.roundResult.campHint': {
+    en: "Tobb's camp is close: a few Shards and a small shop, then try this round again.",
+    es: 'El campamento de Tobb está cerca: unos Fragmentos y una tienda pequeña, y luego reintentas esta ronda.',
+  },
+  'elementa.camp.payout': { en: '+{n} Shards for the road', es: '+{n} Fragmentos para el camino' },
   'elementa.bossReward.title': { en: 'Boss defeated!', es: '¡Jefe derrotado!' },
   'elementa.bossReward.subtitle': { en: '{boss} is beaten. Choose your reward.', es: '{boss} ha caído. Elige tu recompensa.' },
   'elementa.bossReward.dieTitle': { en: 'Grow a die', es: 'Agranda un dado' },

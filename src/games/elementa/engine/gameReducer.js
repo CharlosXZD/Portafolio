@@ -353,6 +353,11 @@ function rollDeal(state, id) {
   return { id }
 }
 
+// Shards Tobb hands over at the safety camp: 3 + half the round.
+function campPayout(round) {
+  return 3 + Math.floor(round / 2)
+}
+
 function buildShopOffers(state, typeId = 'market') {
   const type = shopTypeById(typeId)
   const stock = rollShopStock(state, type)
@@ -525,6 +530,24 @@ function enterRound(state, round) {
     chronicle: noteBoss(state.chronicle, bossModifier),
     threshold: Math.round(thresholdForRound(round, state.difficulty) * (state.nextTargetMult || 1)),
     nextTargetMult: 1,
+    dice,
+    ...freshRoundCounters(dice),
+    rerollsUsed: 0,
+    rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
+    nextRoundRerollBonus: 0,
+    freezeChargesUsed: 0,
+    shop: null,
+    lastResult: null,
+  }
+}
+
+// Try the same round again with fresh dice (after a miss, or leaving the
+// camp). A Lucky Charm or Blessing of Tide bought at camp counts here.
+function retryRound(state) {
+  const dice = applyBossRoundStart(rollFreshRound(state.dice, effectiveRelics(state)), state.bossModifier)
+  return {
+    ...state,
+    phase: 'rolling',
     dice,
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
@@ -914,16 +937,20 @@ function reduce(state, action) {
 
     case 'RETRY_ROUND': {
       if (state.phase !== 'missed') return state
-      const dice = applyBossRoundStart(rollFreshRound(state.dice, effectiveRelics(state)), state.bossModifier)
+      return retryRound(state)
+    }
+
+    // A missed round goes to Tobb's safety camp (EXPANSION.md E10): a few
+    // Shards on arrival and a small Market. It isn't a Road stop, so the
+    // next shop you picked stays the same; leaving retries the round.
+    case 'GO_TO_CAMP': {
+      if (state.phase !== 'missed') return state
+      const pay = campPayout(state.round)
       return {
         ...state,
-        phase: 'rolling',
-        dice,
-        ...freshRoundCounters(dice),
-        rerollsUsed: 0,
-        rerollsBonusThisRound: 0,
-        freezeChargesUsed: 0,
-        lastResult: null,
+        phase: 'shop',
+        shards: state.shards + pay,
+        shop: { ...buildShopOffers(state, 'camp'), campPay: pay },
       }
     }
 
@@ -1323,6 +1350,7 @@ function reduce(state, action) {
 
     case 'NEXT_ROUND': {
       if (state.phase !== 'shop') return state
+      if (state.shop?.type === 'camp') return retryRound(state)
       const round = state.round + 1
       if (round > WIN_ROUND && !state.endless) {
         return { ...withRecipe(state, QUADRA_FUSION_ID), phase: 'victory' }

@@ -228,20 +228,16 @@ function ElementaGameInner() {
         {(state.phase === 'rolling' || state.phase === 'missed') && (
           <div className="grid w-full flex-1 grid-cols-1 gap-5 lg:grid-cols-[280px_1fr] lg:gap-8">
             <RoundHUD state={state} dispatch={dispatch} armedConsumable={armedConsumable} onArm={setArmedConsumable} />
-            {state.phase === 'rolling' ? (
-              <DiceTray
-                state={state}
-                dispatch={dispatch}
-                availableRerolls={selectors.availableRerolls(state)}
-                paused={paused || tutorialActive || showRunInfo}
-                armedConsumable={armedConsumable}
-                onArmedDone={() => setArmedConsumable(null)}
-              />
-            ) : (
-              <div className="flex items-center justify-center">
-                <RoundResult state={state} dispatch={dispatch} />
-              </div>
-            )}
+            {/* Stays mounted through a miss, so the table freezes on the
+                final cast under the missed overlay below. */}
+            <DiceTray
+              state={state}
+              dispatch={dispatch}
+              availableRerolls={selectors.availableRerolls(state)}
+              paused={paused || tutorialActive || showRunInfo || state.phase === 'missed'}
+              armedConsumable={armedConsumable}
+              onArmedDone={() => setArmedConsumable(null)}
+            />
           </div>
         )}
 
@@ -251,6 +247,20 @@ function ElementaGameInner() {
 
         {state.phase === 'victory' && <GameOverScreen state={state} dispatch={dispatch} victory />}
       </main>
+
+      {/* A miss: centered over a dimmed, grayed-out table (EXPANSION.md E10). */}
+      {state.phase === 'missed' && !paused && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-[#07050c]/75 px-4"
+          style={{ backdropFilter: 'grayscale(0.6)' }}
+        >
+          <RoundResult state={state} dispatch={dispatch} />
+        </div>
+      )}
+      {/* Game over gets the same dimmed backdrop behind its summary. */}
+      {state.phase === 'gameover' && (
+        <div className="pointer-events-none fixed inset-0 z-[5] bg-[#07050c]/75" style={{ backdropFilter: 'grayscale(0.6)' }} />
+      )}
 
       {/* A visible way into the pause menu: Escape alone was undiscoverable. */}
       {inRun && !paused && (

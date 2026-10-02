@@ -24,6 +24,7 @@ import { shopTypeById, dealById, blessingById, PROPHECY } from '../data/shops.js
 import { nextChoices, nodeById } from '../engine/map.js'
 import { nextTier } from '../data/diceTiers.js'
 import { visitKeeper, lineText } from '../utils/keepers.js'
+import { KEEPERS } from '../data/keepers.js'
 
 /**
  * One shop/inventory slot: a persistent price tag (if `cost` is given), the
@@ -158,6 +159,11 @@ function KeeperGreeting({ state, type }) {
   const { t, lang } = useLanguage()
   const [visit, setVisit] = useState(null)
   useEffect(() => {
+    // The camp isn't a real visit: Tobb just says his camp line.
+    if (type.camp) {
+      setVisit(null)
+      return
+    }
     setVisit(
       visitKeeper(state.activeSlot, type.keeper, `${state.seed}-${state.round}-${type.id}`, {
         afterBoss: Boolean(state.shop?.afterBoss),
@@ -166,6 +172,7 @@ function KeeperGreeting({ state, type }) {
     )
     // One greeting per shop visit.
   }, [state.activeSlot, state.seed, state.round, type.id])
+  if (type.camp) return <CampGreeting state={state} type={type} />
   if (!visit) return null
   const { keeper, line, memory } = visit
   return (
@@ -190,6 +197,37 @@ function KeeperGreeting({ state, type }) {
             )}
             {t('elementa.keepers.visits').replace('{n}', memory.visits)}
           </span>
+        </div>
+      </motion.div>
+    </div>
+  )
+}
+
+/** Tobb at the safety camp: his line and the Shards he hands over. */
+function CampGreeting({ state, type }) {
+  const { t, lang } = useLanguage()
+  const keeper = KEEPERS[type.keeper]
+  return (
+    <div className="flex w-full max-w-2xl items-end gap-4">
+      <div className="flex shrink-0 flex-col items-center gap-1">
+        <KeeperSprite id={keeper.id} size={72} />
+        <span className="pixel-score text-[8px] text-[var(--gold-hi)]">{keeper.name[lang]}</span>
+      </div>
+      <motion.div
+        initial={{ opacity: 0, x: -8 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="el-panel relative mb-4 flex-1 px-4 py-3 text-left"
+        style={{ '--edge': type.color }}
+      >
+        <p className="text-base leading-snug text-[var(--text)]">{type.line[lang]}</p>
+        <div className="mt-2 flex items-center justify-between gap-3 text-sm text-[var(--text-mute)]">
+          <span>{keeper.title[lang]}</span>
+          {state.shop.campPay > 0 && (
+            <span className="inline-flex items-center gap-1.5 text-[var(--gold-1)]">
+              <PixelIcon name="shard" size={10} />
+              {t('elementa.camp.payout').replace('{n}', state.shop.campPay)}
+            </span>
+          )}
         </div>
       </motion.div>
     </div>
@@ -270,7 +308,9 @@ export default function ShopScreen({ state, dispatch }) {
   const choices = state.map ? nextChoices(state.map) : []
   const pending = state.map ? nodeById(state.map, state.map.pendingId) : null
   const finalShop = state.round >= selectors.winRound && !state.endless
-  const needsPick = !finalShop && choices.length > 1 && !pending
+  // The camp sits off the Road: no stop to pick, leaving retries the round.
+  const camp = Boolean(type.camp)
+  const needsPick = !camp && !finalShop && choices.length > 1 && !pending
 
   const shardsAbbr = t('elementa.shop.shardsAbbr')
   const buyLabel = (cost) => `${t('elementa.shop.buy')} ${cost}`
@@ -637,12 +677,13 @@ export default function ShopScreen({ state, dispatch }) {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Stat label={t('elementa.shop.round')}>{state.round}</Stat>
-          <Stat label={t('elementa.shop.nextTarget')} accent="var(--gold-1)">
-            {nextTarget}
+          {/* At camp you retry this round, so show its target. */}
+          <Stat label={camp ? t('elementa.hud.target') : t('elementa.shop.nextTarget')} accent="var(--gold-1)">
+            {camp ? state.threshold : nextTarget}
           </Stat>
         </div>
 
-        {!finalShop && state.map && (
+        {!finalShop && !camp && state.map && (
           <div data-tut="map" className="flex flex-col items-center gap-2">
             <h3 className="el-label w-full">{t('elementa.map.roadAhead')}</h3>
             <RoadMap
@@ -683,7 +724,7 @@ export default function ShopScreen({ state, dispatch }) {
           data-tut="next"
           className="el-btn el-btn--green el-btn--lg w-full"
         >
-          {needsPick ? t('elementa.map.pickFirst') : t('elementa.shop.nextRound')}
+          {needsPick ? t('elementa.map.pickFirst') : camp ? t('elementa.roundResult.tryAgain') : t('elementa.shop.nextRound')}
         </button>
         {type.reroll && (
           <button

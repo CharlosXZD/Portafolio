@@ -84,8 +84,8 @@ export const TUTORIAL_GROUPS = [
       {
         target: null,
         text: {
-          en: "Missed! That cost a life, but you get to retry this round with fresh dice. Run out of lives and the run ends. You've got this.",
-          es: '¡Fallaste! Eso costó una vida, pero puedes reintentar la ronda con dados nuevos. Si te quedas sin vidas, la partida termina. ¡Tú puedes!',
+          en: "Missed! That cost a life. Tobb's camp is next: a few free Shards and a small shop, then you retry this round with fresh dice. Run out of lives and the run ends. You've got this.",
+          es: '¡Fallaste! Eso costó una vida. Sigue el campamento de Tobb: unos Fragmentos gratis y una tienda pequeña, y luego reintentas la ronda con dados nuevos. Si te quedas sin vidas, la partida termina. ¡Tú puedes!',
         },
       },
     ],

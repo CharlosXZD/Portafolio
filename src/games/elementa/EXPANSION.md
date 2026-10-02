@@ -420,6 +420,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Family tags:** a die's families show as colored tags with the element's mark, the same in the shop, on the table and in the Gallery.
 - **Element symbols:** dice in the shop, boss reward and load screen show their element's symbol in the middle instead of "d6" (the shape already tells the size).
 - **Boons as icons:** active blessings and pacts show as a row of icons with a status dot during rounds and in shops; click one for the details. Run Info and the run summary keep the full list.
+- **Safety camp:** missing a round now shows a centered screen over the dimmed table, then Tobb's camp: a few free Shards and a small shop before you try the round again.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -592,7 +593,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E10. Missing a round: a centered, dimmed screen, and a safety camp
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note (Carlos, with a screenshot):**
   - The "Missed! -1 life" panel is not centered (it sits in the dice column next to the HUD), and the background should be grayed out.

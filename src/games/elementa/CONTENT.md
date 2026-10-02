@@ -23,7 +23,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
   - **Air, Drift:** once per round (one charge total), nudge one Air-family die up or down by 1, free. Landing on the max face doesn't explode; frozen dice can't drift.
 - **Rerolls:** 3 per round (Inferno and Cataclysm: 2). Locks on Water-family dice are free and refund +1.
 - **Economy:** clearing pays 5 Shards, +1 per 25% over target (max +15), plus interest (1 per 3 Shards held, max 5).
-- **Lives:** 3. A miss costs one and you retry the round. +1 life back every 4th round cleared.
+- **Lives:** 3. A miss costs one, then Tobb's **Camp** (see §7) and you retry the round. +1 life back every 4th round cleared.
 - **Caps:** 10 dice, 5 relics, 3 consumables (boss rewards and deals change these).
 - **Die sizes:** d3, d6, d10, d20. Bigger means higher faces but rarer explosions. Growing costs 6 / 12 / 20 Shards (into d6 / d10 / d20). Selling pays 2 / 3 / 6 / 10 (fusions x1.5).
 - **Rarity unlocks by round:** Common 1, Uncommon 2, Rare 4, Epic 7, Legendary 10.
@@ -326,6 +326,7 @@ Ermal the Unbothered is named after beta tester Ermal and has a sleepy portrait.
 | **Black Market** | Nix | Rare. One risky deal, paid in more than Shards. | `shop_blackmarket` |
 | **Shrine** | Aeris | Rare. A free blessing, or a prophecy of the next boss. | `shop_shrine` |
 | **Aether Bazaar** | The Wanderers | Legendary. Every shop in one, 25% off, with rarer stock. | `shop_bazaar` |
+| **Camp** | Tobb | Not on the Road. After a missed round (not game over): 3 + half the round number in Shards on arrival (stacks with Steadfast), 2 dice and 2 relics or consumables with rerolls, no Forge. Leaving retries the same round; your next Road stop stays the same. Tobb: "Sit, Caster. Nobody wins every fight. Have some tea, then try again." | `shop_market` |
 
 **How the Road is built:** round 1 is always a Market. The shop right after a boss (rounds 5, 10, 15) is a choice of Relic Vault, Forge, and sometimes Market. The last stop before Primordial always includes the Aether Bazaar. Every other stop is drawn by weight, never two of the same type in one row:
 
