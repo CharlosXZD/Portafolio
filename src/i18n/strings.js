@@ -296,6 +296,11 @@ const strings = {
   'elementa.title.cleared': { en: 'Cleared', es: 'Superado' },
   'elementa.title.unlockHint': { en: 'Win a run with {deck} to unlock.', es: 'Gana una partida con {deck} para desbloquear.' },
   'elementa.title.newRun': { en: 'New run', es: 'Nueva partida' },
+  'elementa.title.prevDeck': { en: 'Previous loadout', es: 'Equipo anterior' },
+  'elementa.title.nextDeck': { en: 'Next loadout', es: 'Equipo siguiente' },
+  'elementa.title.easier': { en: 'Easier', es: 'Más fácil' },
+  'elementa.title.harder': { en: 'Harder', es: 'Más difícil' },
+  'elementa.title.advanced': { en: 'Advanced', es: 'Avanzado' },
   'elementa.title.chooseDifficulty': { en: 'Stakes', es: 'Dificultad' },
   'elementa.title.startRun': { en: 'Begin', es: 'Comenzar' },
 

@@ -726,7 +726,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E11. New-run screen: animated loadout carousel and difficulty picker
 
-**Status: Ready** (v0.5)
+**Status: Built** (v0.5). Completion marks on the dots arrive with B2 (v0.6).
 
 - **Note (Carlos):** the play screen could be animated. Instead of squares, scroll through the loadouts, show the dice in "3D" with a stylized name, and make the difficulty more appealing, without showing every option at once, like Balatro or TBOI.
 - **Proposal:** rebuild `components/TitleScreen.jsx`.
