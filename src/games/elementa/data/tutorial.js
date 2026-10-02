@@ -42,8 +42,8 @@ export const TUTORIAL_GROUPS = [
       {
         target: 'score',
         text: {
-          en: 'Your score is Base x Mult. Base comes from your dice. Mult comes from sets, explosions, reactions, and relics.',
-          es: 'Tu puntaje es Base x Mult. La Base viene de tus dados. El Mult viene de sets, explosiones, reacciones y reliquias.',
+          en: 'Your score is Base x Mult. Base comes from your dice. Mult comes from sets, explosions, reactions, and relics. The total stays a ? until you cast, but Base and Mult show the math.',
+          es: 'Tu puntaje es Base x Mult. La Base viene de tus dados. El Mult viene de sets, explosiones, reacciones y reliquias. El total es un ? hasta que lances, pero la Base y el Mult te muestran la cuenta.',
         },
       },
       {
@@ -56,8 +56,8 @@ export const TUTORIAL_GROUPS = [
       {
         target: 'target',
         text: {
-          en: 'Fill this bar to clear the round. Go way past it and you earn bonus Shards.',
-          es: 'Llena esta barra para superar la ronda. Si la rebasas por mucho, ganas Fragmentos extra.',
+          en: 'Fill this bar to clear the round. It fills as you cast. Go way past it and you earn bonus Shards.',
+          es: 'Llena esta barra para superar la ronda. Se llena al lanzar. Si la rebasas por mucho, ganas Fragmentos extra.',
         },
       },
       {

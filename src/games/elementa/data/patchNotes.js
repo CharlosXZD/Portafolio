@@ -12,6 +12,62 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.6.5',
+    name: L('Polish', 'Pulido'),
+    date: null,
+    highlights: [
+      L(
+        'Dice bought in the shop now arrive as d3, small and quick to explode, ready to grow later.',
+        'Los dados que compras en la tienda ahora llegan como d3, pequeños y rápidos para explotar, listos para crecer después.',
+      ),
+      L(
+        'Three levels of detail for every die: hover for the basics and its score, click for a short description with a bit of lore, click and hold for everything.',
+        'Tres niveles de detalle para cada dado: pasa el cursor para lo básico y su puntaje, haz clic para una descripción corta con un poco de historia, mantén el clic para verlo todo.',
+      ),
+      L(
+        'Keyword tags like #Explodes and #Fizzles. Hover or tap one to read what it means.',
+        'Etiquetas como #Explota y #Apagado. Pasa el cursor o tócalas para ver qué significan.',
+      ),
+      L(
+        'Every die has a new, shorter description. Numbers and element names are colored the same everywhere.',
+        'Cada dado tiene una descripción nueva y más corta. Los números y los nombres de elementos tienen los mismos colores en todas partes.',
+      ),
+      L(
+        'The Cast ledger groups repeated lines ("Kindle x6") and the cast steps through each group. Expand all brings every line back.',
+        'La cuenta del hechizo agrupa las líneas repetidas ("Yesca x6") y el lanzamiento avanza grupo por grupo. Expandir todo trae de vuelta cada línea.',
+      ),
+      L(
+        'The score stays a "?" until you cast, so the reveal has some tension. Turn on "Show live total" in Options for the old behavior.',
+        'El puntaje es un "?" hasta que lanzas, para que la revelación tenga algo de tensión. Activa "Mostrar el total antes de lanzar" en Opciones para volver a lo de antes.',
+      ),
+      L(
+        'A new roll: dice are tossed in an arc, spin in 3D, bounce twice, cast a shadow and kick up something from their element. A d20 lands heavier.',
+        'Una tirada nueva: los dados salen en arco, giran en 3D, rebotan dos veces, proyectan una sombra y levantan algo de su elemento. Un d20 cae con más peso.',
+      ),
+      L(
+        'Explosions play out one by one, with a different look for Fire, Lightning, Steel, Steam, Storm, Obsidian, Magma, Aether and Ognen.',
+        'Las explosiones se ven una por una, con un aspecto distinto para Fuego, Relámpago, Acero, Vapor, Tormenta, Obsidiana, Magma, Éter y Ognen.',
+      ),
+      L(
+        'Drift sends a gust across the die, and locking wraps it in chains until a lock clicks shut.',
+        'La Deriva manda una ráfaga sobre el dado, y al bloquearlo lo envuelven cadenas hasta que un candado se cierra.',
+      ),
+      L(
+        'Relics and pacts react while the score is added up, with a bounce and a floating bonus.',
+        'Las reliquias y los pactos reaccionan mientras se suma el puntaje, con un rebote y un bono flotante.',
+      ),
+      L(
+        'Each loadout shows which difficulties you beat it on, and dice that beat Cataclysm wear a gold star in the Gallery.',
+        'Cada equipo inicial muestra en qué dificultades lo has superado, y los dados que vencieron Cataclismo llevan una estrella dorada en la Galería.',
+      ),
+      L(
+        'A green "Cleared" sash on the loadout panel replaces the old tag, and the difficulty card no longer has one.',
+        'Una banda verde de "Superado" en el panel del equipo inicial reemplaza la etiqueta anterior, y la tarjeta de dificultad ya no tiene una.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.6',
     name: L('Three Paths', 'Tres Caminos'),
     date: null,

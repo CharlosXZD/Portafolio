@@ -506,6 +506,20 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
 
+### Alpha v0.6.5 "Polish" (in development, unreleased)
+- **Shop dice are d3:** dice bought in the shop arrive as d3, and the offers show the d3 shape.
+- **Three levels of detail for dice:** hover shows the name, type, families and current score; click (which still holds or releases the die) opens a short description with a bit of lore; click and hold, right-click or the Info button opens the full description. The table, shop, inventory and Gallery share one component.
+- **Keyword tags:** #Explodes, #Fizzles and friends, each with a one-line definition on hover or tap.
+- **New short descriptions** for every die, and numbers, element names, Base, Mult and Shards colored the same everywhere.
+- **Compact Cast ledger:** repeated lines are grouped, the cast steps once per group with the count ticking up, and Expand all brings back every line.
+- **Show live total:** a new option, off by default; the Score reads "?" until you cast.
+- **New roll animation:** a toss arc with 3D spin, two bounces, a ground shadow, a landing burst per element, heavier d20s, a cascade across the pool, and landing sounds.
+- **Explosion chains play out** face by face with a "+N" and a growing "xK", and a look for each exploding die.
+- **Drift and lock animations:** a gust and an arrow for Drift; chain links and a clicking padlock for locks, with a look per Water-family die.
+- **Relics and pacts react** while the score is added up, with a bounce and a floating "+N Base" or "x Mult".
+- **Loadout stake badges and Cataclysm stars:** one flame per difficulty under each loadout, a gold star on dice that beat Cataclysm, and no "Cleared" chip on the difficulty card.
+- **Cleared sash:** a green corner sash on the loadout panel replaces the old tag.
+
 ### Alpha v0.6 "Three Paths" (in development, unreleased)
 - **The three paths:** the Accord locks a path when you walk into round 15. Neutral fights the Primordial as before; the Split path faces Primordial Unbound (target x1.5, it fuses your pure dice as you reroll); the Primordial path is a four-stage gauntlet of the gods, with the lent Primordial die absorbing each one.
 - **God visions:** the first Neutral win shows Gaea, Ognen, Varuna and Zephyr and teaches their recipes, opening both new paths.
@@ -821,7 +835,7 @@ Carlos's playtest of Alpha v0.6, 2026-10-03. The numbers P1 to P18 match the num
 
 ## P3. A richer rolling animation
 
-**Status: Ready**
+**Status: Built**
 
 Carlos: the Tumble animation is on the right track but only rolls the icon left and right; give it more flare. Improve `components/Die.jsx`'s Tumble (keep the Classic option, and Reduced motion forcing Classic):
 - **A toss arc.** The die lifts off, spins with real 3D rotation (CSS `perspective` with `rotateX` and `rotateY`, not just a horizontal flip), and lands with two diminishing bounces. Keep the total duration near today's so rerolls don't feel slower.
@@ -834,7 +848,7 @@ Carlos: the Tumble animation is on the right track but only rolls the icon left 
 
 ## P4. A compressed cast ledger
 
-**Status: Ready**
+**Status: Built**
 
 Carlos: the Cast ledger gets crowded when the same effect repeats. In `components/CastLedger.jsx`:
 - **Group repeated lines** by source and kind: "Kindle x6  +6 Mult" instead of six rows. Keep the order of first appearance.
@@ -844,7 +858,7 @@ Carlos: the Cast ledger gets crowded when the same effect repeats. In `component
 
 ## P5 to P9 and P15. One description system, three levels of detail
 
-**Status: Ready.** This is the largest item. Carlos's goal: players should not need to read a novel to understand a die, but everything must still be available. The table (the circle), the shop, the inventory and the Gallery all use the same system, and the numbers look the same everywhere.
+**Status: Built.** This is the largest item. Carlos's goal: players should not need to read a novel to understand a die, but everything must still be available. The table (the circle), the shop, the inventory and the Gallery all use the same system, and the numbers look the same everywhere.
 
 **The three levels** (apply to dice; relics, consumables and bosses reuse the same component, with their existing short text as level 2):
 
@@ -884,7 +898,7 @@ Carlos: the Cast ledger gets crowded when the same effect repeats. In `component
 
 ## P10. Hide the running total until you cast
 
-**Status: Ready.** Carlos asked what Claude thinks: **good idea.** It gives a cast the tension Balatro's scoring has. Players still see Base and Mult and the ledger, so they can do the math; the payoff is the reveal.
+**Status: Built.** Carlos asked what Claude thinks: **good idea.** It gives a cast the tension Balatro's scoring has. Players still see Base and Mult and the ledger, so they can do the math; the payoff is the reveal.
 
 - **New option:** "Show live total" (`utils/settings.js`, Options > Display). **Off by default.**
 - **When off:**
@@ -897,7 +911,7 @@ Carlos: the Cast ledger gets crowded when the same effect repeats. In `component
 
 ## P11. Real explosion animations
 
-**Status: Ready**
+**Status: Built**
 
 Carlos: explosions should be clearer, an actual animation so the player sees how they chain, different for each Fire-family die (Lightning thunders, Fire explodes, and so on).
 - **Engine:** `rollDie` in `engine/scoring.js` currently returns only the total and the explosion count. Add a `chain` array (the faces rolled in order, for example `[6, 6, 4]`) to the returned die, so the UI can replay the chain. Older saves without it fall back to the count. Gameplay does not change.
@@ -925,14 +939,14 @@ Carlos: explosions should be clearer, an actual animation so the player sees how
 
 ## P12. Drift and lock animations
 
-**Status: Ready**
+**Status: Built**
 - **Drift:** an air animation: a gust sweeps across the die, the face number ticks up or down with an arrow, and wind streaks drift off. Varies a little for each Air-family die (Lightning adds a spark, Crystal a glint, Zephyr a heavier gust).
 - **Locking:** a chain animation: pixel chain links wrap around the die and a lock clicks shut. Per family: Water ripples, Ice frosts over, Mud clamps thick, Steel clangs, Monsoon swirls. Frozen dice (Petrify) keep their ice effect.
 - Both honor Reduced motion (a simple highlight instead).
 
 ## P14. Relics and pacts react while the score is added
 
-**Status: Ready**
+**Status: Built**
 
 Carlos: when an item does something during score calculation, show its reaction.
 - During the cast reveal, when a ledger line comes from a relic (`kind: 'relic'` with an `id`), that relic's icon in the round HUD plays a short trigger animation: a bounce and a glow, plus a floating "+N Base" or "+x Mult" chip above it.
@@ -942,7 +956,7 @@ Carlos: when an item does something during score calculation, show its reaction.
 
 ## P16. Per-loadout difficulty badges, and Cataclysm stickers
 
-**Status: Ready**
+**Status: Built**
 
 Carlos: the difficulty picker should not have a "Cleared" tag. Under each loadout, show badges for which difficulties you have beaten that loadout on, like Balatro's deck stickers. Also add a sticker, as a reward, to the dice in the Gallery that you used to beat Cataclysm.
 - **Data:** record wins as loadout x difficulty pairs in the profile, for example `profile.wins = { [deckId]: [difficultyId, ...] }` (`utils/saveManager.js`, `utils/profile.js`, and the run-end bookkeeping in `ElementaGame.jsx`).
@@ -1025,3 +1039,6 @@ Add "Alpha v0.6.5 Polish" to Part D and `data/patchNotes.js`, in plain language:
   - P18: the extra folder was a git worktree created on Claude's instruction; work moved to the main folder, and agents must not create extra folders again.
   - P10: a good idea; "Show live total" setting, off by default.
   - P2 (Chisel and Flasks) stays Proposed until Carlos answers the three questions.
+- **2026-10-03 (build):**
+  - P3, P4, P5 to P9, P10, P11, P12, P14, P15 and P16 built on branch `elementa-v0.6.5` (GDD §33). Defaults chosen by Claude are listed in the end-of-build report: keyword extras (Grows, Payout, Rewind, Boost, Doubles), the full view generated from flags, Info button and right-click as the touch and keyboard route to the full description, and a stake badge size of one flame per difficulty.
+  - P2 (Chisel and Flasks) is still Proposed; nothing from `IDEAS.md` was built.

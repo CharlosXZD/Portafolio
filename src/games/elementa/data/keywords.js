@@ -8,7 +8,7 @@ const L = (en, es) => ({ en, es })
 export const KEYWORDS = Object.fromEntries(
   [
     K('explodes', '#ff7a45', L('Explodes', 'Explota'), L('Rolling its top face rolls again and adds the new roll, chaining.', 'Sacar su cara máxima tira otra vez y suma la nueva tirada, en cadena.')),
-    K('fizzles', '#d9604d', L('Fizzles', 'Se apaga'), L('A die that rolls a 1 scores nothing this round.', 'Un dado que saca un 1 no anota nada esta ronda.')),
+    K('fizzles', '#d9604d', L('Fizzles', 'Apagado'), L('A die that rolls a 1 scores nothing this round.', 'Un dado que saca un 1 no anota nada esta ronda.')),
     K('kindling', '#ffb36b', L('Kindling', 'Yesca'), L('A Fire-family die that fizzles pays back +1 reroll.', 'Un dado de la familia Fuego que se apaga devuelve +1 reroll.')),
     K('drift', '#cfe8f2', L('Drift', 'Deriva'), L('Once per round, nudge an Air-family die up or down by 1, for free.', 'Una vez por ronda, mueve un dado de la familia Aire 1 arriba o abajo, gratis.')),
     K('patience', '#c89a5c', L('Patience', 'Paciencia'), L('An Earth-family die gains +2 for every reroll it sits out this round.', 'Un dado de la familia Tierra gana +2 por cada reroll que se queda fuera esta ronda.')),

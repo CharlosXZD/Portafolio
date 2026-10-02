@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-02 (Alpha v0.6 in development), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-03 (Alpha v0.6.5 "Polish" in development), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -21,11 +21,15 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
   - **Water:** free locks that refund a reroll (unchanged).
   - **Earth, Patience:** +2 for every reroll it sits out (held or locked) this round. Unlike Sapling, it keeps the bonus if it is rerolled later in the round.
   - **Air, Drift:** once per round (one charge total), nudge one Air-family die up or down by 1, free. Landing on the max face doesn't explode; frozen dice can't drift.
+- **Score reveal (v0.6.5):** before you cast, the Score reads "?" and the target bar sits empty (Options, Display, "Show live total before casting" brings the old live number back). Base, Mult and the Cast ledger always show. On cast the score is added up step by step.
+- **Cast ledger (v0.6.5):** repeated lines from one source are grouped ("Kindle x6 +6"), with an arrow to show each line and an "Expand all / Compact" switch. The cast reveal steps once per group, the count ticking up.
+- **Dice details (v0.6.5):** three levels. Hover: name, type, families, current score. Click (still holds or releases the die): the short description and keyword tags. Click and hold about half a second, right-click, or the Info button: the full description. The Gallery shows the full one.
+- **Loadouts and stakes (v0.6.5):** each loadout shows one flame per difficulty, lit once that loadout has beaten it. Dice in your final pool when you beat Cataclysm wear a gold star in the Gallery.
 - **Rerolls:** 3 per round (Inferno and Cataclysm: 2). Locks on Water-family dice are free and refund +1.
 - **Economy:** clearing pays 5 Shards, +1 per 25% over target (max +15), plus interest (1 per 3 Shards held, max 5).
 - **Lives:** 3. A miss costs one, then Tobb's **Camp** (see §7) and you retry the round. +1 life back every 4th round cleared.
 - **Caps:** 10 dice, 5 relics, 3 consumables (boss rewards and deals change these).
-- **Die sizes:** d3, d6, d10, d20. Bigger means higher faces but rarer explosions. Growing costs 6 / 12 / 20 Shards (into d6 / d10 / d20). Selling pays 2 / 3 / 6 / 10 (fusions x1.5).
+- **Die sizes:** d3, d6, d10, d20. Dice bought in the shop arrive as **d3** (v0.6.5); starting dice, forged dice and the Soul Die are d6. Bigger means higher faces but rarer explosions. Growing costs 6 / 12 / 20 Shards (into d6 / d10 / d20). Selling pays 2 / 3 / 6 / 10 (fusions x1.5).
 - **Rarity unlocks by round:** Common 1, Uncommon 2, Rare 4, Epic 7, Legendary 10.
 - **Prices by rarity** (relics and consumables): Common 5, Uncommon 8, Rare 12, Epic 18, Legendary 28. Selling pays half.
 
@@ -94,6 +98,67 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 **The Primordial die** (Divine, d20): lent on the Primordial path for round 15 only, outside the dice cap, never sold. Every Aether mechanic, plus the ability of each god defeated in the gauntlet, without the drawback.
 
 **The Aether recipe is secret.** Until you beat Primordial once on a save file, Aether can't be forged and never appears in a shop; the Gallery reads "Recipe unknown: beat Primordial". The first win teaches it (a "New recipe" toast), and the Curator mentions it on your next Vault visit. The Avatar loadout still starts with Aether.
+
+### Keyword tags (v0.6.5)
+Hovering or tapping a tag shows its definition. A die's short description shows the first four; the full description lists them all.
+
+| Tag | Meaning |
+|---|---|
+| #Explodes | Rolling its top face rolls again and adds the new roll, chaining. |
+| #Fizzles | A die that rolls a 1 scores nothing this round. |
+| #Kindling | A Fire-family die that fizzles pays back +1 reroll. |
+| #Drift | Once per round, nudge an Air-family die up or down by 1, for free. |
+| #Patience | An Earth-family die gains +2 for every reroll it sits out this round. |
+| #FreeLock | Can lock its face in place without spending a reroll. |
+| #Refund | Locking it gives you +1 reroll back. |
+| #Sets | Switches on the matching-set bonus for the whole pool. |
+| #Wild | Counts as any face when forming a set. |
+| #Reaction | Changes how it reacts with the dice next to it. |
+| #Copy | Duplicates a result or an ability from another die. |
+| #Mirror | Takes the score of a neighboring die as its own. |
+| #Chain | Locking it also locks the next die, for free. |
+| #Divine | A god. Forge-only, one at a time, with a power and a price. |
+| #Grows | Gains +2 for every reroll it stays held. |
+| #Payout | Scores nothing, but pays Shards when you clear the round. |
+| #Rewind | A rolled 1 rolls again until it is no longer a 1. |
+| #Boost | Raises the score of the dice beside it. |
+| #Doubles | Counts double when it is part of a matching set. |
+
+### Short descriptions (v0.6.5)
+Shown when you click a die (table, shop, inventory). At most two short sentences with a bit of lore; the flag-by-flag text above is the full description, shown on click and hold and in the Gallery.
+
+| Die | Short description | Tags |
+|---|---|---|
+| **Earth** | Dependable as the ground itself. Waiting a reroll out makes it stronger. | #Patience |
+| **Fire** | A spark from the first Split. It explodes on its top face, but a 1 burns it out. | #Explodes #Fizzles #Kindling |
+| **Water** | It remembers every shape it has held. It locks for free and gives a reroll back. | #FreeLock #Refund |
+| **Air** | A breath no Caster could bind. It calls matching sets, and you can nudge it. | #Sets #Drift |
+| **Lightning** | A Storm's first word. It explodes like Fire and calls sets like Air. | #Explodes #Fizzles #Sets #Kindling #Drift |
+| **Ice** | Water that held its breath. It locks for free, refunds the reroll, and calls sets. | #FreeLock #Refund #Sets #Drift |
+| **Steel** | Fire hardened on Earth's anvil. It explodes and never burns out. | #Explodes #Patience |
+| **Mud** | Water that sank into the soil. Lock it and its neighbor locks too, for free. | #Chain #FreeLock #Refund #Patience |
+| **Steam** | Fire and Water in one breath. It explodes, and a reroll may copy it onto another die. | #Explodes #Fizzles #Copy #Kindling |
+| **Crystal** | Earth that learned the wind. Inside a set, it counts double. | #Doubles #Sets #Drift #Patience |
+| **Storm** | Fire, Water and Air in one temper. It explodes, locks for free, and calls sets. | #Explodes #FreeLock #Sets #Fizzles #Refund #Kindling #Drift |
+| **Obsidian** | Fire that Water cooled into glass. It explodes without burning out, and can copy itself. | #Explodes #Copy #Patience |
+| **Magma** | Fire pressed under Earth. It explodes, and inside a set it counts double. | #Explodes #Doubles #Sets #Drift #Patience |
+| **Monsoon** | A season with a memory. Lock it and its neighbor locks too, and both feed sets. | #Chain #FreeLock #Sets #Refund #Drift #Patience |
+| **Aether** | Every piece of the Split, whole again. It carries every mechanic, one per run. | #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience |
+| **Gilded** | Not made for scoring. Clear the round and it pays its face in Shards. | #Payout |
+| **Sapling** | A seed the Casters forgot. Held through rerolls, it grows. | #Grows |
+| **Mirror** | It shows what stands beside it. Copies the score of the die to its left. | #Mirror |
+| **Conduit** | A channel between neighbors. Its two neighbors react together, doubled. | #Reaction |
+| **Chrono** | Time stumbles once and tries again. A 1 rolls again until it is not a 1. | #Rewind |
+| **Beacon** | A light left on for its neighbors. The dice beside it score x1.5. | #Boost |
+| **Prism** | It splits one light into four. Reacts as every element at once. | #Reaction |
+| **Gaea** | The Earth god, bound into a die. Adds the faces of her whole family, and weighs them down. | #Divine #Wild #Patience |
+| **Ognen** | The Fire god, bound into a die. Burns on any high face and goes out on a low one. | #Divine #Explodes #Fizzles |
+| **Varuna** | The Water god, bound into a die. Any die can lock for free, but her 1 floods them all. | #Divine #FreeLock #Refund |
+| **Zephyr** | The Air god, bound into a die. Every set rises a step, but Fire burns less. | #Divine #Wild #Sets #Drift |
+| **Primordial** | The dreamer's own die, lent to you. Every Aether power, and a share of each god's. | #Divine #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience |
+| **Bullion** | A bar of stored Mult. It scores nothing, but pays your final Mult in Shards on a clear. | #Payout |
+| **Masquerade** | It wears its neighbor's face. Copies the abilities and score of the die on its left. | #Copy #Mirror |
+| **Chameleon** | Borrows the left die's abilities and the right die's score. | #Copy #Mirror |
 
 ---
 
