@@ -418,6 +418,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Three new relics:** Heat (Fire), Gust (Air) and Steady (Earth).
 - **Clearer dice:** Held, Locked and Frozen tags now sit above the die; buttons and hotkeys stay below, and nothing shifts when they change.
 - **Family tags:** a die's families show as colored tags with the element's mark, the same in the shop, on the table and in the Gallery.
+- **Element symbols:** dice in the shop, boss reward and load screen show their element's symbol in the middle instead of "d6" (the shape already tells the size).
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -503,7 +504,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E4. Element symbol in the middle (outside the table)
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note:** instead of "d#" on dice in their 3D form, show their symbol in the middle.
 - **Proposal:** `components/DieToken.jsx` (shop inventory, upgrade shelf, boss reward, run preview) shows the element's `PixelIcon`, large and centered, instead of the "d6" label. The shape already tells the size, and the popover and tooltips still say "d6". On the table, dice keep showing their rolled face number.
