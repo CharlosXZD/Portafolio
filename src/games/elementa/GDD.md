@@ -407,3 +407,9 @@ From Carlos's playtest notes (2026-09-29).
 - **Boons and pacts** (`state.boons`, `components/BoonsList.jsx`): every Shrine blessing and Black Market deal is recorded with its round. Active and upcoming ones (Blessing of Wind, Hollow Pact, Tide, Loan, Prophecy) show in the round HUD and the shop sidebar; Run Info and the run summary list all of them. Taking one plays a spark burst on its card.
 - **Shop:** dice in the inventory render in their real tier shape (`components/DieToken.jsx`, also used by the boss reward, run preview, upgrades and summary) with a green badge for permanent bonuses such as Whetstone; drag dice in the inventory to reorder; the reroll button shows a Shard price and a line under it ("New offers for 3 Shards (then 4)"); every restock (reroll, Loom of Fate) deals the offers in again with a flip animation (`shop.restocks`).
 - **Run end:** beating Primordial goes straight to the run summary (no boss reward or shop first). Choosing Endless then gives the boss reward and the final shop before round 16. The summary shows your dice as dice with their last faces, your relics and consumables, the keepers you visited (with visit counts) and bosses you faced (`state.chronicle`), and every boon and pact.
+
+## 30. v0.4 completion: Aether recipe, playtest polish, element balance, safety camp, patch notes (implemented)
+
+From EXPANSION.md (B6, B7, E1 to E10, E12), Carlos's decisions of 2026-09-30 and 2026-10-01.
+
+- **Credits (B7):** the inspiration line now reads Balatro, Ultrapool, The Binding of Isaac.

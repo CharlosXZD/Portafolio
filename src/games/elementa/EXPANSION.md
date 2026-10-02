@@ -367,7 +367,7 @@ Ranked by how much new depth each adds:
 
 ## B7. Credits: add The Binding of Isaac
 
-**Status: Ready**
+**Status: Built** (v0.4)
 
 In `components/CreditsScreen.jsx`, change the inspiration line from `Balatro, Ultrapool` to `Balatro, Ultrapool, The Binding of Isaac`.
 
@@ -413,6 +413,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Boons and pacts panel:** active blessings, deals, and the Prophecy stay visible.
 - **Run summary:** shows right after the final boss, with your dice, items, everyone you met, and every pact.
 - **Reference:** CONTENT.md lists all game content and synergies.
+- **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
 - **Save files are whole games:** profile plus run, with a File hub.
