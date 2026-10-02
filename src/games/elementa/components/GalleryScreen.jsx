@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
-import { ELEMENTS, PURE_ELEMENT_IDS, describeElement, rarityForElement } from '../data/elements.js'
+import { ELEMENTS, PURE_ELEMENT_IDS, describeElement, rarityForElement, familiesOf } from '../data/elements.js'
 import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
@@ -16,6 +16,7 @@ import PixelIcon from './PixelIcon.jsx'
 import BossAvatar from './BossAvatar.jsx'
 import AchievementsList from './AchievementsList.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
+import FamilyTags from './FamilyTag.jsx'
 import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
 import { keeperMemory } from '../utils/keepers.js'
 
@@ -43,13 +44,6 @@ const FAMILY_TEXT = {
     arcane: 'Sin elemento ni familia. A los dados Arcanos les importa dónde están en tu fila.',
     neutral: 'No está ligado a ningún elemento.',
   },
-}
-
-function familiesOf(elementId) {
-  const def = ELEMENTS[elementId]
-  if (def.tier === 'arcane') return ['arcane']
-  if (def.tier === 'pure') return [elementId]
-  return def.parents
 }
 
 const byRarity = (a, b) => RARITY_ORDER.indexOf(a.item.rarity) - RARITY_ORDER.indexOf(b.item.rarity)
@@ -170,7 +164,6 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
         const def = ELEMENTS[id]
         const { flagLines } = describeElement(id, lang)
         const parents = def.parents.map((p) => localize(lang, ELEMENTS[p].name, ELEMENTS_ES, p, 'name')).join(' + ')
-        const families = familiesOf(id).map((f) => (f === 'arcane' ? t('elementa.gallery.arcane') : localize(lang, ELEMENTS[f].name, ELEMENTS_ES, f, 'name')))
         return {
           key: id,
           seen: seen.dice.has(id),
@@ -178,9 +171,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
           item: { ...dieDescriptor(id, lang), rarity: rarityForElement(id) },
           extra: (
             <div className="flex flex-col gap-2">
-              <div className="text-base text-[var(--arcane-hi)]">
-                {t('elementa.gallery.families')}: {families.join(', ')}
-              </div>
+              <FamilyTags elementId={id} />
               {parents && (
                 <div className="text-base text-[var(--gold-1)]">
                   {/* Aether's recipe is secret until Primordial falls (B6). */}

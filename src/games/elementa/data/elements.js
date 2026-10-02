@@ -303,6 +303,16 @@ export function inFamily(elementId, family) {
   return elementId === family || def.parents.includes(family)
 }
 
+// The families a die belongs to, for tags and grouping: a pure die is its
+// own family, a fusion belongs to each parent's, arcane dice to 'arcane'.
+export function familiesOf(elementId) {
+  const def = ELEMENTS[elementId]
+  if (!def) return []
+  if (def.tier === TIERS.ARCANE) return ['arcane']
+  if (def.tier === TIERS.PURE) return [elementId]
+  return def.parents
+}
+
 // Family abilities (EXPANSION.md E8), shared by every die in the family; a
 // fusion gets one per family it belongs to. Kindling only fires on dice
 // that can actually fizzle.

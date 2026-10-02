@@ -441,4 +441,5 @@ From EXPANSION.md (B6, B7, E1 to E10, E12), Carlos's decisions of 2026-09-30 and
 
     A bot undervalues rerolls (it can't plan around them like a player), so Water's real strength is more than raw score shows. Playtests should confirm.
 - **Tags above the die (E7):** in `components/Die.jsx`, Held / Locked / Frozen tags live in a fixed-height row above the die; Lock, Freeze, Drift, Gust and the hotkey number stay in a fixed-size row below, absolutely centered so buttons never widen a die's column. Both rows keep their size during the cast, so the dice never move (the §29 stability fix still holds). The hotkey now also shows on held dice.
+- **Family tags (E2):** `components/FamilyTag.jsx` draws one chip per family (element color, pixel mark, name; arcane dice get an "Arcane" chip), from `familiesOf()` now shared in `data/elements.js`. Shown under the rarity pill in `ItemInspector` for dice and forge recipes (shop offers, inventory, upgrade shelf), in the die tooltip on the table, and in the Gallery's die detail, replacing the plain "Families:" text.
 

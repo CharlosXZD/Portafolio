@@ -8,6 +8,7 @@ import { juicyHover, juicyTap } from '../utils/motionPresets.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { localize, ELEMENTS_ES } from '../data/i18n.js'
 import Tooltip from './Tooltip.jsx'
+import FamilyTags from './FamilyTag.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY } from './DieSprite.jsx'
 import { mix } from '../utils/color.js'
@@ -65,11 +66,6 @@ export default function Die({
   const isLocked = die.locked && die.lockedVia === 'lock'
   const isFrozen = die.locked && die.lockedVia === 'freeze'
   const description = describeElement(die.elementId, lang)
-  // Which element families this die belongs to (pure: itself, fusion: its
-  // parents), the same notion relic text uses ("Water-family die").
-  const families = (def.tier === 'pure' ? [die.elementId] : def.parents).map((f) =>
-    localize(lang, ELEMENTS[f].name, ELEMENTS_ES, f, 'name'),
-  )
   const rarity = rarityForElement(die.elementId)
   const rarityGlow = rarity !== RARITY.COMMON ? RARITY_GLOW[rarity] : null
 
@@ -161,11 +157,8 @@ export default function Die({
               {elementName} <span className="text-[var(--text-mute)]">d{die.sides}</span>
             </div>
             <p className="mb-2 text-[var(--text)]">{description.tagline}</p>
-            {families.length > 0 && (
-              <p className="mb-2 text-[var(--arcane-hi)]">
-                {t('elementa.gallery.families')}: {families.join(', ')}
-              </p>
-            )}
+            {/* The same family chips as the shop and Gallery (E2). */}
+            <FamilyTags elementId={die.elementId} className="mb-2" />
             <ul className="flex list-none flex-col gap-1">
               {description.flagLines.map((line) => (
                 <li key={line} className="before:mr-1.5 before:text-[var(--gold-2)] before:content-['+']">

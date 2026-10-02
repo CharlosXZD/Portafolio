@@ -417,6 +417,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Family abilities:** Fire dice that fizzle refund a reroll (Kindling), Earth dice grow while they wait (Patience), and Air dice can nudge a face by 1 once per round (Drift).
 - **Three new relics:** Heat (Fire), Gust (Air) and Steady (Earth).
 - **Clearer dice:** Held, Locked and Frozen tags now sit above the die; buttons and hotkeys stay below, and nothing shifts when they change.
+- **Family tags:** a die's families show as colored tags with the element's mark, the same in the shop, on the table and in the Gallery.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -474,7 +475,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E2. Family tags, consistent everywhere
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note:** clicking a die in the shop should show its family as a tag, like the rarity tag, and these tags should look the same on the table (the circle) too.
 - **Proposal:**

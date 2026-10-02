@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { RARITY_GLOW } from '../data/relics.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
+import FamilyTags from './FamilyTag.jsx'
 
 const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' },
@@ -114,6 +115,8 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
           {RARITY_LABEL[lang][item.rarity]}
         </span>
       </div>
+      {/* Dice and forge recipes show their families next to the rarity (E2). */}
+      {(item.kind === 'die' || item.kind === 'forge') && <FamilyTags elementId={item.id} className="px-3 pb-2" />}
       <p className="px-3 pb-3 text-[15px] leading-snug text-[var(--text-dim)]">{highlightDescription(item.description)}</p>
       {actions.length > 0 && (
         <div className="flex flex-wrap gap-3 border-t-2 border-[var(--ink)] bg-black/20 px-3 py-3">
