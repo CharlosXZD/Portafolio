@@ -388,7 +388,7 @@ Ranked by how much new depth each adds:
 
 **Status: Decided** (Carlos, 2026-09-30), **not shipped yet**. Carlos: "I don't want to ship the ideas yet, move them to the expansion." They moved here from CONTENT.md, which again describes only the current game.
 
-**Status for the v0.5 part: Ready.** **Timing (Agreed, 2026-10-02):**
+**Status for the v0.5 part: Built** (v0.5; Chrono's repeat-until-not-1 ability shipped too, Carlos 2026-10-02, only its move waits for v0.7). **Timing (Agreed, 2026-10-02):**
 - The balance changes, Bullion, Masquerade and Chameleon ship in **v0.5**.
 - Chrono's move ships with the Firmament (**v0.7**).
 - The number dice ship with realm 3 (**v0.8**).

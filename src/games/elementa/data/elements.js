@@ -24,6 +24,10 @@ export const FLAGS = {
   CHRONO: 'chrono',
   BEACON: 'beacon',
   ALL_ELEMENTS: 'allElements',
+  // EXPANSION.md B10.
+  BULLION: 'bullion',
+  MIMIC_LEFT: 'mimicLeft', // Masquerade: abilities and score of the left die
+  MIMIC_SPLIT: 'mimicSplit', // Chameleon: abilities of the left, score of the right
 }
 
 const flagSet = (...flags) => Object.fromEntries(flags.map((f) => [f, true]))
@@ -206,7 +210,7 @@ export const ELEMENTS = {
     id: 'midas',
     name: 'Gilded',
     tier: TIERS.ARCANE,
-    rarity: RARITY.RARE,
+    rarity: RARITY.COMMON,
     parents: [],
     color: '#e8b923',
     tagline: 'Scores nothing. Pays its face in Shards when you clear the round.',
@@ -226,7 +230,7 @@ export const ELEMENTS = {
     id: 'mirror',
     name: 'Mirror',
     tier: TIERS.ARCANE,
-    rarity: RARITY.EPIC,
+    rarity: RARITY.RARE,
     parents: [],
     color: '#b8c4d6',
     tagline: 'Copies the score of the die to its left.',
@@ -239,7 +243,7 @@ export const ELEMENTS = {
     rarity: RARITY.EPIC,
     parents: [],
     color: '#7ae0c8',
-    tagline: 'Its two neighbors react with each other as if they touched.',
+    tagline: 'Its two neighbors react with each other as if they touched, and those reactions count double.',
     flags: flagSet(FLAGS.CONDUIT),
   },
   chrono: {
@@ -249,14 +253,14 @@ export const ELEMENTS = {
     rarity: RARITY.EPIC,
     parents: [],
     color: '#c9a0ff',
-    tagline: 'A rolled 1 rewinds and rolls again for free.',
+    tagline: 'A rolled 1 rewinds and rolls again, until it is no longer a 1.',
     flags: flagSet(FLAGS.CHRONO),
   },
   beacon: {
     id: 'beacon',
     name: 'Beacon',
     tier: TIERS.ARCANE,
-    rarity: RARITY.EPIC,
+    rarity: RARITY.RARE,
     parents: [],
     color: '#ffb347',
     tagline: 'The dice on either side of it score x1.5.',
@@ -266,11 +270,44 @@ export const ELEMENTS = {
     id: 'prism',
     name: 'Prism',
     tier: TIERS.ARCANE,
-    rarity: RARITY.LEGENDARY,
+    rarity: RARITY.EPIC,
+    price: 25,
     parents: [],
     color: '#ff7ad9',
     tagline: 'Counts as all four elements for reactions with its neighbors.',
     flags: flagSet(FLAGS.ALL_ELEMENTS),
+  },
+  // --- B10: Carlos's arcane dice. ---
+  bullion: {
+    id: 'bullion',
+    name: 'Bullion',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 25,
+    parents: [],
+    color: '#d9a441',
+    tagline: 'Scores nothing. Pays your final Mult in Shards when you clear the round.',
+    flags: flagSet(FLAGS.BULLION),
+  },
+  masquerade: {
+    id: 'masquerade',
+    name: 'Masquerade',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.LEGENDARY,
+    parents: [],
+    color: '#c45bd6',
+    tagline: 'Copies the abilities and the score of the die to its left.',
+    flags: flagSet(FLAGS.MIMIC_LEFT),
+  },
+  chameleon: {
+    id: 'chameleon',
+    name: 'Chameleon',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.LEGENDARY,
+    parents: [],
+    color: '#5fbf7a',
+    tagline: 'Copies the abilities of the die to its left and the score of the die to its right.',
+    flags: flagSet(FLAGS.MIMIC_SPLIT),
   },
 }
 
@@ -278,7 +315,23 @@ export const PURE_ELEMENT_IDS = ['earth', 'fire', 'water', 'air']
 export const DOUBLE_FUSION_IDS = ['lightning', 'ice', 'steel', 'mud', 'steam', 'crystal']
 export const TRIPLE_FUSION_IDS = ['storm', 'obsidian', 'magma', 'monsoon']
 export const QUADRA_FUSION_ID = 'aether'
-export const ARCANE_DIE_IDS = ['midas', 'sapling', 'mirror', 'conduit', 'chrono', 'beacon', 'prism']
+export const ARCANE_DIE_IDS = ['midas', 'sapling', 'mirror', 'conduit', 'chrono', 'beacon', 'prism', 'bullion', 'masquerade', 'chameleon']
+
+const isMimic = (id) => Boolean(ELEMENTS[id]?.flags[FLAGS.MIMIC_LEFT] || ELEMENTS[id]?.flags[FLAGS.MIMIC_SPLIT])
+
+/**
+ * Which element each die acts as, left to right (B10): Masquerade and
+ * Chameleon take on the abilities of the die to their left (a chain of
+ * them passes the same abilities along). At the left end they have none
+ * of their own to borrow and stay themselves.
+ */
+export function actingElementIds(dice) {
+  const out = []
+  dice.forEach((d, i) => {
+    out.push(isMimic(d.elementId) && i > 0 ? out[i - 1] : d.elementId)
+  })
+  return out
+}
 
 // Which elements a die brings to an adjacency reaction (data/reactions.js):
 // a pure die is itself, a fusion is its parents, Prism is all four, and the
@@ -368,10 +421,13 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.MIDAS]: 'Scores 0, but its face is paid out in Shards on a clear.',
   [FLAGS.GROWS]: 'Gains +2 for every reroll it sits out.',
   [FLAGS.MIRROR_LEFT]: 'Copies the score of the die on its left.',
-  [FLAGS.CONDUIT]: 'Bridges reactions between its two neighbors.',
-  [FLAGS.CHRONO]: 'A 1 rerolls itself once, for free.',
+  [FLAGS.CONDUIT]: 'Bridges reactions between its two neighbors, and doubles them.',
+  [FLAGS.CHRONO]: 'A 1 rerolls itself for free until it is no longer a 1.',
   [FLAGS.BEACON]: 'Both neighbors score x1.5.',
   [FLAGS.ALL_ELEMENTS]: 'Reacts as Fire, Water, Earth, and Air at once.',
+  [FLAGS.BULLION]: 'Scores 0, but pays your final Mult (rounded down) in Shards on a clear.',
+  [FLAGS.MIMIC_LEFT]: 'Acts as the die on its left: its abilities, and its score.',
+  [FLAGS.MIMIC_SPLIT]: 'Acts as the die on its left, but scores what the die on its right scores.',
 }
 
 export function describeElement(elementId, lang = 'en') {

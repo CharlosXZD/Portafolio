@@ -119,6 +119,18 @@ const ICONS = {
     rows: ['...c...', '..chc..', '..chc..', '.chhcc.', '.ccccc.', 'ccccccc', '.......'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
+  bullion: {
+    rows: ['.......', '..ccc..', '.chhcc.', 'chhcccc', 'ccccccc', '.......', '.......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  masquerade: {
+    rows: ['.......', 'ccc.ccc', 'chcccch', 'c.ccc.c', '.ccccc.', '..c.c..', '.......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  chameleon: {
+    rows: ['..ccc..', '.chccc.', 'cccccc.', '..cc.c.', '.c.c.cc', 'c..c..c', '.cc....'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
   spark: {
     rows: ['...c...', '...c...', '.c.h.c.', 'cchhhcc', '.c.h.c.', '...c...', '...c...'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },

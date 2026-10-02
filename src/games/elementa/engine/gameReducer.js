@@ -9,6 +9,7 @@ import {
   fusionsUnlockedBy,
   inFamily,
   elementHasFlag,
+  actingElementIds,
   rarityForElement,
 } from '../data/elements.js'
 import { nextTier, prevTier, tierById, sellValueForDie } from '../data/diceTiers.js'
@@ -60,11 +61,13 @@ const FORGE_BASE_COST_BY_TIER = {
 const DIE_BASE_COST_BY_TIER = {
   double: 12,
   triple: 20,
-  quadra: 32,
+  quadra: 64,
 }
 
-// Arcane dice have no fusion tier, so they're priced by rarity instead.
+// Arcane dice have no fusion tier, so they're priced by rarity instead (a
+// die can set its own `price`, as Prism and Bullion do).
 const ARCANE_DIE_COST_BY_RARITY = {
+  [RARITY.COMMON]: 8,
   [RARITY.RARE]: 14,
   [RARITY.EPIC]: 20,
   [RARITY.LEGENDARY]: 30,
@@ -208,7 +211,7 @@ function newDieCost(elementId, dice, relics, shop) {
     tier === 'pure'
       ? 4 + owned
       : tier === 'arcane'
-        ? ARCANE_DIE_COST_BY_RARITY[rarityForElement(elementId)]
+        ? ELEMENTS[elementId].price ?? ARCANE_DIE_COST_BY_RARITY[rarityForElement(elementId)]
         : DIE_BASE_COST_BY_TIER[tier]
   return applyDiscount(base, relics, shopCut(shop, 'die'))
 }
@@ -748,16 +751,18 @@ function reduce(state, action) {
 
     case 'LOCK_DIE': {
       if (state.phase !== 'rolling') return state
-      const die = state.dice.find((d) => d.id === action.dieId)
-      if (!die || die.locked || !ELEMENTS[die.elementId].flags[FLAGS.FREE_LOCK]) return state
+      const idx = state.dice.findIndex((d) => d.id === action.dieId)
+      const die = state.dice[idx]
+      // Masquerade and Chameleon lock as the die they act as (B10).
+      const acting = die ? ELEMENTS[actingElementIds(state.dice)[idx]] : null
+      if (!die || die.locked || !acting.flags[FLAGS.FREE_LOCK]) return state
 
       const fx = relicEffects(effectiveRelics(state))
       if (fx.noFreeLock) return state
-      const grantsReroll = ELEMENTS[die.elementId].flags[FLAGS.GRANTS_REROLL_ON_LOCK]
+      const grantsReroll = acting.flags[FLAGS.GRANTS_REROLL_ON_LOCK]
       const rerollGrant = grantsReroll ? 1 + (fx.waterLockRerollBonus || 0) : 0
-      const adjacent = ELEMENTS[die.elementId].flags[FLAGS.ADJACENT_FREE_LOCK]
+      const adjacent = acting.flags[FLAGS.ADJACENT_FREE_LOCK]
 
-      const idx = state.dice.findIndex((d) => d.id === action.dieId)
       const adjacentId = adjacent ? state.dice[idx + 1]?.id : null
 
       let dice = state.dice.map((d) => {
@@ -882,7 +887,7 @@ function reduce(state, action) {
         const fx = relicEffects(effectiveRelics(state))
         const interest = interestFor(state.shards, fx.interestCapBonus || 0, fx.interestDivisor || 3)
         const base = Math.round(5 * state.difficulty.shardMultiplier)
-        const bonus = (fx.shardPerExplosion || 0) * result.explodeCount + result.midasShards
+        const bonus = (fx.shardPerExplosion || 0) * result.explodeCount + result.midasShards + result.bullionShards
         let shards = state.shards + earned + interest + bonus
         // Kept for the round-result card, so the player sees where Shards came from.
         const shardGain = { base, overkill: earned - base, interest, bonus, total: earned + interest + bonus }

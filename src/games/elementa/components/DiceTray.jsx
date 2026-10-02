@@ -4,7 +4,7 @@ import Die from './Die.jsx'
 import CastLedger from './CastLedger.jsx'
 import { evaluatePool } from '../engine/scoring.js'
 import { selectors } from '../engine/gameReducer.js'
-import { ELEMENTS, inFamily } from '../data/elements.js'
+import { ELEMENTS, inFamily, actingElementIds } from '../data/elements.js'
 import { reactionById } from '../data/reactions.js'
 import { bossById } from '../data/bossModifiers.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
@@ -112,6 +112,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   // Gust arms like a consumable: press it, then click the die to reroll.
   const [gustArmed, setGustArmed] = useState(false)
   const targeting = Boolean(armedConsumable) || gustArmed
+  const actingIds = actingElementIds(state.dice)
   const rerollTax = fx.rerollShardCost || 0
   const canReroll = availableRerolls > 0 && state.shards >= rerollTax
   const boss = localizeBossModifier(state.bossModifier, lang)
@@ -421,6 +422,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
             >
               {state.dice.map((die, i) => {
                 const dieResult = shown.dice.find((d) => d.id === die.id)
+                const actingAs = actingIds[i]
                 return (
                   <Reorder.Item
                     key={die.id}
@@ -459,6 +461,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       onLock={(id) => dispatch({ type: 'LOCK_DIE', dieId: id })}
                       onFreeze={(id) => dispatch({ type: 'FREEZE_DIE', dieId: id })}
                       canFreeze={canFreeze}
+                      actingAs={actingAs}
                       canDrift={canDrift && inFamily(die.elementId, 'air') && die.lockedVia !== 'freeze'}
                       onNudge={(id, delta) => dispatch({ type: 'NUDGE_DIE', dieId: id, delta })}
                       revealing={revealing}

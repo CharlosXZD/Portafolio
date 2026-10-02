@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-02 (v0.4), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-02 (Alpha v0.5 in development), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -62,18 +62,21 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 ### Quadra fusion (Legendary)
 | Die | Rarity | Made from | Shop price | Abilities |
 |---|---|---|---|---|
-| **Aether** | Legendary | Fire + Water + Air + Earth | 32 | Every mechanic, on one die. Capped at one per run. • Rolling the max face rerolls and adds again, chaining. • Rolling a 1 scores 0 this round. • Can lock its face for free (no reroll spent). • Locking it grants +1 reroll. • Locking it also locks the next die for free. • Rerolling it can copy its result onto another die. • Enables the matching-set bonus for the whole pool. • Counts double when part of a matching set. |
+| **Aether** | Legendary | Fire + Water + Air + Earth | 64 | Every mechanic, on one die. Capped at one per run. • Rolling the max face rerolls and adds again, chaining. • Rolling a 1 scores 0 this round. • Can lock its face for free (no reroll spent). • Locking it grants +1 reroll. • Locking it also locks the next die for free. • Rerolling it can copy its result onto another die. • Enables the matching-set bonus for the whole pool. • Counts double when part of a matching set. |
 
 ### Arcane dice (no element; they care about their neighbors)
 | Die | Rarity | Made from | Shop price | Abilities |
 |---|---|---|---|---|
-| **Gilded** | Rare | - | 14 | Scores nothing. Pays its face in Shards when you clear the round. • Scores 0, but its face is paid out in Shards on a clear. |
+| **Gilded** | Common | - | 8 | Scores nothing. Pays its face in Shards when you clear the round. • Scores 0, but its face is paid out in Shards on a clear. |
 | **Sapling** | Rare | - | 14 | Grows +2 every reroll it stays held. Rerolling it resets the growth. • Gains +2 for every reroll it sits out. |
-| **Mirror** | Epic | - | 20 | Copies the score of the die to its left. • Copies the score of the die on its left. |
-| **Conduit** | Epic | - | 20 | Its two neighbors react with each other as if they touched. • Bridges reactions between its two neighbors. |
-| **Chrono** | Epic | - | 20 | A rolled 1 rewinds and rolls again for free. • A 1 rerolls itself once, for free. |
-| **Beacon** | Epic | - | 20 | The dice on either side of it score x1.5. • Both neighbors score x1.5. |
-| **Prism** | Legendary | - | 30 | Counts as all four elements for reactions with its neighbors. • Reacts as Fire, Water, Earth, and Air at once. |
+| **Mirror** | Rare | - | 14 | Copies the score of the die to its left. • Copies the score of the die on its left. |
+| **Conduit** | Epic | - | 20 | Its two neighbors react with each other as if they touched, and those reactions count double. • Bridges reactions between its two neighbors, and doubles them. |
+| **Chrono** | Epic | - | 20 | A rolled 1 rewinds and rolls again, until it is no longer a 1. • A 1 rerolls itself for free until it is no longer a 1. |
+| **Beacon** | Rare | - | 14 | The dice on either side of it score x1.5. • Both neighbors score x1.5. |
+| **Prism** | Epic | - | 25 | Counts as all four elements for reactions with its neighbors. • Reacts as Fire, Water, Earth, and Air at once. |
+| **Bullion** | Epic | - | 25 | Scores nothing. Pays your final Mult in Shards when you clear the round. • Scores 0, but pays your final Mult (rounded down) in Shards on a clear. |
+| **Masquerade** | Legendary | - | 30 | Copies the abilities and the score of the die to its left. • Acts as the die on its left: its abilities (reactions, sets, free lock, Beacon, Conduit...), and its score. At the left end it has nothing to copy and scores its own face. |
+| **Chameleon** | Legendary | - | 30 | Copies the abilities of the die to its left and the score of the die to its right. • Acts as the die on its left, but scores what the die on its right scores on its own (before any copying). At either end it keeps what it can't copy. |
 
 **Forging** (at the Forge, the Bazaar, or with a Fusion Spark) consumes one die of each parent: 6 Shards for a double, 10 for a triple, 16 for Aether.
 
@@ -128,7 +131,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 
 | Consumable | Rarity | Price | Target | Effect |
 |---|---|---|---|---|
-| **Upgrade Stone** | Uncommon | 8 | A die | Apply to a die to bump its tier one step (d6 to d10, and so on). |
+| **Upgrade Stone** | Epic | 18 | A die | Apply to a die to bump its tier one step (d6 to d10, and so on). |
 | **Extra Reroll** | Uncommon | 8 | You | Grants +1 permanent reroll for the rest of the run. |
 | **Transmute: Earth** | Common | 5 | A die | Apply to a die to change its element to Earth, keeping its tier. |
 | **Transmute: Water** | Common | 5 | A die | Apply to a die to change its element to Water, keeping its tier. |
@@ -457,7 +460,8 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 - **Reaction payoffs:** Alchemist's Table (+2 Base per reaction), Catalyst Stone (+0.5 on every Mult reaction), Ley Line (first and last dice become neighbors, one extra link).
 - **Triple fusions are reaction engines:** Storm (Fire, Water, Air) beside a pure Earth die fires Forge, Bloom and Dust Devil on one link.
 - **Prism** reacts as all four elements: every basic reaction with its neighbor. Prism between two fusions is the strongest link in the game.
-- **Conduit** makes its two neighbors react as if they touched (it adds a link without breaking one).
+- **Conduit** makes its two neighbors react as if they touched (it adds a link without breaking one), and that bridged link's reactions count double.
+- **Masquerade and Chameleon** take on the abilities of the die to their left, so [Prism, Masquerade] gives you two Prisms, and [Water, Chameleon, big die] gives you a free-locking copy of the big die's score.
 - **Beacon** (x1.5 both neighbors), **Heart of the Circle** (middle die x2), **Bookends** (+4 on the ends): place your big dice where these land.
 - **Mirror** copies the die on its left after that die's own bonuses, then Beacon and Heart apply on top: [big die, Mirror, Beacon] makes the Mirror copy the big die and then get x1.5.
 - **Watch out:** arcane dice other than Prism bring no element, so they break reaction chains unless a Conduit bridges them. Gilded (Midas) scores 0, so it never reacts.
@@ -470,7 +474,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 ### Economy
 - **Interest:** Shard Vault (cap 5 to 8), Windfall (1 per 2 Shards instead of 3). Together they reach the cap with only 16 Shards held.
 - **Discounts stack:** Discount Merchant (-10%) multiplies with the Alchemist (-20% consumables) and the Bazaar (-25% everything). Deep Pockets makes shop rerolls cheaper.
-- **Income:** Gilded die (its face paid as Shards; grow it for more), Lucky Coin, Hoarder (+1 on sells), Steadfast (+3 on a miss), Shard Pouch, Nix's Loan, Blessing of Stone at full health.
+- **Income:** Gilded die (its face paid as Shards; grow it for more), Bullion (your final Mult as Shards: pairs with big-Mult builds), Lucky Coin, Hoarder (+1 on sells), Steadfast (+3 on a miss), Shard Pouch, Nix's Loan, Blessing of Stone at full health.
 - **Brewing:** cheap Commons (Transmutes, Chisel, Whetstone, Shard Pouch) brew into Uncommons, which brew into Rares. The Alchemist discount makes the inputs cheap.
 
 ### Survival and risk

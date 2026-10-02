@@ -22,7 +22,7 @@ export const CONSUMABLES = [
     kind: 'consumable',
     type: 'upgrade',
     target: 'die',
-    rarity: RARITY.UNCOMMON,
+    rarity: RARITY.EPIC,
     element: null,
     itemConcept: 'a faceted whetstone with tier-pips of light',
     description: 'Apply to a die to bump its tier one step (d6 to d10, and so on).',

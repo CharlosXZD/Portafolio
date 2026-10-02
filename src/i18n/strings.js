@@ -236,6 +236,7 @@ const strings = {
   'elementa.die.locked': { en: 'locked', es: 'bloqueado' },
   'elementa.die.frozen': { en: 'frozen', es: 'congelado' },
   'elementa.die.held': { en: 'held', es: 'guardado' },
+  'elementa.die.actingAs': { en: 'Acting as {die}', es: 'Actúa como {die}' },
   'elementa.diceTray.gust': { en: 'Gust: free reroll', es: 'Ráfaga: reroll gratis' },
   'elementa.diceTray.gustPick': { en: 'Pick a die to reroll for free', es: 'Elige un dado para volver a tirar gratis' },
   'elementa.die.gustHint': { en: 'Gust: reroll this die for free (once per round)', es: 'Ráfaga: vuelve a tirar este dado gratis (una vez por ronda)' },

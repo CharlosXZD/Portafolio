@@ -61,6 +61,7 @@ export default function Die({
   showHotkey = true,
   canDrift = false,
   onNudge,
+  actingAs = null,
 }) {
   const { reducedMotion, display } = useGameSettings()
   const { lang, t } = useLanguage()
@@ -68,7 +69,9 @@ export default function Die({
   const tumbleControls = useAnimationControls()
   const def = ELEMENTS[die.elementId]
   const elementName = localize(lang, def.name, ELEMENTS_ES, die.elementId, 'name')
-  const canFreeLock = def.flags[FLAGS.FREE_LOCK] && !die.locked && !lockBlocked
+  // Masquerade and Chameleon use the abilities of the die they act as.
+  const acting = ELEMENTS[actingAs ?? die.elementId]
+  const canFreeLock = acting.flags[FLAGS.FREE_LOCK] && !die.locked && !lockBlocked
   const isLocked = die.locked && die.lockedVia === 'lock'
   const isFrozen = die.locked && die.lockedVia === 'freeze'
   const description = describeElement(die.elementId, lang)
@@ -180,6 +183,11 @@ export default function Die({
               {elementName} <span className="text-[var(--text-mute)]">d{die.sides}</span>
             </div>
             <p className="mb-2 text-[var(--text)]">{description.tagline}</p>
+            {acting.id !== die.elementId && (
+              <p className="mb-2 text-[var(--arcane-hi)]">
+                {t('elementa.die.actingAs').replace('{die}', localize(lang, acting.name, ELEMENTS_ES, acting.id, 'name'))}
+              </p>
+            )}
             {/* The same family chips as the shop and Gallery (E2). */}
             <FamilyTags elementId={die.elementId} className="mb-2" />
             <ul className="flex list-none flex-col gap-1">

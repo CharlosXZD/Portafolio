@@ -1,4 +1,4 @@
-import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily } from '../data/elements.js'
+import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily, actingElementIds } from '../data/elements.js'
 import { REACTIONS, reactionById } from '../data/reactions.js'
 import { random } from './rng.js'
 
@@ -27,8 +27,8 @@ function relicEffects(relics) {
 export function rollDie(elementId, sides, relics = []) {
   const fx = relicEffects(relics)
   let value = randInt(sides)
-  // Chrono: a 1 rewinds and rolls once more, for free.
-  if (value === 1 && hasFlag(elementId, FLAGS.CHRONO)) value = randInt(sides)
+  // Chrono: a 1 rewinds and rolls again until it isn't a 1 (B10).
+  if (hasFlag(elementId, FLAGS.CHRONO)) while (value === 1) value = randInt(sides)
   // Steady: Earth-family faces never land below its floor.
   if (fx.earthFamilyMinFace && inFamily(elementId, 'earth')) value = Math.max(value, Math.min(fx.earthFamilyMinFace, sides))
   let total = value
@@ -125,8 +125,9 @@ function adjacencyLinks(perDie, fx) {
   const links = []
   const n = perDie.length
   for (let i = 0; i < n - 1; i++) links.push([i, i + 1])
+  // A Conduit's bridge counts double (B10), marked with a third entry.
   for (let i = 1; i < n - 1; i++) {
-    if (hasFlag(perDie[i].elementId, FLAGS.CONDUIT)) links.push([i - 1, i + 1])
+    if (hasFlag(perDie[i].actingAs, FLAGS.CONDUIT)) links.push([i - 1, i + 1, 2])
   }
   if (fx.wrapAdjacency && n > 2) links.push([n - 1, 0])
   return links
@@ -141,18 +142,18 @@ function secretPairMatches([x, y], a, b) {
 
 function findReactions(perDie, fx) {
   const found = []
-  for (const [i, j] of adjacencyLinks(perDie, fx)) {
+  for (const [i, j, factor = 1] of adjacencyLinks(perDie, fx)) {
     const a = perDie[i]
     const b = perDie[j]
     if (!(a.contribution > 0 && b.contribution > 0)) continue
-    const ea = reactionElementsOf(a.elementId)
-    const eb = reactionElementsOf(b.elementId)
+    const ea = reactionElementsOf(a.actingAs)
+    const eb = reactionElementsOf(b.actingAs)
     if (ea.length === 0 || eb.length === 0) continue
     const ids = new Set()
-    if (a.elementId === b.elementId) ids.add('resonance')
+    if (a.actingAs === b.actingAs) ids.add('resonance')
     for (const r of REACTIONS) {
       if (r.secret) {
-        if (secretPairMatches(r.pair, a.elementId, b.elementId)) ids.add(r.id)
+        if (secretPairMatches(r.pair, a.actingAs, b.actingAs)) ids.add(r.id)
         continue
       }
       if (!r.elements) continue
@@ -172,7 +173,14 @@ function findReactions(perDie, fx) {
                 ? (a.value + b.value) * 2
                 : r.base
       const mult = r.mult > 0 ? r.mult + (fx.reactionMultBonus || 0) : 0
-      found.push({ id, a: i, b: j, base: base + (fx.reactionBaseBonus || 0), mult, secret: Boolean(r.secret) })
+      found.push({
+        id,
+        a: i,
+        b: j,
+        base: (base + (fx.reactionBaseBonus || 0)) * factor,
+        mult: mult * factor,
+        secret: Boolean(r.secret),
+      })
     }
   }
   return found
@@ -187,7 +195,10 @@ function findReactions(perDie, fx) {
  */
 export function evaluatePool(dice, relics = [], ctx = {}) {
   const fx = relicEffects(relics)
-  const perDie = dice.map((d) => ({ ...d }))
+  // `actingAs`: the element whose abilities a die uses (itself, unless it
+  // is a Masquerade or Chameleon borrowing from its left neighbor).
+  const acting = actingElementIds(dice)
+  const perDie = dice.map((d, i) => ({ ...d, actingAs: acting[i] }))
   const n = perDie.length
 
   const explodeCount = perDie.reduce((sum, d) => sum + (d.explosions || 0), 0)
@@ -207,7 +218,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   }
 
   // --- set / straight detection (grouped by original face value) ---
-  const enablesSets = !fx.noSetBonus && perDie.some((d) => hasFlag(d.elementId, FLAGS.ENABLES_SET_BONUS))
+  const enablesSets = !fx.noSetBonus && perDie.some((d) => hasFlag(d.actingAs, FLAGS.ENABLES_SET_BONUS))
   let setTier = null
   let winningValues = new Set()
   let setIsAllWaterFamily = false
@@ -245,24 +256,27 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       })
       setIsAllWaterFamily = [...winningValues].every((id) => {
         const d = perDie.find((x) => x.id === id)
-        return hasFlag(d.elementId, FLAGS.FREE_LOCK)
+        return hasFlag(d.actingAs, FLAGS.FREE_LOCK)
       })
     }
   }
 
   // --- pass 1: each die's own score ---
   let midasShards = 0
+  let bullionDice = 0
   perDie.forEach((d, i) => {
-    const fizzled = hasFlag(d.elementId, FLAGS.ZERO_ON_MIN) && d.value === 1
+    const fizzled = hasFlag(d.actingAs, FLAGS.ZERO_ON_MIN) && d.value === 1
     const banned = fx.bannedElementId && d.elementId === fx.bannedElementId
-    const midas = hasFlag(d.elementId, FLAGS.MIDAS)
+    const midas = hasFlag(d.actingAs, FLAGS.MIDAS)
+    const bullion = hasFlag(d.actingAs, FLAGS.BULLION)
     if (midas) midasShards += d.total
-    let contribution = fizzled || zeroTargets.has(i) || banned || midas ? 0 : d.total
+    if (bullion) bullionDice += 1
+    let contribution = fizzled || zeroTargets.has(i) || banned || midas || bullion ? 0 : d.total
 
     if (contribution > 0) {
       if (fx.highFaceHalf && d.value > 4) contribution /= 2
       if (d.elementId === 'earth' && fx.earthPipMultiplier) contribution *= fx.earthPipMultiplier
-      if (hasFlag(d.elementId, FLAGS.DOUBLE_ON_SET) && winningValues.has(d.id)) contribution *= 2
+      if (hasFlag(d.actingAs, FLAGS.DOUBLE_ON_SET) && winningValues.has(d.id)) contribution *= 2
       if (hasFlag(d.elementId, FLAGS.GROWS)) contribution += d.growth || 0
       if (inFamily(d.elementId, 'earth')) contribution += d.patience || 0
       // Heat: every explosion this round warms the whole Fire family.
@@ -283,11 +297,18 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
 
   // --- pass 2: placement. Mirrors copy left-to-right (so chains work),
   // then Beacons and positional relics scale their neighbors/slots. ---
+  // Chameleon scores what its right neighbor scored on its own (before any
+  // copying), Masquerade and Mirror what their left neighbor ends up with.
+  const ownScores = perDie.map((d) => d.contribution)
   perDie.forEach((d, i) => {
-    if (i > 0 && hasFlag(d.elementId, FLAGS.MIRROR_LEFT)) d.contribution = perDie[i - 1].contribution
+    if (i < n - 1 && hasFlag(d.elementId, FLAGS.MIMIC_SPLIT)) d.contribution = ownScores[i + 1]
   })
   perDie.forEach((d, i) => {
-    if (!hasFlag(d.elementId, FLAGS.BEACON)) return
+    const copiesLeft = hasFlag(d.elementId, FLAGS.MIRROR_LEFT) || hasFlag(d.elementId, FLAGS.MIMIC_LEFT)
+    if (i > 0 && copiesLeft) d.contribution = perDie[i - 1].contribution
+  })
+  perDie.forEach((d, i) => {
+    if (!hasFlag(d.actingAs, FLAGS.BEACON)) return
     for (const j of [i - 1, i + 1]) if (perDie[j]) perDie[j].contribution *= 1.5
   })
   if (fx.bookendsBonus && n > 0) {
@@ -377,6 +398,8 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   }
 
   const roundScore = Math.round(baseValue * multiplier)
+  // Bullion pays the final Mult, rounded down, per Bullion die.
+  const bullionShards = bullionDice * Math.floor(multiplier)
 
   return {
     baseValue: Math.round(baseValue * 100) / 100,
@@ -388,6 +411,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     baseLines,
     multLines,
     midasShards,
+    bullionShards,
     dice: perDie,
   }
 }

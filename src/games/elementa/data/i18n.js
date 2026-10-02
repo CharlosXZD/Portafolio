@@ -46,10 +46,13 @@ export const ELEMENTS_ES = {
   midas: { name: 'Dorado', tagline: 'No anota nada. Paga su cara en Fragmentos al superar la ronda.' },
   sapling: { name: 'Brote', tagline: 'Crece +2 por cada reroll que se queda guardado. Relanzarlo lo reinicia.' },
   mirror: { name: 'Espejo', tagline: 'Copia el puntaje del dado a su izquierda.' },
-  conduit: { name: 'Conducto', tagline: 'Sus dos vecinos reaccionan entre sí como si se tocaran.' },
-  chrono: { name: 'Crono', tagline: 'Un 1 retrocede y vuelve a tirarse gratis.' },
+  conduit: { name: 'Conducto', tagline: 'Sus dos vecinos reaccionan entre sí como si se tocaran, y esas reacciones cuentan doble.' },
+  chrono: { name: 'Crono', tagline: 'Un 1 retrocede y vuelve a tirarse, hasta que deja de ser 1.' },
   beacon: { name: 'Faro', tagline: 'Los dados a sus lados anotan x1.5.' },
   prism: { name: 'Prisma', tagline: 'Cuenta como los cuatro elementos para reaccionar con sus vecinos.' },
+  bullion: { name: 'Lingote', tagline: 'No anota nada. Paga tu Multiplicador final en Fragmentos al superar la ronda.' },
+  masquerade: { name: 'Mascarada', tagline: 'Copia las habilidades y el puntaje del dado a su izquierda.' },
+  chameleon: { name: 'Camaleón', tagline: 'Copia las habilidades del dado a su izquierda y el puntaje del dado a su derecha.' },
 }
 
 // Keyed by the flag's string value (FLAGS.EXPLODE === 'explode', etc.), not
@@ -66,9 +69,12 @@ export const FLAG_DESCRIPTIONS_ES = {
   midas: 'Anota 0, pero su cara se paga en Fragmentos al superar la ronda.',
   grows: 'Gana +2 por cada reroll que se queda fuera.',
   mirrorLeft: 'Copia el puntaje del dado a su izquierda.',
-  conduit: 'Conecta las reacciones entre sus dos vecinos.',
-  chrono: 'Un 1 se vuelve a tirar una vez, gratis.',
+  conduit: 'Conecta las reacciones entre sus dos vecinos, y las duplica.',
+  chrono: 'Un 1 se vuelve a tirar gratis hasta que deja de ser 1.',
   beacon: 'Ambos vecinos anotan x1.5.',
+  bullion: 'Anota 0, pero paga tu Multiplicador final (redondeado hacia abajo) en Fragmentos al superar la ronda.',
+  mimicLeft: 'Actúa como el dado a su izquierda: sus habilidades y su puntaje.',
+  mimicSplit: 'Actúa como el dado a su izquierda, pero anota lo que anota el dado a su derecha.',
   allElements: 'Reacciona como Fuego, Agua, Tierra y Aire a la vez.',
 }
 

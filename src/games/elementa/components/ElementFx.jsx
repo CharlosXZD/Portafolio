@@ -39,6 +39,9 @@ const FX = {
   chrono: [['tick', '#c9a0ff']],
   beacon: [['pulse', '#ffb347']],
   prism: [['rainbow', '#ff7ad9']],
+  bullion: [['sheen', '#ffe9a3'], ['glint', '#ffd166', '#ffffff']],
+  masquerade: [['sheen', '#f3d1ff'], ['glint', '#e9b0ff', '#ffffff']],
+  chameleon: [['glint', '#a6e57a', '#e8ffd8']],
 }
 
 // Layers drawn behind the die body; every other kind goes in front.
