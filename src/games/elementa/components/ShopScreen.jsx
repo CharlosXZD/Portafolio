@@ -1,5 +1,5 @@
-import { Children, useEffect, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { Children, useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useDragControls } from 'framer-motion'
 import { ELEMENTS } from '../data/elements.js'
 import { relicById } from '../data/relics.js'
 import { consumableById } from '../data/consumables.js'
@@ -18,6 +18,7 @@ import KeeperSprite from './KeeperSprite.jsx'
 import RoadMap from './RoadMap.jsx'
 import { playCoin, playClick, playSuccess } from '../utils/sound.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
+import { juicyHover } from '../utils/motionPresets.js'
 import DieToken from './DieToken.jsx'
 import BoonsList from './BoonsList.jsx'
 import { shopTypeById, dealById, blessingById, PROPHECY } from '../data/shops.js'
@@ -82,6 +83,116 @@ function SlotGrid({ capacity, children, size = 48 }) {
         <div key={`empty-${i}`} className="el-well shrink-0" style={{ width: size, height: size }} />
       ))}
     </div>
+  )
+}
+
+// The dice inventory's geometry (SlotGrid: 48px wells, 12px gaps, 4px
+// padding), used to turn a pointer position into a slot while dragging.
+const DIE_CELL = 48
+const DIE_GAP = 12
+const GRID_PAD = 4
+
+/**
+ * The dice inventory (EXPANSION.md E5): pick a die up with the pointer and
+ * it lifts, tilts and follows you while the others slide aside; drop it to
+ * reorder. Framer's Reorder only works on one axis, so the target slot is
+ * computed from the pointer over this wrapping grid, and `layout` animates
+ * everyone else into place.
+ */
+function DiceGrid({ dice, capacity, onReorder, renderDie }) {
+  const gridRef = useRef(null)
+  const [order, setOrder] = useState(null) // ids while a drag is live
+  const orderRef = useRef(null)
+  const draggedRef = useRef(false)
+  const byId = new Map(dice.map((d) => [d.id, d]))
+  const ids = order ?? dice.map((d) => d.id)
+
+  function slotAt(point) {
+    const box = gridRef.current?.getBoundingClientRect()
+    if (!box) return null
+    const step = DIE_CELL + DIE_GAP
+    const cols = Math.max(1, Math.floor((box.width - GRID_PAD * 2 + DIE_GAP) / step))
+    const col = Math.min(cols - 1, Math.max(0, Math.floor((point.x - box.left - GRID_PAD) / step)))
+    const row = Math.max(0, Math.floor((point.y - box.top - GRID_PAD) / step))
+    return Math.min(dice.length - 1, row * cols + col)
+  }
+
+  function update(next) {
+    orderRef.current = next
+    setOrder(next)
+  }
+
+  return (
+    <div ref={gridRef} className="flex flex-wrap gap-3 p-1">
+      {ids.map((id) => {
+        const die = byId.get(id)
+        if (!die) return null
+        return (
+          <DiceGridItem
+            key={id}
+            onStart={() => {
+              draggedRef.current = true
+              update(dice.map((d) => d.id))
+            }}
+            onMove={(point) => {
+              const cur = orderRef.current
+              const to = slotAt(point)
+              if (!cur || to == null || cur.indexOf(id) === to) return
+              const next = cur.filter((x) => x !== id)
+              next.splice(to, 0, id)
+              update(next)
+            }}
+            onEnd={() => {
+              const cur = orderRef.current
+              update(null)
+              if (cur && cur.some((x, i) => x !== dice[i]?.id)) onReorder(cur)
+              // Swallow the click that follows the drop.
+              setTimeout(() => (draggedRef.current = false), 80)
+            }}
+          >
+            {renderDie(die, () => draggedRef.current)}
+          </DiceGridItem>
+        )
+      })}
+      {Array.from({ length: Math.max(0, capacity - dice.length) }).map((_, i) => (
+        <div key={`empty-${i}`} className="el-well shrink-0" style={{ width: DIE_CELL, height: DIE_CELL }} />
+      ))}
+    </div>
+  )
+}
+
+/** One die in the grid: lifts and tilts while held, wobbles on hover. */
+function DiceGridItem({ onStart, onMove, onEnd, children }) {
+  const { reducedMotion } = useGameSettings()
+  const controls = useDragControls()
+  return (
+    <motion.div
+      layout={!reducedMotion}
+      drag
+      dragControls={controls}
+      // Only the die itself picks it up, never its open inspector.
+      dragListener={false}
+      onPointerDown={(e) => {
+        if (e.target instanceof Element && e.target.closest('[data-tut-inspector]')) return
+        controls.start(e)
+      }}
+      dragSnapToOrigin
+      dragElastic={0.12}
+      dragMomentum={false}
+      whileHover={juicyHover(reducedMotion)}
+      whileDrag={
+        reducedMotion ? { scale: 1.08 } : { scale: 1.18, rotate: 7, filter: 'drop-shadow(4px 8px 0 rgba(0,0,0,0.55))' }
+      }
+      onDragStart={onStart}
+      // Framer reports page coordinates; the grid box is in viewport ones.
+      onDrag={(_, info) => onMove({ x: info.point.x - window.scrollX, y: info.point.y - window.scrollY })}
+      onDragEnd={onEnd}
+      // Stacking lives in CSS, not in animated styles: above the others
+      // while hovered, held, or showing its inspector.
+      className="relative z-0 cursor-grab touch-none hover:z-40 active:z-50 active:cursor-grabbing has-[[data-tut-inspector]]:z-[45]"
+    >
+      {children}
+    </motion.div>
   )
 }
 
@@ -343,8 +454,14 @@ export default function ShopScreen({ state, dispatch }) {
 
         <InventorySection label={t('elementa.shop.yourDice')} count={state.dice.length} cap={diceCap}>
           <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.shop.dragToReorder')}</p>
-          <SlotGrid capacity={diceCap}>
-            {state.dice.map((die) => {
+          <DiceGrid
+            dice={state.dice}
+            capacity={diceCap}
+            onReorder={(order) => {
+              playClick()
+              dispatch({ type: 'REORDER_DICE', order })
+            }}
+            renderDie={(die, wasDragged) => {
               const sellVal = selectors.sellValueForDie(die, selectors.isFusionElement(die.elementId))
               const elementName = localize(lang, ELEMENTS[die.elementId].name, ELEMENTS_ES, die.elementId, 'name')
               const base = dieDescriptor(die.elementId, lang)
@@ -356,33 +473,13 @@ export default function ShopScreen({ state, dispatch }) {
                   : base.description,
               }
               return (
-                <div
-                  key={die.id}
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData('text/plain', die.id)
-                    e.dataTransfer.effectAllowed = 'move'
-                  }}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault()
-                    const from = e.dataTransfer.getData('text/plain')
-                    if (!from || from === die.id) return
-                    const ids = state.dice.map((d) => d.id).filter((id) => id !== from)
-                    const at = ids.indexOf(die.id)
-                    const movingRight = state.dice.findIndex((d) => d.id === from) < state.dice.findIndex((d) => d.id === die.id)
-                    ids.splice(movingRight ? at + 1 : at, 0, from)
-                    playClick()
-                    dispatch({ type: 'REORDER_DICE', order: ids })
-                  }}
-                  className="cursor-grab active:cursor-grabbing"
-                >
                 <IconSlot
                   renderIcon={(onClick) => (
                     <DieToken
                       die={die}
                       size={48}
-                      onClick={onClick}
+                      // A drop is not a click: don't open the inspector.
+                      onClick={() => !wasDragged() && onClick()}
                       title={item.name}
                       ringColor={armedConsumable || armedPurchase ? '#ffd166' : null}
                     />
@@ -419,10 +516,9 @@ export default function ShopScreen({ state, dispatch }) {
                   openKey={openKey}
                   onOpenChange={setOpenKey}
                 />
-                </div>
               )
-            })}
-          </SlotGrid>
+            }}
+          />
         </InventorySection>
 
         <InventorySection label={t('elementa.shop.yourRelics')} count={state.relics.length} cap={relicCap}>

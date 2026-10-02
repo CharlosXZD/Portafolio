@@ -423,6 +423,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Safety camp:** missing a round now shows a centered screen over the dimmed table, then Tobb's camp: a few free Shards and a small shop before you try the round again.
 - **Tumbling dice:** dice now hop and turn when they roll. Options has "Dice roll animation: Tumble / Classic" (Reduced motion uses Classic).
 - **Element effects:** every die has its own little animation (flames, drips, wind, pebbles, sparks, frost, glints and more), so similar colors are easy to tell apart. Toggle it under Options, Display.
+- **Picking dice up:** in the shop, dragged dice lift and tilt under your cursor while the others slide aside, and dice wobble when you hover them.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -515,7 +516,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E5. Picking dice up in the shop
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note:** dragging dice in the shop shows the browser's drag image (a PNG ghost), which looks cheap. Dice also have no hover animation; they could rotate or roll.
 - **Proposal:**
