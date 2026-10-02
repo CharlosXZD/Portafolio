@@ -4,7 +4,7 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 const SEGMENTS = 20
 
 /** Segmented pixel progress bar for the live score against the target. */
-export default function TargetBar({ score, target }) {
+export default function TargetBar({ score, target, unknown = false }) {
   const { t } = useLanguage()
   const pct = target > 0 ? Math.min(1, score / target) : 0
   const met = score >= target
@@ -15,7 +15,7 @@ export default function TargetBar({ score, target }) {
       <div className="mb-2 flex items-center justify-between">
         <span className="el-label">{t('elementa.targetBar.target')}</span>
         <span className={`pixel-score text-[10px] ${met ? 'text-[var(--good)]' : 'text-[var(--text-dim)]'}`}>
-          {score} / {target}
+          {unknown ? '?' : score} / {target}
         </span>
       </div>
       <div

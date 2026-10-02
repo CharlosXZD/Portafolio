@@ -216,6 +216,7 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         />
         <Toggle label={t('elementa.options.glows')} checked={display.glows} onChange={(v) => updateDisplay({ glows: v })} />
         <Toggle label={t('elementa.options.keyHints')} checked={display.keyHints} onChange={(v) => updateDisplay({ keyHints: v })} />
+        <Toggle label={t('elementa.options.liveTotal')} checked={display.liveTotal} onChange={(v) => updateDisplay({ liveTotal: v })} />
         <Toggle label={t('elementa.options.ledgerOpen')} checked={display.ledgerOpen} onChange={(v) => updateDisplay({ ledgerOpen: v })} />
       </Section>
 

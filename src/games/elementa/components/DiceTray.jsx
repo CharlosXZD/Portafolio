@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, Reorder, motion, useAnimationControls } from 'framer-motion'
 import Die from './Die.jsx'
 import CastLedger from './CastLedger.jsx'
+import { groupLines } from '../utils/ledgerGroups.js'
 import { evaluatePool } from '../engine/scoring.js'
 import { selectors } from '../engine/gameReducer.js'
 import { ELEMENTS, inFamily, actingElementIds } from '../data/elements.js'
@@ -22,9 +23,9 @@ import { playRoll, playClick, playCoin, playBossRound } from '../utils/sound.js'
 
 // Per game-speed timings for the score reveal (Options -> Scoring speed).
 const TIMING = {
-  normal: { step: 260, line: 380, pause: 700 },
-  fast: { step: 110, line: 160, pause: 380 },
-  instant: { step: 0, line: 0, pause: 300 },
+  normal: { step: 260, line: 380, tick: 110, pause: 700 },
+  fast: { step: 110, line: 160, tick: 55, pause: 380 },
+  instant: { step: 0, line: 0, tick: 0, pause: 300 },
 }
 
 /** Balatro-style score box: a colored block with a big number inside. */
@@ -67,18 +68,27 @@ const fmt = (n) => Math.round(n * 100) / 100
 /**
  * Builds the reveal script from a scoring result: each die adds to Base,
  * then each extra Base line, then each Mult line. `order` lists the ledger
- * lines in the order they light up.
+ * groups in the order they light up. Repeated lines from one source form a
+ * group (utils/ledgerGroups.js): the group lights once and its count ticks
+ * up, one quick tick per line (EXPANSION.md P4).
  */
 function buildReveal(result) {
   const steps = []
-  result.dice.forEach((d) => steps.push({ section: 'base', index: 0, dieId: d.id, value: d.contribution || 0, op: 'add' }))
-  result.baseLines.forEach((line, i) => {
-    if (i > 0) steps.push({ section: 'base', index: i, value: line.value, op: line.op })
-  })
-  result.multLines.forEach((line, i) => steps.push({ section: 'mult', index: i, value: line.value, op: line.op }))
+  const groupsOf = { base: groupLines(result.baseLines, 'base'), mult: groupLines(result.multLines, 'mult') }
+  const groupIndexOf = (section, lineIndex) => groupsOf[section].findIndex((g) => g.indices.includes(lineIndex))
+  result.dice.forEach((d) => steps.push({ section: 'base', index: 0, group: 0, pos: 0, dieId: d.id, value: d.contribution || 0, op: 'add' }))
+  const addLines = (section, lines, from) => {
+    lines.forEach((line, i) => {
+      if (i < from) return
+      const group = groupIndexOf(section, i)
+      steps.push({ section, index: i, group, pos: groupsOf[section][group].indices.indexOf(i), value: line.value, op: line.op, line })
+    })
+  }
+  addLines('base', result.baseLines, 1)
+  addLines('mult', result.multLines, 0)
   const order = []
   steps.forEach((s) => {
-    if (!order.some((o) => o.section === s.section && o.index === s.index)) order.push({ section: s.section, index: s.index })
+    if (!order.some((o) => o.section === s.section && o.group === s.group)) order.push({ section: s.section, group: s.group })
   })
   return { result, steps, order, index: 0, base: 0, mult: 1 }
 }
@@ -169,7 +179,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
         if (step.value) playCoin()
         setReveal((r) => (r ? applyStep(r) : r))
       },
-      step.dieId ? timing.step : timing.line,
+      step.dieId ? timing.step : step.pos > 0 ? timing.tick : timing.line,
     )
     return () => clearTimeout(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -246,6 +256,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const baseShown = hidden ? '?' : fmt(revealing ? reveal.base : preview.baseValue)
   const multShown = hidden ? '?' : fmt(revealing ? reveal.mult : preview.multiplier)
   const liveScore = revealing ? Math.round(reveal.base * reveal.mult) : preview.roundScore
+  // P10: before the cast the Score reads "?" unless the player turned
+  // "Show live total" on. Base, Mult and the ledger stay visible.
+  const scoreHidden = hidden || (!display.liveTotal && !revealing)
 
   // Neighbor links: one bar in the gap between two reacting neighbors,
   // split into one segment per reaction on that link.
@@ -396,8 +409,8 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
               <div className="flex flex-col items-center gap-2">
                 <span className="el-label">{t('elementa.diceTray.score')}</span>
                 <div className="flex h-12 min-w-[72px] items-center justify-center sm:h-14 sm:min-w-[110px]">
-                  {hidden ? (
-                    <span className="pixel-score text-xl text-[var(--gold-1)] sm:text-3xl">?</span>
+                  {scoreHidden ? (
+                    <span className="pixel-score text-xl text-[var(--gold-1)] [text-shadow:3px_3px_0_var(--ink)] sm:text-3xl">?</span>
                   ) : (
                     <AnimatedNumber
                       key={revealing ? 'cast' : 'preview'}
@@ -410,7 +423,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
             </div>
 
             <div data-tut="target" className="flex w-full justify-center">
-              <TargetBar score={hidden ? 0 : liveScore} target={state.threshold} />
+              <TargetBar score={scoreHidden ? 0 : liveScore} target={state.threshold} unknown={scoreHidden} />
             </div>
 
             {/* The verdict slams in once the math is done. */}
@@ -609,8 +622,11 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
             result={shown}
             reveal={reveal}
             hidden={hidden}
+            scoreHidden={scoreHidden}
             target={state.threshold}
             discovered={discovered}
+            expanded={display.ledgerExpanded}
+            onToggleExpanded={() => updateDisplay({ ledgerExpanded: !display.ledgerExpanded })}
             open={display.ledgerOpen}
             onToggle={() => updateDisplay({ ledgerOpen: !display.ledgerOpen })}
           />

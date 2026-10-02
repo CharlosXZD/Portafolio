@@ -140,6 +140,11 @@ export const DISPLAY_DEFAULTS = {
   rollAnimation: 'tumble',
   // Particle effects per element on dice (EXPANSION.md E3).
   elementEffects: true,
+  // Show the running Score before you cast (EXPANSION.md P10). Off: the
+  // score reads "?" until the cast reveal adds it up step by step.
+  liveTotal: false,
+  // Cast ledger: group repeated lines, or list every one (P4).
+  ledgerExpanded: false,
 }
 export function getDisplay() {
   try {
