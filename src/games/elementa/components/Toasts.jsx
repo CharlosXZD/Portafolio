@@ -4,8 +4,10 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { ACHIEVEMENTS, localizeAchievement } from '../data/achievements.js'
 import { reactionById } from '../data/reactions.js'
 import { localizeReaction } from '../data/i18n.js'
+import { dieDescriptor } from '../data/itemDescriptors.js'
 import { playSuccess } from '../utils/sound.js'
 import PixelSprite from './PixelSprite.jsx'
+import PixelIcon from './PixelIcon.jsx'
 
 function Toast({ item, onDone }) {
   const { t, lang } = useLanguage()
@@ -19,11 +21,17 @@ function Toast({ item, onDone }) {
   let title
   let name
   let sprite
+  let icon = null
   if (item.kind === 'achievement') {
     const a = localizeAchievement(ACHIEVEMENTS.find((x) => x.id === item.id), lang)
     title = t('elementa.toast.achievement')
     name = a.name
     sprite = a.sprite
+  } else if (item.kind === 'recipe') {
+    const die = dieDescriptor(item.id, lang)
+    title = t('elementa.toast.recipe')
+    name = die.name
+    icon = item.id
   } else {
     const r = localizeReaction(reactionById(item.id), lang)
     title = t('elementa.toast.secretReaction')
@@ -43,7 +51,11 @@ function Toast({ item, onDone }) {
       role="status"
     >
       <span className="el-well flex h-12 w-12 shrink-0 items-center justify-center">
-        <PixelSprite name={sprite[0]} color={sprite[1]} accent={sprite[2]} accent2={sprite[3]} size={36} />
+        {icon ? (
+          <PixelIcon name={icon} size={30} />
+        ) : (
+          <PixelSprite name={sprite[0]} color={sprite[1]} accent={sprite[2]} accent2={sprite[3]} size={36} />
+        )}
       </span>
       <div className="flex min-w-0 flex-col gap-1">
         <span className="el-label text-[var(--gold-2)]">{title}</span>
@@ -53,7 +65,7 @@ function Toast({ item, onDone }) {
   )
 }
 
-/** Stacked unlock notifications (achievements, secret reactions). */
+/** Stacked unlock notifications (achievements, secret reactions, recipes). */
 export default function Toasts({ items, onDone }) {
   return (
     <div className="pointer-events-none fixed bottom-6 right-4 z-[70] flex flex-col-reverse gap-3">

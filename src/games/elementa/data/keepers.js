@@ -124,6 +124,11 @@ export const KEEPERS = {
     },
     afterBoss: L("The Fragment's echo is still warm. Its treasures are here now.", 'El eco del Fragmento aún está tibio. Sus tesoros ya están aquí.'),
     lowLives: L('Your light is thin. Do not let me add you to the collection today.', 'Tu luz es tenue. No dejes que te añada a la colección hoy.'),
+    // Said once, on the first Vault visit after beating Primordial (B6).
+    recipe: L(
+      'You defeated it. Then you have earned this: the recipe the first Casters swore never to write down.',
+      'Lo derrotaste. Entonces te ganaste esto: la receta que los primeros Lanzadores juraron nunca escribir.',
+    ),
     loreAt: [2, 4, 7, 11],
     lore: [
       L(

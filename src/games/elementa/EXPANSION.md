@@ -345,7 +345,7 @@ Ranked by how much new depth each adds:
 
 ## B6. Aether recipe lock
 
-**Status: Ready**
+**Status: Built** (v0.4)
 
 **Design:** Aether cannot be forged, and never appears as a shop offer, until the player has beaten Primordial at least once on that save file. On that first win, the Curator hands over the recipe. The Avatar loadout (starts with Aether) is unaffected, since it already requires winning with every other loadout.
 
@@ -413,6 +413,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Boons and pacts panel:** active blessings, deals, and the Prophecy stay visible.
 - **Run summary:** shows right after the final boss, with your dice, items, everyone you met, and every pact.
 - **Reference:** CONTENT.md lists all game content and synergies.
+- **The Aether recipe:** Aether can't be forged or bought until you beat Primordial on that save file. Your first win teaches you the recipe, and the Curator has something to say about it.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)

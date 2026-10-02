@@ -25,6 +25,7 @@ import {
   markSeen,
   markDeckBeaten,
   markDifficultyBeaten,
+  learnRecipe,
   unlockAchievements,
   updateStats,
   allFilesComplete,
@@ -170,6 +171,8 @@ function ElementaGameInner() {
     const before = readProfile(slot)
     markDeckBeaten(slot, state.deckId)
     markDifficultyBeaten(slot, state.difficulty?.id)
+    // Beating Primordial hands over the Aether recipe (EXPANSION.md B6).
+    if (learnRecipe(slot, 'aether')) notify([{ kind: 'recipe', id: 'aether' }])
     updateStats(slot, (st) => ({ ...st, runs: st.runs + 1, wins: st.wins + 1 }))
     award([...achievementsFromVictory(state, before), ...achievementsFromProfile(readProfile(slot))])
     // Trinity: all three files at 100% unlocks it on every file.

@@ -165,7 +165,7 @@ export default function TitleScreen({ slot, dispatch }) {
           type="button"
           onClick={() => {
             playClick()
-            dispatch({ type: 'START_RUN', deckId, difficultyId, seed })
+            dispatch({ type: 'START_RUN', deckId, difficultyId, seed, recipes: profile.recipes })
           }}
           className="el-btn el-btn--gold el-btn--lg min-w-[220px]"
         >

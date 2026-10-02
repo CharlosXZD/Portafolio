@@ -3,11 +3,11 @@
 // A visit is counted once per shop (keyed by seed + round), so reloading a
 // save mid-shop doesn't count twice and shows the same line again.
 import { KEEPERS, keeperTier } from '../data/keepers.js'
-import { readProfile } from './profile.js'
+import { readProfile, knowsRecipe } from './profile.js'
 import { updateProfile } from './saveManager.js'
 
 function emptyMemory() {
-  return { visits: 0, lore: 0, visitKey: null, line: null }
+  return { visits: 0, lore: 0, visitKey: null, line: null, recipeTold: false }
 }
 
 export function keeperMemory(profile, keeperId) {
@@ -17,6 +17,7 @@ export function keeperMemory(profile, keeperId) {
 // Which line a keeper says on visit number `visits` (1 = first ever).
 function chooseLine(keeper, mem, visits, context) {
   if (visits === 1) return { kind: 'intro' }
+  if (context.justLearnedRecipe) return { kind: 'recipe' }
   const nextLore = keeper.loreAt[mem.lore]
   if (nextLore != null && visits >= nextLore && mem.lore < keeper.lore.length) {
     return { kind: 'lore', index: mem.lore }
@@ -49,15 +50,19 @@ export function visitKeeper(slot, keeperId, visitKey, context = {}) {
   const keeper = KEEPERS[keeperId]
   if (!keeper) return null
   if (slot == null) return { keeper, line: { kind: 'intro' }, memory: { ...emptyMemory(), visits: 1 } }
-  const before = keeperMemory(readProfile(slot), keeperId)
+  const profile = readProfile(slot)
+  const before = keeperMemory(profile, keeperId)
   if (before.visitKey === visitKey && before.line) return { keeper, line: before.line, memory: before }
   const visits = before.visits + 1
-  const line = chooseLine(keeper, before, visits, context)
+  // A keeper with a recipe line says it once, after the file learns it.
+  const justLearnedRecipe = Boolean(keeper.recipe) && knowsRecipe(profile, 'aether') && !before.recipeTold
+  const line = chooseLine(keeper, before, visits, { ...context, justLearnedRecipe })
   const memory = {
     visits,
     lore: before.lore + (line.kind === 'lore' ? 1 : 0),
     visitKey,
     line,
+    recipeTold: before.recipeTold || line.kind === 'recipe',
   }
   updateProfile(slot, (p) => ({ ...p, keepers: { ...(p.keepers || {}), [keeperId]: memory } }))
   return { keeper, line, memory }

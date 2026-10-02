@@ -218,10 +218,22 @@ function forgeCost(relics, tier, shop) {
   return applyDiscount(Math.max(1, FORGE_BASE_COST_BY_TIER[tier] - (fx.forgeDiscount || 0)), relics, shopCut(shop, 'forge'))
 }
 
+// Aether's recipe is secret until Primordial falls on this save file
+// (EXPANSION.md B6): until then it can't be forged or bought.
+function knowsAether(state) {
+  return Boolean(state.recipes?.includes(QUADRA_FUSION_ID))
+}
+
+function withRecipe(state, id) {
+  const recipes = state.recipes || []
+  return recipes.includes(id) ? state : { ...state, recipes: [...recipes, id] }
+}
+
 function forgeableRecipes(state) {
   const ownedCounts = new Map()
   state.dice.forEach((d) => ownedCounts.set(d.elementId, (ownedCounts.get(d.elementId) || 0) + 1))
-  return ALL_FUSION_IDS.map((fusionElementId) => {
+  const ids = knowsAether(state) ? ALL_FUSION_IDS : ALL_FUSION_IDS.filter((id) => id !== QUADRA_FUSION_ID)
+  return ids.map((fusionElementId) => {
     const def = ELEMENTS[fusionElementId]
     // The Forge is open only in Forge-type shops (or with a Fusion Spark).
     const canForge = Boolean(state.shop?.forgeOpen) && def.parents.every((p) => (ownedCounts.get(p) || 0) >= 1)
@@ -297,7 +309,9 @@ function rollShopStock(state, type) {
     id: item.id,
   }))
 
-  const unlockedFusions = fusionsUnlockedBy(state.ownedElementsEver)
+  const unlockedFusions = fusionsUnlockedBy(state.ownedElementsEver).filter(
+    (id) => id !== QUADRA_FUSION_ID || knowsAether(state),
+  )
   const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS].map((id) => ({
     id,
     rarity: rarityForElement(id),
@@ -429,10 +443,12 @@ function baseTitleState() {
     nextRoundRerollBonus: 0,
     // Highest single cast this run, for Run Info and achievements.
     bestCast: 0,
+    // Secret recipes this save file knows (copied from the profile).
+    recipes: [],
   }
 }
 
-function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '') {
+function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', recipes = []) {
   // Seed first, so every roll below is reproducible from it.
   const seed = cleanSeed(seedInput) || randomSeed()
   setRngState(seedToState(seed))
@@ -463,6 +479,7 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '') {
     chronicle: noteBoss(null, bossModifier),
     map,
     seed,
+    recipes: [...recipes],
     rngState: getRngState(),
   }
 }
@@ -635,7 +652,7 @@ function reduce(state, action) {
       return { ...baseTitleState(), phase: 'title', activeSlot: action.slot ?? state.activeSlot }
 
     case 'START_RUN':
-      return startNewRun(action.deckId, action.difficultyId, state.activeSlot, action.seed)
+      return startNewRun(action.deckId, action.difficultyId, state.activeSlot, action.seed, action.recipes)
 
     // Chosen a filled slot: hydrate its full snapshot, but land on a
     // preview screen (dice loadout, difficulty, round) rather than
@@ -650,6 +667,8 @@ function reduce(state, action) {
         rngState: action.save.rngState ?? Math.floor(Math.random() * 4294967296),
         // Saves from before the Road: lay one out from here.
         map: action.save.map ?? legacyMap(action.save),
+        // The file's recipes win over the snapshot's (it may predate them).
+        recipes: action.recipes ?? action.save.recipes ?? [],
         phase: 'runPreview',
         resumePhase: action.save.phase,
       }
@@ -778,6 +797,8 @@ function reduce(state, action) {
         // Beating the final boss ends the run on the spot (Endless picks up
         // from the reward and shop, see CONTINUE_ENDLESS).
         const won = state.round >= WIN_ROUND && !state.endless
+        // Beating Primordial teaches the Aether recipe (EXPANSION.md B6).
+        if (won) state = withRecipe(state, QUADRA_FUSION_ID)
         return {
           ...state,
           // Beating a boss first offers a permanent upgrade, then the shop.
@@ -862,7 +883,8 @@ function reduce(state, action) {
     case 'FUSE_DICE': {
       if (state.phase !== 'shop' || !state.shop?.forgeOpen) return state
       const def = ELEMENTS[action.fusionElementId]
-      if (!def || def.tier === 'pure') return state
+      if (!def || def.tier === 'pure' || def.tier === 'arcane') return state
+      if (action.fusionElementId === QUADRA_FUSION_ID && !knowsAether(state)) return state
       const usedIds = new Set()
       const parentDice = []
       for (const parentId of def.parents) {
@@ -1221,7 +1243,7 @@ function reduce(state, action) {
       if (state.phase !== 'shop') return state
       const round = state.round + 1
       if (round > WIN_ROUND && !state.endless) {
-        return { ...state, phase: 'victory' }
+        return { ...withRecipe(state, QUADRA_FUSION_ID), phase: 'victory' }
       }
       const map = travel(state.map, round)
       if (!map) return state

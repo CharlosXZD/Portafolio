@@ -43,6 +43,22 @@ export function markDifficultyBeaten(slot, difficultyId) {
   )
 }
 
+export function knowsRecipe(profile, id) {
+  return Boolean(profile?.recipes?.includes(id))
+}
+
+/** Learns a secret recipe. Returns true if it was new. */
+export function learnRecipe(slot, id) {
+  if (slot == null) return false
+  let fresh = false
+  updateProfile(slot, (p) => {
+    if (p.recipes.includes(id)) return p
+    fresh = true
+    return { ...p, recipes: [...p.recipes, id] }
+  })
+  return fresh
+}
+
 /** Unlocks achievements; returns the ids that were newly unlocked. */
 export function unlockAchievements(slot, ids) {
   if (slot == null) return []

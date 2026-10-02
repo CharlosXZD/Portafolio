@@ -10,7 +10,7 @@ import { REACTIONS } from '../data/reactions.js'
 import { BOSS_MODIFIERS, PRIMORDIAL } from '../data/bossModifiers.js'
 import { dieDescriptor, relicDescriptor, consumableDescriptor } from '../data/itemDescriptors.js'
 import { localize, ELEMENTS_ES, localizeDeck, localizeReaction, localizeBossModifier } from '../data/i18n.js'
-import { readProfile, completion, isDeckUnlocked, TOTALS } from '../utils/profile.js'
+import { readProfile, completion, isDeckUnlocked, knowsRecipe, TOTALS } from '../utils/profile.js'
 import ItemIcon from './ItemIcon.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import BossAvatar from './BossAvatar.jsx'
@@ -183,7 +183,10 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
               </div>
               {parents && (
                 <div className="text-base text-[var(--gold-1)]">
-                  {t('elementa.gallery.fusionOf')} {parents}
+                  {/* Aether's recipe is secret until Primordial falls (B6). */}
+                  {def.tier === 'quadra' && !knowsRecipe(profile, id)
+                    ? t('elementa.gallery.recipeUnknown')
+                    : `${t('elementa.gallery.fusionOf')} ${parents}`}
                 </div>
               )}
               <ul className="flex flex-col gap-1 text-base text-[var(--text-dim)]">

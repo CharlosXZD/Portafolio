@@ -20,6 +20,8 @@ export function emptyProfile() {
     stats: { runs: 0, wins: 0, bestCast: 0, bestRound: 0 },
     // Shop keepers remember you (utils/keepers.js): visits and lore told.
     keepers: {},
+    // Secret recipes learned on this file (EXPANSION.md B6): 'aether'.
+    recipes: [],
   }
 }
 
@@ -35,6 +37,9 @@ function normalizeProfile(p = {}) {
     difficultiesBeaten: p.difficultiesBeaten || [],
     achievements: p.achievements || [],
     keepers: p.keepers || {},
+    // Files from before recipes: any beaten difficulty means Primordial
+    // fell at least once, so the Aether recipe is already known.
+    recipes: p.recipes || ((p.difficultiesBeaten || []).length > 0 ? ['aether'] : []),
   }
 }
 

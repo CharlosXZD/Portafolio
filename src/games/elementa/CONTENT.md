@@ -72,6 +72,8 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 
 **Forging** (at the Forge, the Bazaar, or with a Fusion Spark) consumes one die of each parent: 6 Shards for a double, 10 for a triple, 16 for Aether.
 
+**The Aether recipe is secret.** Until you beat Primordial once on a save file, Aether can't be forged and never appears in a shop; the Gallery reads "Recipe unknown: beat Primordial". The first win teaches it (a "New recipe" toast), and the Curator mentions it on your next Vault visit. The Avatar loadout still starts with Aether.
+
 ---
 
 ## 3. Relics (38 total)
@@ -496,7 +498,7 @@ These are places where the code and the text disagree. Tell me which way to go.
 
 1. **Wildfire does nothing.** Its effect (20% chance an explosion spreads to another Fire-family die) is never read by the scoring engine. Needs implementing, or a new effect.
 2. **Aether says "Capped at one per run" but nothing enforces it.** You can own several (buy one, forge one, or Mirror Shard it).
-3. **Aether only appears in the shop after you have owned all four triple fusions.** The Forge can make it from one of each pure die, so the shop rule is much stricter than the Forge. Intended?
+3. ~~Aether only appears in the shop after you have owned all four triple fusions.~~ **Resolved in v0.4 (B6):** Aether is locked behind the recipe (beat Primordial once on the file) for both the Forge and the shop. The shop still also needs all four triples owned this run.
 4. **Earth relics only count pure Earth,** while Water relics count the whole Water family. Bedrock, Groundswell and Fossil ignore Steel, Mud, Crystal and the Earth triples. Make them family-wide?
 5. **Two taglines promise more than the code does:** Lightning's "chained explosions re-check the set bonus mid-roll" and Ice's "locked faces count toward sets" describe nothing extra (every die already counts toward sets). Either give them those abilities or reword them.
 6. **Wider circle ignores Inferno's 4-die cap** (it adds a fifth slot). Fine as a reward, or should the Inferno and Cataclysm cap be hard?
