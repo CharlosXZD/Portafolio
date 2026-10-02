@@ -288,6 +288,47 @@ export const MUSIC_THEMES = {
     perc: 'k . h k s . h . k k h . s . s s',
     voices: { lead: 'square', bass: 'sawtooth' },
   },
+  // The gods' gauntlet on the Primordial path (B1), one theme per god.
+  // Gaea: slow and heavy, low drums under a dorian line.
+  boss_gaea: {
+    root: 40,
+    scale: 'dorian',
+    step: 0.16,
+    lead: '0 - 2 - 3 - 2 0 4 - 3 - 2 - 0 -',
+    bass: '0 . . 0 . . -3 . 0 . . 0 . . -2 .',
+    perc: 'k . . . s . . . k . k . s . . .',
+    voices: { lead: 'triangle', bass: 'sawtooth' },
+  },
+  // Ognen: fast phrygian, anvil hits and rising runs.
+  boss_ognen: {
+    root: 52,
+    scale: 'phrygian',
+    step: 0.09,
+    lead: '0 1 3 4 7 4 3 1 0 1 3 4 8 7 4 3',
+    bass: '0 0 . 0 1 . 0 . 0 0 . 0 -1 . 0 .',
+    perc: 'k a h k s a h . k a h k s . s s',
+    voices: { lead: 'square', bass: 'sawtooth' },
+  },
+  // Varuna: a rolling 6/8-ish lydian wash with bubbles.
+  boss_varuna: {
+    root: 48,
+    scale: 'lydian',
+    step: 0.12,
+    lead: '0 2 4 6 4 2 0 - 4 6 7 6 4 - 2 -',
+    bass: '0 . . 4 . . 0 . . 4 . . 3 . . .',
+    perc: 'k . p . h p k . p . h p s . p .',
+    voices: { lead: 'sine', bass: 'triangle' },
+  },
+  // Zephyr: airy whole-tone runs, light ticks, no kick.
+  boss_zephyr: {
+    root: 60,
+    scale: 'wholeTone',
+    step: 0.1,
+    lead: '0 1 2 3 4 5 4 3 2 1 0 - 5 - 3 -',
+    bass: '0 . . . 2 . . . 0 . . . 3 . . .',
+    perc: 't . h t . h t . t . h t . h t h',
+    voices: { lead: 'sine', bass: 'triangle' },
+  },
 }
 
 /** Which theme fits the current game state. */

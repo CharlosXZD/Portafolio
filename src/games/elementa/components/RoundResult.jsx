@@ -31,12 +31,12 @@ export default function RoundResult({ state, dispatch, compact = false }) {
     if (!missed) return
     function onKey(e) {
       if (e.key === 'Enter' && !(e.target instanceof HTMLElement && e.target.closest('button'))) {
-        dispatch({ type: 'GO_TO_CAMP' })
+        dispatch({ type: state.gauntlet ? 'RETRY_ROUND' : 'GO_TO_CAMP' })
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [missed, dispatch])
+  }, [missed, dispatch, state.gauntlet])
 
   if (!r) return null
 
@@ -92,7 +92,16 @@ export default function RoundResult({ state, dispatch, compact = false }) {
         </p>
       )}
       {r.secondWindTriggered && <p className="text-base text-[var(--arcane-hi)]">{t('elementa.roundResult.safetyNet')}</p>}
-      {missed && (
+      {missed && state.gauntlet && (
+        <>
+          <p className="max-w-xs text-base leading-snug text-[var(--text-dim)]">{t('elementa.roundResult.gauntletHint')}</p>
+          <button type="button" onClick={() => dispatch({ type: 'RETRY_ROUND' })} className="el-btn el-btn--gold el-btn--lg">
+            {t('elementa.roundResult.retryStage')}
+            <span className="el-key">Enter</span>
+          </button>
+        </>
+      )}
+      {missed && !state.gauntlet && (
         <>
           <p className="max-w-xs text-base leading-snug text-[var(--text-dim)]">{t('elementa.roundResult.campHint')}</p>
           <button type="button" onClick={() => dispatch({ type: 'GO_TO_CAMP' })} className="el-btn el-btn--gold el-btn--lg">

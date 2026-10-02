@@ -116,8 +116,54 @@ export const PRIMORDIAL = {
 }
 export const PRIMORDIAL_POOL = ['calm_winds', 'grounded', 'drought', 'tax_collector', 'scatter', 'gravity_well', 'the_pillar']
 
+// The Primordial path's last battle (EXPANSION.md B1): a gauntlet inside
+// round 15, one god at a time, each turning its own drawback (B4) on you.
+// `target` scales the normal round-15 target (Claude's spec).
+export const GOD_TRIALS = [
+  {
+    id: 'gaea',
+    tier: 3,
+    stage: 1,
+    target: 0.7,
+    name: 'Gaea',
+    description: 'Your Earth-family dice score -5 (-10 on a 1).',
+    effects: { earthCurse: true },
+  },
+  {
+    id: 'ognen',
+    tier: 3,
+    stage: 2,
+    target: 0.9,
+    name: 'Ognen',
+    description: 'Your Fire-family dice fizzle on 1, 2 and 3.',
+    effects: { fireFizzleUpTo: 3 },
+  },
+  {
+    id: 'varuna',
+    tier: 3,
+    stage: 3,
+    target: 1.1,
+    name: 'Varuna',
+    description: 'If any die rolls a 1, every die becomes a 1, held and locked ones too.',
+    effects: { varunaCurse: true },
+  },
+  {
+    id: 'zephyr',
+    tier: 3,
+    stage: 4,
+    target: 1.4,
+    name: 'Zephyr',
+    description: 'Your Fire-family dice explode half as often, and sets need one more matching die.',
+    effects: { fireExplodeHalf: true, setsNeedExtra: 1 },
+  },
+]
+
+// The Split path's last battle (B1, Claude's spec): the Primordial at full
+// strength, fusing your pure dice back together as you reroll.
+export const UNBOUND_TARGET = 1.5
+
 export function bossById(id) {
-  return BOSS_MODIFIERS.find((b) => b.id === id)
+  return BOSS_MODIFIERS.find((b) => b.id === id) ?? GOD_TRIALS.find((b) => b.id === id)
 }
 
 export function isBossRound(round, difficulty) {

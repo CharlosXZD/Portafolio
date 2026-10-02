@@ -1,6 +1,7 @@
 import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily, actingElementIds } from '../data/elements.js'
 import { REACTIONS, reactionById } from '../data/reactions.js'
 import { random } from './rng.js'
+import { godPowers, rollContext } from './gods.js'
 
 const DEFAULT_EXPLODE_CAP = 10
 
@@ -24,7 +25,7 @@ function relicEffects(relics) {
  * `rollId` changes on every roll (even if the face repeats) so the UI can
  * key a roll animation off it instead of off the value.
  */
-export function rollDie(elementId, sides, relics = []) {
+export function rollDie(elementId, sides, relics = [], ctx = {}) {
   const fx = relicEffects(relics)
   let value = randInt(sides)
   // Chrono: a 1 rewinds and rolls again until it isn't a 1 (B10).
@@ -37,10 +38,17 @@ export function rollDie(elementId, sides, relics = []) {
   if (hasFlag(elementId, FLAGS.EXPLODE)) {
     // A boss round's "Calm Winds" twist caps every explosion chain at
     // exactly 1 (the first max face still explodes once, then stops),
-    // overriding even an uncapped-chain relic for the round.
-    const cap = fx.noExplodeChain ? 1 : fx.explodeChainUncapped ? Infinity : DEFAULT_EXPLODE_CAP
+    // overriding even an uncapped-chain relic for the round. `ctx` (from
+    // engine/gods.js rollContext) can lower the explode face, make each
+    // explosion a coin flip, and set the god's own chain cap.
+    const cap = fx.noExplodeChain
+      ? 1
+      : ctx.chainCap ?? (fx.explodeChainUncapped ? Infinity : DEFAULT_EXPLODE_CAP)
+    const from = ctx.explodeFrom ?? sides
+    const chance = ctx.explodeChance ?? 1
     let current = value
-    while (current === sides && explosions < cap) {
+    while (current >= from && explosions < cap) {
+      if (chance < 1 && random() >= chance) break
       const next = randInt(sides)
       const addValue = fx.fireExplodeDouble ? next * 2 : next
       total += addValue
@@ -65,7 +73,7 @@ export function rerollPool(dice, relics = []) {
       if (inFamily(die.elementId, 'earth')) die.patience = (die.patience || 0) + 2
       continue
     }
-    const rolled = rollDie(die.elementId, die.sides, relics)
+    const rolled = rollDie(die.elementId, die.sides, relics, rollContext(die, dice, relicEffects(relics)))
     Object.assign(die, rolled, { growth: 0 })
 
     const canDuplicate = hasFlag(die.elementId, FLAGS.DUPLICATE_ON_REROLL)
@@ -188,9 +196,15 @@ function findReactions(perDie, fx, extraMult = 0) {
 
 // A die scores 0 this roll: a fizzling die on a 1, or a Shadow Twin on its
 // low faces (B3). Blessing of Ember-ward cancels every fizzle for a round.
-function fizzles(d, ctx) {
+function fizzles(d, ctx, fx = {}) {
   if (ctx.noFizzle) return false
-  return (hasFlag(d.actingAs ?? d.elementId, FLAGS.ZERO_ON_MIN) && d.value === 1) || d.value <= (d.fizzleUpTo || 0)
+  // Ognen fizzles on 1 to 3 (B4), and so does the Fire family in his trial.
+  const upTo = Math.max(
+    d.fizzleUpTo || 0,
+    ELEMENTS[d.elementId]?.god === 'ognen' ? 3 : 0,
+    fx.fireFizzleUpTo && inFamily(d.elementId, 'fire') ? fx.fireFizzleUpTo : 0,
+  )
+  return (hasFlag(d.actingAs ?? d.elementId, FLAGS.ZERO_ON_MIN) && d.value === 1) || d.value <= upTo
 }
 
 /**
@@ -213,7 +227,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   let zeroTargets = new Set()
   if (fx.fizzleSpreadsZero) {
     perDie.forEach((d, i) => {
-      const fizzled = fizzles(d, ctx)
+      const fizzled = fizzles(d, ctx, fx)
       if (fizzled) {
         const others = perDie.map((_, j) => j).filter((j) => j !== i)
         // Picked from the fizzling die's own roll id rather than a fresh
@@ -224,6 +238,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     })
   }
 
+  // God powers on the table (B4): from god dice and the Primordial die.
+  const powers = godPowers(perDie)
+  const gaeaPower = powers.some((p) => p.god === 'gaea')
+  const gaeaDrawback = powers.some((p) => p.god === 'gaea' && p.drawback)
+
   // --- set / straight detection (grouped by original face value) ---
   const enablesSets = !fx.noSetBonus && perDie.some((d) => hasFlag(d.actingAs, FLAGS.ENABLES_SET_BONUS))
   let setTier = null
@@ -231,9 +250,16 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   let setIsAllWaterFamily = false
 
   if (enablesSets) {
-    const wildcardIds = fx.earthWildcardForSets
-      ? perDie.filter((d) => d.elementId === 'earth').map((d) => d.id)
-      : []
+    // Wildcards: pure Earth with Fossil, every Earth-family die with Gaea's
+    // power, and the die carrying Zephyr's power (B4).
+    const wildcardIds = perDie
+      .filter(
+        (d, i) =>
+          (fx.earthWildcardForSets && d.elementId === 'earth') ||
+          (gaeaPower && inFamily(d.elementId, 'earth') && !powers.some((p) => p.index === i && p.god === 'gaea')) ||
+          powers.some((p) => p.index === i && p.god === 'zephyr'),
+      )
+      .map((d) => d.id)
     const wildcardCount = wildcardIds.length
 
     const groups = new Map()
@@ -251,13 +277,22 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
         maxGroupValue = val
       }
     }
+    // A pool of nothing but wildcards still makes a set of their size.
+    if (groups.size === 0) maxGroupSize = wildcardCount
 
     const uniqueVals = [...groups.keys()].sort((a, b) => a - b)
     const longestRun = longestConsecutiveRun(uniqueVals)
 
-    setTier = setBonusTier(maxGroupSize, longestRun, fx.noStraight)
+    // Zephyr's trial: sets need one more matching die (B1).
+    const extra = fx.setsNeedExtra || 0
+    const baseTier = setBonusTier(maxGroupSize - extra, longestRun - extra, fx.noStraight)
+    setTier = baseTier
+    // Zephyr's power: every set goes up one tier (B4).
+    if (setTier && powers.some((p) => p.god === 'zephyr')) {
+      setTier = setTier === 'pair' ? 'three' : setTier === 'three' && !fx.noStraight ? 'straight' : setTier
+    }
 
-    if (setTier === 'pair' || setTier === 'three') {
+    if (baseTier === 'pair' || baseTier === 'three') {
       perDie.forEach((d) => {
         if (d.value === maxGroupValue || wildcardIds.includes(d.id)) winningValues.add(d.id)
       })
@@ -272,7 +307,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   let midasShards = 0
   let bullionDice = 0
   perDie.forEach((d, i) => {
-    const fizzled = fizzles(d, ctx)
+    const fizzled = fizzles(d, ctx, fx)
     const banned = fx.bannedElementId && d.elementId === fx.bannedElementId
     const midas = hasFlag(d.actingAs, FLAGS.MIDAS)
     const bullion = hasFlag(d.actingAs, FLAGS.BULLION)
@@ -291,6 +326,10 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
         contribution += fx.fireFamilyBonusPerExplosion * (ctx.explosionsThisRound || 0)
       }
       contribution += d.bonus || 0
+      // Gaea scores the face of every other Earth-family die (B4).
+      if (powers.some((p) => p.index === i && p.god === 'gaea')) {
+        contribution += perDie.reduce((sum, o, j) => (j !== i && inFamily(o.elementId, 'earth') ? sum + o.value : sum), 0)
+      }
       // Relic bonuses that belong to a single die are folded into its own
       // contribution, so the reveal's floating "+N" shows them honestly.
       const tier = ELEMENTS[d.elementId]?.tier
@@ -298,6 +337,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (fx.lockedDieDouble && d.locked) contribution *= 2
       if (fx.lockedDieBaseBonus && d.locked) contribution += fx.lockedDieBaseBonus
       if (fx.maxFaceBaseBonus && d.value === d.sides) contribution += fx.maxFaceBaseBonus
+      // Gaea's drawback (on every other Earth-family die) and her trial
+      // (on all of them): -5, or -10 on a 1.
+      const gaeaHere = powers.some((p) => p.index === i && p.god === 'gaea')
+      const gaeaCurse = (fx.earthCurse || (gaeaDrawback && !gaeaHere)) && inFamily(d.elementId, 'earth')
+      if (gaeaCurse) contribution = Math.max(0, contribution - (d.value === 1 ? 10 : 5))
     }
     d.contribution = contribution
   })

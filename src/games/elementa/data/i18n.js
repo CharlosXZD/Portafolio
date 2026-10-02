@@ -52,6 +52,11 @@ export const ELEMENTS_ES = {
   prism: { name: 'Prisma', tagline: 'Cuenta como los cuatro elementos para reaccionar con sus vecinos.' },
   bullion: { name: 'Lingote', tagline: 'No anota nada. Paga tu Multiplicador final en Fragmentos al superar la ronda.' },
   masquerade: { name: 'Mascarada', tagline: 'Copia las habilidades y el puntaje del dado a su izquierda.' },
+  gaea: { name: 'Gaea', tagline: 'La diosa de la Tierra. Saca su poder de toda su familia.' },
+  ognen: { name: 'Ognen', tagline: 'El dios del Fuego. Arde con cualquier cara por encima de la mitad.' },
+  varuna: { name: 'Varuna', tagline: 'La diosa del Agua. Todo dado se dobla ante su marea.' },
+  zephyr: { name: 'Zephyr', tagline: 'El dios del Aire. Eleva cada set un escalón.' },
+  primordial_die: { name: 'Primordial', tagline: 'Todos los mecanismos del Éter, y el poder de cada dios que derrotes.' },
   chameleon: { name: 'Camaleón', tagline: 'Copia las habilidades del dado a su izquierda y el puntaje del dado a su derecha.' },
 }
 
@@ -180,6 +185,11 @@ export const RELICS_ES = {
   heat: { name: 'Calor', description: 'Cada explosión de esta ronda da +1 a todo dado de la familia Fuego por el resto de la ronda.' },
   gust: { name: 'Ráfaga', description: 'Una vez por ronda, vuelve a tirar un dado elegido gratis.' },
   steady: { name: 'Firmeza', description: 'Los dados de la familia Tierra nunca sacan menos de 3.' },
+  chain_break: {
+    name: 'Cadena Rota',
+    description: 'Los dados de la familia Fuego explotan con sus dos caras más altas, no solo la máxima. La cadena de Ognen no tiene límite.',
+  },
+  pantheon: { name: 'Panteón', description: 'Puedes tener un segundo dado dios.' },
 }
 
 export const CONSUMABLES_ES = {
@@ -307,6 +317,14 @@ export const BOSS_MODIFIERS_ES = {
   eclipse: { name: 'Eclipse', description: 'Las caras de tus dados están ocultas hasta que lances.' },
   silence: { name: 'Silencio', description: 'Una de tus reliquias queda sellada y no hace nada esta ronda.' },
   primordial: { name: 'Primordial', description: 'El jefe final. Su giro cambia cada vez que relanzas.' },
+  // The gauntlet of the Primordial path (B1).
+  gaea: { name: 'Gaea', description: 'Tus dados de la familia Tierra anotan -5 (-10 con un 1).' },
+  ognen: { name: 'Ognen', description: 'Tus dados de la familia Fuego se apagan con 1, 2 y 3.' },
+  varuna: { name: 'Varuna', description: 'Si algún dado saca un 1, todos los dados se vuelven 1, también los guardados y bloqueados.' },
+  zephyr: {
+    name: 'Zephyr',
+    description: 'Tus dados de la familia Fuego explotan la mitad de las veces, y los sets necesitan un dado más.',
+  },
 }
 
 export const REACTIONS_ES = {

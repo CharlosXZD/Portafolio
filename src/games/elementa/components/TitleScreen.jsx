@@ -10,6 +10,7 @@ import { readProfile, isDeckUnlocked, isDifficultyUnlocked } from '../utils/prof
 import { cleanSeed } from '../engine/rng.js'
 import DieToken from './DieToken.jsx'
 import PixelIcon from './PixelIcon.jsx'
+import CompletionMarks from './CompletionMarks.jsx'
 
 // Slide-and-tilt between loadouts; `dir` is +1 (next) or -1 (previous).
 const slide = {
@@ -48,6 +49,8 @@ function LoadoutCard({ index, profile }) {
         ))}
       </div>
       <h3 className="el-logo text-2xl sm:text-3xl">{unlocked ? deck.name : '???'}</h3>
+      {/* Which endings this loadout has reached (B2). */}
+      {unlocked && <CompletionMarks profile={profile} deckId={deck.id} size={12} />}
       <p className="min-h-[3rem] max-w-md text-lg leading-snug text-[var(--text-dim)]">
         {unlocked
           ? deck.tagline

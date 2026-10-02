@@ -15,6 +15,8 @@ import AnimatedNumber from './AnimatedNumber.jsx'
 import TargetBar from './TargetBar.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import BossAvatar from './BossAvatar.jsx'
+import { Pip } from './Tutorial.jsx'
+import { tideLocks } from '../engine/gods.js'
 import { readProfile } from '../utils/profile.js'
 import { playRoll, playClick, playCoin, playBossRound } from '../utils/sound.js'
 
@@ -113,6 +115,8 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const [gustArmed, setGustArmed] = useState(false)
   const targeting = Boolean(armedConsumable) || gustArmed
   const actingIds = actingElementIds(state.dice)
+  // Varuna's power: any die locks for free (B4).
+  const tide = tideLocks(state.dice)
   const rerollTax = fx.rerollShardCost || 0
   const canReroll = availableRerolls > 0 && state.shards >= rerollTax
   const boss = localizeBossModifier(state.bossModifier, lang)
@@ -269,6 +273,18 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     const name = relic ? localize(lang, relic.name, RELICS_ES, relic.id, 'name') : '?'
     bossLine = lang === 'es' ? `${name} está sellada esta ronda.` : `${name} is sealed this round.`
   }
+  // The final battles (B1): Primordial Unbound on the Split path, the
+  // gods' gauntlet on the Primordial path.
+  if (boss?.variant === 'unbound') {
+    bossTitle = `${t('elementa.boss.unbound')}: ${localizeBossModifier(bossById(boss.twistId), lang).name}`
+    bossLine = `${bossLine} ${t('elementa.boss.unboundLine')}`
+  }
+  const stageLabel = state.gauntlet ? t('elementa.boss.stage').replace('{n}', state.gauntlet.stage + 1) : null
+  // What the Primordial says in round 15, a hint at the path (B1).
+  const primordialSays = state.round === 15 && state.path && !state.endless ? t(`elementa.boss.say.${state.path}`) : null
+  const fallen = state.gauntlet?.fallen ? localizeBossModifier(bossById(state.gauntlet.fallen), lang).name : null
+  // Pip's hint at round 14, once the paths are open (B1).
+  const pipSays = state.round === 14 && selectors.knowsGods(state) ? t(`elementa.pip.say.${selectors.projectedPath(state)}`) : null
   // The Long Night (B3): a second twist rides along this boss round.
   if (boss && state.extraTwist) {
     const extra = localizeBossModifier(state.extraTwist, lang)
@@ -339,13 +355,31 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
               >
                 <BossAvatar id={boss.id} size={48} />
                 <span className="el-chip shrink-0 bg-[#ff5a5a] text-[var(--ink)]">
-                  {boss.id === 'primordial' ? t('elementa.diceTray.finalBoss') : t('elementa.diceTray.bossRound')}
+                  {stageLabel ?? (boss.tier >= 3 ? t('elementa.diceTray.finalBoss') : t('elementa.diceTray.bossRound'))}
                 </span>
                 <div className="text-left">
                   <div className="pixel-heading text-[10px] text-[#ffb0b0]">{bossTitle}</div>
                   <div className="text-base text-[#ffd0d0]/80">{bossLine}</div>
+                  {primordialSays && <div className="mt-1 text-base italic text-[#ffe0e0]">{primordialSays}</div>}
                 </div>
               </motion.div>
+            )}
+
+            {fallen && (
+              <motion.p
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="el-panel px-4 py-2 text-base text-[var(--gold-hi)]"
+                style={{ '--edge': 'var(--gold-1)' }}
+              >
+                {t('elementa.boss.fallen').replace('{god}', fallen)}
+              </motion.p>
+            )}
+            {pipSays && (
+              <div className="el-panel flex items-center gap-3 px-4 py-2 text-left" style={{ '--edge': '#c8b6ff' }}>
+                <Pip size={36} />
+                <span className="text-base text-[var(--text)]">{pipSays}</span>
+              </div>
             )}
 
             {/* Base x Mult = Score, live while you play and during the cast. */}
@@ -468,6 +502,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       onFreeze={(id) => dispatch({ type: 'FREEZE_DIE', dieId: id })}
                       canFreeze={canFreeze}
                       actingAs={actingAs}
+                      tideLock={tide}
                       canDrift={canDrift && inFamily(die.elementId, 'air') && die.lockedVia !== 'freeze'}
                       onNudge={(id, delta) => dispatch({ type: 'NUDGE_DIE', dieId: id, delta })}
                       revealing={revealing}

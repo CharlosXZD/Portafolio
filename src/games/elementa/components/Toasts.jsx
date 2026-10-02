@@ -5,6 +5,7 @@ import { ACHIEVEMENTS, localizeAchievement } from '../data/achievements.js'
 import { reactionById } from '../data/reactions.js'
 import { localizeReaction } from '../data/i18n.js'
 import { dieDescriptor } from '../data/itemDescriptors.js'
+import { endingById } from '../data/endings.js'
 import { playSuccess } from '../utils/sound.js'
 import PixelSprite from './PixelSprite.jsx'
 import PixelIcon from './PixelIcon.jsx'
@@ -27,6 +28,10 @@ function Toast({ item, onDone }) {
     title = t('elementa.toast.achievement')
     name = a.name
     sprite = a.sprite
+  } else if (item.kind === 'ending') {
+    title = t('elementa.toast.ending')
+    name = endingById(item.id)?.name[lang] ?? item.id
+    icon = item.id === 'split' ? 'air' : item.id === 'primordial' ? 'primordial_die' : 'aether'
   } else if (item.kind === 'recipe') {
     const die = dieDescriptor(item.id, lang)
     title = t('elementa.toast.recipe')

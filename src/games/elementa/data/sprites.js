@@ -455,6 +455,8 @@ export const ITEM_ART = {
   heat: ['flame', '#ff8a3d', '#ffe27a'],
   gust: ['feather', '#cfe0e8', '#9fe8e0'],
   steady: ['anchor', '#8a6a3d'],
+  chain_break: ['bolt', '#ff7a1a', '#ffd166'],
+  pantheon: ['crown', '#fff1c1', '#c8b6ff', '#ffd166'],
   // consumables
   upgrade_stone: ['gem', '#c8b6ff'],
   extra_reroll: ['hourglass', '#6a4fd6', '#9fd4ff'],

@@ -38,6 +38,10 @@ export const TIERS = {
   TRIPLE: 'triple',
   QUADRA: 'quadra',
   ARCANE: 'arcane',
+  // B4: the four gods, forged from 4 of one pure die; B1: the Primordial
+  // die, lent for the Primordial path's last battle.
+  GOD: 'god',
+  PRIMAL: 'primal',
 }
 
 export const ELEMENTS = {
@@ -277,6 +281,78 @@ export const ELEMENTS = {
     tagline: 'Counts as all four elements for reactions with its neighbors.',
     flags: flagSet(FLAGS.ALL_ELEMENTS),
   },
+  // --- The gods (EXPANSION.md B4): Divine, forge-only from 4 pure dice of
+  // their element, one at a time. They carry their element's abilities;
+  // their own ability and drawback live in engine/gods.js. ---
+  gaea: {
+    id: 'gaea',
+    name: 'Gaea',
+    tier: TIERS.GOD,
+    rarity: RARITY.DIVINE,
+    god: 'gaea',
+    parents: ['earth'],
+    recipe: { earth: 4 },
+    color: '#b8894a',
+    tagline: 'The Earth god. Draws her power from her whole family.',
+    flags: flagSet(),
+  },
+  ognen: {
+    id: 'ognen',
+    name: 'Ognen',
+    tier: TIERS.GOD,
+    rarity: RARITY.DIVINE,
+    god: 'ognen',
+    parents: ['fire'],
+    recipe: { fire: 4 },
+    color: '#ff5a1a',
+    tagline: 'The Fire god. Burns on anything above the middle.',
+    flags: flagSet(FLAGS.EXPLODE),
+  },
+  varuna: {
+    id: 'varuna',
+    name: 'Varuna',
+    tier: TIERS.GOD,
+    rarity: RARITY.DIVINE,
+    god: 'varuna',
+    parents: ['water'],
+    recipe: { water: 4 },
+    color: '#2f7fe0',
+    tagline: 'The Water god. Every die bends to her tide.',
+    flags: flagSet(FLAGS.FREE_LOCK, FLAGS.GRANTS_REROLL_ON_LOCK),
+  },
+  zephyr: {
+    id: 'zephyr',
+    name: 'Zephyr',
+    tier: TIERS.GOD,
+    rarity: RARITY.DIVINE,
+    god: 'zephyr',
+    parents: ['air'],
+    recipe: { air: 4 },
+    color: '#dff3ff',
+    tagline: 'The Air god. Lifts every set one step higher.',
+    flags: flagSet(FLAGS.ENABLES_SET_BONUS),
+  },
+  // The Primordial die (B1): lent on the Primordial path, never kept.
+  primordial_die: {
+    id: 'primordial_die',
+    name: 'Primordial',
+    tier: TIERS.PRIMAL,
+    rarity: RARITY.DIVINE,
+    parents: ['fire', 'water', 'air', 'earth'],
+    color: '#ff4d6d',
+    tagline: 'Every Aether mechanic, and the power of every god you defeat.',
+    flags: flagSet(
+      FLAGS.EXPLODE,
+      FLAGS.ZERO_ON_MIN,
+      FLAGS.FREE_LOCK,
+      FLAGS.GRANTS_REROLL_ON_LOCK,
+      FLAGS.ADJACENT_FREE_LOCK,
+      FLAGS.DUPLICATE_ON_REROLL,
+      FLAGS.ENABLES_SET_BONUS,
+      FLAGS.DOUBLE_ON_SET,
+    ),
+  },
+
   // --- B10: Carlos's arcane dice. ---
   bullion: {
     id: 'bullion',
@@ -315,6 +391,9 @@ export const PURE_ELEMENT_IDS = ['earth', 'fire', 'water', 'air']
 export const DOUBLE_FUSION_IDS = ['lightning', 'ice', 'steel', 'mud', 'steam', 'crystal']
 export const TRIPLE_FUSION_IDS = ['storm', 'obsidian', 'magma', 'monsoon']
 export const QUADRA_FUSION_ID = 'aether'
+export const GOD_IDS = ['gaea', 'ognen', 'varuna', 'zephyr']
+export const PRIMORDIAL_DIE_ID = 'primordial_die'
+
 export const ARCANE_DIE_IDS = ['midas', 'sapling', 'mirror', 'conduit', 'chrono', 'beacon', 'prism', 'bullion', 'masquerade', 'chameleon']
 
 const isMimic = (id) => Boolean(ELEMENTS[id]?.flags[FLAGS.MIMIC_LEFT] || ELEMENTS[id]?.flags[FLAGS.MIMIC_SPLIT])
@@ -436,7 +515,36 @@ export function describeElement(elementId, lang = 'en') {
     .map((f) => (lang === 'es' ? (FLAG_DESCRIPTIONS_ES[f] ?? FLAG_DESCRIPTIONS[f]) : FLAG_DESCRIPTIONS[f]))
     .filter(Boolean)
   flagLines.push(...familyAbilitiesOf(elementId).map((id) => familyAbilityText(id, lang)))
+  flagLines.push(...godTextLines(elementId, lang))
   return { tagline: localize(lang, def.tagline, ELEMENTS_ES, elementId, 'tagline'), flagLines }
+}
+
+// What each god does, for tooltips and the Gallery (B4). The engine side
+// is engine/gods.js.
+const GOD_TEXT = {
+  en: {
+    gaea: ['Also scores the face of every other Earth-family die. Earth dice are set wildcards.', 'Drawback: Earth-family dice score -5 (-10 on a 1).'],
+    ognen: ['Explodes on any face of 4 or more (chains of up to 10).', 'Drawback: fizzles on 1, 2 and 3. With a Water-family die in the pool, it explodes half as often.'],
+    varuna: ['Any die can lock for free, and those locks refund a reroll. Every die showing a 1 takes her face.', 'Drawback: if she rolls a 1, every die becomes a 1.'],
+    zephyr: ["Sets go up one tier (a pair counts as three, three as a straight). Zephyr's face is a wildcard.", 'Drawback: Fire-family dice explode half as often.'],
+    primordial_die: ['Gains each defeated god\'s ability, without the drawback.'],
+    oneGod: 'Only one god die at a time.',
+  },
+  es: {
+    gaea: ['También anota la cara de cada otro dado de la familia Tierra. Los dados de Tierra son comodines de set.', 'Desventaja: los dados de la familia Tierra anotan -5 (-10 con un 1).'],
+    ognen: ['Explota con cualquier cara de 4 o más (cadenas de hasta 10).', 'Desventaja: se apaga con 1, 2 y 3. Con un dado de la familia Agua en la reserva, explota la mitad de las veces.'],
+    varuna: ['Cualquier dado se puede bloquear gratis, y esos bloqueos devuelven un reroll. Cada dado que muestra un 1 toma su cara.', 'Desventaja: si ella saca un 1, todos los dados se vuelven 1.'],
+    zephyr: ['Los sets suben un nivel (un par cuenta como trío, un trío como escalera). La cara de Zephyr es comodín.', 'Desventaja: los dados de la familia Fuego explotan la mitad de las veces.'],
+    primordial_die: ['Gana la habilidad de cada dios derrotado, sin la desventaja.'],
+    oneGod: 'Solo un dado dios a la vez.',
+  },
+}
+
+export function godTextLines(elementId, lang = 'en') {
+  const text = GOD_TEXT[lang] ?? GOD_TEXT.en
+  const lines = text[elementId]
+  if (!lines) return []
+  return ELEMENTS[elementId]?.tier === TIERS.GOD ? [...lines, text.oneGod] : lines
 }
 
 // Dice have their own rarity scale, driven directly by fusion tier: pure

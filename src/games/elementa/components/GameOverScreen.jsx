@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
@@ -13,6 +14,8 @@ import BossAvatar from './BossAvatar.jsx'
 import BoonsList from './BoonsList.jsx'
 import { Stat } from './RoundHUD.jsx'
 import BackupReminder from './BackupReminder.jsx'
+import EndingCards from './EndingCards.jsx'
+import { endingById } from '../data/endings.js'
 
 function Section({ title, children, delay = 0 }) {
   return (
@@ -33,9 +36,12 @@ function Section({ title, children, delay = 0 }) {
  * goes): the dice as they looked on the table, every item, who you met on
  * the Road, and every pact with Nix and blessing from Aeris.
  */
-export default function GameOverScreen({ state, dispatch, victory = false }) {
+export default function GameOverScreen({ state, dispatch, victory = false, ending = null, visions = false }) {
   const { t, lang } = useLanguage()
+  // A win first plays its ending (B2), then the summary.
+  const [showCards, setShowCards] = useState(victory)
   const chronicle = state.chronicle ?? { bosses: [], shops: [] }
+  const endingDef = victory ? endingById(ending ?? state.ending ?? 'neutral') : null
 
   // Keepers met this run, with how many of their shops you visited.
   const keeperVisits = new Map()
@@ -47,6 +53,10 @@ export default function GameOverScreen({ state, dispatch, victory = false }) {
     .map((id) => (id === 'primordial' ? PRIMORDIAL : bossById(id)))
     .filter(Boolean)
     .map((b) => localizeBossModifier(b, lang))
+
+  if (showCards) {
+    return <EndingCards ending={endingDef?.id ?? 'neutral'} visions={visions} onDone={() => setShowCards(false)} />
+  }
 
   return (
     <motion.div
@@ -61,6 +71,11 @@ export default function GameOverScreen({ state, dispatch, victory = false }) {
       >
         {victory ? t('elementa.gameOver.victory') : t('elementa.gameOver.outOfLives')}
       </h2>
+      {endingDef && (
+        <p className="pixel-heading -mt-3 text-[10px]" style={{ color: endingDef.color }}>
+          {endingDef.name[lang]}
+        </p>
+      )}
 
       <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label={t('elementa.gameOver.rounds')}>{victory ? state.round : state.round - 1}</Stat>
@@ -148,7 +163,8 @@ export default function GameOverScreen({ state, dispatch, victory = false }) {
       {victory && <BackupReminder />}
 
       <div className="flex flex-wrap justify-center gap-4">
-        {victory && (
+        {/* Endless only follows the Neutral ending; the others close the run. */}
+        {victory && (endingDef?.id ?? 'neutral') === 'neutral' && (
           <button
             type="button"
             onClick={() => {

@@ -62,6 +62,7 @@ export default function Die({
   canDrift = false,
   onNudge,
   actingAs = null,
+  tideLock = false,
 }) {
   const { reducedMotion, display } = useGameSettings()
   const { lang, t } = useLanguage()
@@ -71,7 +72,7 @@ export default function Die({
   const elementName = localize(lang, def.name, ELEMENTS_ES, die.elementId, 'name')
   // Masquerade and Chameleon use the abilities of the die they act as.
   const acting = ELEMENTS[actingAs ?? die.elementId]
-  const canFreeLock = acting.flags[FLAGS.FREE_LOCK] && !die.locked && !lockBlocked
+  const canFreeLock = (acting.flags[FLAGS.FREE_LOCK] || tideLock) && !die.locked && !lockBlocked
   const isLocked = die.locked && die.lockedVia === 'lock'
   const isFrozen = die.locked && die.lockedVia === 'freeze'
   const description = describeElement(die.elementId, lang)

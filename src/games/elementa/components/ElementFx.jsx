@@ -42,6 +42,11 @@ const FX = {
   bullion: [['sheen', '#ffe9a3'], ['glint', '#ffd166', '#ffffff']],
   masquerade: [['sheen', '#f3d1ff'], ['glint', '#e9b0ff', '#ffffff']],
   chameleon: [['glint', '#a6e57a', '#e8ffd8']],
+  gaea: [['halo'], ['settle', '#c89a5c', '#7a5a34']],
+  ognen: [['pulse', '#ff5a1a'], ['rise', '#ff7a1a', '#ffe27a']],
+  varuna: [['pulse', '#2f7fe0'], ['drip', '#6fb6ff']],
+  zephyr: [['pulse', '#dff3ff'], ['orbit', '#ffffff']],
+  primordial_die: [['rainbow', '#ff4d6d'], ['spark', '#ffffff', '#ff8aa0']],
 }
 
 // Layers drawn behind the die body; every other kind goes in front.

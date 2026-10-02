@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-02 (Alpha v0.5 in development), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-02 (Alpha v0.6 in development), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -80,11 +80,24 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 
 **Forging** (at the Forge, the Bazaar, or with a Fusion Spark) consumes one die of each parent: 6 Shards for a double, 10 for a triple, 16 for Aether.
 
+### God dice (Divine; forge-only, hidden until their recipes are known)
+| Die | Made from | Forge cost | Ability | Drawback |
+|---|---|---|---|---|
+| **Gaea** | 4 Earth | 24 | Also scores the face of every other Earth-family die. Earth-family dice are set wildcards. | Every other Earth-family die scores -5 (-10 on a 1). |
+| **Ognen** | 4 Fire | 24 | Explodes on any face of 4 or more (chains of up to 10). | Fizzles on 1, 2 and 3. With a Water-family die in the pool, each explosion is a coin flip. |
+| **Varuna** | 4 Water | 24 | Any die can lock for free, and those locks refund a reroll. After every roll, every die showing a 1 takes her face. | If she rolls a 1, every die (held and locked too) becomes a 1. |
+| **Zephyr** | 4 Air | 24 | Sets go up one tier (pair counts as three, three as a straight). His face is a set wildcard. | Fire-family dice explode half as often. |
+
+- **One god at a time** (Pantheon allows two). Gods can't be cloned or copied by Shadow Twin. They count as their element's family, and holding one at round 15 pushes the Accord -3.
+- **The recipes** are learned from the visions after a Neutral win (see §7a).
+
+**The Primordial die** (Divine, d20): lent on the Primordial path for round 15 only, outside the dice cap, never sold. Every Aether mechanic, plus the ability of each god defeated in the gauntlet, without the drawback.
+
 **The Aether recipe is secret.** Until you beat Primordial once on a save file, Aether can't be forged and never appears in a shop; the Gallery reads "Recipe unknown: beat Primordial". The first win teaches it (a "New recipe" toast), and the Curator mentions it on your next Vault visit. The Avatar loadout still starts with Aether.
 
 ---
 
-## 3. Relics (41 total)
+## 3. Relics (43 total)
 
 ### Fire family
 | Relic | Rarity | Price | Effect |
@@ -92,6 +105,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 | **Molten Core** | Common | 5 | Every explosion adds +2 flat Base Value. |
 | **Ember Heart** | Uncommon | 8 | Each die that explodes adds +1 Multiplier. |
 | **Heat** | Uncommon | 8 | Each explosion this round gives every Fire-family die +1 for the rest of the round. |
+| **Chain Break** | Epic | 18 | Fire-family dice explode on their top two faces, not just the max. Ognen's chain has no cap. Offered only once the god recipes are known. |
 | **Wildfire** | Rare | 12 | Each explosion has a 20% chance to also trigger an explosion on another Fire-family die. |
 | **Glass Cannon** | Epic | 18 | Explosions add double value, but a die that fizzles on a 1 also zeroes one random other die. |
 
@@ -123,7 +137,10 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 
 ### Neutral (no element)
 | Relic | Rarity | Price | Effect |
-|---|---|---|---|
+|
+| **Pantheon** | Legendary | 28 | You can hold a second god die. Sold only in the Aether Bazaar, once the god recipes are known. |
+
+---|---|---|---|
 
 ---
 
@@ -315,8 +332,24 @@ Boss rounds are 5, 10 and 15 (Cataclysm: every round). Each boss has its own mus
 | **Eclipse** | From round 10 | Your dice faces are hidden until you cast. | `boss_eclipse` |
 | **Silence** | From round 10 | One of your relics is sealed and does nothing this round. | `boss_silence` |
 | **Primordial** | Round 15 (and every 15 in Endless) | The final boss. Its twist changes every time you reroll. Pool: Calm Winds, Grounded, Drought, Tax Collector, Scatter, Gravity Well, The Pillar. | `boss_primordial` |
+| **Primordial Unbound** | Round 15 on the Split path | The Primordial's shifting twist, a target x1.5, and after every reroll it fuses two neighboring pure dice of different elements into their double fusion for that attempt (your pool comes back afterwards). | `boss_primordial` |
+| **Gaea** (gauntlet 1 of 4) | Round 15 on the Primordial path | Your Earth-family dice score -5 (-10 on a 1). Target x0.7. | `boss_gaea` |
+| **Ognen** (gauntlet 2 of 4) | | Your Fire-family dice fizzle on 1, 2 and 3. Target x0.9. | `boss_ognen` |
+| **Varuna** (gauntlet 3 of 4) | | If any die rolls a 1, every die becomes a 1, held and locked ones too. Target x1.1. | `boss_varuna` |
+| **Zephyr** (gauntlet 4 of 4) | | Your Fire-family dice explode half as often, and sets need one more matching die. Target x1.4. | `boss_zephyr` |
 
 Ermal the Unbothered is named after beta tester Ermal and has a sleepy portrait.
+
+---
+
+## 7a. The three paths and the endings
+
+- **The path locks when you walk into round 15.** The Accord adds the dice in hand: +1 per fusion, Aether or Prism, -1 per pure die, -3 per god die. +6 or more is the Primordial path, -6 or less the Split path, anything else Neutral. Until the file knows the god recipes, every run is Neutral.
+- **Hints:** Aeris and Nix react to a lean of 4 or more; Pip says one line at round 14 (once the paths are open) about where you are heading; in round 15 the Primordial speaks a line for your path, and the arena tints red (Primordial) or blue-white (Split).
+- **Neutral:** the usual Primordial fight. Ending: **The Circle Holds**. The first Neutral win on a file shows the visions of Gaea, Ognen, Varuna and Zephyr and teaches their recipes (opening both other paths). Endless is only offered after this ending.
+- **Split:** Primordial Unbound (see §6). Ending: **The Split Holds Forever**.
+- **Primordial:** the gods' gauntlet, four stages inside round 15, no shop or camp between them (a miss costs a life and retries the stage). The Primordial die joins your pool and absorbs each fallen god. Ending: **Made Whole**.
+- **Endings** are collected in the Gallery's Endings tab, and each loadout shows a completion mark per ending it has reached (on the new-run carousel and in the Gallery). Ending card texts are drafts for Carlos.
 
 ---
 

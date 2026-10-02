@@ -6,12 +6,13 @@ import { RELICS } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
 import { DIFFICULTIES } from '../data/difficulty.js'
-import { BOSS_MODIFIERS, PRIMORDIAL } from '../data/bossModifiers.js'
+import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS } from '../data/bossModifiers.js'
+import { ENDING_IDS } from '../data/endings.js'
 import { SECRET_REACTION_IDS } from '../data/reactions.js'
 import { ACHIEVEMENTS } from '../data/achievements.js'
 import { readFile, updateProfile, listFiles, emptyProfile } from './saveManager.js'
 
-export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id]
+export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id, ...GOD_TRIALS.map((b) => b.id)]
 
 export function readProfile(slot) {
   if (slot == null) return emptyProfile()
@@ -59,6 +60,25 @@ export function learnRecipe(slot, id) {
   return fresh
 }
 
+/**
+ * Records an ending (B2) for the file and for the loadout that reached it
+ * (its completion marks). Returns true if the file had never seen it.
+ */
+export function markEnding(slot, ending, deckId) {
+  if (slot == null || !ending) return false
+  let fresh = false
+  updateProfile(slot, (p) => {
+    fresh = !p.endings.includes(ending)
+    const marks = p.deckEndings[deckId] || []
+    return {
+      ...p,
+      endings: fresh ? [...p.endings, ending] : p.endings,
+      deckEndings: deckId && !marks.includes(ending) ? { ...p.deckEndings, [deckId]: [...marks, ending] } : p.deckEndings,
+    }
+  })
+  return fresh
+}
+
 /** Unlocks achievements; returns the ids that were newly unlocked. */
 export function unlockAchievements(slot, ids) {
   if (slot == null) return []
@@ -98,6 +118,7 @@ export const TOTALS = {
   decks: DECKS.length,
   difficulties: DIFFICULTIES.length,
   achievements: PUBLIC_ACHIEVEMENTS.length,
+  endings: ENDING_IDS.length,
 }
 
 const known = {
@@ -122,6 +143,7 @@ export function completion(profile) {
     decks: profile.decksBeaten.filter((id) => DECKS.some((d) => d.id === id)).length,
     difficulties: profile.difficultiesBeaten.filter((id) => DIFFICULTIES.some((d) => d.id === id)).length,
     achievements: profile.achievements.filter((id) => PUBLIC_ACHIEVEMENTS.some((a) => a.id === id)).length,
+    endings: (profile.endings || []).filter((id) => ENDING_IDS.includes(id)).length,
   }
   const done = Object.values(parts).reduce((a, b) => a + b, 0)
   const total = Object.values(TOTALS).reduce((a, b) => a + b, 0)

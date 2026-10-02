@@ -23,6 +23,11 @@ const COLORS = {
   eclipse: '#2b2b33',
   silence: '#8a8fa0',
   primordial: '#ff5a5a',
+  // The gods of the Primordial path's gauntlet (B1).
+  gaea: '#b8894a',
+  ognen: '#ff5a1a',
+  varuna: '#2f7fe0',
+  zephyr: '#dff3ff',
 }
 
 function rng(seedStr) {

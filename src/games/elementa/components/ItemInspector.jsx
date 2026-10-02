@@ -5,8 +5,8 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import FamilyTags from './FamilyTag.jsx'
 
 const RARITY_LABEL = {
-  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' },
-  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario' },
+  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine' },
+  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino' },
 }
 
 // Highlights numbers, element names, and Shard/Fragmento mentions in a

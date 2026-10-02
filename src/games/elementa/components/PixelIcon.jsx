@@ -131,6 +131,27 @@ const ICONS = {
     rows: ['..ccc..', '.chccc.', 'cccccc.', '..cc.c.', '.c.c.cc', 'c..c..c', '.cc....'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
+  // The gods (B4) and the Primordial die (B1).
+  gaea: {
+    rows: ['.c...c.', 'cc.c.cc', 'chccchc', '.ccccc.', '..chc..', '.ccccc.', 'ccccccc'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  ognen: {
+    rows: ['c..c..c', 'cc.c.cc', '.chchc.', 'cchhhcc', '.chhhc.', '.ccccc.', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  varuna: {
+    rows: ['c.c.c.c', '.c.c.c.', '...c...', '..chc..', '.chhcc.', '.ccccc.', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  zephyr: {
+    rows: ['c.ccc.c', '.c...c.', 'cchhhcc', '.......', 'ccccc..', '....cc.', 'cccc...'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  primordial_die: {
+    rows: ['c..c..c', '.chhhc.', '.hcccc.', 'chcccch', '.cccch.', '.chhhc.', 'c..c..c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
   spark: {
     rows: ['...c...', '...c...', '.c.h.c.', 'cchhhcc', '.c.h.c.', '...c...', '...c...'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },

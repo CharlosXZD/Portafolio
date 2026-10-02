@@ -18,6 +18,8 @@ export const RARITY = {
   RARE: 'rare',
   EPIC: 'epic',
   LEGENDARY: 'legendary',
+  // The god dice (EXPANSION.md B4): forge-only, between Legendary and Mythic.
+  DIVINE: 'divine',
 }
 
 // Order matters: used for round-gating (index into RARITY_UNLOCK_ROUND) and
@@ -28,6 +30,7 @@ export const RARITY_ORDER = [
   RARITY.RARE,
   RARITY.EPIC,
   RARITY.LEGENDARY,
+  RARITY.DIVINE,
 ]
 
 export const RARITY_COST = {
@@ -36,6 +39,7 @@ export const RARITY_COST = {
   [RARITY.RARE]: 12,
   [RARITY.EPIC]: 18,
   [RARITY.LEGENDARY]: 28,
+  [RARITY.DIVINE]: 40,
 }
 
 // The glow color behind an item's icon, in the shop row and in the
@@ -47,6 +51,7 @@ export const RARITY_GLOW = {
   [RARITY.RARE]: '#ef4444',
   [RARITY.EPIC]: '#8b5cf6',
   [RARITY.LEGENDARY]: '#eab308',
+  [RARITY.DIVINE]: '#fff1c1',
 }
 
 export const RELICS = [
@@ -465,6 +470,32 @@ export const RELICS = [
     itemConcept: 'a heavy iron plumb bob on a cord',
     description: 'Earth-family dice never roll below 3.',
     effects: { earthFamilyMinFace: 3 },
+  },
+  // --- Relics that arrive with the gods (B4). `needsGods`: only offered
+  // once the save file knows the god recipes; `bazaarOnly`: only in the
+  // Aether Bazaar. ---
+  {
+    id: 'chain_break',
+    name: 'Chain Break',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: 'fire',
+    needsGods: true,
+    itemConcept: 'a snapped iron chain, its broken link glowing',
+    description: "Fire-family dice explode on their top two faces, not just the max. Ognen's chain has no cap.",
+    effects: { fireTopTwoExplode: true, ognenUncapped: true },
+  },
+  {
+    id: 'pantheon',
+    name: 'Pantheon',
+    kind: 'relic',
+    rarity: RARITY.LEGENDARY,
+    element: null,
+    needsGods: true,
+    bazaarOnly: true,
+    itemConcept: 'a tiny temple with four empty pedestals',
+    description: 'You can hold a second god die.',
+    effects: { godCap: 2 },
   },
 ]
 

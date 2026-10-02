@@ -126,7 +126,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B1. The three paths
 
-**Status: Ready** (v0.6). Carlos agreed the design on 2026-10-02; Claude's specs fill the remaining details. **v0.5 part Built:** the Accord records its weights and Aeris and Nix react to a strong lean.
+**Status: Built** (v0.5 recording, v0.6 live paths). Carlos agreed the design on 2026-10-02; Claude's specs fill the remaining details.
 
 **Agreed (Carlos):** a run's choices sort the player into one of three paths. The path changes the final battle and what it unlocks.
 - **Neutral:** the player sided neither with the Primordial nor against it.
@@ -199,7 +199,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B2. Endings and unlock structure (TBOI style)
 
-**Status: Ready** (v0.6; the Firmament door itself is v0.7). Carlos: "it depends on what ending you have and what you have accomplished", like TBOI's Mom unlocking more.
+**Status: Built** (v0.6; the Firmament door itself is v0.7). Carlos: "it depends on what ending you have and what you have accomplished", like TBOI's Mom unlocking more.
 
 **Proposed progression:**
 1. **First win (any path):** ends the run. Unlocks the Aether recipe (B6). The Primordial starts speaking in later fights, so the player learns there's more.
@@ -290,7 +290,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B4. God dice
 
-**Status: Ready** (v0.6; Carlos decided everything below on 2026-10-02)
+**Status: Built** (v0.6; Carlos decided everything below on 2026-10-02)
 
 **The gods:** Gaea (Earth), Ognen (Fire), Varuna (Water), Zephyr (Air). Each is made from 4 of the same pure die.
 

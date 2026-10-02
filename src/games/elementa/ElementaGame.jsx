@@ -26,6 +26,8 @@ import {
   markDeckBeaten,
   markDifficultyBeaten,
   learnRecipe,
+  knowsRecipe,
+  markEnding,
   unlockAchievements,
   updateStats,
   allFilesComplete,
@@ -44,6 +46,7 @@ import BossReward from './components/BossReward.jsx'
 import RunInfo from './components/RunInfo.jsx'
 import Toasts from './components/Toasts.jsx'
 import { LATEST_VERSION } from './data/patchNotes.js'
+import { GOD_IDS } from './data/elements.js'
 import './elementa.css'
 
 // Phases where a run is actually in progress and worth persisting. Meta
@@ -164,6 +167,21 @@ function ElementaGameInner() {
   // A run ends: a loss clears the file's run; a win records the win,
   // unlocks the next loadout and difficulty, and clears the run too
   // (choosing Endless re-saves it on the next state change).
+  // How a win ends (B2): which ending card, and whether the gods' visions
+  // come first (the first Neutral win on a file teaches their recipes).
+  const [endingView, setEndingView] = useState(null)
+  useEffect(() => {
+    if (state.phase !== 'victory') {
+      setEndingView(null)
+      return
+    }
+    // Read the file now, before the run-end effect below learns the recipes.
+    const ending = state.ending || 'neutral'
+    const known = readProfile(slot)
+    const visions = ending === 'neutral' && !GOD_IDS.every((id) => knowsRecipe(known, id))
+    setEndingView((view) => view ?? { ending, visions })
+  }, [state.phase, state.ending, slot])
+
   const endedRef = useRef(null)
   useEffect(() => {
     if (slot == null || (state.phase !== 'gameover' && state.phase !== 'victory')) {
@@ -182,6 +200,12 @@ function ElementaGameInner() {
     markDifficultyBeaten(slot, state.difficulty?.id)
     // Beating Primordial hands over the Aether recipe (EXPANSION.md B6).
     if (learnRecipe(slot, 'aether')) notify([{ kind: 'recipe', id: 'aether' }])
+    // A Neutral win shows the gods' visions and teaches their recipes,
+    // opening the Split and Primordial paths (B2). Every win records its
+    // ending, for the file and as a completion mark on the loadout.
+    const ending = state.ending || 'neutral'
+    if (ending === 'neutral') notify(GOD_IDS.filter((id) => learnRecipe(slot, id)).map((id) => ({ kind: 'recipe', id })))
+    if (markEnding(slot, ending, state.deckId)) notify([{ kind: 'ending', id: ending }])
     updateStats(slot, (st) => ({ ...st, runs: st.runs + 1, wins: st.wins + 1 }))
     award([...achievementsFromVictory(state, before), ...achievementsFromProfile(readProfile(slot))])
     // Trinity: all three files at 100% unlocks it on every file.
@@ -241,6 +265,7 @@ function ElementaGameInner() {
             {/* Stays mounted through a miss, so the table freezes on the
                 final cast under the missed overlay below. */}
             <DiceTray
+              key={state.roundSeq}
               state={state}
               dispatch={dispatch}
               availableRerolls={selectors.availableRerolls(state)}
@@ -255,8 +280,24 @@ function ElementaGameInner() {
 
         {state.phase === 'gameover' && <GameOverScreen state={state} dispatch={dispatch} />}
 
-        {state.phase === 'victory' && <GameOverScreen state={state} dispatch={dispatch} victory />}
+        {/* Waits one frame for the ending view, so the cards start right. */}
+        {state.phase === 'victory' && endingView && (
+          <GameOverScreen state={state} dispatch={dispatch} victory ending={endingView?.ending} visions={endingView?.visions} />
+        )}
       </main>
+
+      {/* Round 15's arena leans with the path (B1): red toward the
+          Primordial, blue-white toward the Split, untouched for Neutral. */}
+      {inRun && state.round === 15 && (state.path === 'primordial' || state.path === 'split') && (
+        <div
+          className="pointer-events-none fixed inset-0 z-[1]"
+          style={{
+            background: `radial-gradient(ellipse at center, transparent 35%, ${
+              state.path === 'primordial' ? 'rgba(255, 58, 74, 0.28)' : 'rgba(191, 228, 255, 0.24)'
+            } 100%)`,
+          }}
+        />
+      )}
 
       {/* A miss: centered over a dimmed, grayed-out table (EXPANSION.md E10). */}
       {state.phase === 'missed' && !paused && (

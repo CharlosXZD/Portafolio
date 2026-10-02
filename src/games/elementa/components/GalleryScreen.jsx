@@ -7,7 +7,10 @@ import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
 import { REACTIONS } from '../data/reactions.js'
-import { BOSS_MODIFIERS, PRIMORDIAL } from '../data/bossModifiers.js'
+import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS } from '../data/bossModifiers.js'
+import { ENDINGS } from '../data/endings.js'
+import CompletionMarks from './CompletionMarks.jsx'
+import { EndingCard, EndingArt } from './EndingCards.jsx'
 import { dieDescriptor, relicDescriptor, consumableDescriptor } from '../data/itemDescriptors.js'
 import { localize, ELEMENTS_ES, localizeDeck, localizeReaction, localizeBossModifier } from '../data/i18n.js'
 import { readProfile, completion, isDeckUnlocked, knowsRecipe, TOTALS } from '../utils/profile.js'
@@ -21,8 +24,8 @@ import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
 import { keeperMemory } from '../utils/keepers.js'
 
 const RARITY_LABEL = {
-  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' },
-  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario' },
+  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine' },
+  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino' },
 }
 
 // An element "family" is the pure element plus every fusion made from it.
@@ -199,11 +202,16 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       return CONSUMABLES.map((c) => ({ key: c.id, seen: seen.consumables.has(c.id), families: [c.element ?? 'neutral'], item: consumableDescriptor(c, lang) }))
     }
     if (tab === 'bosses') {
-      return [...BOSS_MODIFIERS, PRIMORDIAL].map((raw) => {
+      return [...BOSS_MODIFIERS, PRIMORDIAL, ...GOD_TRIALS].map((raw) => {
         const b = localizeBossModifier(raw, lang)
         const isSeen = seen.bosses.has(b.id)
-        const when =
-          b.tier === 3 ? t('elementa.gallery.bossFinal') : b.tier === 2 ? t('elementa.gallery.bossTier2') : t('elementa.gallery.bossTier1')
+        const when = raw.stage
+          ? t('elementa.gallery.bossGauntlet').replace('{n}', raw.stage)
+          : b.tier === 3
+            ? t('elementa.gallery.bossFinal')
+            : b.tier === 2
+              ? t('elementa.gallery.bossTier2')
+              : t('elementa.gallery.bossTier1')
         return {
           key: b.id,
           seen: isSeen,
@@ -305,6 +313,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
     },
     { id: 'reactions', label: t('elementa.gallery.reactions'), count: parts.reactions, total: TOTALS.reactions },
     { id: 'loadouts', label: t('elementa.gallery.loadouts'), count: parts.decks, total: TOTALS.decks },
+    { id: 'endings', label: t('elementa.gallery.endings'), count: parts.endings, total: TOTALS.endings },
     { id: 'achievements', label: t('elementa.achievements.title'), count: parts.achievements, total: TOTALS.achievements },
   ]
 
@@ -417,6 +426,16 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
         </div>
       ) : tab === 'achievements' ? (
         <AchievementsList profile={profile} />
+      ) : tab === 'endings' ? (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          {ENDINGS.map((e) =>
+            (profile.endings || []).includes(e.id) ? (
+              <EndingCard key={e.id} small color={e.color} title={e.name[lang]} text={e.text[lang]} art={<EndingArt ending={e.id} size={64} />} />
+            ) : (
+              <EndingCard key={e.id} small color="#6e6480" title="???" text={t('elementa.gallery.endingHint')} art={<span className="pixel-heading text-3xl text-[var(--text-mute)]">?</span>} />
+            ),
+          )}
+        </div>
       ) : tab === 'loadouts' ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {DECKS.map((raw, i) => {
@@ -444,7 +463,10 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
                     )
                   })}
                 </div>
-                <div className="pixel-heading text-[10px]">{unlocked ? deck.name : '???'}</div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="pixel-heading text-[10px]">{unlocked ? deck.name : '???'}</span>
+                  <CompletionMarks profile={profile} deckId={deck.id} />
+                </div>
                 <div className="text-base leading-snug text-[var(--text-dim)]">{unlocked ? deck.tagline : ''}</div>
               </div>
             )

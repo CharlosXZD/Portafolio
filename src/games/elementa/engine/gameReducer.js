@@ -10,6 +10,9 @@ import {
   inFamily,
   elementHasFlag,
   actingElementIds,
+  GOD_IDS,
+  PRIMORDIAL_DIE_ID,
+  TIERS,
   rarityForElement,
 } from '../data/elements.js'
 import { nextTier, prevTier, tierById, sellValueForDie } from '../data/diceTiers.js'
@@ -17,11 +20,20 @@ import { RELICS, RARITY, relicById, costForRelic, sellValueForRelic } from '../d
 import { CONSUMABLES, consumableById, costForConsumable, sellValueForConsumable } from '../data/consumables.js'
 import { deckById } from '../data/decks.js'
 import { difficultyById } from '../data/difficulty.js'
-import { BOSS_MODIFIERS, PRIMORDIAL, PRIMORDIAL_POOL, bossById, isBossRound } from '../data/bossModifiers.js'
+import {
+  BOSS_MODIFIERS,
+  PRIMORDIAL,
+  PRIMORDIAL_POOL,
+  GOD_TRIALS,
+  UNBOUND_TARGET,
+  bossById,
+  isBossRound,
+} from '../data/bossModifiers.js'
 import { rollDie, rerollPool, evaluatePool, thresholdForRound, shardsEarned, interestFor } from './scoring.js'
 import { random, getRngState, setRngState, seedToState, randomSeed, cleanSeed } from './rng.js'
 import { shopTypeById, DEALS, BLESSINGS, BETRAYALS, isBetrayal } from '../data/shops.js'
 import { newMap, ensureLayers, nodeById, currentNode, nextChoices, retypeAhead } from './map.js'
+import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
 
 const STARTING_TIER = 'd6'
 const STARTING_REROLLS = 3
@@ -56,6 +68,8 @@ const FORGE_BASE_COST_BY_TIER = {
   double: 6,
   triple: 10,
   quadra: 16,
+  // The gods (B4, Claude's default): consume 4 pure dice plus 24 Shards.
+  god: 24,
 }
 
 const DIE_BASE_COST_BY_TIER = {
@@ -205,7 +219,8 @@ function scoreContext(state) {
 }
 
 function rollFreshRound(dice, relics) {
-  return dice.map((d) => ({
+  const fx = relicEffects(relics)
+  const rolled = dice.map((d) => ({
     ...d,
     growth: 0,
     patience: 0,
@@ -213,8 +228,10 @@ function rollFreshRound(dice, relics) {
     held: false,
     locked: false,
     lockedVia: null,
-    ...rollDie(d.elementId, d.sides, relics),
+    ...rollDie(d.elementId, d.sides, relics, rollContext(d, dice, fx)),
   }))
+  // Varuna's tide settles every roll (B4).
+  return settleTide(rolled, fx)
 }
 
 // `cut` is the current shop type's own price cut (data/shops.js), stacked
@@ -290,17 +307,41 @@ function withRecipe(state, id) {
   return recipes.includes(id) ? state : { ...state, recipes: [...recipes, id] }
 }
 
+// How many of each die a recipe consumes: one of each parent, or a god's
+// four pure dice of its element (B4).
+function recipeNeeds(def) {
+  return def.recipe ?? Object.fromEntries(def.parents.map((p) => [p, 1]))
+}
+
+// The god recipes come from the visions after a Neutral win (B2).
+function knowsGods(state) {
+  return GOD_IDS.every((id) => state.recipes?.includes(id))
+}
+
+// One god at a time; the Pantheon relic allows a second (B4).
+function godCapFor(state) {
+  return relicEffects(state.relics).godCap || 1
+}
+
+function godCount(dice) {
+  return dice.filter(isGodDie).length
+}
+
 function forgeableRecipes(state) {
   const ownedCounts = new Map()
   state.dice.forEach((d) => ownedCounts.set(d.elementId, (ownedCounts.get(d.elementId) || 0) + 1))
-  const ids = knowsAether(state) ? ALL_FUSION_IDS : ALL_FUSION_IDS.filter((id) => id !== QUADRA_FUSION_ID)
-  return ids.map((fusionElementId) => {
+  const fusions = knowsAether(state) ? ALL_FUSION_IDS : ALL_FUSION_IDS.filter((id) => id !== QUADRA_FUSION_ID)
+  const gods = GOD_IDS.filter((id) => state.recipes?.includes(id))
+  return [...fusions, ...gods].map((fusionElementId) => {
     const def = ELEMENTS[fusionElementId]
+    const needs = recipeNeeds(def)
+    const godFull = def.tier === TIERS.GOD && godCount(state.dice) >= godCapFor(state)
     // The Forge is open only in Forge-type shops (or with a Fusion Spark).
-    const canForge = Boolean(state.shop?.forgeOpen) && def.parents.every((p) => (ownedCounts.get(p) || 0) >= 1)
+    const canForge =
+      Boolean(state.shop?.forgeOpen) && !godFull && Object.entries(needs).every(([p, n]) => (ownedCounts.get(p) || 0) >= n)
     return {
       fusionElementId,
-      parents: def.parents,
+      parents: Object.entries(needs).flatMap(([p, n]) => Array(n).fill(p)),
       tier: def.tier,
       canForge,
       cost: forgeCost(state.relics, def.tier, state.shop),
@@ -351,7 +392,7 @@ function vaultWeight(item, round) {
   return VAULT_WEIGHT[item.rarity] ?? 1
 }
 
-const RARITY_ORDER = [RARITY.COMMON, RARITY.UNCOMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY]
+const RARITY_ORDER = [RARITY.COMMON, RARITY.UNCOMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY, RARITY.DIVINE]
 
 // The whole shop is luck-gated the same way: a small random sample rather
 // than "everything you've unlocked, guaranteed". Relics and consumables
@@ -361,7 +402,11 @@ const RARITY_ORDER = [RARITY.COMMON, RARITY.UNCOMMON, RARITY.RARE, RARITY.EPIC, 
 function rollShopStock(state, type) {
   const ownedRelicIds = new Set(state.relics.map((r) => r.id))
   const itemPool = [
-    ...(type.itemKinds.includes('relic') ? RELICS.filter((r) => !ownedRelicIds.has(r.id)) : []),
+    ...(type.itemKinds.includes('relic')
+      ? RELICS.filter(
+          (r) => !ownedRelicIds.has(r.id) && (!r.needsGods || knowsGods(state)) && (!r.bazaarOnly || type.legendary),
+        )
+      : []),
     ...(type.itemKinds.includes('consumable') ? CONSUMABLES : []),
   ]
   const weight = type.relicLuck ? vaultWeight : rarityWeight
@@ -385,10 +430,16 @@ function rollShopStock(state, type) {
   return { itemOffers, buyableElements }
 }
 
+// Relics a pact or prize may hand out: never the god relics before the god
+// recipes are known, never the Bazaar's Pantheon.
+function relicGrantable(state, r) {
+  return (!r.needsGods || knowsGods(state)) && !r.bazaarOnly
+}
+
 function rollDeal(state, id) {
   if (id === 'blood_relic') {
     const owned = new Set(state.relics.map((r) => r.id))
-    const pick = (rarity) => RELICS.filter((r) => r.rarity === rarity && !owned.has(r.id))
+    const pick = (rarity) => RELICS.filter((r) => r.rarity === rarity && !owned.has(r.id) && relicGrantable(state, r))
     const pool = pick(RARITY.LEGENDARY).length ? pick(RARITY.LEGENDARY) : pick(RARITY.EPIC)
     return pool.length ? { id, relicId: randomOf(pool).id } : null
   }
@@ -548,6 +599,17 @@ function baseTitleState() {
     // The Long Night's second twist for the current boss round, and its prize.
     extraTwist: null,
     longNightActive: false,
+    // The three paths (B1): locked when round 15 begins ('neutral',
+    // 'split' or 'primordial'), the gauntlet's progress on the Primordial
+    // path ({ stage: 0..3 }), the pool to restore after Primordial Unbound
+    // fuses your dice, and the ending a win reached.
+    path: null,
+    gauntlet: null,
+    roundPool: null,
+    ending: null,
+    // Bumped whenever a fresh roll of a round starts (a new round, a retry,
+    // a gauntlet stage), so the table can start clean.
+    roundSeq: 0,
   }
 }
 
@@ -589,8 +651,14 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', re
   }
 }
 
-// Shared by NEXT_ROUND and CONTINUE_ENDLESS: roll into `round`.
+// Shared by NEXT_ROUND and CONTINUE_ENDLESS: roll into `round`. Walking
+// into round 15 locks the path and sets up its battle (B1).
 function enterRound(state, round) {
+  const next = enterRoundBase(state, round)
+  return round === WIN_ROUND && !state.endless ? enterFinalBattle(next) : next
+}
+
+function enterRoundBase(state, round) {
   const prophecy = state.map?.prophecy
   const foretold = prophecy?.round === round ? revalidateBoss(state, prophecy.boss, round) : null
   let bossModifier = isBossRound(round, state.difficulty) ? foretold ?? pickBossModifier(state, round) : null
@@ -620,6 +688,7 @@ function enterRound(state, round) {
     // Next-round blessings take effect now, for this round (and its retries).
     roundBuffs: state.nextRoundBuffs || {},
     nextRoundBuffs: {},
+    roundSeq: (state.roundSeq || 0) + 1,
     map: prophecy?.round === round ? { ...state.map, prophecy: null } : state.map,
     chronicle: noteBoss(state.chronicle, bossModifier),
     threshold: Math.round(thresholdForRound(round, state.difficulty) * (state.nextTargetMult || 1)),
@@ -642,6 +711,9 @@ function retryRound(state) {
   return {
     ...state,
     phase: 'rolling',
+    roundSeq: (state.roundSeq || 0) + 1,
+    // Primordial Unbound gives back your pool after every attempt.
+    roundPool: state.bossModifier?.variant === 'unbound' ? dice : state.roundPool,
     dice,
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
@@ -769,6 +841,125 @@ function legacyMap(save) {
   return { ...map, currentId: node.id, path: [node.id] }
 }
 
+// --- The three paths (EXPANSION.md B1, B2). ---
+
+// What the dice in hand add to the Accord when round 15 begins (Claude's
+// spec): +1 per fusion, Aether or Prism, -1 per pure die, -3 per god die.
+function accordFromPool(dice) {
+  return dice.reduce((sum, d) => {
+    const def = ELEMENTS[d.elementId]
+    if (def.tier === TIERS.GOD) return sum - 3
+    if (def.tier === TIERS.PURE) return sum - 1
+    if ([TIERS.DOUBLE, TIERS.TRIPLE, TIERS.QUADRA].includes(def.tier) || d.elementId === 'prism') return sum + 1
+    return sum
+  }, 0)
+}
+
+// Path thresholds (Claude's spec): +6 or more is the Primordial's, -6 or
+// less the Split's. Until the god recipes are known, always Neutral.
+function pathFor(state, accord) {
+  if (!knowsGods(state)) return 'neutral'
+  if (accord >= 6) return 'primordial'
+  if (accord <= -6) return 'split'
+  return 'neutral'
+}
+
+/** The path the run would take if round 15 began now (for Pip's hint). */
+function projectedPath(state) {
+  return pathFor(state, (state.accord || 0) + accordFromPool(state.dice))
+}
+
+// The Primordial path's gauntlet: stage `stage` (0 to 3) of the four gods.
+function trialFor(stage) {
+  return GOD_TRIALS[stage]
+}
+
+function stageTarget(state, stage) {
+  return Math.round(thresholdForRound(WIN_ROUND, state.difficulty) * trialFor(stage).target)
+}
+
+// Round 15 has begun: lock the path and set its battle up.
+function enterFinalBattle(state) {
+  const accord = (state.accord || 0) + accordFromPool(state.dice)
+  const path = pathFor(state, accord)
+  const base = { ...state, accord, path }
+  if (path === 'split') {
+    // Primordial Unbound: full strength, and a harder target.
+    return {
+      ...base,
+      bossModifier: { ...state.bossModifier, variant: 'unbound' },
+      threshold: Math.round(state.threshold * UNBOUND_TARGET),
+      roundPool: state.dice,
+    }
+  }
+  if (path === 'primordial') {
+    // The Primordial lends its die (a d20, outside the dice cap), and the
+    // gods who made the Split come one at a time.
+    const lent = { ...makeDie(PRIMORDIAL_DIE_ID, 'd20'), absorbed: [] }
+    const trial = trialFor(0)
+    const dice = rollFreshRound([...state.dice, lent], effectiveRelics({ ...state, bossModifier: trial }))
+    return {
+      ...base,
+      gauntlet: { stage: 0 },
+      bossModifier: trial,
+      chronicle: noteBoss(state.chronicle, trial),
+      threshold: stageTarget(state, 0),
+      dice,
+      ...freshRoundCounters(dice),
+    }
+  }
+  return base
+}
+
+// A god falls: the Primordial die takes its power, the next god steps up.
+function advanceGauntlet(state, result) {
+  const fallen = trialFor(state.gauntlet.stage).id
+  const stage = state.gauntlet.stage + 1
+  const trial = trialFor(stage)
+  const pool = state.dice.map((d) =>
+    d.elementId === PRIMORDIAL_DIE_ID ? { ...d, absorbed: [...(d.absorbed || []), fallen] } : d,
+  )
+  const dice = rollFreshRound(pool, effectiveRelics({ ...state, bossModifier: trial }))
+  return {
+    ...state,
+    phase: 'rolling',
+    gauntlet: { stage, fallen },
+    bossModifier: trial,
+    chronicle: noteBoss(state.chronicle, trial),
+    threshold: stageTarget(state, stage),
+    dice,
+    ...freshRoundCounters(dice),
+    rerollsUsed: 0,
+    rerollsBonusThisRound: 0,
+    freezeChargesUsed: 0,
+    roundSeq: (state.roundSeq || 0) + 1,
+    lastResult: { ...result, stageCleared: fallen },
+  }
+}
+
+// Primordial Unbound, after every reroll: two neighboring pure dice of
+// different elements become their double fusion for the rest of the
+// round (a seeded pick among the pairs; nothing if there are none).
+function unboundFuse(dice, relics) {
+  const pairs = []
+  for (let i = 0; i < dice.length - 1; i++) {
+    const a = ELEMENTS[dice[i].elementId]
+    const b = ELEMENTS[dice[i + 1].elementId]
+    if (a.tier === TIERS.PURE && b.tier === TIERS.PURE && a.id !== b.id) pairs.push(i)
+  }
+  if (pairs.length === 0) return dice
+  const i = randomOf(pairs)
+  const [a, b] = [dice[i], dice[i + 1]]
+  const fusionId = DOUBLE_FUSION_IDS.find((id) => {
+    const parents = ELEMENTS[id].parents
+    return parents.includes(a.elementId) && parents.includes(b.elementId)
+  })
+  const tier = a.sides >= b.sides ? a : b
+  const fused = { ...makeDie(fusionId, tier.tierId), unbound: true }
+  const rolled = { ...fused, ...rollDie(fusionId, fused.sides, relics, rollContext(fused, dice, relicEffects(relics))) }
+  return [...dice.slice(0, i), rolled, ...dice.slice(i + 2)]
+}
+
 // --- Allegiance (EXPANSION.md B1, B3): the Accord, Nix's pacts, Aeris's
 // blessings and what each costs the other. ---
 
@@ -776,6 +967,7 @@ function legacyMap(save) {
 const ACCORD = { fusion: 1, pact: 2, betrayal: 4, blessing: -2 }
 
 function addAccord(state, key) {
+  if (!key) return state
   return { ...state, accord: (state.accord || 0) + ACCORD[key] }
 }
 
@@ -875,14 +1067,14 @@ function settleShrines(state, before) {
 // A new legendary relic for The Long Night's prize, if one is left.
 function legendaryRelicId(state) {
   const owned = new Set(state.relics.map((r) => r.id))
-  const pool = RELICS.filter((r) => r.rarity === RARITY.LEGENDARY && !owned.has(r.id))
+  const pool = RELICS.filter((r) => r.rarity === RARITY.LEGENDARY && !owned.has(r.id) && relicGrantable(state, r))
   return pool.length ? randomOf(pool).id : null
 }
 
 // The die Shadow Twin copies: the biggest, then the rarest.
 function bestDie(dice) {
   const rank = (d) => d.sides * 10 + RARITY_ORDER.indexOf(rarityForElement(d.elementId))
-  return [...dice].sort((a, b) => rank(b) - rank(a))[0]
+  return [...dice].filter((d) => !isGodDie(d) && d.elementId !== PRIMORDIAL_DIE_ID).sort((a, b) => rank(b) - rank(a))[0]
 }
 
 function applyDeal(state, deal) {
@@ -1083,11 +1275,13 @@ function reduce(state, action) {
       const die = state.dice[idx]
       // Masquerade and Chameleon lock as the die they act as (B10).
       const acting = die ? ELEMENTS[actingElementIds(state.dice)[idx]] : null
-      if (!die || die.locked || !acting.flags[FLAGS.FREE_LOCK]) return state
+      // Varuna's power: any die locks for free, and still refunds (B4).
+      const tide = tideLocks(state.dice)
+      if (!die || die.locked || !(acting.flags[FLAGS.FREE_LOCK] || tide)) return state
 
       const fx = relicEffects(effectiveRelics(state))
       if (fx.noFreeLock) return state
-      const grantsReroll = acting.flags[FLAGS.GRANTS_REROLL_ON_LOCK]
+      const grantsReroll = acting.flags[FLAGS.GRANTS_REROLL_ON_LOCK] || tide
       const rerollGrant = grantsReroll ? 1 + (fx.waterLockRerollBonus || 0) : 0
       const adjacent = acting.flags[FLAGS.ADJACENT_FREE_LOCK]
 
@@ -1105,7 +1299,8 @@ function reduce(state, action) {
         const targets = dice.filter((d) => d.id !== action.dieId && !d.held && !d.locked)
         if (targets.length > 0) {
           const target = targets[Math.floor(random() * targets.length)]
-          const rolled = rollDie(target.elementId, target.sides, effectiveRelics(state))
+          const relics = effectiveRelics(state)
+          const rolled = rollDie(target.elementId, target.sides, relics, rollContext(target, dice, relicEffects(relics)))
           dice = dice.map((d) => (d.id === target.id ? { ...d, ...rolled } : d))
           explosionsThisRound += rolled.explosions
         }
@@ -1144,6 +1339,7 @@ function reduce(state, action) {
           return d
         })
       }
+      dice = settleTide(dice, fx)
       // Kindling (Fire family): a rerolled die that lands on a fizzling 1
       // pays back one reroll this round. `kindled` drives the "+1" pop.
       const rerolled = new Set(state.dice.filter((d) => !d.held && !d.locked).map((d) => d.id))
@@ -1161,8 +1357,13 @@ function reduce(state, action) {
       // Primordial reshapes its twist after every reroll.
       const bossModifier =
         state.bossModifier?.id === 'primordial'
-          ? primordialWith(randomOf(PRIMORDIAL_POOL.filter((id) => id !== state.bossModifier.twistId)))
+          ? {
+              ...primordialWith(randomOf(PRIMORDIAL_POOL.filter((id) => id !== state.bossModifier.twistId))),
+              variant: state.bossModifier.variant,
+            }
           : state.bossModifier
+      // Primordial Unbound (the Split path) fuses two of your pure dice.
+      if (bossModifier?.variant === 'unbound') dice = unboundFuse(dice, effectiveRelics({ ...state, bossModifier }))
       return {
         ...state,
         dice,
@@ -1198,7 +1399,7 @@ function reduce(state, action) {
       if (!relicEffects(relics).freeSingleReroll) return state
       const die = state.dice.find((d) => d.id === action.dieId)
       if (!die || die.locked) return state
-      const rolled = rollDie(die.elementId, die.sides, relics)
+      const rolled = rollDie(die.elementId, die.sides, relics, rollContext(die, state.dice, relicEffects(relics)))
       return {
         ...state,
         gustUsed: true,
@@ -1211,6 +1412,12 @@ function reduce(state, action) {
       if (state.phase !== 'rolling') return state
       const result = evaluatePool(state.dice, effectiveRelics(state), scoreContext(state))
       const passed = result.roundScore >= state.threshold
+      // A god of the gauntlet falls; three more stages before the ending.
+      if (passed && state.gauntlet && state.gauntlet.stage < GOD_TRIALS.length - 1) {
+        return advanceGauntlet(state, { ...result, passed, threshold: state.threshold })
+      }
+      // Primordial Unbound only borrowed your dice: give the pool back.
+      if (state.bossModifier?.variant === 'unbound' && state.roundPool) state = { ...state, dice: state.roundPool }
 
       if (passed) {
         const earned = shardsEarned(result.roundScore, state.threshold, state.difficulty)
@@ -1249,8 +1456,15 @@ function reduce(state, action) {
         // Beating the final boss ends the run on the spot (Endless picks up
         // from the reward and shop, see CONTINUE_ENDLESS).
         const won = state.round >= WIN_ROUND && !state.endless
-        // Beating Primordial teaches the Aether recipe (EXPANSION.md B6).
-        if (won) state = withRecipe(state, QUADRA_FUSION_ID)
+        // Beating Primordial teaches the Aether recipe (EXPANSION.md B6),
+        // reaches the path's ending (B2), and takes back the lent die.
+        if (won) {
+          state = {
+            ...withRecipe(state, QUADRA_FUSION_ID),
+            ending: state.path ?? 'neutral',
+            dice: state.dice.filter((d) => d.elementId !== PRIMORDIAL_DIE_ID),
+          }
+        }
         return {
           ...state,
           // Beating a boss first offers a permanent upgrade, then the shop.
@@ -1297,7 +1511,8 @@ function reduce(state, action) {
     // Shards on arrival and a small Market. It isn't a Road stop, so the
     // next shop you picked stays the same; leaving retries the round.
     case 'GO_TO_CAMP': {
-      if (state.phase !== 'missed') return state
+      // No camp in the middle of the gods' gauntlet (B1): retry the stage.
+      if (state.phase !== 'missed' || state.gauntlet) return state
       const pay = campPayout(state.round)
       return {
         ...state,
@@ -1332,7 +1547,8 @@ function reduce(state, action) {
       if (state.phase !== 'shop') return state
       if (state.dice.length <= 1) return state
       const die = state.dice.find((d) => d.id === action.dieId)
-      if (!die) return state
+      // The Primordial die is only lent (B1).
+      if (!die || die.elementId === PRIMORDIAL_DIE_ID) return state
       const fx = relicEffects(state.relics)
       const value = sellValueForDie(die, isFusionElement(die.elementId)) + (fx.sellBonus || 0)
       return {
@@ -1345,15 +1561,18 @@ function reduce(state, action) {
     case 'FUSE_DICE': {
       if (state.phase !== 'shop' || !state.shop?.forgeOpen) return state
       const def = ELEMENTS[action.fusionElementId]
-      if (!def || def.tier === 'pure' || def.tier === 'arcane') return state
+      if (!def || def.tier === 'pure' || def.tier === 'arcane' || def.tier === TIERS.PRIMAL) return state
       if (action.fusionElementId === QUADRA_FUSION_ID && !knowsAether(state)) return state
+      if (def.tier === TIERS.GOD && (!state.recipes?.includes(def.id) || godCount(state.dice) >= godCapFor(state))) return state
       const usedIds = new Set()
       const parentDice = []
-      for (const parentId of def.parents) {
-        const match = state.dice.find((d) => d.elementId === parentId && !usedIds.has(d.id))
-        if (!match) return state
-        usedIds.add(match.id)
-        parentDice.push(match)
+      for (const [parentId, n] of Object.entries(recipeNeeds(def))) {
+        for (let k = 0; k < n; k++) {
+          const match = state.dice.find((d) => d.elementId === parentId && !usedIds.has(d.id))
+          if (!match) return state
+          usedIds.add(match.id)
+          parentDice.push(match)
+        }
       }
       const cost = forgeCost(state.relics, def.tier, state.shop)
       if (state.shards < cost) return state
@@ -1368,7 +1587,7 @@ function reduce(state, action) {
           dice: [...state.dice.filter((d) => !usedIds.has(d.id)), fusionDie],
           ownedElementsEver,
         },
-        'fusion',
+        def.tier === TIERS.GOD ? null : 'fusion',
       )
     }
 
@@ -1522,7 +1741,8 @@ function reduce(state, action) {
         if (!prev) return state
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, tierId: prev.id, sides: prev.sides } : d))
       } else if (item.type === 'clone') {
-        if (state.dice.length >= maxDiceFor(state)) return state
+        // Gods can't be copied, and the Primordial die is only lent.
+        if (state.dice.length >= maxDiceFor(state) || isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID) return state
         dice = [...state.dice, { ...die, id: makeId(), held: false, locked: false, lockedVia: null, rollId: random() }]
       } else if (item.type === 'hone') {
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, bonus: (d.bonus || 0) + 2 } : d))
@@ -1674,7 +1894,7 @@ function reduce(state, action) {
       if (state.shop?.type === 'camp') return retryRound(state)
       const round = state.round + 1
       if (round > WIN_ROUND && !state.endless) {
-        return { ...withRecipe(state, QUADRA_FUSION_ID), phase: 'victory' }
+        return { ...withRecipe(state, QUADRA_FUSION_ID), phase: 'victory', ending: state.ending ?? state.path ?? 'neutral' }
       }
       let map = travel(state.map, round)
       if (!map) return state
@@ -1701,7 +1921,8 @@ function reduce(state, action) {
     // After a win: keep playing the same run, with targets still climbing.
     // The final boss's reward and shop come first, then round 16.
     case 'CONTINUE_ENDLESS': {
-      if (state.phase !== 'victory') return state
+      // The Split and Primordial endings close the run (B2).
+      if (state.phase !== 'victory' || (state.ending && state.ending !== 'neutral')) return state
       const shopType = currentNode(state.map)?.type ?? 'market'
       const chronicle = state.chronicle ?? { bosses: [], shops: [] }
       return {
@@ -1723,6 +1944,9 @@ function reduce(state, action) {
 
 export const selectors = {
   availableRerolls,
+  projectedPath,
+  knowsGods,
+  godCapFor,
   scoreContext,
   aerisCost,
   canPayAeris,
