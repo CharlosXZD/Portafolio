@@ -171,6 +171,9 @@ export const RELICS_ES = {
   catalyst_stone: { name: 'Piedra Catalizadora', description: 'Las reacciones que dan Mult dan +0.5 más.' },
   heart_of_circle: { name: 'Corazón del Círculo', description: 'El dado del medio (o los dos) de tu reserva anota el doble.' },
   ley_line: { name: 'Línea Ley', description: 'Tu primer y último dado cuentan como vecinos, así que pueden reaccionar.' },
+  heat: { name: 'Calor', description: 'Cada explosión de esta ronda da +1 a todo dado de la familia Fuego por el resto de la ronda.' },
+  gust: { name: 'Ráfaga', description: 'Una vez por ronda, vuelve a tirar un dado elegido gratis.' },
+  steady: { name: 'Firmeza', description: 'Los dados de la familia Tierra nunca sacan menos de 3.' },
 }
 
 export const CONSUMABLES_ES = {

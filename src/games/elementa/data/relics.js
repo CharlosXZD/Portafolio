@@ -434,6 +434,38 @@ export const RELICS = [
     description: 'Your first and last dice count as neighbors, so they can react.',
     effects: { wrapAdjacency: true },
   },
+  // --- Family relics (EXPANSION.md E8): Fire, Air and Earth get a second
+  // reason to build around them. ---
+  {
+    id: 'heat',
+    name: 'Heat',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: 'fire',
+    itemConcept: 'a glowing bellows breathing sparks',
+    description: 'Each explosion this round gives every Fire-family die +1 for the rest of the round.',
+    effects: { fireFamilyBonusPerExplosion: 1 },
+  },
+  {
+    id: 'gust',
+    name: 'Gust',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: 'air',
+    itemConcept: 'a small paper fan with a swirl painted on it',
+    description: 'Once per round, reroll a single chosen die for free.',
+    effects: { freeSingleReroll: true },
+  },
+  {
+    id: 'steady',
+    name: 'Steady',
+    kind: 'relic',
+    rarity: RARITY.UNCOMMON,
+    element: 'earth',
+    itemConcept: 'a heavy iron plumb bob on a cord',
+    description: 'Earth-family dice never roll below 3.',
+    effects: { earthFamilyMinFace: 3 },
+  },
 ]
 
 export function relicById(id) {

@@ -1,4 +1,4 @@
-import { ELEMENTS, FLAGS, TIERS, reactionElementsOf } from '../data/elements.js'
+import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily } from '../data/elements.js'
 import { REACTIONS, reactionById } from '../data/reactions.js'
 import { random } from './rng.js'
 
@@ -29,6 +29,8 @@ export function rollDie(elementId, sides, relics = []) {
   let value = randInt(sides)
   // Chrono: a 1 rewinds and rolls once more, for free.
   if (value === 1 && hasFlag(elementId, FLAGS.CHRONO)) value = randInt(sides)
+  // Steady: Earth-family faces never land below its floor.
+  if (fx.earthFamilyMinFace && inFamily(elementId, 'earth')) value = Math.max(value, Math.min(fx.earthFamilyMinFace, sides))
   let total = value
   let explosions = 0
 
@@ -59,6 +61,8 @@ export function rerollPool(dice, relics = []) {
     if (die.held || die.locked) {
       // Sapling grows while it sits a reroll out.
       if (hasFlag(die.elementId, FLAGS.GROWS)) die.growth = (die.growth || 0) + 2
+      // Patience (Earth family): the same, but it keeps it until the round ends.
+      if (inFamily(die.elementId, 'earth')) die.patience = (die.patience || 0) + 2
       continue
     }
     const rolled = rollDie(die.elementId, die.sides, relics)
@@ -260,6 +264,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (d.elementId === 'earth' && fx.earthPipMultiplier) contribution *= fx.earthPipMultiplier
       if (hasFlag(d.elementId, FLAGS.DOUBLE_ON_SET) && winningValues.has(d.id)) contribution *= 2
       if (hasFlag(d.elementId, FLAGS.GROWS)) contribution += d.growth || 0
+      if (inFamily(d.elementId, 'earth')) contribution += d.patience || 0
+      // Heat: every explosion this round warms the whole Fire family.
+      if (fx.fireFamilyBonusPerExplosion && inFamily(d.elementId, 'fire')) {
+        contribution += fx.fireFamilyBonusPerExplosion * (ctx.explosionsThisRound || 0)
+      }
       contribution += d.bonus || 0
       // Relic bonuses that belong to a single die are folded into its own
       // contribution, so the reveal's floating "+N" shows them honestly.

@@ -28,18 +28,18 @@ const RARITY_LABEL = {
 // Relic text like "Water-family die" means any die in that family.
 const FAMILY_TEXT = {
   en: {
-    fire: 'Fire and every fusion made with Fire. They explode on their max face; the pure ones fizzle on a 1.',
+    fire: 'Fire and every fusion made with Fire. They explode on their max face; the ones that fizzle on a 1 refund a reroll when they do (Kindling).',
     water: 'Water and every fusion made with Water. They can lock for free, and locking refunds a reroll.',
-    earth: 'Earth and every fusion made with Earth. Steady, reliable value with no downside.',
-    air: 'Air and every fusion made with Air. They switch on set bonuses: pairs, threes, and straights.',
+    earth: 'Earth and every fusion made with Earth. Steady value with no downside, +2 for every reroll they sit out this round (Patience).',
+    air: 'Air and every fusion made with Air. They switch on set bonuses, and once per round you can nudge one up or down by 1 (Drift).',
     arcane: 'No element and no family. Arcane dice care about where they sit in your row.',
     neutral: 'Not tied to any element.',
   },
   es: {
-    fire: 'Fuego y toda fusión hecha con Fuego. Explotan en su cara máxima; los puros se apagan con un 1.',
+    fire: 'Fuego y toda fusión hecha con Fuego. Explotan en su cara máxima; los que se apagan con un 1 devuelven un reroll al hacerlo (Yesca).',
     water: 'Agua y toda fusión hecha con Agua. Se bloquean gratis, y bloquear devuelve un reroll.',
-    earth: 'Tierra y toda fusión hecha con Tierra. Valor estable y confiable, sin desventajas.',
-    air: 'Aire y toda fusión hecha con Aire. Activan los bonos de set: pares, tríos y escaleras.',
+    earth: 'Tierra y toda fusión hecha con Tierra. Valor estable sin desventajas, +2 por cada reroll que se quedan fuera esta ronda (Paciencia).',
+    air: 'Aire y toda fusión hecha con Aire. Activan los bonos de set, y una vez por ronda puedes mover uno 1 arriba o abajo (Deriva).',
     arcane: 'Sin elemento ni familia. A los dados Arcanos les importa dónde están en tu fila.',
     neutral: 'No está ligado a ningún elemento.',
   },

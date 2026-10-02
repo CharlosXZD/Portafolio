@@ -4,7 +4,7 @@ import Die from './Die.jsx'
 import CastLedger from './CastLedger.jsx'
 import { evaluatePool } from '../engine/scoring.js'
 import { selectors } from '../engine/gameReducer.js'
-import { ELEMENTS } from '../data/elements.js'
+import { ELEMENTS, inFamily } from '../data/elements.js'
 import { reactionById } from '../data/reactions.js'
 import { bossById } from '../data/bossModifiers.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
@@ -102,10 +102,13 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const [flash, setFlash] = useState(null)
   const timing = TIMING[gameSpeed] ?? TIMING.normal
   const effectiveRelics = selectors.effectiveRelics(state)
-  const preview = evaluatePool(state.dice, effectiveRelics, { rerollsLeft: availableRerolls })
+  const preview = evaluatePool(state.dice, effectiveRelics, selectors.scoreContext(state))
   const fx = effectiveRelics.reduce((acc, r) => ({ ...acc, ...r.effects }), {})
   const freezeCharges = fx.freezeChargePerRound || 0
   const canFreeze = state.freezeChargesUsed < freezeCharges
+  // Drift (Air family) and Gust (relic): one free move each per round.
+  const canDrift = !state.driftUsed
+  const canGust = Boolean(fx.freeSingleReroll) && !state.gustUsed
   const rerollTax = fx.rerollShardCost || 0
   const canReroll = availableRerolls > 0 && state.shards >= rerollTax
   const boss = localizeBossModifier(state.bossModifier, lang)
@@ -437,6 +440,13 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       onLock={(id) => dispatch({ type: 'LOCK_DIE', dieId: id })}
                       onFreeze={(id) => dispatch({ type: 'FREEZE_DIE', dieId: id })}
                       canFreeze={canFreeze}
+                      canDrift={canDrift && inFamily(die.elementId, 'air') && die.lockedVia !== 'freeze'}
+                      onNudge={(id, delta) => dispatch({ type: 'NUDGE_DIE', dieId: id, delta })}
+                      canGust={canGust}
+                      onGust={(id) => {
+                        playRoll()
+                        dispatch({ type: 'GUST_REROLL', dieId: id })
+                      }}
                       revealing={revealing}
                       scoring={currentStep?.dieId === die.id}
                       contribution={dieResult?.contribution ?? null}

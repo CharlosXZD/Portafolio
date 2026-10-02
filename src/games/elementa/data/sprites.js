@@ -452,6 +452,9 @@ export const ITEM_ART = {
   catalyst_stone: ['stone', '#7a7080'],
   heart_of_circle: ['ring', '#8f6bff'],
   ley_line: ['ring', '#7ae0c8'],
+  heat: ['flame', '#ff8a3d', '#ffe27a'],
+  gust: ['feather', '#cfe0e8', '#9fe8e0'],
+  steady: ['anchor', '#8a6a3d'],
   // consumables
   upgrade_stone: ['gem', '#c8b6ff'],
   extra_reroll: ['hourglass', '#6a4fd6', '#9fd4ff'],

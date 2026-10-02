@@ -16,6 +16,18 @@ import { dieColors } from './DieToken.jsx'
 const FLICKER_TICK_MS = 45
 const FLICKER_TICKS = 7
 
+/** A 5x3 pixel arrow for the Drift buttons. */
+function PixelArrow({ up }) {
+  const rows = up ? ['..#..', '.###.', '#####'] : ['#####', '.###.', '..#..']
+  return (
+    <svg width={10} height={6} viewBox="0 0 5 3" shapeRendering="crispEdges" aria-hidden>
+      {rows.flatMap((row, y) =>
+        [...row].map((c, x) => (c === '#' ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill="currentColor" /> : null)),
+      )}
+    </svg>
+  )
+}
+
 // Three distinct "committed" states, each with its own feel:
 //  - held:   reversible, weightless. Lifts up, no color change.
 //  - locked: the die's own element sealing itself in place. Grounded,
@@ -40,6 +52,10 @@ export default function Die({
   targeting = false,
   isDragging,
   showHotkey = true,
+  canDrift = false,
+  onNudge,
+  canGust = false,
+  onGust,
 }) {
   const { reducedMotion } = useGameSettings()
   const { lang, t } = useLanguage()
@@ -64,6 +80,12 @@ export default function Die({
 
   const mountedLockedVia = useRef(die.lockedVia)
   const [lockEventKey, setLockEventKey] = useState(0)
+
+  // A face can change without a new roll (Drift): show it right away.
+  // Runs before the roll effect, so a real roll still flickers first.
+  useEffect(() => {
+    if (die.rollId === mountedRollId.current) setDisplayValue(die.value)
+  }, [die.value, die.rollId])
 
   useEffect(() => {
     if (die.rollId === mountedRollId.current) return
@@ -114,7 +136,8 @@ export default function Die({
           : null
   const numberY = dieNumberY(die.tierId)
   const showFace = !hidden || revealing
-  const extra = (die.growth || 0) + (die.bonus || 0)
+  // Sapling growth, Patience (Earth family) and permanent bonuses share one chip.
+  const extra = (die.growth || 0) + (die.patience || 0) + (die.bonus || 0)
 
   return (
     <div className="flex flex-col items-center gap-5">
@@ -215,6 +238,21 @@ export default function Die({
           {extra > 0 && (
             <span className="el-chip absolute -left-3 -top-3 bg-[#6fbf4a] text-[var(--ink)]">+{extra}</span>
           )}
+          {/* Kindling: a fizzled Fire-family die pays back a reroll. */}
+          <AnimatePresence>
+            {die.kindled && !rolling && showFace && !revealing && (
+              <motion.span
+                key={`kindle-${die.rollId}`}
+                initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                animate={{ opacity: [0, 1, 1, 0], y: -Math.round(size * 0.6), scale: 1.1 }}
+                transition={{ duration: reducedMotion ? 0.01 : 1.1, ease: 'easeOut' }}
+                className="pixel-score pointer-events-none absolute left-1/2 top-0 z-20 flex -translate-x-1/2 items-center gap-1 whitespace-nowrap text-xs text-[#ffb36b]"
+                style={{ textShadow: '2px 2px 0 var(--ink)' }}
+              >
+                +1 <PixelIcon name="reroll" size={9} />
+              </motion.span>
+            )}
+          </AnimatePresence>
           {isFrozen && (
             <motion.span
               key={`freeze-${lockEventKey}`}
@@ -249,8 +287,11 @@ export default function Die({
           </AnimatePresence>
         </motion.button>
       </Tooltip>
+      {/* Fixed size, centered on the die: buttons appearing or vanishing
+          never widen the column or move the dice. */}
       {!revealing && (
-        <div className="flex h-6 items-center gap-2">
+        <div className="relative h-6" style={{ width: size }}>
+        <div className="absolute left-1/2 top-0 flex h-6 -translate-x-1/2 items-center gap-1.5 whitespace-nowrap">
           {canFreeLock && (
             <motion.button
               type="button"
@@ -279,6 +320,42 @@ export default function Die({
               {t('elementa.die.freeze')}
             </motion.button>
           )}
+          {canDrift && (
+            <span className="flex items-center gap-0.5" title={t('elementa.die.driftHint')}>
+              {[1, -1].map((delta) => (
+                <motion.button
+                  key={delta}
+                  type="button"
+                  whileTap={{ scale: 0.85 }}
+                  disabled={delta === 1 ? die.value >= die.sides : die.value <= 1}
+                  onClick={() => {
+                    playClick()
+                    onNudge?.(die.id, delta)
+                  }}
+                  aria-label={t(delta === 1 ? 'elementa.die.driftUp' : 'elementa.die.driftDown')}
+                  className="el-btn el-btn--sm !px-1.5 text-[#e8f4fa]"
+                  style={{ '--face': '#3d5866', '--lit': '#6f93a3', '--lip': '#1f323b' }}
+                >
+                  <PixelArrow up={delta === 1} />
+                </motion.button>
+              ))}
+            </span>
+          )}
+          {canGust && !die.locked && (
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                playClick()
+                onGust?.(die.id)
+              }}
+              title={t('elementa.die.gustHint')}
+              className="el-btn el-btn--sm"
+              style={{ '--face': '#4a6470', '--lit': '#86a9b8', '--lip': '#263840' }}
+            >
+              {t('elementa.die.gust')}
+            </motion.button>
+          )}
           {isLocked && (
             <span
               className="el-chip text-[var(--ink)]"
@@ -293,9 +370,10 @@ export default function Die({
             </span>
           )}
           {die.held && !die.locked && <span className="el-chip bg-[var(--gold-1)] text-[var(--ink)]">{t('elementa.die.held')}</span>}
-          {showHotkey && !die.held && !die.locked && !canFreeLock && !canFreeze && hotkey != null && (
+          {showHotkey && !die.held && !die.locked && !canFreeLock && !canFreeze && !canDrift && !canGust && hotkey != null && (
             <span className="pixel-score text-[8px] text-[var(--text-mute)]">{hotkey}</span>
           )}
+        </div>
         </div>
       )}
     </div>

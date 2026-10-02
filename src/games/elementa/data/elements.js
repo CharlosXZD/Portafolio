@@ -295,6 +295,42 @@ export function elementHasFlag(elementId, flag) {
   return Boolean(ELEMENTS[elementId]?.flags[flag])
 }
 
+// A family is a pure element plus every fusion made with it (Prism and the
+// other arcane dice belong to none).
+export function inFamily(elementId, family) {
+  const def = ELEMENTS[elementId]
+  if (!def || def.tier === TIERS.ARCANE) return false
+  return elementId === family || def.parents.includes(family)
+}
+
+// Family abilities (EXPANSION.md E8), shared by every die in the family; a
+// fusion gets one per family it belongs to. Kindling only fires on dice
+// that can actually fizzle.
+export function familyAbilitiesOf(elementId) {
+  const out = []
+  if (inFamily(elementId, 'fire') && elementHasFlag(elementId, FLAGS.ZERO_ON_MIN)) out.push('kindling')
+  if (inFamily(elementId, 'earth')) out.push('patience')
+  if (inFamily(elementId, 'air')) out.push('drift')
+  return out
+}
+
+const FAMILY_ABILITY_TEXT = {
+  en: {
+    kindling: 'Kindling: fizzling on a 1 after a reroll grants +1 reroll this round.',
+    patience: 'Patience: +2 for every reroll it sits out this round.',
+    drift: 'Drift: once per round, nudge an Air-family die up or down by 1, for free.',
+  },
+  es: {
+    kindling: 'Yesca: apagarse con un 1 tras un reroll otorga +1 reroll esta ronda.',
+    patience: 'Paciencia: +2 por cada reroll que se queda fuera esta ronda.',
+    drift: 'Deriva: una vez por ronda, mueve un dado de la familia Aire 1 arriba o abajo, gratis.',
+  },
+}
+
+export function familyAbilityText(id, lang = 'en') {
+  return (FAMILY_ABILITY_TEXT[lang] ?? FAMILY_ABILITY_TEXT.en)[id]
+}
+
 // A fusion is "discovered" once the player has owned at least one die of
 // each parent element simultaneously at some point in the current run.
 export function fusionsUnlockedBy(ownedElementIdsEverSimultaneously) {
@@ -333,6 +369,7 @@ export function describeElement(elementId, lang = 'en') {
   const flagLines = Object.keys(def.flags)
     .map((f) => (lang === 'es' ? (FLAG_DESCRIPTIONS_ES[f] ?? FLAG_DESCRIPTIONS[f]) : FLAG_DESCRIPTIONS[f]))
     .filter(Boolean)
+  flagLines.push(...familyAbilitiesOf(elementId).map((id) => familyAbilityText(id, lang)))
   return { tagline: localize(lang, def.tagline, ELEMENTS_ES, elementId, 'tagline'), flagLines }
 }
 

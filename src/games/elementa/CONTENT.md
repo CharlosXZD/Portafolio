@@ -16,6 +16,11 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 - **Sets:** only count if at least one die in the pool "enables sets" (Air family). Grouped by face: pair **+1 Mult**, three of a kind **+2**, straight of 4 consecutive faces **+3**.
 - **Reactions:** two side-by-side dice react if between them they cover a reaction's two elements, and both actually scored (a fizzled die doesn't react). Fusions bring every parent element, so one link can fire several reactions.
 - **Families:** a family is the pure element plus every fusion containing it. Water-family relics look for the free-lock ability; Earth relics currently only count **pure** Earth (see §12).
+- **Family abilities** (v0.4), shared by the whole family; a fusion gets one per family it belongs to (Lightning has Kindling and Drift):
+  - **Fire, Kindling:** a die that fizzles on a 1 after a reroll grants +1 reroll this round (only dice that can fizzle, so not Steel, Obsidian or Magma).
+  - **Water:** free locks that refund a reroll (unchanged).
+  - **Earth, Patience:** +2 for every reroll it sits out (held or locked) this round. Unlike Sapling, it keeps the bonus if it is rerolled later in the round.
+  - **Air, Drift:** once per round (one charge total), nudge one Air-family die up or down by 1, free. Landing on the max face doesn't explode; frozen dice can't drift.
 - **Rerolls:** 3 per round (Inferno and Cataclysm: 2). Locks on Water-family dice are free and refund +1.
 - **Economy:** clearing pays 5 Shards, +1 per 25% over target (max +15), plus interest (1 per 3 Shards held, max 5).
 - **Lives:** 3. A miss costs one and you retry the round. +1 life back every 4th round cleared.
@@ -76,13 +81,14 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 
 ---
 
-## 3. Relics (38 total)
+## 3. Relics (41 total)
 
 ### Fire family
 | Relic | Rarity | Price | Effect |
 |---|---|---|---|
 | **Molten Core** | Common | 5 | Every explosion adds +2 flat Base Value. |
 | **Ember Heart** | Uncommon | 8 | Each die that explodes adds +1 Multiplier. |
+| **Heat** | Uncommon | 8 | Each explosion this round gives every Fire-family die +1 for the rest of the round. |
 | **Wildfire** | Rare | 12 | Each explosion has a 20% chance to also trigger an explosion on another Fire-family die. |
 | **Glass Cannon** | Epic | 18 | Explosions add double value, but a die that fizzles on a 1 also zeroes one random other die. |
 
@@ -100,6 +106,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 |---|---|---|---|
 | **Bedrock** | Common | 5 | Pure Earth dice contribute ×1.5 to Base Value. |
 | **Groundswell** | Uncommon | 8 | If the entire pool is pure Earth dice, Base Value is +50%. |
+| **Steady** | Uncommon | 8 | Earth-family dice never roll below 3. |
 | **Keystone** | Uncommon | 8 | +1 Multiplier if no die scores 0 this roll. |
 | **Fossil** | Rare | 12 | Earth dice are wildcards for the set bonus: they match any face value. |
 
@@ -108,6 +115,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 |---|---|---|---|
 | **Feather Charm** | Common | 5 | Pairs grant +1 extra Multiplier. |
 | **Stormcaller** | Uncommon | 8 | Straight bonus grants +1 additional Multiplier. |
+| **Gust** | Rare | 12 | Once per round, reroll a single chosen die for free. |
 | **Static Charge** | Legendary | 28 | Explosion chains no longer have an iteration cap. |
 
 ### Neutral (no element)
@@ -415,7 +423,8 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 ## 10. Synergy map
 
 ### Explosions (Fire family: Fire, Lightning, Steel, Steam, Storm, Obsidian, Magma, Aether)
-- **Payoffs:** Molten Core (+2 Base per explosion), Ember Heart (+1 Mult per exploding die), Glass Cannon (explosion rolls count double), Static Charge (no chain cap), Loaded Die (+3 on the max face, which is exactly the explosion face), Lucky Coin (+1 Shard per explosion). Every explosion is also +0.5 Mult on its own.
+- **Kindling:** a fizzle after a reroll refunds that reroll, so fizzling Fire dice are less of a dead end.
+- **Payoffs:** Heat (+1 to every Fire-family die per explosion this round, counting rerolls), Molten Core (+2 Base per explosion), Ember Heart (+1 Mult per exploding die), Glass Cannon (explosion rolls count double), Static Charge (no chain cap), Loaded Die (+3 on the max face, which is exactly the explosion face), Lucky Coin (+1 Shard per explosion). Every explosion is also +0.5 Mult on its own.
 - **Enablers:** Chisel (shrink to d3: explodes 1 in 3 rolls instead of 1 in 6). Blessing of Flame and Upgrade Stone pull the other way (bigger faces, fewer explosions), so Fire builds want small dice.
 - **Safe explosions:** Steel, Obsidian and Magma explode without fizzling. They pair with Keystone (+1 Mult if nothing scores 0) and make Glass Cannon's downside disappear, because it only triggers when a die fizzles.
 - **Anti-synergy:** Keystone with Fire, Lightning, Steam, Storm, Aether (any 1 breaks it). Glass Cannon with fizzling dice.
@@ -429,11 +438,14 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 
 ### Sets (Air family: Air, Lightning, Ice, Crystal, Storm, Magma, Monsoon, Aether)
 - One set-enabling die turns sets on for the whole pool.
+- **Drift** nudges one Air-family die by 1 each round: turn a near miss into a pair, or a 3-4-5-7 into a straight. Gust (one free single-die reroll per round) fishes for the last face.
 - **Payoffs:** Feather Charm (+1 on pairs), Stormcaller (+1 on straights), Crystal and Magma (score double when in the set), Tidal Pool (x2 if the set is all Water-family).
 - **Enablers:** Fossil (pure Earth dice are wildcards for pairs and threes), Steam and Obsidian (rerolling can copy their face onto another die, which manufactures pairs), Mirror Shard (clone a die), locks to hold a matching face, Chisel (d3s match each other far more often).
 - **Straights** need four different consecutive faces, so they want 4+ dice of d6 or bigger. d3s cannot make a straight.
 
-### Earth (pure Earth only right now)
+### Earth (relics: pure Earth only right now; Patience and Steady are family-wide)
+- **Patience:** every Earth-family die (Steel, Mud, Crystal, Obsidian, Magma, Monsoon, Aether too) gets +2 per reroll it sits out, so holding good Earth dice while you fish with the rest pays twice. Mud and Monsoon lock for free and still grow.
+- **Steady:** Earth-family faces never land below 3, which also keeps Keystone safe.
 - **Payoffs:** Bedrock (x1.5 each), Groundswell (+50% Base if the whole pool is pure Earth), Fossil (wildcards for sets), Keystone (Earth never scores 0).
 - **Mono-Earth trick:** identical neighbors trigger **Resonance** (+2 Base per pair of neighbors), so a full Earth line gets Resonance on every link; Alchemist's Table adds +2 more per link. Stonecaller loadout plus Transmute: Earth feeds this.
 - **Anti-synergy:** Groundswell with Prism Lens, element reactions, and any fusion or arcane die.
@@ -463,7 +475,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 - Momentum (+1 permanent reroll for a 2x overkill) snowballs with any big-Mult build.
 
 ### Rerolls
-- **Sources:** Extra Reroll, Lucky Charm, Blessing of Tide, Blessing of Wind, Hollow Pact, Overclock, Momentum, Water locks.
+- **Sources:** Extra Reroll, Lucky Charm, Blessing of Tide, Blessing of Wind, Hollow Pact, Overclock, Momentum, Water locks, Kindling (Fire fizzles), Gust (one free single-die reroll).
 - **Spenders and payoffs:** Sapling (grows while it sits out), Patient Hourglass (rewards not spending them), Steam and Obsidian (each reroll is a chance to copy a face).
 - **Overclock** gives +1 reroll but can reset dice to their minimum: bad with fizzling Fire, harmless with Steel or Earth.
 

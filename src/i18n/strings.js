@@ -226,6 +226,11 @@ const strings = {
   'elementa.die.locked': { en: 'locked', es: 'bloqueado' },
   'elementa.die.frozen': { en: 'frozen', es: 'congelado' },
   'elementa.die.held': { en: 'held', es: 'guardado' },
+  'elementa.die.gust': { en: 'gust', es: 'ráfaga' },
+  'elementa.die.gustHint': { en: 'Gust: reroll this die for free (once per round)', es: 'Ráfaga: vuelve a tirar este dado gratis (una vez por ronda)' },
+  'elementa.die.driftHint': { en: 'Drift: nudge this die by 1 (once per round)', es: 'Deriva: mueve este dado 1 (una vez por ronda)' },
+  'elementa.die.driftUp': { en: 'Drift up by 1', es: 'Deriva: subir 1' },
+  'elementa.die.driftDown': { en: 'Drift down by 1', es: 'Deriva: bajar 1' },
 
   'elementa.credits.roleDesign': { en: 'Design & code', es: 'Diseño y código' },
   'elementa.credits.roleInspiration': { en: 'Reference inspiration', es: 'Inspiración de referencia' },

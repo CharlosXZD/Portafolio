@@ -414,3 +414,30 @@ From EXPANSION.md (B6, B7, E1 to E10, E12), Carlos's decisions of 2026-09-30 and
 
 - **Credits (B7):** the inspiration line now reads Balatro, Ultrapool, The Binding of Isaac.
 - **Aether recipe lock (B6):** profiles gain `recipes` (`utils/saveManager.js`; older files that beat any difficulty migrate with `'aether'` known), plus `knowsRecipe` / `learnRecipe` in `utils/profile.js`. The run copies the file's recipes into `state.recipes` (`START_RUN` from the TitleScreen, `LOAD_RUN` from the File hub). Without `'aether'`, `forgeableRecipes()` drops the quadra recipe, `FUSE_DICE` refuses it, and `rollShopStock()` never offers it. Beating round 15 adds it to the run (so Endless can use it right away) and the run-end effect learns it on the file with a "New recipe" toast. The Curator says a one-off line on the next Vault visit (`recipe` line kind, `recipeTold` in keeper memory). The Gallery shows "Recipe unknown: beat Primordial" instead of Aether's parents.
+- **Element balance (E8):** family abilities, shared by every die whose element or parents include the element (`inFamily`, `familyAbilitiesOf` in `data/elements.js`; listed in die tooltips and the Gallery):
+  - **Kindling (Fire):** in `REROLL_UNHELD`, each rerolled Fire-family die that can fizzle and lands on a 1 adds +1 to `rerollsBonusThisRound` and sets `kindled`, which pops a "+1" on the die.
+  - **Drift (Air):** `NUDGE_DIE { dieId, delta }`, once per round (`driftUsed`), refused past 1 or the max face and on frozen dice; the nudged face never explodes (`total = value`). Small arrows under Air-family dice while the charge is unused.
+  - **Patience (Earth):** `rerollPool` adds +2 `patience` to each held or locked Earth-family die; it resets with the round (not on reroll) and shares the green "+N" chip with Sapling.
+  - **New relics** (41 total): **Heat** (Uncommon, `fireFamilyBonusPerExplosion`, reads `explosionsThisRound`, which counts explosions from the round roll, rerolls, Undertow and Gust), **Gust** (Rare, `GUST_REROLL { dieId }`, once per round via `gustUsed`, a "gust" button under unlocked dice), **Steady** (Uncommon, `earthFamilyMinFace: 3` in `rollDie`).
+  - Scoring now takes `selectors.scoreContext(state)` (rerolls left plus explosions this round) in both the live preview and `SUBMIT_ROUND`.
+  - **Simulation** (a bot that holds faces in the top 40% or its best group, locks keepers on free-lock dice, and makes the best Drift; 3,000 rounds per row, no relics unless named; mean round score). The Water trim (only the first lock each round refunds) changed Water rows by under 1 point, so it was not applied:
+
+    | Pool | Before | After |
+    |---|---|---|
+    | 5x Fire d6 | 79.4 | 83.2 |
+    | 5x Water d6 | 32.9 | 32.9 |
+    | 5x Earth d6 | 32.1 | 45.5 |
+    | 5x Air d6 | 81.3 | 101.1 |
+    | 5x Fire d10 | 84.4 | 86.7 |
+    | 5x Water d10 | 47.9 | 47.9 |
+    | 5x Earth d10 | 46.5 | 59.9 |
+    | 5x Air d10 | 111.1 | 146.4 |
+    | 3x Fire + 2x Water | 82.1 | 82.9 |
+    | 3x Fire + 2x Air | 137.2 | 160.8 |
+    | 3x Earth + 2x Water | 36.1 | 45.8 |
+    | 3x Earth + 2x Air | 86.7 | 129.2 |
+    | 3x Water + 2x Fire | 71.9 | 72.1 |
+    | 3x Water + 2x Air | 90.8 | 105.7 |
+
+    A bot undervalues rerolls (it can't plan around them like a player), so Water's real strength is more than raw score shows. Playtests should confirm.
+

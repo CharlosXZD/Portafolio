@@ -180,8 +180,8 @@ export const TUTORIAL_GROUPS = [
       {
         target: null,
         text: {
-          en: 'Each element has a family: the pure die plus every fusion made from it. A "Water-family die" means Water, Ice, Mud, Steam, and so on. Hover any die to see its families.',
-          es: 'Cada elemento tiene una familia: el dado puro y toda fusión hecha con él. Un "dado de la familia Agua" es Agua, Hielo, Lodo, Vapor, etc. Pasa el cursor sobre un dado para ver sus familias.',
+          en: 'Each element has a family: the pure die plus every fusion made from it. A "Water-family die" means Water, Ice, Mud, Steam, and so on. Hover any die to see its families. Every family has an ability: Fire dice that fizzle refund a reroll, Earth dice grow while they wait, Air dice can nudge a face by 1, and Water dice lock for free.',
+          es: 'Cada elemento tiene una familia: el dado puro y toda fusión hecha con él. Un "dado de la familia Agua" es Agua, Hielo, Lodo, Vapor, etc. Pasa el cursor sobre un dado para ver sus familias. Cada familia tiene una habilidad: los dados de Fuego que se apagan devuelven un reroll, los de Tierra crecen mientras esperan, los de Aire pueden mover una cara 1, y los de Agua se bloquean gratis.',
         },
       },
       {

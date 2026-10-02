@@ -7,6 +7,8 @@ import {
   QUADRA_FUSION_ID,
   ARCANE_DIE_IDS,
   fusionsUnlockedBy,
+  inFamily,
+  elementHasFlag,
   rarityForElement,
 } from '../data/elements.js'
 import { nextTier, prevTier, tierById, sellValueForDie } from '../data/diceTiers.js'
@@ -150,10 +152,25 @@ function makeDie(elementId, tierId = STARTING_TIER) {
   }
 }
 
+const countExplosions = (dice) => dice.reduce((sum, d) => sum + (d.explosions || 0), 0)
+
+// Round-level counters that reset whenever a round (or a retry) starts:
+// the Drift and Gust charges, and the explosions Heat has seen so far.
+function freshRoundCounters(dice) {
+  return { driftUsed: false, gustUsed: false, explosionsThisRound: countExplosions(dice) }
+}
+
+// What scoring needs to know beyond the dice and relics.
+function scoreContext(state) {
+  return { rerollsLeft: availableRerolls(state), explosionsThisRound: state.explosionsThisRound || 0 }
+}
+
 function rollFreshRound(dice, relics) {
   return dice.map((d) => ({
     ...d,
     growth: 0,
+    patience: 0,
+    kindled: false,
     held: false,
     locked: false,
     lockedVia: null,
@@ -445,6 +462,10 @@ function baseTitleState() {
     bestCast: 0,
     // Secret recipes this save file knows (copied from the profile).
     recipes: [],
+    // Family abilities and relics with a per-round charge (E8).
+    driftUsed: false,
+    gustUsed: false,
+    explosionsThisRound: 0,
   }
 }
 
@@ -462,6 +483,7 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', re
   // Cataclysm's "every round is a boss" must apply from round 1 too, not
   // just from NEXT_ROUND onward.
   const bossModifier = isBossRound(round, difficulty) ? pickBossModifier({ dice, relics }, round) : null
+  const rolled = applyBossRoundStart(rollFreshRound(dice, bossModifier ? [bossModifier] : relics), bossModifier)
   return {
     ...baseTitleState(),
     phase: 'rolling',
@@ -473,7 +495,8 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', re
     maxLives: difficulty.lives,
     bossModifier,
     threshold: thresholdForRound(round, difficulty),
-    dice: applyBossRoundStart(rollFreshRound(dice, bossModifier ? [bossModifier] : relics), bossModifier),
+    dice: rolled,
+    ...freshRoundCounters(rolled),
     relics,
     ownedElementsEver: [...new Set(deck.dice)],
     chronicle: noteBoss(null, bossModifier),
@@ -489,6 +512,10 @@ function enterRound(state, round) {
   const prophecy = state.map?.prophecy
   const foretold = prophecy?.round === round ? revalidateBoss(state, prophecy.boss, round) : null
   const bossModifier = isBossRound(round, state.difficulty) ? foretold ?? pickBossModifier(state, round) : null
+  const dice = applyBossRoundStart(
+    rollFreshRound(state.dice, bossModifier ? effectiveRelics({ relics: state.relics, bossModifier }) : state.relics),
+    bossModifier,
+  )
   return {
     ...state,
     phase: 'rolling',
@@ -498,10 +525,8 @@ function enterRound(state, round) {
     chronicle: noteBoss(state.chronicle, bossModifier),
     threshold: Math.round(thresholdForRound(round, state.difficulty) * (state.nextTargetMult || 1)),
     nextTargetMult: 1,
-    dice: applyBossRoundStart(
-      rollFreshRound(state.dice, bossModifier ? effectiveRelics({ relics: state.relics, bossModifier }) : state.relics),
-      bossModifier,
-    ),
+    dice,
+    ...freshRoundCounters(dice),
     rerollsUsed: 0,
     rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
     nextRoundRerollBonus: 0,
@@ -719,16 +744,18 @@ function reduce(state, action) {
       })
 
       let rerollsBonusThisRound = state.rerollsBonusThisRound + rerollGrant
+      let explosionsThisRound = state.explosionsThisRound || 0
       if (fx.undertowRippleReroll) {
         const targets = dice.filter((d) => d.id !== action.dieId && !d.held && !d.locked)
         if (targets.length > 0) {
           const target = targets[Math.floor(random() * targets.length)]
           const rolled = rollDie(target.elementId, target.sides, effectiveRelics(state))
           dice = dice.map((d) => (d.id === target.id ? { ...d, ...rolled } : d))
+          explosionsThisRound += rolled.explosions
         }
       }
 
-      return { ...state, dice, rerollsBonusThisRound }
+      return { ...state, dice, rerollsBonusThisRound, explosionsThisRound }
     }
 
     case 'FREEZE_DIE': {
@@ -761,17 +788,70 @@ function reduce(state, action) {
           return d
         })
       }
+      // Kindling (Fire family): a rerolled die that lands on a fizzling 1
+      // pays back one reroll this round. `kindled` drives the "+1" pop.
+      const rerolled = new Set(state.dice.filter((d) => !d.held && !d.locked).map((d) => d.id))
+      let kindling = 0
+      dice = dice.map((d) => {
+        if (!rerolled.has(d.id)) return d
+        const kindled = d.value === 1 && elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) && inFamily(d.elementId, 'fire')
+        if (kindled) kindling += 1
+        return { ...d, kindled }
+      })
+      const explosionsThisRound =
+        (state.explosionsThisRound || 0) + countExplosions(dice.filter((d) => rerolled.has(d.id)))
       // Primordial reshapes its twist after every reroll.
       const bossModifier =
         state.bossModifier?.id === 'primordial'
           ? primordialWith(randomOf(PRIMORDIAL_POOL.filter((id) => id !== state.bossModifier.twistId)))
           : state.bossModifier
-      return { ...state, dice, bossModifier, shards: state.shards - tax, rerollsUsed: state.rerollsUsed + 1 }
+      return {
+        ...state,
+        dice,
+        bossModifier,
+        shards: state.shards - tax,
+        rerollsUsed: state.rerollsUsed + 1,
+        rerollsBonusThisRound: state.rerollsBonusThisRound + kindling,
+        explosionsThisRound,
+      }
+    }
+
+    // Drift (Air family): once per round, nudge one Air-family die's face
+    // up or down by 1. Landing on the max face doesn't explode, and a
+    // boss-frozen or frozen die stays put.
+    case 'NUDGE_DIE': {
+      if (state.phase !== 'rolling' || state.driftUsed) return state
+      if (action.delta !== 1 && action.delta !== -1) return state
+      const die = state.dice.find((d) => d.id === action.dieId)
+      if (!die || !inFamily(die.elementId, 'air') || die.lockedVia === 'freeze') return state
+      const value = die.value + action.delta
+      if (value < 1 || value > die.sides) return state
+      return {
+        ...state,
+        driftUsed: true,
+        dice: state.dice.map((d) => (d.id === die.id ? { ...d, value, total: value, explosions: 0, kindled: false } : d)),
+      }
+    }
+
+    // Gust (relic): once per round, reroll one chosen die for free.
+    case 'GUST_REROLL': {
+      if (state.phase !== 'rolling' || state.gustUsed) return state
+      const relics = effectiveRelics(state)
+      if (!relicEffects(relics).freeSingleReroll) return state
+      const die = state.dice.find((d) => d.id === action.dieId)
+      if (!die || die.locked) return state
+      const rolled = rollDie(die.elementId, die.sides, relics)
+      return {
+        ...state,
+        gustUsed: true,
+        explosionsThisRound: (state.explosionsThisRound || 0) + rolled.explosions,
+        dice: state.dice.map((d) => (d.id === die.id ? { ...d, ...rolled, held: false, growth: 0, kindled: false } : d)),
+      }
     }
 
     case 'SUBMIT_ROUND': {
       if (state.phase !== 'rolling') return state
-      const result = evaluatePool(state.dice, effectiveRelics(state), { rerollsLeft: availableRerolls(state) })
+      const result = evaluatePool(state.dice, effectiveRelics(state), scoreContext(state))
       const passed = result.roundScore >= state.threshold
 
       if (passed) {
@@ -834,10 +914,12 @@ function reduce(state, action) {
 
     case 'RETRY_ROUND': {
       if (state.phase !== 'missed') return state
+      const dice = applyBossRoundStart(rollFreshRound(state.dice, effectiveRelics(state)), state.bossModifier)
       return {
         ...state,
         phase: 'rolling',
-        dice: applyBossRoundStart(rollFreshRound(state.dice, effectiveRelics(state)), state.bossModifier),
+        dice,
+        ...freshRoundCounters(dice),
         rerollsUsed: 0,
         rerollsBonusThisRound: 0,
         freezeChargesUsed: 0,
@@ -1275,6 +1357,7 @@ function reduce(state, action) {
 
 export const selectors = {
   availableRerolls,
+  scoreContext,
   newDieCost,
   dieUpgradeCost,
   relicCost,
