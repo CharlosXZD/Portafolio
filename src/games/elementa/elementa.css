@@ -371,6 +371,261 @@
   image-rendering: pixelated;
 }
 
+/* Element effects (components/ElementFx.jsx, EXPANSION.md E3). Every
+   particle is an <i> moved only with transform and opacity, driven by CSS
+   keyframes, so the whole table shares the browser's one animation loop.
+   `--s` is the die size, `--p` a particle's pixel size, `--c` its color,
+   `--x` its horizontal spot. */
+.elementa-root .el-fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+.elementa-root .el-fx--behind {
+  z-index: -1;
+}
+.elementa-root .el-fx i,
+.elementa-root .el-fx b {
+  position: absolute;
+  display: block;
+  animation-iteration-count: infinite;
+}
+.elementa-root .el-fx i {
+  width: var(--p);
+  height: var(--p);
+  background: var(--c);
+  box-shadow: 0 0 0 1px rgba(10, 7, 16, 0.55);
+}
+/* The tab is hidden: stop every effect (ElementaGame sets data-hidden). */
+.elementa-root[data-hidden] .el-fx i,
+.elementa-root[data-hidden] .el-fx b {
+  animation-play-state: paused;
+}
+
+.elementa-root .el-fx-rise {
+  top: 10%;
+  left: var(--x);
+  animation: el-fx-rise 1.2s ease-out infinite;
+}
+@keyframes el-fx-rise {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(calc(var(--s) * -0.32)) scale(0.5); opacity: 0; }
+}
+
+.elementa-root .el-fx-drip {
+  top: 86%;
+  left: var(--x);
+  animation: el-fx-drip 1.2s ease-in infinite;
+}
+.elementa-root .el-fx-drip.el-fx-slow {
+  animation-duration: 2.4s;
+}
+@keyframes el-fx-drip {
+  0% { transform: translateY(0); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateY(calc(var(--s) * 0.22)); opacity: 0; }
+}
+
+.elementa-root .el-fx .el-fx-ripple {
+  top: 96%;
+  left: 20%;
+  width: 60%;
+  height: calc(var(--p) * 2);
+  background: transparent;
+  box-shadow: none;
+  border: 1px solid var(--c);
+  border-radius: 50%;
+  animation: el-fx-ripple 1.6s ease-out infinite;
+}
+@keyframes el-fx-ripple {
+  0% { transform: scale(0.3); opacity: 0.9; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+.elementa-root .el-fx-settle {
+  top: 90%;
+  left: var(--x);
+  animation: el-fx-settle 1.8s ease-in infinite;
+}
+@keyframes el-fx-settle {
+  0% { transform: translateY(calc(var(--s) * -0.2)); opacity: 0; }
+  30% { opacity: 1; }
+  70% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+.elementa-root .el-fx-ring {
+  inset: -6%;
+  animation: el-fx-spin 2.4s linear infinite;
+}
+.elementa-root .el-fx .el-fx-streak {
+  top: 0;
+  left: 50%;
+  width: calc(var(--p) * 4);
+  background: linear-gradient(90deg, transparent, var(--c));
+  box-shadow: none;
+  opacity: 0.85;
+}
+@keyframes el-fx-spin {
+  to { transform: rotate(360deg); }
+}
+
+.elementa-root .el-fx-spark {
+  top: calc(var(--x) * 0.8);
+  left: var(--x);
+  animation: el-fx-blink 0.9s steps(2) infinite;
+}
+.elementa-root .el-fx-spark:nth-child(even) {
+  left: auto;
+  right: -4%;
+}
+.elementa-root .el-fx-spark:nth-child(odd) {
+  left: -4%;
+}
+@keyframes el-fx-blink {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  15% { opacity: 1; transform: scale(1.6); }
+  30% { opacity: 0; }
+}
+
+.elementa-root .el-fx-frost,
+.elementa-root .el-fx-glint {
+  animation: el-fx-twinkle 1.6s ease-in-out infinite;
+  box-shadow:
+    var(--p) 0 0 0 var(--c),
+    calc(var(--p) * -1) 0 0 0 var(--c),
+    0 var(--p) 0 0 var(--c),
+    0 calc(var(--p) * -1) 0 0 var(--c);
+}
+.elementa-root .el-fx-frost:nth-child(1) { top: 8%; left: 8%; }
+.elementa-root .el-fx-frost:nth-child(2) { top: 8%; right: 8%; }
+.elementa-root .el-fx-frost:nth-child(3) { bottom: 10%; left: 8%; }
+.elementa-root .el-fx-frost:nth-child(4) { bottom: 10%; right: 8%; }
+.elementa-root .el-fx-glint {
+  top: calc(18% + var(--x) * 0.5);
+  left: var(--x);
+}
+@keyframes el-fx-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.6); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.elementa-root .el-fx-puff {
+  top: 6%;
+  left: var(--x);
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: el-fx-puff 1.8s ease-out infinite;
+}
+@keyframes el-fx-puff {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  25% { opacity: 0.8; }
+  100% { transform: translateY(calc(var(--s) * -0.36)) scale(2.2); opacity: 0; }
+}
+
+.elementa-root .el-fx-clip {
+  inset: 10%;
+  overflow: hidden;
+}
+.elementa-root .el-fx .el-fx-sheen {
+  top: -20%;
+  left: 0;
+  width: 22%;
+  height: 140%;
+  background: linear-gradient(90deg, transparent, var(--c), transparent);
+  box-shadow: none;
+  opacity: 0.45;
+  animation: el-fx-sweep 2.8s ease-in-out infinite;
+}
+@keyframes el-fx-sweep {
+  0% { transform: translateX(-120%) rotate(18deg); }
+  55%, 100% { transform: translateX(520%) rotate(18deg); }
+}
+
+.elementa-root .el-fx .el-fx-halo,
+.elementa-root .el-fx .el-fx-rainbow,
+.elementa-root .el-fx .el-fx-pulse {
+  inset: 8%;
+  width: auto;
+  height: auto;
+  background: transparent;
+  border-radius: 30%;
+}
+.elementa-root .el-fx .el-fx-halo {
+  animation: el-fx-halo 4s linear infinite;
+}
+@keyframes el-fx-halo {
+  0%, 100% { box-shadow: 0 0 calc(var(--s) * 0.22) calc(var(--s) * 0.04) #ff7a1a99; }
+  25% { box-shadow: 0 0 calc(var(--s) * 0.22) calc(var(--s) * 0.04) #3d8fe599; }
+  50% { box-shadow: 0 0 calc(var(--s) * 0.22) calc(var(--s) * 0.04) #c89a5c99; }
+  75% { box-shadow: 0 0 calc(var(--s) * 0.22) calc(var(--s) * 0.04) #eef7fb99; }
+}
+.elementa-root .el-fx .el-fx-rainbow {
+  box-shadow: 0 0 calc(var(--s) * 0.22) calc(var(--s) * 0.05) var(--c);
+  animation: el-fx-hue 3s linear infinite;
+}
+@keyframes el-fx-hue {
+  to { filter: hue-rotate(360deg); }
+}
+.elementa-root .el-fx .el-fx-pulse {
+  box-shadow: 0 0 calc(var(--s) * 0.26) calc(var(--s) * 0.06) var(--c);
+  animation: el-fx-pulse 1.4s ease-in-out infinite;
+}
+@keyframes el-fx-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.92); }
+  50% { opacity: 0.9; transform: scale(1.06); }
+}
+
+.elementa-root .el-fx .el-fx-leaf {
+  top: -2%;
+  left: 58%;
+  width: var(--p);
+  height: calc(var(--p) * 3);
+  transform-origin: bottom center;
+  box-shadow: var(--p) calc(var(--p) * -0.5) 0 0 var(--c2), calc(var(--p) * -1) 0 0 0 var(--c2);
+  animation: el-fx-sprout 2.4s ease-in-out infinite;
+}
+@keyframes el-fx-sprout {
+  0% { transform: scaleY(0.3) rotate(0deg); }
+  40% { transform: scaleY(1) rotate(-8deg); }
+  70% { transform: scaleY(1) rotate(8deg); }
+  100% { transform: scaleY(0.3) rotate(0deg); }
+}
+
+.elementa-root .el-fx-current {
+  top: 92%;
+  left: 8%;
+  animation: el-fx-run 1.1s linear infinite;
+}
+@keyframes el-fx-run {
+  0% { transform: translateX(0); opacity: 0; }
+  10%, 85% { opacity: 1; }
+  100% { transform: translateX(calc(var(--s) * 0.78)); opacity: 0; }
+}
+
+.elementa-root .el-fx-clock {
+  top: 4%;
+  right: 4%;
+  width: calc(var(--s) * 0.2);
+  height: calc(var(--s) * 0.2);
+  border: 1px solid var(--c);
+  border-radius: 50%;
+  background: rgba(10, 7, 16, 0.6);
+  animation: none;
+}
+.elementa-root .el-fx .el-fx-hand {
+  left: calc(50% - 1px);
+  top: 12%;
+  width: 2px;
+  height: 38%;
+  background: var(--c);
+  box-shadow: none;
+  transform-origin: bottom center;
+  animation: el-fx-spin 4s steps(8) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .elementa-root * {
     animation-duration: 0.01ms !important;

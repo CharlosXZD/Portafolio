@@ -9,6 +9,7 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { localize, ELEMENTS_ES } from '../data/i18n.js'
 import Tooltip from './Tooltip.jsx'
 import FamilyTags from './FamilyTag.jsx'
+import ElementFx from './ElementFx.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY } from './DieSprite.jsx'
 import { mix } from '../utils/color.js'
@@ -60,8 +61,6 @@ export default function Die({
   showHotkey = true,
   canDrift = false,
   onNudge,
-  canGust = false,
-  onGust,
 }) {
   const { reducedMotion, display } = useGameSettings()
   const { lang, t } = useLanguage()
@@ -212,13 +211,14 @@ export default function Die({
           transition={{ type: 'spring', bounce: 0.35, duration: 0.3 }}
           aria-pressed={die.held}
           aria-label={`${elementName} d${die.sides}: ${showFace ? displayValue : '?'}`}
-          className={`pixel-score relative block ${die.locked || revealing ? 'cursor-default' : 'cursor-pointer'}`}
+          className={`pixel-score relative isolate block ${die.locked || revealing ? 'cursor-default' : 'cursor-pointer'}`}
           style={{
             width: size,
             height: size,
             filter: rarityGlow && !die.held && !die.locked ? `drop-shadow(0 0 10px ${rarityGlow}66)` : undefined,
           }}
         >
+          <ElementFx elementId={die.elementId} size={size} behind />
           {/* The body, mark and face tumble together; chips and bars don't. */}
           <motion.span animate={tumbleControls} className="pointer-events-none absolute inset-0 block">
           <DieSprite tier={die.tierId} size={size} {...colors} ringColor={ringColor} />
@@ -241,6 +241,7 @@ export default function Die({
             {showFace ? displayValue : '?'}
           </motion.span>
           </motion.span>
+          {!isFrozen && <ElementFx elementId={die.elementId} size={size} />}
 
           {/* Reaction bar in the gap to the right neighbor: one segment per
               reaction on this link, centered in the gap so bars never overlap. */}
@@ -375,22 +376,7 @@ export default function Die({
               ))}
             </span>
           )}
-          {canGust && !die.locked && (
-            <motion.button
-              type="button"
-              whileTap={{ scale: 0.9 }}
-              onClick={() => {
-                playClick()
-                onGust?.(die.id)
-              }}
-              title={t('elementa.die.gustHint')}
-              className="el-btn el-btn--sm"
-              style={{ '--face': '#4a6470', '--lit': '#86a9b8', '--lip': '#263840' }}
-            >
-              {t('elementa.die.gust')}
-            </motion.button>
-          )}
-          {showHotkey && !die.locked && !canFreeLock && !canFreeze && !canDrift && !canGust && hotkey != null && (
+          {showHotkey && !die.locked && !canFreeLock && !canFreeze && !canDrift && hotkey != null && (
             <span className="pixel-score text-[8px] text-[var(--text-mute)]">{hotkey}</span>
           )}
         </div>

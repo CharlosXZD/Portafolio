@@ -124,6 +124,8 @@ export const DISPLAY_DEFAULTS = {
   // How a die rolls: 'tumble' (hops and turns, EXPANSION.md E6) or
   // 'classic' (the face flickers in place). Reduced motion forces classic.
   rollAnimation: 'tumble',
+  // Particle effects per element on dice (EXPANSION.md E3).
+  elementEffects: true,
 }
 export function getDisplay() {
   try {

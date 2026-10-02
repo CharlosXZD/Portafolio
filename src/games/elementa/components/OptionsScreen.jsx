@@ -206,6 +206,11 @@ export default function OptionsScreen({ onClose }) {
           ]}
         />
         {reducedMotion && <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.options.rollReducedNote')}</p>}
+        <Toggle
+          label={t('elementa.options.elementEffects')}
+          checked={display.elementEffects && !reducedMotion}
+          onChange={(v) => updateDisplay({ elementEffects: v })}
+        />
         <Toggle label={t('elementa.options.glows')} checked={display.glows} onChange={(v) => updateDisplay({ glows: v })} />
         <Toggle label={t('elementa.options.keyHints')} checked={display.keyHints} onChange={(v) => updateDisplay({ keyHints: v })} />
         <Toggle label={t('elementa.options.ledgerOpen')} checked={display.ledgerOpen} onChange={(v) => updateDisplay({ ledgerOpen: v })} />

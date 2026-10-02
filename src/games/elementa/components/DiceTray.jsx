@@ -109,6 +109,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   // Drift (Air family) and Gust (relic): one free move each per round.
   const canDrift = !state.driftUsed
   const canGust = Boolean(fx.freeSingleReroll) && !state.gustUsed
+  // Gust arms like a consumable: press it, then click the die to reroll.
+  const [gustArmed, setGustArmed] = useState(false)
+  const targeting = Boolean(armedConsumable) || gustArmed
   const rerollTax = fx.rerollShardCost || 0
   const canReroll = availableRerolls > 0 && state.shards >= rerollTax
   const boss = localizeBossModifier(state.bossModifier, lang)
@@ -122,17 +125,18 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     [state.activeSlot, state.round, state.lastResult],
   )
 
-  // Escape cancels a consumable waiting for its target die.
+  // Escape cancels a consumable (or Gust) waiting for its target die.
   useEffect(() => {
-    if (!armedConsumable) return
+    if (!armedConsumable && !gustArmed) return
     function onKey(e) {
       if (e.key !== 'Escape') return
       e.stopImmediatePropagation()
       onArmedDone?.()
+      setGustArmed(false)
     }
     window.addEventListener('keydown', onKey, { capture: true })
     return () => window.removeEventListener('keydown', onKey, { capture: true })
-  }, [armedConsumable, onArmedDone])
+  }, [armedConsumable, gustArmed, onArmedDone])
 
   useEffect(() => {
     if (boss) playBossRound()
@@ -388,10 +392,19 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
 
           {/* The table. Drag dice to reorder: neighbors react. */}
           <div data-tut="dice" className="flex flex-1 flex-col items-center justify-center gap-6">
-            {armedConsumable && (
+            {targeting && (
               <div className="el-panel flex items-center gap-4 px-4 py-2" style={{ '--edge': 'var(--arcane-hi)' }}>
-                <span className="text-base text-[var(--arcane-hi)]">{t('elementa.shop.chooseDieToApply')}</span>
-                <button type="button" onClick={() => onArmedDone?.()} className="el-btn el-btn--sm">
+                <span className="text-base text-[var(--arcane-hi)]">
+                  {gustArmed ? t('elementa.diceTray.gustPick') : t('elementa.shop.chooseDieToApply')}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onArmedDone?.()
+                    setGustArmed(false)
+                  }}
+                  className="el-btn el-btn--sm"
+                >
                   {t('elementa.shop.cancel')}
                   <span className="el-key">Esc</span>
                 </button>
@@ -426,10 +439,16 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       lockBlocked={Boolean(fx.noFreeLock)}
                       linkColors={links[i] ?? null}
                       linkGap={gap}
-                      targeting={Boolean(armedConsumable)}
+                      targeting={targeting && !(gustArmed && die.locked)}
                       isDragging={() => draggingRef.current}
                       showHotkey={display.keyHints}
                       onToggleHeld={(id) => {
+                        if (gustArmed) {
+                          playRoll()
+                          dispatch({ type: 'GUST_REROLL', dieId: id })
+                          setGustArmed(false)
+                          return
+                        }
                         if (armedConsumable) {
                           dispatch({ type: 'APPLY_CONSUMABLE', instanceId: armedConsumable, dieId: id })
                           onArmedDone?.()
@@ -442,11 +461,6 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       canFreeze={canFreeze}
                       canDrift={canDrift && inFamily(die.elementId, 'air') && die.lockedVia !== 'freeze'}
                       onNudge={(id, delta) => dispatch({ type: 'NUDGE_DIE', dieId: id, delta })}
-                      canGust={canGust}
-                      onGust={(id) => {
-                        playRoll()
-                        dispatch({ type: 'GUST_REROLL', dieId: id })
-                      }}
                       revealing={revealing}
                       scoring={currentStep?.dieId === die.id}
                       contribution={dieResult?.contribution ?? null}
@@ -519,6 +533,22 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 <span className="el-key">Enter</span>
               </button>
             </div>
+            {canGust && (
+              <button
+                type="button"
+                onClick={() => {
+                  playClick()
+                  setGustArmed((g) => !g)
+                }}
+                disabled={revealing}
+                aria-pressed={gustArmed}
+                title={t('elementa.die.gustHint')}
+                className={`el-btn el-btn--sm ${gustArmed ? 'el-btn--gold' : ''}`}
+              >
+                <PixelIcon name="air" size={9} />
+                {t('elementa.diceTray.gust')}
+              </button>
+            )}
             {freezeCharges > 0 && (
               <span className="text-base text-[#9fe3ff]">
                 {t('elementa.diceTray.freeze')} {freezeCharges - state.freezeChargesUsed}

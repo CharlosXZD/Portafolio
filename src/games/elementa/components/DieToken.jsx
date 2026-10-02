@@ -2,6 +2,7 @@ import { ELEMENTS } from '../data/elements.js'
 import { mix } from '../utils/color.js'
 import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY } from './DieSprite.jsx'
+import ElementFx from './ElementFx.jsx'
 
 // Die body colors come from the element, darkened toward the night palette
 // so pale elements (Air, Steam) still carry a light number. Shared by the
@@ -34,10 +35,12 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
       onClick={onClick}
       title={title}
       aria-label={title}
-      className={`pixel-score relative block shrink-0 ${onClick ? 'cursor-pointer' : ''}`}
+      className={`pixel-score relative isolate block shrink-0 ${onClick ? 'cursor-pointer' : ''}`}
       style={{ width: size, height: size, opacity: dimmed ? 0.45 : 1 }}
     >
+      <ElementFx elementId={die.elementId} size={size} behind lite={size < 56} />
       <DieSprite tier={die.tierId} size={size} {...dieColors(die.elementId)} ringColor={ringColor} />
+      {!dimmed && <ElementFx elementId={die.elementId} size={size} lite={size < 56} />}
       {face == null ? (
         <span
           className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2"

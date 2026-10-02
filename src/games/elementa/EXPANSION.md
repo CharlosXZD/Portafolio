@@ -422,6 +422,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Boons as icons:** active blessings and pacts show as a row of icons with a status dot during rounds and in shops; click one for the details. Run Info and the run summary keep the full list.
 - **Safety camp:** missing a round now shows a centered screen over the dimmed table, then Tobb's camp: a few free Shards and a small shop before you try the round again.
 - **Tumbling dice:** dice now hop and turn when they roll. Options has "Dice roll animation: Tumble / Classic" (Reduced motion uses Classic).
+- **Element effects:** every die has its own little animation (flames, drips, wind, pebbles, sparks, frost, glints and more), so similar colors are easy to tell apart. Toggle it under Options, Display.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -489,7 +490,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E3. Element effects on dice (telling similar colors apart)
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note:** some dice colors are too similar. Carlos's original idea was a subtle animation per element on the die body: the fire die covered in flames (it can stay orange), wind around the air die, and so on.
 - **Proposal:** a procedural pixel-particle layer per element, drawn around and over `DieSprite`.

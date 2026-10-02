@@ -99,6 +99,14 @@ function ElementaGameInner() {
     }
   }, [])
 
+  // Element effects (and any other CSS loop) pause while the tab is hidden.
+  const [tabHidden, setTabHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
+  useEffect(() => {
+    const onChange = () => setTabHidden(document.hidden)
+    document.addEventListener('visibilitychange', onChange)
+    return () => document.removeEventListener('visibilitychange', onChange)
+  }, [])
+
   // Each screen, shop type and boss has its own theme (data/musicThemes.js).
   const musicTheme = themeForState(state)
   useEffect(() => {
@@ -200,6 +208,7 @@ function ElementaGameInner() {
     <div
       data-theme="dark"
       data-font={display.fontStyle}
+      data-hidden={tabHidden ? '' : undefined}
       className="elementa-root relative min-h-screen w-full overflow-x-hidden"
       style={crtEffect ? { filter: 'url(#elementa-chromatic)' } : undefined}
     >
