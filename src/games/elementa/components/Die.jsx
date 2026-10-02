@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion'
 import { ELEMENTS, FLAGS, rarityForElement } from '../data/elements.js'
 import { RARITY, RARITY_GLOW } from '../data/relics.js'
-import { playClick, playLock, playFreeze } from '../utils/sound.js'
+import { playClick, playLock, playFreeze, playLand, playBoom, playGust, playClank } from '../utils/sound.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { juicyHover, juicyTap } from '../utils/motionPresets.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
@@ -13,18 +13,26 @@ import { DieHoverCard, DieFullModal } from './DieInfo.jsx'
 import { dieDescriptor } from '../data/itemDescriptors.js'
 import { useLongPress } from '../utils/useLongPress.js'
 import ElementFx from './ElementFx.jsx'
+import { LandBurst, ExplosionFx, DriftFx, LockFx } from './RollFx.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY } from './DieSprite.jsx'
 import { mix } from '../utils/color.js'
 import { dieColors } from './DieToken.jsx'
 
-// Classic: the face flickers in place. Tumble: four quarter turns, a new
-// face on each, over about the same total time so rerolls don't slow down.
+// Classic: the face flickers in place. Tumble (EXPANSION.md P3): a toss arc
+// with real 3D rotation, two diminishing bounces, a shadow on the ground and
+// a face that ticks slower and slower before it lands. Roughly the same
+// total time as before so rerolls don't slow down; a d20 takes a little
+// longer to settle and a d3 a little less.
 const FLICKER_TICK_MS = 45
 const FLICKER_TICKS = 7
-const TUMBLE_TICK_MS = 90
-const TUMBLE_TICKS = 4
-const TUMBLE_SECONDS = 0.4
+const TUMBLE_BASE_SECONDS = 0.46
+const TUMBLE_TICKS = 8
+const LAND_AT = 0.62 // fraction of the toss where it first touches down
+const CASCADE_MS = 40 // each die starts this much after the one on its left
+// An explosion chain replays in at most about this long (P11).
+const CHAIN_BUDGET_MS = 1000
+const clamp01 = (x) => Math.min(1, Math.max(0, x))
 
 /** A 5x3 pixel arrow for the Drift buttons. */
 function PixelArrow({ up }) {
@@ -66,8 +74,9 @@ export default function Die({
   onNudge,
   actingAs = null,
   tideLock = false,
+  index = 0,
 }) {
-  const { reducedMotion, display } = useGameSettings()
+  const { reducedMotion, display, screenShake } = useGameSettings()
   const { lang, t } = useLanguage()
   const tumble = display.rollAnimation !== 'classic' && !reducedMotion
   const tumbleControls = useAnimationControls()
@@ -85,6 +94,23 @@ export default function Die({
   const [rolling, setRolling] = useState(false)
   const [displayValue, setDisplayValue] = useState(die.value)
   const [settleKey, setSettleKey] = useState(0)
+
+  // One-shot effects (components/RollFx.jsx): a landing burst, the step of
+  // an explosion chain being replayed, a Drift gust and a lock closing.
+  const shadowControls = useAnimationControls()
+  const timers = useRef([])
+  const driftDir = useRef(0)
+  const [landKey, setLandKey] = useState(0)
+  const [chainStep, setChainStep] = useState(null)
+  const [boom, setBoom] = useState(null)
+  const [driftFx, setDriftFx] = useState(null)
+  const [lockFxKey, setLockFxKey] = useState(0)
+  const after = (ms, fn) => timers.current.push(setTimeout(fn, ms))
+  const clearTimers = () => {
+    timers.current.forEach(clearTimeout)
+    timers.current = []
+  }
+  useEffect(() => clearTimers, [])
 
   // Detail levels (EXPANSION.md P5 to P9): the click popover and the
   // click-and-hold dialog. Hold never toggles the die.
@@ -105,53 +131,143 @@ export default function Die({
   const mountedLockedVia = useRef(die.lockedVia)
   const [lockEventKey, setLockEventKey] = useState(0)
 
-  // A face can change without a new roll (Drift): show it right away.
-  // Runs before the roll effect, so a real roll still flickers first.
+  // A face can change without a new roll (Drift): show it right away, with
+  // a gust and an arrow when the player nudged it. Runs before the roll
+  // effect, so a real roll still flickers first.
   useEffect(() => {
-    if (die.rollId === mountedRollId.current) setDisplayValue(die.value)
+    if (die.rollId !== mountedRollId.current) return
+    setDisplayValue(die.value)
+    if (driftDir.current) {
+      setDriftFx({ key: Date.now(), dir: driftDir.current })
+      setSettleKey((k) => k + 1)
+      playGust()
+      driftDir.current = 0
+    }
   }, [die.value, die.rollId])
+
+  // Replays the explosion chain face by face (P11): a burst, the face
+  // re-rolling into the next value, a "+N" and a growing "xK". Reduced
+  // motion gets one flash. Gameplay never reads any of it.
+  function replayChain() {
+    if (!die.explosions || die.explosions < 1) return
+    if (reducedMotion) {
+      setBoom({ key: Date.now(), step: 1 })
+      return
+    }
+    // Older saves have no recorded chain: spread the total over the steps.
+    const rest = die.total - die.value
+    const chain =
+      Array.isArray(die.chain) && die.chain.length === die.explosions + 1
+        ? die.chain
+        : [die.value, ...Array.from({ length: die.explosions }, () => Math.max(1, Math.round(rest / die.explosions)))]
+    const steps = chain.length - 1
+    const gap = Math.min(260, Math.max(90, CHAIN_BUDGET_MS / steps))
+    // What each step adds (Fire-family relics can double it).
+    const rawSum = chain.slice(1).reduce((a, b) => a + b, 0)
+    const factor = rawSum > 0 ? (die.total - die.value) / rawSum : 1
+    for (let k = 1; k <= steps; k++) {
+      after(120 + (k - 1) * gap, () => {
+        setChainStep({ k, add: Math.round(chain[k] * factor * 10) / 10 })
+        setDisplayValue(chain[k])
+        setSettleKey((n) => n + 1)
+        setBoom({ key: Date.now() + k, step: k })
+        playBoom(k)
+        if (screenShake) tumbleControls.start({ x: [0, -2 - k, 2 + k, 0], transition: { duration: 0.16 } })
+      })
+    }
+    after(120 + steps * gap + 160, () => {
+      setChainStep(null)
+      setDisplayValue(die.value)
+      setSettleKey((n) => n + 1)
+    })
+  }
 
   useEffect(() => {
     if (die.rollId === mountedRollId.current) return
     mountedRollId.current = die.rollId
-
+    clearTimers()
+    setChainStep(null)
+    setBoom(null)
     setRolling(true)
-    if (tumble) {
-      // Each die picks its own spin direction and hop height from its roll
-      // id, so a pool doesn't move in lockstep. Purely visual.
-      const spin = die.rollId * 1000 % 1 < 0.5 ? -1 : 1
-      const hop = size * (0.22 + ((die.rollId * 7919) % 1) * 0.16)
+
+    const land = () => {
+      setDisplayValue(die.value)
+      setRolling(false)
+      setSettleKey((k) => k + 1)
+      replayChain()
+    }
+
+    if (!tumble) {
+      let ticks = 0
+      const interval = setInterval(() => {
+        ticks += 1
+        setDisplayValue(1 + Math.floor(Math.random() * die.sides))
+        if (ticks >= FLICKER_TICKS) {
+          clearInterval(interval)
+          land()
+        }
+      }, FLICKER_TICK_MS)
+      timers.current.push(interval)
+      return
+    }
+
+    // Heavier dice (more sides) settle longer, stand a little lower, cast a
+    // bigger shadow, and a d20 nudges the table. Each die also starts a
+    // beat after the one on its left, so the pool ripples.
+    const heavy = clamp01((die.sides - 3) / 17)
+    const seconds = TUMBLE_BASE_SECONDS + heavy * 0.16
+    const wait = Math.min(index ?? 0, 9) * CASCADE_MS
+    const landMs = seconds * LAND_AT * 1000
+    // Each die picks its own spin direction and hop height from its roll
+    // id, so a pool doesn't move in lockstep. Purely visual.
+    const spin = die.rollId * 1000 % 1 < 0.5 ? -1 : 1
+    const hop = size * (0.62 - heavy * 0.2) * (0.85 + ((die.rollId * 7919) % 1) * 0.3)
+    const times = [0, 0.31, LAND_AT, 0.73, 0.83, 0.91, 1]
+    const ease = ['easeOut', 'easeIn', 'easeOut', 'easeIn', 'easeOut', 'easeIn']
+    after(wait, () => {
       tumbleControls
         .start({
-          y: [0, -hop, -hop * 0.7, 0, -hop * 0.12, 0],
-          rotate: [0, spin * 90, spin * 180, spin * 270, spin * 360, spin * 360],
-          // A horizontal squeeze mid-turn fakes the third dimension; the
-          // last keyframes squash on landing and bounce back.
-          scaleX: [1, 0.6, 1, 0.6, 1.1, 1],
-          scaleY: [1, 1.08, 0.96, 1.08, 0.86, 1],
-          transition: { duration: TUMBLE_SECONDS, times: [0, 0.22, 0.45, 0.7, 0.86, 1], ease: 'easeOut' },
+          y: [0, -hop, 0, -hop * 0.32, 0, -hop * 0.1, 0],
+          // A full turn each way in the air; the last keyframes are whole
+          // turns, so the die lands face-up.
+          rotateX: [0, spin * 200, spin * 360, spin * 360, spin * 360, spin * 360, spin * 360],
+          rotateY: [0, spin * -330, spin * -720, spin * -720, spin * -720, spin * -720, spin * -720],
+          rotate: [0, spin * 40, spin * -14, spin * 6, 0, 0, 0],
+          scaleX: [1, 1, 1.1 + heavy * 0.06, 0.98, 1.04, 1, 1],
+          scaleY: [1, 1.04, 0.88 - heavy * 0.04, 1.03, 0.95, 1.01, 1],
+          transition: { duration: seconds, times, ease },
         })
-        .then(() => tumbleControls.set({ rotate: 0 }))
-    }
-    let ticks = 0
-    const interval = setInterval(() => {
-      ticks += 1
-      setDisplayValue(1 + Math.floor(Math.random() * die.sides))
-      if (ticks >= (tumble ? TUMBLE_TICKS : FLICKER_TICKS)) {
-        clearInterval(interval)
-        setDisplayValue(die.value)
-        setRolling(false)
-        setSettleKey((k) => k + 1)
+        .then(() => tumbleControls.set({ rotateX: 0, rotateY: 0, rotate: 0, y: 0 }))
+      // The shadow shrinks and fades as the die rises, and grows as it falls.
+      shadowControls.start({
+        scaleX: [1, 0.55, 1.08, 0.8, 1, 0.9, 1].map((v) => v * (1 + heavy * 0.25)),
+        opacity: [0.4, 0.12, 0.5, 0.22, 0.42, 0.28, 0],
+        transition: { duration: seconds, times, ease },
+      })
+      // The face ticks fast, then slower and slower, and lands on the real
+      // value the moment the die touches down.
+      for (let i = 1; i < TUMBLE_TICKS; i++) {
+        after(landMs * Math.pow(i / TUMBLE_TICKS, 1.7), () => setDisplayValue(1 + Math.floor(Math.random() * die.sides)))
       }
-    }, tumble ? TUMBLE_TICK_MS : FLICKER_TICK_MS)
-
-    return () => clearInterval(interval)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      after(landMs, () => {
+        setLandKey((k) => k + 1)
+        playLand(die.sides)
+        if (heavy > 0.9) window.dispatchEvent(new CustomEvent('elementa:nudge', { detail: { amp: 3 } }))
+        land()
+      })
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [die.rollId])
 
   useEffect(() => {
     if (die.lockedVia && die.lockedVia !== mountedLockedVia.current) {
       setLockEventKey((k) => k + 1)
+      // Chain links wrap the die and a lock clicks shut (P12). A freeze
+      // keeps its own icy effect.
+      if (die.lockedVia === 'lock') {
+        setLockFxKey((k) => k + 1)
+        after(300, () => playClank())
+      }
     }
     mountedLockedVia.current = die.lockedVia
   }, [die.lockedVia])
@@ -237,7 +353,19 @@ export default function Die({
         >
           <ElementFx elementId={die.elementId} size={size} behind />
           {/* The body, mark and face tumble together; chips and bars don't. */}
-          <motion.span animate={tumbleControls} className="pointer-events-none absolute inset-0 block">
+          {/* The ground shadow (P3): only drawn while a die is tossed. */}
+          <motion.span
+            aria-hidden
+            initial={{ opacity: 0 }}
+            animate={shadowControls}
+            className="pointer-events-none absolute bottom-[-7%] left-[14%] right-[14%] -z-10 h-[7%] bg-black/70"
+            style={{ borderRadius: '50%' }}
+          />
+          <motion.span
+            animate={tumbleControls}
+            style={{ transformPerspective: 520 }}
+            className="pointer-events-none absolute inset-0 block"
+          >
           <DieSprite tier={die.tierId} size={size} {...colors} ringColor={ringColor} />
           <span className="pointer-events-none absolute left-[18%] top-[16%]" style={die.tierId === 'd3' ? { left: '43%', top: '26%' } : undefined}>
             <PixelIcon name={die.elementId} size={size >= 90 ? 14 : 7} color="#fffaf0" hi={def.color} />
@@ -260,6 +388,12 @@ export default function Die({
           </motion.span>
           {!isFrozen && <ElementFx elementId={die.elementId} size={size} />}
 
+          {/* One-shot effects: landing, explosion step, Drift, lock. */}
+          {landKey > 0 && <LandBurst key={`land-${landKey}`} elementId={die.elementId} size={size} heavy={clamp01((die.sides - 3) / 17)} />}
+          {boom && <ExplosionFx key={`boom-${boom.key}`} elementId={die.elementId} size={size} step={boom.step} />}
+          {driftFx && <DriftFx key={`drift-${driftFx.key}`} elementId={die.elementId} size={size} dir={driftFx.dir} />}
+          {lockFxKey > 0 && <LockFx key={`lockfx-${lockFxKey}`} elementId={die.elementId} size={size} />}
+
           {/* Reaction bar in the gap to the right neighbor: one segment per
               reaction on this link, centered in the gap so bars never overlap. */}
           {linkColors && (
@@ -276,7 +410,33 @@ export default function Die({
             </span>
           )}
 
-          {die.explosions > 0 && !rolling && showFace && (
+          {/* The chain being replayed: what this step adds, and a counter
+              that grows hotter with every explosion. */}
+          {chainStep && !reducedMotion && (
+            <>
+              <motion.span
+                key={`chain-add-${chainStep.k}`}
+                initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                animate={{ opacity: [0, 1, 1, 0], y: -Math.round(size * 0.7), scale: 1 + Math.min(chainStep.k, 6) * 0.08 }}
+                transition={{ duration: 0.7, ease: 'easeOut' }}
+                className="pixel-score pointer-events-none absolute left-1/2 top-0 z-20 -translate-x-1/2 whitespace-nowrap text-sm text-[#ffd166]"
+                style={{ textShadow: '2px 2px 0 var(--ink), -1px 0 0 var(--ink), 0 -1px 0 var(--ink)' }}
+              >
+                +{chainStep.add}
+              </motion.span>
+              <motion.span
+                key={`chain-x-${chainStep.k}`}
+                initial={{ scale: 0.3 }}
+                animate={{ scale: 1 + Math.min(chainStep.k, 6) * 0.12 }}
+                transition={{ type: 'spring', bounce: 0.6, duration: 0.3 }}
+                className="el-chip pointer-events-none absolute -right-3 -top-3 z-20 text-[var(--ink)]"
+                style={{ backgroundColor: mix('#ff9a45', '#ff3a3a', Math.min(1, (chainStep.k - 1) / 4)) }}
+              >
+                x{chainStep.k + 1}
+              </motion.span>
+            </>
+          )}
+          {die.explosions > 0 && !rolling && !chainStep && showFace && (
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -410,6 +570,7 @@ export default function Die({
                   disabled={delta === 1 ? die.value >= die.sides : die.value <= 1}
                   onClick={() => {
                     playClick()
+                    driftDir.current = delta
                     onNudge?.(die.id, delta)
                   }}
                   aria-label={t(delta === 1 ? 'elementa.die.driftUp' : 'elementa.die.driftDown')}

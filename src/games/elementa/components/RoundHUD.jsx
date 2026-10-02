@@ -12,6 +12,8 @@ import KeeperSprite from './KeeperSprite.jsx'
 import { shopTypeById } from '../data/shops.js'
 import { currentNode, nodeById } from '../engine/map.js'
 import BoonsList from './BoonsList.jsx'
+import TriggerPulse from './TriggerPulse.jsx'
+import { useTriggerPulses } from '../utils/useTriggerPulses.js'
 
 export function Hearts({ lives, maxLives, size = 14 }) {
   const { lang } = useLanguage()
@@ -50,10 +52,10 @@ export function Stat({ label, children, accent }) {
   )
 }
 
-function MiniIcon({ itemKey, item, openKey, onOpenChange, actions, armed = false }) {
+function MiniIcon({ itemKey, item, openKey, onOpenChange, actions, armed = false, pulse = null }) {
   const isOpen = openKey === itemKey
-  return (
-    <div className="relative">
+  const body = (
+    <>
       <ItemIcon
         size={48}
         glyph={item.glyph}
@@ -67,8 +69,18 @@ function MiniIcon({ itemKey, item, openKey, onOpenChange, actions, armed = false
       <AnimatePresence>
         {isOpen && <ItemInspector item={item} actions={actions} onClose={() => onOpenChange(null)} placement="right" />}
       </AnimatePresence>
-    </div>
+    </>
   )
+  // Relics react while the score is added (P14): a stable hook for the
+  // reveal to find the icon, and the bounce itself.
+  if (item.kind === 'relic') {
+    return (
+      <TriggerPulse pulse={pulse} data-relic-id={item.id}>
+        {body}
+      </TriggerPulse>
+    )
+  }
+  return <div className="relative">{body}</div>
 }
 
 /** Empty slot outline, so capacity is visible without a "2 / 5" caption. */
@@ -85,6 +97,7 @@ function EmptySlot({ size = 48 }) {
 export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
   const { lang, t } = useLanguage()
   const [openKey, setOpenKey] = useState(null)
+  const pulses = useTriggerPulses()
   const difficulty = state.difficulty ? localizeDifficulty(state.difficulty, lang) : null
   const relicCap = selectors.relicCapFor(state)
   const consumableCap = selectors.consumableCapFor(state)
@@ -171,6 +184,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
               key={r.id}
               itemKey={`relic-${r.id}`}
               item={relicDescriptor(r, lang)}
+              pulse={pulses[`relic:${r.id}`]}
               openKey={openKey}
               onOpenChange={setOpenKey}
             />

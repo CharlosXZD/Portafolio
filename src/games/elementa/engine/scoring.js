@@ -19,9 +19,11 @@ function relicEffects(relics) {
 
 /**
  * Rolls a single die from scratch, resolving its full explosion chain.
- * Returns the shape stored on the die in game state: { value, total, explosions, rollId }.
+ * Returns the shape stored on the die in game state: { value, total, explosions, chain, rollId }.
  * `value` is the original face (used for zeroOnMin + set-matching);
  * `total` is the summed contribution after any explosion chain.
+ * `chain` lists the faces rolled in order ([6, 6, 4]) so the UI can replay
+ * an explosion chain (EXPANSION.md P11); it never affects scoring.
  * `rollId` changes on every roll (even if the face repeats) so the UI can
  * key a roll animation off it instead of off the value.
  */
@@ -34,6 +36,7 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
   if (fx.earthFamilyMinFace && inFamily(elementId, 'earth')) value = Math.max(value, Math.min(fx.earthFamilyMinFace, sides))
   let total = value
   let explosions = 0
+  const chain = [value]
 
   if (hasFlag(elementId, FLAGS.EXPLODE)) {
     // A boss round's "Calm Winds" twist caps every explosion chain at
@@ -53,11 +56,12 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
       const addValue = fx.fireExplodeDouble ? next * 2 : next
       total += addValue
       explosions += 1
+      chain.push(next)
       current = next
     }
   }
 
-  return { value, total, explosions, rollId: random() }
+  return { value, total, explosions, chain, rollId: random() }
 }
 
 /** Rerolls every die in `dice` that is not held/locked, applying reroll-time relics. */
@@ -85,6 +89,7 @@ export function rerollPool(dice, relics = []) {
           value: die.value,
           total: die.total,
           explosions: die.explosions,
+          chain: die.chain,
           rollId: random(),
         })
       }

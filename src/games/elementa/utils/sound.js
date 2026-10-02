@@ -66,6 +66,31 @@ export function playRoll() {
   tone(380, 0.03, { gain: 0.03, delay: 0.1 })
 }
 
+// A soft landing tick per die (EXPANSION.md P3), lower and heavier the more
+// sides it has: a d3 taps, a d20 thuds.
+export function playLand(sides = 6) {
+  const heavy = Math.min(1, Math.max(0, (sides - 3) / 17))
+  tone(900 - heavy * 620, 0.05 + heavy * 0.05, { type: 'triangle', gain: 0.025 + heavy * 0.02, glideTo: 520 - heavy * 340 })
+}
+
+// A short boom per explosion, rising in pitch along the chain (P11).
+export function playBoom(step = 1) {
+  const up = Math.min(8, step - 1)
+  tone(150 + up * 38, 0.2, { type: 'sawtooth', gain: 0.05, glideTo: 55 + up * 8 })
+  tone(420 + up * 70, 0.07, { type: 'square', gain: 0.02 })
+}
+
+// A breath of wind for Drift (P12).
+export function playGust() {
+  tone(520, 0.14, { type: 'sine', gain: 0.025, glideTo: 880 })
+}
+
+// A chain closing and a lock clicking shut (P12).
+export function playClank() {
+  tone(260, 0.05, { type: 'square', gain: 0.035, glideTo: 180 })
+  tone(980, 0.04, { type: 'triangle', gain: 0.035, delay: 0.07 })
+}
+
 export function playSuccess() {
   tone(523.25, 0.12, { gain: 0.05 })
   tone(659.25, 0.12, { gain: 0.05, delay: 0.1 })

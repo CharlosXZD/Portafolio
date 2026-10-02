@@ -8,6 +8,8 @@ import KeeperSprite from './KeeperSprite.jsx'
 import BossAvatar from './BossAvatar.jsx'
 import ItemInspector from './ItemInspector.jsx'
 import { playClick } from '../utils/sound.js'
+import TriggerPulse from './TriggerPulse.jsx'
+import { useTriggerPulses } from '../utils/useTriggerPulses.js'
 
 const SOURCE_COLOR = { nix: '#8a5cff', aeris: '#9fd8ff' }
 const STATUS_COLOR = { active: '#5fd38a', pending: '#ffd166' }
@@ -67,6 +69,7 @@ function boonText(boon, lang, t) {
 function BoonIcons({ state, boons }) {
   const { t, lang } = useLanguage()
   const [open, setOpen] = useState(null)
+  const pulses = useTriggerPulses()
   return (
     <section className="flex flex-col gap-2">
       <h3 className="el-label">{t('elementa.boons.title')}</h3>
@@ -77,7 +80,7 @@ function BoonIcons({ state, boons }) {
           const status = boonStatus(b, state)
           const color = SOURCE_COLOR[b.source] ?? SOURCE_COLOR.aeris
           return (
-            <div key={key} className="relative">
+            <TriggerPulse key={key} pulse={pulses[`boon:${b.id}`]} data-boon-id={b.id}>
               <button
                 type="button"
                 title={name}
@@ -109,7 +112,7 @@ function BoonIcons({ state, boons }) {
                   />
                 )}
               </AnimatePresence>
-            </div>
+            </TriggerPulse>
           )
         })}
       </div>

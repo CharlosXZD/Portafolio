@@ -3,6 +3,7 @@ import { AnimatePresence, Reorder, motion, useAnimationControls } from 'framer-m
 import Die from './Die.jsx'
 import CastLedger from './CastLedger.jsx'
 import { groupLines } from '../utils/ledgerGroups.js'
+import { TRIGGER_EVENT } from '../utils/useTriggerPulses.js'
 import { evaluatePool } from '../engine/scoring.js'
 import { selectors } from '../engine/gameReducer.js'
 import { ELEMENTS, inFamily, actingElementIds } from '../data/elements.js'
@@ -90,7 +91,7 @@ function buildReveal(result) {
   steps.forEach((s) => {
     if (!order.some((o) => o.section === s.section && o.group === s.group)) order.push({ section: s.section, group: s.group })
   })
-  return { result, steps, order, index: 0, base: 0, mult: 1 }
+  return { result, steps, order, groups: groupsOf, index: 0, base: 0, mult: 1 }
 }
 
 function applyStep(r) {
@@ -158,6 +159,18 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // A heavy die (d20) landing nudges the table a little (P3). Shares the
+  // screen-shake option and is skipped with reduced motion.
+  useEffect(() => {
+    function onNudge(e) {
+      if (!screenShake || reducedMotion) return
+      const amp = e.detail?.amp ?? 3
+      shake.start({ y: [0, amp, -amp * 0.4, 0], transition: { duration: 0.22, ease: 'easeOut' } })
+    }
+    window.addEventListener('elementa:nudge', onNudge)
+    return () => window.removeEventListener('elementa:nudge', onNudge)
+  }, [screenShake, reducedMotion, shake])
+
   // The cast reveal: a snapshot of the score is replayed step by step (each
   // die, then each Base bonus, then each Mult source), the ledger lighting
   // up as it goes, then the final score lands and the round submits. Purely
@@ -174,6 +187,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
       return () => clearTimeout(id)
     }
     const step = reveal.steps[reveal.index]
+    announceTrigger(reveal, step)
     const id = setTimeout(
       () => {
         if (step.value) playCoin()
@@ -184,6 +198,25 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     return () => clearTimeout(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reveal])
+
+  // Relics and pacts react while the score is added (P14): when a ledger
+  // group from a relic or a boon lights up, its icon in the HUD plays its
+  // trigger, once per group, with the group's total.
+  function announceTrigger(r, step) {
+    if (!step || step.pos !== 0 || step.dieId) return
+    const g = r.groups[step.section][step.group]
+    let target = null
+    let value = g.value
+    if (g.kind === 'relic' && g.id) target = { kind: 'relic', id: g.id }
+    else if (g.kind === 'boon' && g.id) target = { kind: 'boon', id: g.id }
+    else if (g.kind === 'reaction' && step.section === 'mult' && state.roundBuffs?.communion) {
+      // Blessing of Communion: +0.5 Mult on every reaction that has a Mult.
+      target = { kind: 'boon', id: 'communion' }
+      value = 0.5 * g.count
+    }
+    if (!target) return
+    window.dispatchEvent(new CustomEvent(TRIGGER_EVENT, { detail: { ...target, section: step.section, op: g.op, value } }))
+  }
 
   // Impact when the final score lands: the whole table shakes, harder the
   // further past the target you went (a miss gets a short red thud), and a
@@ -489,6 +522,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                     <Die
                       die={die}
                       hotkey={i < 9 ? i + 1 : null}
+                      index={i}
                       size={size}
                       hidden={hidden}
                       lockBlocked={Boolean(fx.noFreeLock)}
