@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-09-29, pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-02 (v0.4), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -194,6 +194,7 @@ Each keeper remembers you per save file. Tiers: stranger (visits 1 to 3), regula
 - **Friend:** Pull up a crate, friend. Business can wait a moment.
 - **After a boss:** You beat a Fragment? Then you can afford my prices.
 - **On your last life:** You look rough. Buy something shiny, it helps. Trust me.
+- **At the camp** (after a missed round, not counted as a visit): Sit, Caster. Nobody wins every fight. Have some tea, then try again.
 - **Lore** (told on visits 2, 4, 7, 11):
   1. Dice weren't always toys, you know. The first Casters carved them to hold the elements after the Split.
   2. The Split? Before Fire, Water, Earth and Air there was only the Primordial. One thing, everything at once. The Casters broke it in four.
@@ -226,6 +227,7 @@ Each keeper remembers you per save file. Tiers: stranger (visits 1 to 3), regula
 - **Friend:** You have earned a seat by the vault. Few have.
 - **After a boss:** The Fragment's echo is still warm. Its treasures are here now.
 - **On your last life:** Your light is thin. Do not let me add you to the collection today.
+- **After you first beat Primordial** (once, on the next Vault visit): You defeated it. Then you have earned this: the recipe the first Casters swore never to write down.
 - **Lore** (told on visits 2, 4, 7, 11):
   1. I was a mountain once. A Caster carved me from the Earth half of the Split, to guard what matters.
   2. Each boss is a Fragment wearing a rule like a mask. Calm Winds, Iron Grip, Silence. Names we gave them so we could fight them.
