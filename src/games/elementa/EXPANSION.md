@@ -503,7 +503,17 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
 
-### v0.4 "The Road" (in development, unreleased)
+### Alpha v0.5 "Allegiance" (in development, unreleased)
+- **New Nix pacts:** Gambler's Oath, Hollow Crown, Shadow Twin, The Long Night, Bound Tongue.
+- **Betrayal pacts:** Broken Vow, Unspoken Prayer, Stolen Breath, Severed Grace, offered when you hold the Aeris blessing they break.
+- **New Aeris blessings:** Plenty, Ember-ward, Clarity, Communion, Grace.
+- **Pact symmetry:** blessings cost Shards after one Nix pact, an item after two, and Aeris is gone after three; Shrines ahead on the Road thin out or vanish, and walking away from a Black Market invites one back.
+- **The Accord:** a hidden lean toward the Primordial or the Split starts recording; Aeris and Nix comment on a strong lean.
+- **New arcane dice:** Bullion, Masquerade, Chameleon.
+- **Balance:** Aether 64, Gilded Common, Mirror and Beacon Rare, Prism Epic (25), Upgrade Stone Epic, Conduit doubles its bridged reactions, Chrono rerolls a 1 until it isn't one.
+- **New-run screen:** a loadout carousel and a one-at-a-time difficulty picker.
+
+### Alpha v0.4 "The Road" (in development, unreleased)
 - **The Road:** a seeded, branching map of shops. You choose your next stop from inside each shop.
 - **Seven shop types,** each with its own keeper: Market (Tobb), Alchemist (Vessa), Relic Vault (the Curator), Forge (Brasa), Black Market (Nix), Shrine (Aeris), and the legendary Aether Bazaar (all of them at once).
 - **Keepers** remember you on each save file, change their dialog as you visit, and tell lore over time. A new Keepers tab in the Gallery collects it.
@@ -534,7 +544,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **What's new:** a patch notes screen on the main menu and in Options, with every version. A NEW chip appears when there's a version you haven't read.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
-### v0.3 "Beta feedback" (2026-09-28)
+### Alpha v0.3 "Beta feedback" (2026-09-28)
 - **Save files are whole games:** profile plus run, with a File hub.
 - **Achievements:** 19 total.
 - **Seeds and Endless mode.**
@@ -547,7 +557,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Tutorial:** interactive.
 - **Display:** Tiny5 font and display options.
 
-### v0.2 "Juice and depth" (2026-09-27 to 2026-09-28)
+### Alpha v0.2 "Juice and depth" (2026-09-27 to 2026-09-28)
 - **Pixel UI kit** and procedural backgrounds; full-screen round layout.
 - **Juice:** score popups, screen shake.
 - **Content:**
@@ -560,7 +570,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Gallery** and completion percentage.
 - **Pip's tutorial,** backup files, bilingual UI.
 
-### v0.1 "MVP" (2026-09-27)
+### Alpha v0.1 "MVP" (2026-09-27)
 - **Core loop:** elemental dice; Earth, Fire, Water and Air with fusions up to Aether.
 - **Economy:** relics, shop economy with interest.
 - **Dice tiers:** d3 to d20.

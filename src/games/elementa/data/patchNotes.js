@@ -4,12 +4,54 @@
 // version tag in the corner (ElementaGame.jsx) reads the newest entry, and
 // the "What's new" button shows NEW until the player opens this version.
 //
-// `date` is null while a version is still in development.
+// `date` is null while a version is still in development. `stage` is the
+// release stage (Part C of EXPANSION.md): Alpha, then Beta, then Release.
 
 const L = (en, es) => ({ en, es })
 
 export const PATCH_NOTES = [
   {
+    stage: 'Alpha',
+    version: '0.5',
+    name: L('Allegiance', 'Lealtad'),
+    date: null,
+    highlights: [
+      L(
+        "Nix has five new pacts: Gambler's Oath, Hollow Crown, Shadow Twin, The Long Night and Bound Tongue.",
+        'Nix tiene cinco pactos nuevos: Juramento del Apostador, Corona Hueca, Gemelo de Sombra, La Larga Noche y Lengua Atada.',
+      ),
+      L(
+        "Betrayal pacts: if you carry Aeris's blessings, Nix offers to break them for something bigger.",
+        'Pactos de traición: si llevas bendiciones de Aeris, Nix ofrece romperlas a cambio de algo mayor.',
+      ),
+      L(
+        'Aeris has five new blessings: Plenty, Ember-ward, Clarity, Communion and Grace.',
+        'Aeris tiene cinco bendiciones nuevas: Abundancia, Brasa Guardiana, Claridad, Comunión y Gracia.',
+      ),
+      L(
+        "Every pact has a price with Aeris: her blessings cost Shards, then an item, and after three pacts she's gone. Shrines on the Road change with your choices.",
+        'Cada pacto tiene un precio con Aeris: sus bendiciones cuestan Fragmentos, luego un objeto, y tras tres pactos desaparece. Los Santuarios del Camino cambian con tus decisiones.',
+      ),
+      L(
+        "Something is listening to your choices. Aeris and Nix have started to notice which way you lean.",
+        'Algo escucha tus decisiones. Aeris y Nix empiezan a notar hacia dónde te inclinas.',
+      ),
+      L(
+        'Three new arcane dice: Bullion pays your Mult in Shards, Masquerade and Chameleon copy their neighbors.',
+        'Tres dados arcanos nuevos: Lingote paga tu Multiplicador en Fragmentos, Mascarada y Camaleón copian a sus vecinos.',
+      ),
+      L(
+        'Balance: Aether costs more, Gilded, Mirror, Beacon and Prism are easier to find, Upgrade Stones are rarer, Conduit doubles its bridge, and Chrono never stays on a 1.',
+        'Balance: el Éter cuesta más, Dorado, Espejo, Faro y Prisma son más fáciles de encontrar, las Piedras de Mejora son más raras, el Conducto duplica su puente y Crono nunca se queda en 1.',
+      ),
+      L(
+        'A new run screen: browse loadouts one at a time and pick your stakes, like choosing a deck.',
+        'Una nueva pantalla de partida: recorre los equipos uno a uno y elige tu dificultad, como quien elige un mazo.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.4',
     name: L('The Road', 'El Camino'),
     date: null,
@@ -71,6 +113,7 @@ export const PATCH_NOTES = [
     ],
   },
   {
+    stage: 'Alpha',
     version: '0.3',
     name: L('Beta feedback', 'Comentarios de la beta'),
     date: '2026-09-28',
@@ -98,6 +141,7 @@ export const PATCH_NOTES = [
     ],
   },
   {
+    stage: 'Alpha',
     version: '0.2',
     name: L('Juice and depth', 'Jugo y profundidad'),
     date: '2026-09-28',
@@ -124,6 +168,7 @@ export const PATCH_NOTES = [
     ],
   },
   {
+    stage: 'Alpha',
     version: '0.1',
     name: L('MVP', 'Primera versión'),
     date: '2026-09-27',

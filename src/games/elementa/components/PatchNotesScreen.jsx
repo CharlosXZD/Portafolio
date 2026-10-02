@@ -11,7 +11,7 @@ function VersionHeader({ note }) {
   return (
     <span className="flex flex-1 items-baseline justify-between gap-3 text-left">
       <span className="pixel-heading text-[10px] leading-relaxed text-[var(--gold-hi)]">
-        v{note.version} <span className="text-[var(--text)]">{note.name[lang]}</span>
+        {note.stage} v{note.version} <span className="text-[var(--text)]">{note.name[lang]}</span>
       </span>
       <span className="shrink-0 text-sm text-[var(--text-mute)]">{note.date ?? t('elementa.patchNotes.inDevelopment')}</span>
     </span>
