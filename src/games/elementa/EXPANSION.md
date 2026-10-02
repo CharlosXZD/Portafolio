@@ -8,6 +8,8 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 **Only build items marked `Status: Ready`**, and only within the roadmap phase Carlos tells you to execute (Part C). Items marked `Agreed` have a settled concept but unfinished details. Items marked `Proposed` or `Open` are still being designed. Build neither; if a Ready item depends on one of them, stop at the boundary and say so.
 
+**About "Claude's spec":** some Ready items contain details marked *Claude's spec* or *default*. Carlos approved building them as written so work isn't blocked; build them exactly as specified. List every such default in your end-of-phase report so Carlos can tune them after playtesting.
+
 **Never build from `IDEAS.md`** (Carlos's inbox of loose ideas). Never treat `CONTENT.md` as a plan: it describes only the current game.
 
 **Read first, in this order:**
@@ -124,7 +126,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B1. The three paths
 
-**Status: Agreed** (Carlos, 2026-10-02); details marked Proposed or Open below
+**Status: Ready** (v0.6). Carlos agreed the design on 2026-10-02; Claude's specs fill the remaining details.
 
 **Agreed (Carlos):** a run's choices sort the player into one of three paths. The path changes the final battle and what it unlocks.
 - **Neutral:** the player sided neither with the Primordial nor against it.
@@ -142,28 +144,62 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 - Near zero, or no strong lean, means Neutral.
 - The meter is never shown as a number. It's hinted through Aeris, Nix and Pip's dialog, the Primordial's lines during the final fight, and the arena's tint.
-- **Open:** the exact weights and thresholds, to be tuned with playtests.
+- **Accord meter, starting weights (Claude's spec, tune after playtests).** The meter starts each run at 0 and is stored in run state.
+
+| Toward the Primordial | | Toward the Split | |
+|---|---|---|---|
+| Each fusion forged | +1 | Each Aeris blessing | -2 |
+| Each Nix pact | +2 | Holding a god die at round 15 | -3 |
+| Each betrayal pact | +4 | | |
+
+  - **When round 15 begins:** add +1 for each fusion or Aether die held, and -1 for each pure die held. Prism counts as a fusion.
+  - **Thresholds:** +6 or more is the Primordial path, -6 or less is the Split path, anything in between is Neutral.
+  - **Path gating (B2):** before the paths are unlocked, the run is always Neutral.
+- **Hints, never a number:**
+  - Aeris and Nix lines react to a strong lean (|meter| of 4 or more).
+  - Pip says one line at round 14 hinting at the coming path.
+  - The round-15 arena tints toward red for the Primordial path, toward blue-white for the Split path, and stays neutral for Neutral.
 - **Decided (Carlos):** the path is locked in the moment you walk into round 15.
 
 **Agreed (Carlos): the final battle per path:**
 - **Neutral:** today's Primordial fight (shifting twist). Ending: "The Circle Holds".
-- **Split:** the Primordial at full strength, fighting to take your dice back. A new boss variant, for example it fuses two of your pure dice each reroll (exact twist Proposed). Ending: the Split holds forever.
+- **Split:** the Primordial at full strength, fighting to take your dice back. Ending: the Split holds forever.
+  - **Claude's spec, "Primordial Unbound":** after every reroll, it fuses two neighboring pure dice of different elements into their double fusion for the rest of the round (the round only, your pool goes back afterwards). It keeps its shifting twist too.
+  - **Target:** 1.5x the normal round-15 target.
 - **Primordial:** the Primordial doesn't fight you. You fight the four gods who made the Split. Ending: the Primordial made whole.
 
-**The Primordial path's battle.** Carlos asked: one god at a time, or all four at once? Claude's proposal (Open):
+**The Primordial path's battle (Agreed, Carlos 2026-10-02: a gauntlet).**
 - **One by one, as a gauntlet inside round 15:** four stages, one god each, each with its own twist and target. No shop between stages, and lives still count.
 - **Why not all four at once:** four twists stacked would feel random rather than hard.
 - **Why the gauntlet:** it tells the story of reuniting the Primordial as you play it.
+- **Claude's spec for the stages:**
+  - **Order:** Gaea, Ognen, Varuna, Zephyr.
+  - **Targets:** 0.7x, 0.9x, 1.1x and 1.4x the normal round-15 target.
+  - **Each stage is a fresh roll with full rerolls.** A miss costs a life and retries that stage, with no safety camp mid-gauntlet.
+  - **Each god fights with its own drawback (B4) turned against you:**
+
+| Stage | God | Twist on your pool |
+|---|---|---|
+| 1 | **Gaea** | Your Earth-family dice score -5 (-10 on a 1) |
+| 2 | **Ognen** | Your Fire-family dice fizzle on 1, 2 and 3 |
+| 3 | **Varuna** | If any die rolls a 1, every die becomes a 1 (held and locked too) |
+| 4 | **Zephyr** | Your Fire-family dice explode 50% less often, and sets need one more matching die |
+
+  - **The boss banner** shows the current god (`BossAvatar` placeholders, one color each) and "Stage N of 4". Each god has its own music theme (`boss_gaea`, `boss_ognen`, `boss_varuna`, `boss_zephyr`).
 
 **The Primordial die (Agreed, Carlos):** a die like Aether but more powerful, in the spirit of Entropy, that you have for this battle.
-- **Proposed:** the Primordial lends it to you when you walk into round 15 on its path. It starts with every Aether mechanic, and each god you beat adds that god's power to it (Gaea's, then Ognen's, and so on). After the fourth god falls, the die is whole: the ending.
-- **Open:** whether it stays in your collection afterwards (Gallery entry, or available in later runs).
+- **Agreed (Carlos):** it gets stronger with each god defeated.
+- **Claude's spec:**
+  - The Primordial lends it to you when you walk into round 15 on its path. It joins your pool as an extra die (ignoring the dice cap), as a d20, and leaves when the run ends.
+  - It starts with every Aether mechanic. Each god you beat adds that god's ability (B4) to it, without the drawback: after Gaea it also scores every other Earth-family die's face, and so on.
+  - After the fourth god falls, the die is whole: the ending.
+  - It gets a Gallery entry when first used, and is never sold or kept.
 
 **Proposed: where Mythic dice come from:** the Split path (order) leads to Light, Time and Space; the Primordial path leads to Chaos and Darkness.
 
 ## B2. Endings and unlock structure (TBOI style)
 
-**Status: Agreed** (Carlos: "it depends on what ending you have and what you have accomplished", like TBOI's Mom unlocking more); details Proposed
+**Status: Ready** (v0.6; the Firmament door itself is v0.7). Carlos: "it depends on what ending you have and what you have accomplished", like TBOI's Mom unlocking more.
 
 **Proposed progression:**
 1. **First win (any path):** ends the run. Unlocks the Aether recipe (B6). The Primordial starts speaking in later fights, so the player learns there's more.
@@ -178,10 +214,12 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
    Proposed: earlier endings are partial or bittersweet, and their ending cards hint that something is still missing, so the true ending feels earned.
 
-**Path unlock order (Open, Carlos to confirm):**
-- **(A)** A Neutral win gives the god recipes, which open both the Split and the Primordial paths.
-- **(B) Claude's recommendation, a chain:** a Neutral win opens the Split path. Winning the Split path makes the gods reveal themselves and grants their recipes. Having the recipes opens the Primordial path.
-- Either way, **the Primordial path is impossible without the god recipes** (Carlos).
+**Path unlock order (Decided, Carlos 2026-10-02: option A):**
+- Beating the Primordial on the Neutral path ends with **visions of the four gods**: a short ending-card sequence where each god appears in turn.
+- The visions grant all four god recipes (stored in `profile.recipes`, like Aether's), which opens both the Split and the Primordial paths for future runs.
+- **The Primordial path is impossible without the god recipes** (Carlos).
+- **For v0.6:** the Split and Primordial endings end the run with their own ending cards. The Crossroads door into the Firmament (step 3 above) arrives in v0.7.
+- **Ending card text:** the agent writes short bilingual drafts, clearly marked as drafts for Carlos to rewrite.
 
 **Agreed (Carlos):**
 - An **Endings** tab in the Gallery, with an ending card (pixel placeholder plus short text) per ending.
@@ -189,7 +227,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B3. Nix and Aeris: pact symmetry
 
-**Status: Agreed** (Carlos, including the numbers table, 2026-10-02); new pact list Proposed
+**Status: Ready** (v0.5). Carlos approved the numbers, the new pacts (2026-10-02), and the matching new blessings below.
 
 **Agreed (Carlos):**
 - Siding with Nix makes Aeris's blessings cost something, and makes Aeris appear less. With enough Nix pacts you are fully locked out of Aeris.
@@ -211,7 +249,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
   - Example: **Broken Vow**: lose Blessing of Wind for a legendary relic.
   - They count double toward the Primordial path.
 - **Taking blessings** pushes toward the Split path. Walking away from a Black Market without a deal raises the Shrine weight, like TBOI's angel chance.
-- **More pacts (Agreed: Nix needs more).** Proposed starters, alongside today's four (Blood Price, Nix's Loan, Soul Die, Hollow Pact):
+- **More pacts (Approved, Carlos 2026-10-02)**, alongside today's four (Blood Price, Nix's Loan, Soul Die, Hollow Pact):
 
 | Pact | Effect |
 |---|---|
@@ -221,6 +259,30 @@ A living design document between Carlos (the designer) and Claude. It collects e
 | **The Long Night** | The next boss's twist is doubled; beating it pays a legendary relic |
 | **Bound Tongue** | Remove one Fragment from the rest of the run; Aeris can never appear again this run |
 
+  For **Bound Tongue**, "remove one Fragment" means the next boss is replaced by Ermal the Unbothered.
+
+- **Betrayal pacts (Claude's spec).** Generated from the blessings you actually hold; one is offered per Black Market visit when eligible, in addition to the normal deals.
+
+| Betrayal pact | Requires | Effect |
+|---|---|---|
+| **Broken Vow** | Blessing of Wind | Lose Wind's +1 reroll; gain a random legendary relic (needs a free relic slot) |
+| **Unspoken Prayer** | An active Prophecy | Break it: the foretold boss becomes a random tier-1 boss, and +12 Shards |
+| **Stolen Breath** | Blessing of Tide pending | Cancel the +3 rerolls; your next clear pays double Shards |
+| **Severed Grace** | Any Aeris blessing this run | Permanently +1 Mult for the run; Shrines can never appear again this run |
+
+- **More blessings, the same love for Aeris (Approved, Carlos 2026-10-02: "give the same love to Nix and Aeris, maybe a pact that doubles your Shards for something").** Claude's spec, added to the Shrine pool:
+
+| Blessing | Effect |
+|---|---|
+| **Blessing of Plenty** | Your next clear pays double Shards, but the next shop's offers can't be rerolled |
+| **Blessing of Ember-ward** | Next round, no die can fizzle |
+| **Blessing of Clarity** | See two extra rows of the Road, and change your chosen next stop once |
+| **Blessing of Communion** | Next round, every reaction gives +0.5 more Mult |
+| **Blessing of Grace** | Restore all lives; Shrines skip the next two stops |
+
+- **Nix vs Aeris on Shard doubling:** Nix's Gambler's Oath is the risky version (double or nothing); Aeris's Blessing of Plenty is the safe version with a small cost.
+- **Aeris's cost per Nix pact (table above)** applies to every blessing, the new ones included.
+
 - **Across runs (Proposed):**
   - Lifetime pacts unlock Nix's inner stock (cursed legendaries).
   - Lifetime blessings unlock a no-downside blessing.
@@ -228,7 +290,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B4. God dice
 
-**Status: Agreed** (Carlos, 2026-10-02); remaining questions marked Open
+**Status: Ready** (v0.6; Carlos decided everything below on 2026-10-02)
 
 **The gods:** Gaea (Earth), Ognen (Fire), Varuna (Water), Zephyr (Air). Each is made from 4 of the same pure die.
 
@@ -236,8 +298,9 @@ A living design document between Carlos (the designer) and Claude. It collects e
 - **Hidden on the first playthrough.**
 - **Rarity:** a new **Divine** rarity between Legendary and Mythic.
 - **Forge-only:** consume 4 pure dice of one element. Never sold.
-- **One god at a time.** Holding more would be overpowered. Proposed: a rare relic could allow a second god (name idea: Pantheon).
-- **Recipes come from progress, not from mono-element wins.** Carlos: they are won by beating the Primordial on the Neutral path, and/or by beating the Split path, when the gods reveal themselves. See B2 for the unlock order (Open, A or B).
+- **One god at a time.** Holding more would be overpowered.
+  - Claude's spec: a Legendary relic **Pantheon** allows a second god. Sold only in the Aether Bazaar, after the god recipes are known.
+- **Recipes come from progress:** beating the Primordial on the Neutral path shows visions of the gods and grants all four recipes (B2, option A).
 - **Story role:** the enemies of the Primordial path's final battle (B1).
 
 **Proposed reveal:** after the first win, the Primordial's dying words mention "the four who broke me."
@@ -246,10 +309,17 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 | God | Ability | Drawback |
 |---|---|---|
-| **Gaea** | Also scores the face of every other Earth-family die; Earth dice are set wildcards | Other dice score -5 (-10 if their face is a 1). Open: does this hit the other elements' pure dice, or every non-Earth die? |
-| **Ognen** | Explodes on any face (not just the max) | Fizzles on 1, 2 and 3. If any Water-family die is in the pool, explosions are 50% rarer. Open: Ognen chains on every face 4 and up, so it needs a chain cap. Keep the usual 10? |
-| **Varuna** | Any die can lock for free, and those locks still refund a reroll. Every die showing a 1 takes Varuna's face instead | If Varuna itself rolls a 1, every die (held and locked too) becomes a 1. Open: set to 1 (Claude's reading) or rerolled? |
+| **Gaea** | Also scores the face of every other Earth-family die; Earth dice are set wildcards | Earth-family dice score -5 (-10 if their face is a 1) (Carlos: "it just hits earth die"). Gaea draws her power from her own family |
+| **Ognen** | Explodes on any face of 4 or more, not just the max | Fizzles on 1, 2 and 3. If any Water-family die is in the pool, explosions are 50% rarer. Chain cap of 10 explosions per roll (decided) |
+| **Varuna** | Any die can lock for free, and those locks still refund a reroll. Every die showing a 1 takes Varuna's face instead | If Varuna itself rolls a 1, every die (held and locked too) is set to 1 (decided: set, not rerolled) |
 | **Zephyr** | Sets go up one tier (a pair counts as a three, a three as a straight); Zephyr's face is a wildcard | Fire-family dice explode 50% less often |
+
+**New relic: Chain Break (Decided, Carlos 2026-10-02; rarity is Claude's spec).**
+- **Rarity:** Epic, Fire family.
+- **Effect:**
+  - Normal Fire-family dice explode more often: on their top two faces instead of only the max.
+  - Removes Ognen's chain cap.
+- Ships with the gods (v0.6), and appears only after the god recipes are known.
 
 ## B5. Mythic dice and the mythical realm
 
@@ -318,7 +388,7 @@ Ranked by how much new depth each adds:
 
 **Status: Decided** (Carlos, 2026-09-30), **not shipped yet**. Carlos: "I don't want to ship the ideas yet, move them to the expansion." They moved here from CONTENT.md, which again describes only the current game.
 
-**Timing (Agreed, 2026-10-02):**
+**Status for the v0.5 part: Ready.** **Timing (Agreed, 2026-10-02):**
 - The balance changes, Bullion, Masquerade and Chameleon ship in **v0.5**.
 - Chrono's move ships with the Firmament (**v0.7**).
 - The number dice ship with realm 3 (**v0.8**).
@@ -420,8 +490,8 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | Version | Name | Contents |
 |---|---|---|
 | **v0.4** | The Road | Already built, not yet released or committed: the Road map, shop types, keepers, music themes, playtest pass (Part D). Add B6 (Aether recipe), B7 (credits), the E1 to E10 playtest polish, and E12 (in-game patch notes), all Ready. E11 moves to v0.5. The version tag becomes "v0.4 alpha" through E12. Then bump the in-game version tag (`ElementaGame.jsx`, currently "v0.3 alpha"). |
-| **v0.5** | Allegiance | E11 (new-run screen). B10 balance changes plus Bullion, Masquerade and Chameleon. B3: pact symmetry, Aeris costs and lockout, betrayal pacts, new Nix/Aeris dialog. The hidden Accord meter from B1 starts recording, with dialog hints, but no new endings yet. |
-| **v0.6** | Three Paths | B1 final-battle variants, B2 ending cards and Endings tab, completion marks. B4 god dice (enemies in the Primordial path fight, plus mono-element recipe unlocks). |
+| **v0.5** | Allegiance | **Ready.** E11 (new-run screen). B10 balance changes plus Bullion, Masquerade and Chameleon. B3 (pacts, betrayal pacts, new blessings), plus the B1 Accord meter recording with its dialog hints (paths not yet active). New Nix and Aeris dialog for the pact costs and lockout. No new endings yet. |
+| **v0.6** | Three Paths | **Ready.** B1 (Accord meter goes live, the three final battles, the gauntlet, the Primordial die), B2 (path unlock via god visions, ending cards, Endings tab, completion marks), B4 (gods, Divine rarity, Pantheon, Chain Break). |
 | **v0.7** | The Firmament | B5: path doors, the Firmament continuation, Wardens, Mythic dice, the d100 growth path. A4: Firmament keepers and returning characters. B9: the first new item kinds (Constellations and Runes). |
 | **v0.8** | Rewriting reality | A3: realm 3 (Empyrean and Pleroma), formula-rewriting bosses, B10 number dice, editable die faces, Laws. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; B10 if not shipped earlier (Carlos decides when). B11 dice without numbers could land in v0.7 (poker, Joker) and v0.8 (sigils). |
@@ -656,7 +726,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E11. New-run screen: animated loadout carousel and difficulty picker
 
-**Status: Agreed** (design accepted by Carlos; ships in **v0.5**, not v0.4)
+**Status: Ready** (v0.5)
 
 - **Note (Carlos):** the play screen could be animated. Instead of squares, scroll through the loadouts, show the dice in "3D" with a stylized name, and make the difficulty more appealing, without showing every option at once, like Balatro or TBOI.
 - **Proposal:** rebuild `components/TitleScreen.jsx`.
@@ -750,3 +820,10 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
   - Gods: Divine rarity, forge-only, one at a time (an item may allow more), recipes from a Neutral or Split win, the Primordial path requires the recipes; Carlos's ability and drawback versions recorded (B4).
   - Endings tab and completion marks agreed (B2).
   - Carlos's answers to points 11 to 20 still to come.
+- **2026-10-02 (later):**
+  - Gods are fought one by one in a gauntlet, and the Primordial die gets stronger with each god defeated: agreed (B1).
+  - Unlock order: option A, a Neutral win shows visions of the gods and grants their recipes, opening both paths (B2).
+  - Ognen chain cap 10; new relic Chain Break (Fire explodes more, removes Ognen's cap) (B4).
+  - Gaea's drawback hits Earth dice; Varuna's 1 sets every die to 1 (B4).
+  - Nix's new pacts approved; Aeris gets the same love, with new blessings, including a safe Shard doubler (B3).
+  - Claude's specs filled the remaining gaps (Accord weights, Split boss twist, gauntlet stages, betrayal pacts, new blessings, Pantheon) so v0.5 and v0.6 are Ready. Carlos can tune them after playtesting.
