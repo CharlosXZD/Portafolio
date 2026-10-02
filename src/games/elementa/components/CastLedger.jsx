@@ -4,6 +4,7 @@ import { relicById } from '../data/relics.js'
 import { reactionById } from '../data/reactions.js'
 import { localize, RELICS_ES, localizeReaction } from '../data/i18n.js'
 import { overkillShards } from '../engine/scoring.js'
+import { dealById } from '../data/shops.js'
 
 const SET_TIER_LABEL = {
   en: { pair: 'Pair', three: 'Three of a kind', straight: 'Straight' },
@@ -25,6 +26,7 @@ export function useLineLabel(discovered) {
       if (r.secret && discovered && !discovered.has(r.id)) return '???'
       return localizeReaction(r, lang).name
     }
+    if (line.kind === 'boon') return dealById(line.id)?.name[lang] ?? '?'
     if (line.kind === 'relic') {
       const relic = relicById(line.id)
       return relic ? localize(lang, relic.name, RELICS_ES, relic.id, 'name') : t('elementa.cast.boss')

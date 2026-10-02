@@ -126,7 +126,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B1. The three paths
 
-**Status: Ready** (v0.6). Carlos agreed the design on 2026-10-02; Claude's specs fill the remaining details.
+**Status: Ready** (v0.6). Carlos agreed the design on 2026-10-02; Claude's specs fill the remaining details. **v0.5 part Built:** the Accord records its weights and Aeris and Nix react to a strong lean.
 
 **Agreed (Carlos):** a run's choices sort the player into one of three paths. The path changes the final battle and what it unlocks.
 - **Neutral:** the player sided neither with the Primordial nor against it.
@@ -227,7 +227,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B3. Nix and Aeris: pact symmetry
 
-**Status: Ready** (v0.5). Carlos approved the numbers, the new pacts (2026-10-02), and the matching new blessings below.
+**Status: Built** (v0.5). Carlos's answers (2026-10-02): Aeris costs 4 + half the round in Shards at one pact and your cheapest item at two; Shrine odds change by converting stops ahead; The Long Night adds a second twist. Carlos approved the numbers, the new pacts (2026-10-02), and the matching new blessings below.
 
 **Agreed (Carlos):**
 - Siding with Nix makes Aeris's blessings cost something, and makes Aeris appear less. With enough Nix pacts you are fully locked out of Aeris.

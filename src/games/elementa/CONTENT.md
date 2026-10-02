@@ -348,16 +348,41 @@ Ermal the Unbothered is named after beta tester Ermal and has a sleepy portrait.
 - **Nix's Loan**: Get {shards} Shards now. The next target is 50% higher.
 - **Soul Die**: Take a random triple fusion die. Costs 1 max life.
 - **Hollow Pact**: +2 rerolls every round. Lose 1 relic slot for the run.
+- **Gambler's Oath**: Your next clear pays double Shards, or nothing (a seeded coin flip at that clear).
+- **Hollow Crown**: +1 relic slot, but your relics sell for 0 for the rest of the run.
+- **Shadow Twin**: Clone your best die (biggest, then rarest). The clone fizzles on 1 and 2. Needs a free dice slot.
+- **The Long Night**: The next boss brings a second random twist of its tier (tier 2 for Primordial). Beating it pays a random legendary relic (15 Shards if none fits).
+- **Bound Tongue**: The next lesser boss becomes Ermal the Unbothered (never Primordial; unavailable if the next boss is Primordial). Aeris never appears again this run.
 
-**Shrine blessings** (3 of these 5 offered, take one, or take the Prophecy instead):
+**Betrayal pacts** (one extra offer per Black Market visit, only when you hold the blessing it breaks; still one deal per visit). Each counts as a Nix pact:
+- **Broken Vow** (needs Blessing of Wind): lose Wind's +1 reroll, take a random legendary relic (needs a relic slot).
+- **Unspoken Prayer** (needs an active Prophecy): the foretold boss becomes a random tier-1 boss (no longer shown), +12 Shards.
+- **Stolen Breath** (needs Blessing of Tide still pending): cancel the +3 rerolls; your next clear pays double Shards.
+- **Severed Grace** (needs any Aeris blessing this run): +1 Mult for the rest of the run; Shrines never appear again.
+
+**Aeris's price** (every blessing and the Prophecy), by Nix pacts this run:
+- 0: free.
+- 1: 4 + half the round number in Shards. Every second Shrine still ahead on the Road becomes a Black Market. Aeris: "Something is strange about you."
+- 2: your cheapest consumable, or your lowest-rarity relic if you have no consumables (shown before you accept). Aeris: "You carry a shadow. I can still help, for a price."
+- 3 or more (or Bound Tongue, or Severed Grace): every Shrine ahead becomes a Black Market; Aeris no longer appears.
+- Leaving a Black Market without a deal turns one Market at least two rows ahead into a Shrine (seeded; not once Aeris is gone).
+
+**Shrine blessings** (3 of these 10 offered, take one, or take the Prophecy instead):
 - **Blessing of Stone** (Earth): Restore 1 life. If you are full, +8 Shards.
 - **Blessing of Flame** (Fire): A random die grows one size.
 - **Blessing of Tide** (Water): +3 rerolls next round.
 - **Blessing of Wind** (Air): +1 reroll every round for the rest of the run.
 - **Blessing of Aether** (Aether): A free rare consumable (needs a free slot).
+- **Blessing of Plenty**: Your next clear pays double Shards, but the next shop's offers can't be rerolled.
+- **Blessing of Ember-ward**: Next round, no die can fizzle.
+- **Blessing of Clarity**: See two more rows of the Road, and change your chosen next stop once, even mid-round (the round HUD offers the other stops linked from your last shop).
+- **Blessing of Communion**: Next round, every reaction gives +0.5 more Mult.
+- **Blessing of Grace**: Restore all lives (only offered as takeable when you're missing one). Shrines in the next two rows of the Road become Markets.
 - **Prophecy**: Instead of a blessing, learn which boss waits at round {round}.
 
 **Boss reward:** after every boss, grow one die of your choice a size, and add +1 slot to dice, relics or consumables.
+
+**The Accord** (hidden, never shown as a number; Claude's spec weights): +1 per fusion forged, +2 per Nix pact, +4 per betrayal pact, -2 per Aeris blessing (Prophecy included). In Alpha v0.5 it only colors dialog: at 4 or more either way, Aeris and Nix comment on your lean. Nix also has lines for your betrayal offers ("She blessed you? How sweet..."), for pacts in general, and once Aeris is gone.
 
 ---
 

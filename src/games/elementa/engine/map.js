@@ -146,3 +146,23 @@ export function nextChoices(map) {
 
 export const MAP_BLOCK = BLOCK
 export const MAP_COLS = COLS
+
+/**
+ * Rewrites shop types on the Road ahead (every layer after `afterRound`),
+ * in Road order (by round, then column). `fn(node, index)` returns the new
+ * type, or null to leave the node alone; `index` counts the nodes `fn` saw.
+ * Used by pacts and blessings that change how often Shrines appear (B3),
+ * since the Road is laid out in full at the start of a run.
+ */
+export function retypeAhead(map, afterRound, filter, fn) {
+  if (!map) return map
+  let index = 0
+  const layers = map.layers.map((layer) =>
+    layer.map((node) => {
+      if (node.round <= afterRound || !filter(node)) return node
+      const type = fn(node, index++)
+      return type ? { ...node, type } : node
+    }),
+  )
+  return { ...map, layers }
+}

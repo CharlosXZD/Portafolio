@@ -140,7 +140,7 @@ function secretPairMatches([x, y], a, b) {
   return (match(x, a) && match(y, b)) || (match(x, b) && match(y, a))
 }
 
-function findReactions(perDie, fx) {
+function findReactions(perDie, fx, extraMult = 0) {
   const found = []
   for (const [i, j, factor = 1] of adjacencyLinks(perDie, fx)) {
     const a = perDie[i]
@@ -172,7 +172,7 @@ function findReactions(perDie, fx) {
               : r.base === 'bothFacesDouble'
                 ? (a.value + b.value) * 2
                 : r.base
-      const mult = r.mult > 0 ? r.mult + (fx.reactionMultBonus || 0) : 0
+      const mult = r.mult > 0 ? r.mult + (fx.reactionMultBonus || 0) + extraMult : 0
       found.push({
         id,
         a: i,
@@ -184,6 +184,13 @@ function findReactions(perDie, fx) {
     }
   }
   return found
+}
+
+// A die scores 0 this roll: a fizzling die on a 1, or a Shadow Twin on its
+// low faces (B3). Blessing of Ember-ward cancels every fizzle for a round.
+function fizzles(d, ctx) {
+  if (ctx.noFizzle) return false
+  return (hasFlag(d.actingAs ?? d.elementId, FLAGS.ZERO_ON_MIN) && d.value === 1) || d.value <= (d.fizzleUpTo || 0)
 }
 
 /**
@@ -206,7 +213,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   let zeroTargets = new Set()
   if (fx.fizzleSpreadsZero) {
     perDie.forEach((d, i) => {
-      const fizzled = hasFlag(d.elementId, FLAGS.ZERO_ON_MIN) && d.value === 1
+      const fizzled = fizzles(d, ctx)
       if (fizzled) {
         const others = perDie.map((_, j) => j).filter((j) => j !== i)
         // Picked from the fizzling die's own roll id rather than a fresh
@@ -265,7 +272,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   let midasShards = 0
   let bullionDice = 0
   perDie.forEach((d, i) => {
-    const fizzled = hasFlag(d.actingAs, FLAGS.ZERO_ON_MIN) && d.value === 1
+    const fizzled = fizzles(d, ctx)
     const banned = fx.bannedElementId && d.elementId === fx.bannedElementId
     const midas = hasFlag(d.actingAs, FLAGS.MIDAS)
     const bullion = hasFlag(d.actingAs, FLAGS.BULLION)
@@ -345,7 +352,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     baseLines.push({ kind: 'relic', id: sourceOf(relics, 'explodeFlatBonus'), value: v, op: 'add' })
   }
 
-  const reactions = findReactions(perDie, fx)
+  const reactions = findReactions(perDie, fx, ctx.reactionMultBonus || 0)
   reactions.forEach((r) => {
     if (r.base > 0) {
       baseValue += r.base
@@ -392,6 +399,8 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   if (fx.multPerUnusedReroll && ctx.rerollsLeft > 0) {
     addMult({ kind: 'relic', id: sourceOf(relics, 'multPerUnusedReroll'), value: fx.multPerUnusedReroll * ctx.rerollsLeft })
   }
+  // Severed Grace (B3): +1 Mult for the rest of the run.
+  if (ctx.permanentMult) addMult({ kind: 'boon', id: 'severed_grace', value: ctx.permanentMult })
   if (fx.finalMultFactor) {
     multiplier *= fx.finalMultFactor
     multLines.push({ kind: 'relic', id: sourceOf(relics, 'finalMultFactor'), value: fx.finalMultFactor, op: 'mul' })

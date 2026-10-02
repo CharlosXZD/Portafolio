@@ -18,10 +18,14 @@ export function keeperMemory(profile, keeperId) {
 function chooseLine(keeper, mem, visits, context) {
   if (visits === 1) return { kind: 'intro' }
   if (context.justLearnedRecipe) return { kind: 'recipe' }
+  // Allegiance (B3): what a keeper must tell you now (Aeris's price, Nix's
+  // betrayal offer) comes before lore; a mood line (your lean) after it.
+  if (context.urgent && keeper.special?.[context.urgent]) return { kind: 'special', key: context.urgent }
   const nextLore = keeper.loreAt[mem.lore]
   if (nextLore != null && visits >= nextLore && mem.lore < keeper.lore.length) {
     return { kind: 'lore', index: mem.lore }
   }
+  if (context.mood && keeper.special?.[context.mood]) return { kind: 'special', key: context.mood }
   if (context.afterBoss) return { kind: 'afterBoss' }
   if (context.lowLives) return { kind: 'lowLives' }
   const tier = keeperTier(visits)
@@ -37,7 +41,9 @@ export function lineText(keeper, line, lang) {
         ? keeper.lore[line.index]
         : line.kind === 'greet'
           ? keeper.greet[line.tier][line.index]
-          : keeper[line.kind]
+          : line.kind === 'special'
+            ? keeper.special?.[line.key]
+            : keeper[line.kind]
   return pick?.[lang] ?? pick?.en ?? ''
 }
 

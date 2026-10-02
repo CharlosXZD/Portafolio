@@ -3,6 +3,8 @@ import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import AnimatedNumber from './AnimatedNumber.jsx'
 import PixelIcon from './PixelIcon.jsx'
+import { relicById } from '../data/relics.js'
+import { relicDescriptor } from '../data/itemDescriptors.js'
 import { playSuccess, playFail, playLifeLost } from '../utils/sound.js'
 
 /**
@@ -10,7 +12,7 @@ import { playSuccess, playFail, playLifeLost } from '../utils/sound.js'
  * to Tobb's camp), and a `compact` summary at the top of the shop.
  */
 export default function RoundResult({ state, dispatch, compact = false }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const r = state.lastResult
   const missed = state.phase === 'missed'
 
@@ -76,11 +78,18 @@ export default function RoundResult({ state, dispatch, compact = false }) {
               r.shardGain.overkill > 0 && `${t('elementa.roundResult.overkill')} +${r.shardGain.overkill}`,
               r.shardGain.interest > 0 && `${t('elementa.roundResult.interest')} +${r.shardGain.interest}`,
               r.shardGain.bonus > 0 && `${t('elementa.roundResult.relics')} +${r.shardGain.bonus}`,
+              // Pacts and blessings that waited on this clear (B3).
+              ...(r.shardGain.effects || []).map((e) => t(`elementa.roundResult.clear.${e}`)),
             ]
               .filter(Boolean)
               .join(' · ')}
           </span>
         </div>
+      )}
+      {r.longNightRelic && (
+        <p className="text-base text-[var(--arcane-hi)]">
+          {t('elementa.roundResult.longNight').replace('{relic}', relicDescriptor(relicById(r.longNightRelic), lang).name)}
+        </p>
       )}
       {r.secondWindTriggered && <p className="text-base text-[var(--arcane-hi)]">{t('elementa.roundResult.safetyNet')}</p>}
       {missed && (

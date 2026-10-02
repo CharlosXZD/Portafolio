@@ -13,13 +13,22 @@ const SOURCE_COLOR = { nix: '#8a5cff', aeris: '#9fd8ff' }
 const STATUS_COLOR = { active: '#5fd38a', pending: '#ffd166' }
 
 // Blessings and deals that keep working for the rest of the run.
-const PERMANENT = ['gale', 'hollow_pact']
+const PERMANENT = ['gale', 'hollow_pact', 'hollow_crown', 'shadow_twin', 'severed_grace', 'bound_tongue', 'clarity']
 // Taken in a shop, they pay off in the round right after it.
-const NEXT_ROUND = ['tide', 'loan']
+const NEXT_ROUND = ['tide', 'loan', 'ember_ward', 'communion']
+// Waiting on your next clear (B3), and which effect they left there.
+const NEXT_CLEAR = { gamble: 'gamble', plenty: 'double', stolen_breath: 'double' }
 
 /** Where a boon stands right now: 'active', 'pending' (next round), or 'spent'. */
 export function boonStatus(boon, state) {
+  // A betrayal pact broke it (B3).
+  if (boon.broken) return 'spent'
   if (PERMANENT.includes(boon.id)) return 'active'
+  if (NEXT_CLEAR[boon.id]) return (state.clearEffects || []).includes(NEXT_CLEAR[boon.id]) ? 'pending' : 'spent'
+  if (boon.id === 'long_night') {
+    if ((state.nextBossEffects || []).includes('long_night')) return 'pending'
+    return state.longNightActive ? 'active' : 'spent'
+  }
   if (NEXT_ROUND.includes(boon.id)) {
     if (state.round === boon.round) return 'pending'
     if (state.round === boon.round + 1 && state.phase !== 'shop') return 'active'

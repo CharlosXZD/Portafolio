@@ -20,8 +20,8 @@ import { difficultyById } from '../data/difficulty.js'
 import { BOSS_MODIFIERS, PRIMORDIAL, PRIMORDIAL_POOL, bossById, isBossRound } from '../data/bossModifiers.js'
 import { rollDie, rerollPool, evaluatePool, thresholdForRound, shardsEarned, interestFor } from './scoring.js'
 import { random, getRngState, setRngState, seedToState, randomSeed, cleanSeed } from './rng.js'
-import { shopTypeById, DEALS, BLESSINGS, dealById, blessingById } from '../data/shops.js'
-import { newMap, ensureLayers, nodeById, currentNode, nextChoices } from './map.js'
+import { shopTypeById, DEALS, BLESSINGS, BETRAYALS, isBetrayal } from '../data/shops.js'
+import { newMap, ensureLayers, nodeById, currentNode, nextChoices, retypeAhead } from './map.js'
 
 const STARTING_TIER = 'd6'
 const STARTING_REROLLS = 3
@@ -89,9 +89,10 @@ function relicEffects(relics) {
 function effectiveRelics(state) {
   if (!state.bossModifier) return state.relics
   // Silence seals one owned relic for the round.
-  const sealed = state.bossModifier.effects?.sealedRelicId
-  const relics = sealed ? state.relics.filter((r) => r.id !== sealed) : state.relics
-  return [...relics, state.bossModifier]
+  const twists = [state.bossModifier, state.extraTwist].filter(Boolean)
+  const sealed = twists.map((t) => t.effects?.sealedRelicId).filter(Boolean)
+  const relics = sealed.length ? state.relics.filter((r) => !sealed.includes(r.id)) : state.relics
+  return [...relics, ...twists]
 }
 
 function randomOf(list) {
@@ -117,8 +118,13 @@ function pickBossModifier(state, round) {
     if (m.id === 'silence' && !(state.relics?.length > 0)) return false
     return true
   })
-  const template = randomOf(pool)
+  return instantiateBoss(state, randomOf(pool))
+}
+
+// Fills in a boss's per-run target (Null Zone's element, Silence's relic).
+function instantiateBoss(state, template) {
   if (template.id === 'null_zone') {
+    const ownedIds = [...new Set(state.dice.map((d) => d.elementId))]
     return { ...template, effects: { ...template.effects, bannedElementId: randomOf(ownedIds) } }
   }
   if (template.id === 'silence') {
@@ -127,7 +133,29 @@ function pickBossModifier(state, round) {
   return template
 }
 
-// Round-start boss effects that change the dice themselves.
+// The Long Night (B3): a second twist of the same tier (tier 2 for
+// Primordial), never the boss's own twist, never Ermal.
+function secondTwist(state, boss) {
+  const tier = Math.min(boss.tier, 2)
+  const ownedIds = new Set(state.dice.map((d) => d.elementId))
+  const pool = BOSS_MODIFIERS.filter(
+    (m) =>
+      m.tier === tier &&
+      m.id !== 'ermal' &&
+      m.id !== boss.id &&
+      m.id !== boss.twistId &&
+      !(m.id === 'null_zone' && ownedIds.size < 2) &&
+      !(m.id === 'silence' && !state.relics.length),
+  )
+  return pool.length ? instantiateBoss(state, randomOf(pool)) : null
+}
+
+// Round-start boss effects that change the dice themselves (for the boss
+// and, with The Long Night, its second twist).
+function applyTwistsRoundStart(dice, boss, extra) {
+  return applyBossRoundStart(applyBossRoundStart(dice, boss), extra)
+}
+
 function applyBossRoundStart(dice, boss) {
   if (!boss?.effects?.frostbite || dice.length === 0) return dice
   const target = randomOf(dice)
@@ -165,7 +193,15 @@ function freshRoundCounters(dice) {
 
 // What scoring needs to know beyond the dice and relics.
 function scoreContext(state) {
-  return { rerollsLeft: availableRerolls(state), explosionsThisRound: state.explosionsThisRound || 0 }
+  const buffs = state.roundBuffs || {}
+  return {
+    rerollsLeft: availableRerolls(state),
+    explosionsThisRound: state.explosionsThisRound || 0,
+    // Severed Grace, Blessing of Communion and Blessing of Ember-ward (B3).
+    permanentMult: state.permanentMult || 0,
+    reactionMultBonus: buffs.communion ? 0.5 : 0,
+    noFizzle: Boolean(buffs.noFizzle),
+  }
 }
 
 function rollFreshRound(dice, relics) {
@@ -222,6 +258,11 @@ function relicCost(relic, relics, shop) {
 
 function consumableCost(def, relics, shop) {
   return applyDiscount(costForConsumable(def), relics, shopCut(shop, 'consumable'))
+}
+
+// Hollow Crown (B3): relics sell for nothing for the rest of the run.
+function relicSellValue(state, relic, fx = relicEffects(state.relics)) {
+  return state.relicsSellZero ? 0 : sellValueForRelic(relic) + (fx.sellBonus || 0)
 }
 
 function rerollShopOffersCost(state) {
@@ -353,6 +394,10 @@ function rollDeal(state, id) {
   }
   if (id === 'soul_die') return { id, elementId: randomOf(TRIPLE_FUSION_IDS) }
   if (id === 'loan') return { id, shards: 10 + state.round * 2 }
+  if (id === 'broken_vow') {
+    const relic = rollDeal(state, 'blood_relic')
+    return relic?.relicId && relicById(relic.relicId).rarity === RARITY.LEGENDARY ? { id, relicId: relic.relicId } : null
+  }
   return { id }
 }
 
@@ -370,12 +415,16 @@ function buildShopOffers(state, typeId = 'market') {
         .filter(Boolean)
     : []
   const blessings = type.blessings ? weightedSample(BLESSINGS, type.blessings, () => 1).map((b) => b.id) : []
+  // A Black Market also offers one betrayal pact when you qualify (B3).
+  const eligible = type.id === 'blackmarket' ? BETRAYALS.filter((b) => betrayalEligible(state, b.id)) : []
+  const betrayal = eligible.length ? rollDeal(state, randomOf(eligible).id) : null
   return {
     type: type.id,
     ...stock,
     rerollShopUses: 0,
     forgeOpen: Boolean(type.forge),
     deals,
+    betrayal,
     dealTaken: false,
     blessings,
     blessingTaken: false,
@@ -474,6 +523,31 @@ function baseTitleState() {
     driftUsed: false,
     gustUsed: false,
     explosionsThisRound: 0,
+    // The Accord (B1): a hidden lean, + toward the Primordial, - toward
+    // the Split. Never shown as a number.
+    accord: 0,
+    // Allegiance (B3): Nix pacts taken (betrayals included), and whether
+    // Aeris is gone for the rest of the run (Bound Tongue, Severed Grace).
+    nixPacts: 0,
+    aerisBanned: false,
+    // Pacts and blessings waiting on the next clear: 'double' or 'gamble'.
+    clearEffects: [],
+    // Blessing of Plenty: the next shop's offers can't be rerolled.
+    plentyLock: false,
+    // Next-round blessings (Ember-ward, Communion), active for one round.
+    nextRoundBuffs: {},
+    roundBuffs: {},
+    // Blessing of Clarity: extra rows of the Road, and stop changes left.
+    roadSight: 0,
+    reroutes: 0,
+    // Hollow Crown: relics sell for 0. Severed Grace: permanent Mult.
+    relicsSellZero: false,
+    permanentMult: 0,
+    // Pacts that change the next boss: 'long_night', 'bound_tongue'.
+    nextBossEffects: [],
+    // The Long Night's second twist for the current boss round, and its prize.
+    extraTwist: null,
+    longNightActive: false,
   }
 }
 
@@ -519,16 +593,33 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', re
 function enterRound(state, round) {
   const prophecy = state.map?.prophecy
   const foretold = prophecy?.round === round ? revalidateBoss(state, prophecy.boss, round) : null
-  const bossModifier = isBossRound(round, state.difficulty) ? foretold ?? pickBossModifier(state, round) : null
-  const dice = applyBossRoundStart(
-    rollFreshRound(state.dice, bossModifier ? effectiveRelics({ relics: state.relics, bossModifier }) : state.relics),
-    bossModifier,
-  )
+  let bossModifier = isBossRound(round, state.difficulty) ? foretold ?? pickBossModifier(state, round) : null
+  // Pacts aimed at the next boss (B3). Bound Tongue never touches Primordial.
+  let nextBossEffects = state.nextBossEffects || []
+  let extraTwist = null
+  if (bossModifier) {
+    if (nextBossEffects.includes('bound_tongue') && round % WIN_ROUND !== 0) {
+      bossModifier = bossById('ermal')
+      nextBossEffects = nextBossEffects.filter((e) => e !== 'bound_tongue')
+    }
+    if (nextBossEffects.includes('long_night')) {
+      extraTwist = secondTwist(state, bossModifier)
+      nextBossEffects = nextBossEffects.filter((e) => e !== 'long_night')
+    }
+  }
+  const twistRelics = bossModifier ? effectiveRelics({ relics: state.relics, bossModifier, extraTwist }) : state.relics
+  const dice = applyTwistsRoundStart(rollFreshRound(state.dice, twistRelics), bossModifier, extraTwist)
   return {
     ...state,
     phase: 'rolling',
     round,
     bossModifier,
+    extraTwist,
+    longNightActive: Boolean(extraTwist),
+    nextBossEffects,
+    // Next-round blessings take effect now, for this round (and its retries).
+    roundBuffs: state.nextRoundBuffs || {},
+    nextRoundBuffs: {},
     map: prophecy?.round === round ? { ...state.map, prophecy: null } : state.map,
     chronicle: noteBoss(state.chronicle, bossModifier),
     threshold: Math.round(thresholdForRound(round, state.difficulty) * (state.nextTargetMult || 1)),
@@ -547,7 +638,7 @@ function enterRound(state, round) {
 // Try the same round again with fresh dice (after a miss, or leaving the
 // camp). A Lucky Charm or Blessing of Tide bought at camp counts here.
 function retryRound(state) {
-  const dice = applyBossRoundStart(rollFreshRound(state.dice, effectiveRelics(state)), state.bossModifier)
+  const dice = applyTwistsRoundStart(rollFreshRound(state.dice, effectiveRelics(state)), state.bossModifier, state.extraTwist)
   return {
     ...state,
     phase: 'rolling',
@@ -632,12 +723,29 @@ function dealAvailable(state, deal) {
   if (deal.id === 'blood_relic') return state.lives >= 2 && state.relics.length < relicCapFor(state)
   if (deal.id === 'soul_die') return state.maxLives >= 2 && state.dice.length < maxDiceFor(state)
   if (deal.id === 'hollow_pact') return state.relics.length < relicCapFor(state)
+  if (deal.id === 'shadow_twin') return state.dice.length < maxDiceFor(state)
+  if (deal.id === 'long_night') return Boolean(nextBossRound(state)) && !state.nextBossEffects?.includes('long_night')
+  // Bound Tongue can't replace Primordial, so it needs a lesser boss ahead.
+  if (deal.id === 'bound_tongue') {
+    const r = nextBossRound(state)
+    return Boolean(r) && r % WIN_ROUND !== 0 && !state.nextBossEffects?.includes('bound_tongue')
+  }
+  if (deal.id === 'gamble') return !state.clearEffects?.includes('gamble')
+  if (isBetrayal(deal.id)) {
+    if (deal.id === 'broken_vow' && state.relics.length >= relicCapFor(state)) return false
+    return betrayalEligible(state, deal.id)
+  }
   return true
 }
 
 function blessingAvailable(state, id) {
   if (id === 'kindle') return state.dice.some((d) => nextTier(d.tierId))
-  if (id === 'aether_gift') return state.consumables.length < consumableCapFor(state)
+  // Two Nix pacts: Aeris may take a consumable, freeing the slot it needs.
+  if (id === 'aether_gift') {
+    const freed = aerisCost(state).kind === 'consumable' ? 1 : 0
+    return state.consumables.length - freed < consumableCapFor(state)
+  }
+  if (id === 'grace') return state.lives < state.maxLives
   return true
 }
 
@@ -659,6 +767,226 @@ function legacyMap(save) {
   const map = ensureLayers(newMap(), save.round + 1)
   const node = map.layers[save.round - 1].find((n) => n.type === 'market') ?? map.layers[save.round - 1][0]
   return { ...map, currentId: node.id, path: [node.id] }
+}
+
+// --- Allegiance (EXPANSION.md B1, B3): the Accord, Nix's pacts, Aeris's
+// blessings and what each costs the other. ---
+
+// Accord weights (B1, Claude's spec): + toward the Primordial, - the Split.
+const ACCORD = { fusion: 1, pact: 2, betrayal: 4, blessing: -2 }
+
+function addAccord(state, key) {
+  return { ...state, accord: (state.accord || 0) + ACCORD[key] }
+}
+
+// The most recent unbroken boon with this id (for betrayals).
+function liveBoon(state, id) {
+  return [...(state.boons || [])].reverse().find((b) => b.id === id && !b.broken)
+}
+
+function breakBoon(state, id) {
+  const target = liveBoon(state, id)
+  return { ...state, boons: (state.boons || []).map((b) => (b === target ? { ...b, broken: true } : b)) }
+}
+
+function betrayalEligible(state, id) {
+  if (id === 'broken_vow') return Boolean(liveBoon(state, 'gale'))
+  if (id === 'unspoken_prayer') return Boolean(state.map?.prophecy && !state.map.prophecy.broken && liveBoon(state, 'prophecy'))
+  // Tide pays out next round: it's still pending in the shop it was taken in.
+  if (id === 'stolen_breath') return liveBoon(state, 'tide')?.round === state.round
+  if (id === 'severed_grace') return (state.boons || []).some((b) => b.source === 'aeris') && !state.aerisBanned
+  return false
+}
+
+/** Aeris is gone for the rest of the run: 3+ Nix pacts, or a pact that banished her. */
+function aerisGone(state) {
+  return (state.nixPacts || 0) >= 3 || Boolean(state.aerisBanned)
+}
+
+/**
+ * What Aeris asks for a blessing (B3): free with no Nix pacts; Shards with
+ * one (4 + half the round); your cheapest item with two (a consumable if
+ * you have one, else your lowest-rarity relic); nothing at all with three.
+ */
+function aerisCost(state) {
+  const pacts = state.nixPacts || 0
+  if (aerisGone(state)) return { kind: 'gone' }
+  if (pacts === 0) return { kind: 'free' }
+  if (pacts === 1) return { kind: 'shards', amount: 4 + Math.floor(state.round / 2) }
+  const byValue = (a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity)
+  const consumable = [...state.consumables].sort(byValue)[0]
+  if (consumable) return { kind: 'consumable', instanceId: consumable.instanceId, id: consumable.id }
+  const relic = [...state.relics].sort(byValue)[0]
+  if (relic) return { kind: 'relic', id: relic.id }
+  return { kind: 'none' }
+}
+
+function canPayAeris(state) {
+  const cost = aerisCost(state)
+  if (cost.kind === 'gone' || cost.kind === 'none') return false
+  if (cost.kind === 'shards') return state.shards >= cost.amount
+  return true
+}
+
+function payAeris(state) {
+  const cost = aerisCost(state)
+  if (cost.kind === 'shards') return { ...state, shards: state.shards - cost.amount }
+  if (cost.kind === 'consumable') return { ...state, consumables: state.consumables.filter((c) => c.instanceId !== cost.instanceId) }
+  if (cost.kind === 'relic') return { ...state, relics: state.relics.filter((r) => r.id !== cost.id) }
+  return state
+}
+
+// Shrines on the Road ahead (B3). The Road is laid out at the start of a
+// run, so pacts and blessings rewrite the stops still to come.
+const isShrine = (n) => n.type === 'shrine'
+
+function halveShrines(map, round) {
+  return retypeAhead(map, round, isShrine, (_, i) => (i % 2 === 1 ? 'blackmarket' : null))
+}
+
+function banShrines(map, round) {
+  return retypeAhead(map, round, isShrine, () => 'blackmarket')
+}
+
+// Blessing of Grace: no Shrine in the next two rows of the Road.
+function skipShrines(map, round) {
+  return retypeAhead(map, round, (n) => isShrine(n) && n.round <= round + 2, () => 'market')
+}
+
+// Walking away from a Black Market without a deal: one Market at least two
+// rows ahead (within this stretch of 15) becomes a Shrine.
+function inviteShrine(map, round) {
+  const end = Math.ceil((round + 1) / WIN_ROUND) * WIN_ROUND
+  const markets = map.layers.flat().filter((n) => n.type === 'market' && n.round >= round + 2 && n.round < end)
+  if (!markets.length) return map
+  const pick = randomOf(markets)
+  return retypeAhead(map, round, (n) => n.id === pick.id, () => 'shrine')
+}
+
+// After the pact count changes: halve the Shrines ahead at the first, ban
+// them at the third (or when a pact banished Aeris).
+function settleShrines(state, before) {
+  if (!state.map) return state
+  if (aerisGone(state)) return { ...state, map: banShrines(state.map, state.round) }
+  if (before === 0 && state.nixPacts >= 1) return { ...state, map: halveShrines(state.map, state.round) }
+  return state
+}
+
+// A new legendary relic for The Long Night's prize, if one is left.
+function legendaryRelicId(state) {
+  const owned = new Set(state.relics.map((r) => r.id))
+  const pool = RELICS.filter((r) => r.rarity === RARITY.LEGENDARY && !owned.has(r.id))
+  return pool.length ? randomOf(pool).id : null
+}
+
+// The die Shadow Twin copies: the biggest, then the rarest.
+function bestDie(dice) {
+  const rank = (d) => d.sides * 10 + RARITY_ORDER.indexOf(rarityForElement(d.elementId))
+  return [...dice].sort((a, b) => rank(b) - rank(a))[0]
+}
+
+function applyDeal(state, deal) {
+  if (deal.id === 'blood_relic') return { ...state, lives: state.lives - 1, relics: [...state.relics, relicById(deal.relicId)] }
+  if (deal.id === 'loan') return { ...state, shards: state.shards + deal.shards, nextTargetMult: 1.5 }
+  if (deal.id === 'soul_die') {
+    const maxLives = state.maxLives - 1
+    const ownedElementsEver = state.ownedElementsEver.includes(deal.elementId)
+      ? state.ownedElementsEver
+      : [...state.ownedElementsEver, deal.elementId]
+    return { ...state, maxLives, lives: Math.min(state.lives, maxLives), dice: [...state.dice, makeDie(deal.elementId)], ownedElementsEver }
+  }
+  if (deal.id === 'hollow_pact') {
+    return { ...state, permanentRerollBonus: state.permanentRerollBonus + 2, relicCapBonus: (state.relicCapBonus || 0) - 1 }
+  }
+  if (deal.id === 'gamble') return { ...state, clearEffects: [...(state.clearEffects || []), 'gamble'] }
+  if (deal.id === 'hollow_crown') return { ...state, relicCapBonus: (state.relicCapBonus || 0) + 1, relicsSellZero: true }
+  if (deal.id === 'shadow_twin') {
+    const best = bestDie(state.dice)
+    const twin = { ...best, id: makeId(), held: false, locked: false, lockedVia: null, fizzleUpTo: 2, rollId: random() }
+    return { ...state, dice: [...state.dice, twin], shop: { ...state.shop, twinOf: best.id } }
+  }
+  if (deal.id === 'long_night') return { ...state, nextBossEffects: [...(state.nextBossEffects || []), 'long_night'] }
+  if (deal.id === 'bound_tongue') {
+    return { ...state, aerisBanned: true, nextBossEffects: [...(state.nextBossEffects || []), 'bound_tongue'] }
+  }
+  // Betrayals: break the blessing, take the reward.
+  if (deal.id === 'broken_vow') {
+    const next = breakBoon(state, 'gale')
+    return { ...next, permanentRerollBonus: next.permanentRerollBonus - 1, relics: [...next.relics, relicById(deal.relicId)] }
+  }
+  if (deal.id === 'unspoken_prayer') {
+    const next = breakBoon(state, 'prophecy')
+    const lesser = instantiateBoss(next, randomOf(BOSS_MODIFIERS.filter((m) => m.tier === 1)))
+    return { ...next, shards: next.shards + 12, map: { ...next.map, prophecy: { ...next.map.prophecy, boss: lesser, broken: true } } }
+  }
+  if (deal.id === 'stolen_breath') {
+    const next = breakBoon(state, 'tide')
+    return {
+      ...next,
+      nextRoundRerollBonus: Math.max(0, (next.nextRoundRerollBonus || 0) - 3),
+      clearEffects: [...(next.clearEffects || []), 'double'],
+    }
+  }
+  if (deal.id === 'severed_grace') return { ...state, permanentMult: (state.permanentMult || 0) + 1, aerisBanned: true }
+  return state
+}
+
+function applyBlessing(state, id) {
+  switch (id) {
+    case 'mend':
+      return state.lives < state.maxLives ? { ...state, lives: state.lives + 1 } : { ...state, shards: state.shards + 8 }
+    case 'kindle': {
+      const growable = state.dice.filter((d) => nextTier(d.tierId))
+      const die = randomOf(growable)
+      const next = nextTier(die.tierId)
+      return {
+        ...state,
+        dice: state.dice.map((d) => (d.id === die.id ? { ...d, tierId: next.id, sides: next.sides } : d)),
+        shop: { ...state.shop, blessedDieId: die.id },
+      }
+    }
+    case 'tide':
+      return { ...state, nextRoundRerollBonus: (state.nextRoundRerollBonus || 0) + 3 }
+    case 'gale':
+      return { ...state, permanentRerollBonus: state.permanentRerollBonus + 1 }
+    case 'aether_gift': {
+      const def = randomOf(CONSUMABLES.filter((c) => c.rarity === RARITY.RARE))
+      return { ...state, consumables: giveConsumable(state, def), shop: { ...state.shop, giftId: def.id } }
+    }
+    case 'plenty':
+      return { ...state, clearEffects: [...(state.clearEffects || []), 'double'], plentyLock: true }
+    case 'ember_ward':
+      return { ...state, nextRoundBuffs: { ...(state.nextRoundBuffs || {}), noFizzle: true } }
+    case 'clarity':
+      return { ...state, roadSight: (state.roadSight || 0) + 2, reroutes: (state.reroutes || 0) + 1 }
+    case 'communion':
+      return { ...state, nextRoundBuffs: { ...(state.nextRoundBuffs || {}), communion: true } }
+    case 'grace':
+      return { ...state, lives: state.maxLives, map: skipShrines(state.map, state.round) }
+    default:
+      return state
+  }
+}
+
+/**
+ * A clear's Shards after pacts and blessings that wait on it (B3): Blessing
+ * of Plenty and Stolen Breath double them, Gambler's Oath doubles them or
+ * takes them all (a seeded coin flip). Returns the total and what happened.
+ */
+function resolveClearEffects(state, total) {
+  const notes = []
+  let shards = total
+  for (const effect of state.clearEffects || []) {
+    if (effect === 'double') {
+      shards *= 2
+      notes.push('double')
+    } else if (effect === 'gamble') {
+      const won = random() < 0.5
+      shards = won ? shards * 2 : 0
+      notes.push(won ? 'gambleWon' : 'gambleLost')
+    }
+  }
+  return { shards, notes }
 }
 
 export function initialState() {
@@ -822,7 +1150,9 @@ function reduce(state, action) {
       let kindling = 0
       dice = dice.map((d) => {
         if (!rerolled.has(d.id)) return d
-        const kindled = d.value === 1 && elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) && inFamily(d.elementId, 'fire')
+        // No fizzles under Blessing of Ember-ward, so no Kindling either.
+        const kindled =
+          !state.roundBuffs?.noFizzle && d.value === 1 && elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) && inFamily(d.elementId, 'fire')
         if (kindled) kindling += 1
         return { ...d, kindled }
       })
@@ -888,9 +1218,23 @@ function reduce(state, action) {
         const interest = interestFor(state.shards, fx.interestCapBonus || 0, fx.interestDivisor || 3)
         const base = Math.round(5 * state.difficulty.shardMultiplier)
         const bonus = (fx.shardPerExplosion || 0) * result.explodeCount + result.midasShards + result.bullionShards
-        let shards = state.shards + earned + interest + bonus
+        // Pacts and blessings waiting on this clear (B3) double or gamble it.
+        const cleared = resolveClearEffects(state, earned + interest + bonus)
+        let shards = state.shards + cleared.shards
         // Kept for the round-result card, so the player sees where Shards came from.
-        const shardGain = { base, overkill: earned - base, interest, bonus, total: earned + interest + bonus }
+        const shardGain = { base, overkill: earned - base, interest, bonus, total: cleared.shards, effects: cleared.notes }
+        // The Long Night's prize: a legendary relic (or 15 Shards if none fits).
+        let relics = state.relics
+        let longNightRelic = null
+        if (state.longNightActive) {
+          const id = relics.length < relicCapFor(state) ? legendaryRelicId(state) : null
+          if (id) {
+            relics = [...relics, relicById(id)]
+            longNightRelic = id
+          } else {
+            shards += 15
+          }
+        }
         let permanentRerollBonus = state.permanentRerollBonus
         if (fx.momentumRerollOnOverkill && result.roundScore >= state.threshold * 2) {
           permanentRerollBonus += 1
@@ -912,12 +1256,16 @@ function reduce(state, action) {
           // Beating a boss first offers a permanent upgrade, then the shop.
           phase: won ? 'victory' : beatBoss ? 'bossReward' : 'shop',
           chronicle: won ? chronicle : { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
-          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss },
+          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic },
           shards,
+          relics,
           permanentRerollBonus,
           lives,
+          clearEffects: [],
+          longNightActive: false,
+          plentyLock: false,
           bestCast: Math.max(state.bestCast || 0, result.roundScore),
-          shop: { ...buildShopOffers(state, shopType), afterBoss: beatBoss },
+          shop: { ...buildShopOffers(state, shopType), afterBoss: beatBoss, rerollLocked: Boolean(state.plentyLock) },
         }
       }
 
@@ -1013,12 +1361,15 @@ function reduce(state, action) {
       const ownedElementsEver = state.ownedElementsEver.includes(action.fusionElementId)
         ? state.ownedElementsEver
         : [...state.ownedElementsEver, action.fusionElementId]
-      return {
-        ...state,
-        shards: state.shards - cost,
-        dice: [...state.dice.filter((d) => !usedIds.has(d.id)), fusionDie],
-        ownedElementsEver,
-      }
+      return addAccord(
+        {
+          ...state,
+          shards: state.shards - cost,
+          dice: [...state.dice.filter((d) => !usedIds.has(d.id)), fusionDie],
+          ownedElementsEver,
+        },
+        'fusion',
+      )
     }
 
     case 'BUY_RELIC': {
@@ -1044,7 +1395,7 @@ function reduce(state, action) {
       const relic = state.relics.find((r) => r.id === action.relicId)
       if (!relic) return state
       const fx = relicEffects(state.relics)
-      const value = sellValueForRelic(relic) + (fx.sellBonus || 0)
+      const value = relicSellValue(state, relic, fx)
       return {
         ...state,
         shards: state.shards + value,
@@ -1211,7 +1562,7 @@ function reduce(state, action) {
     }
 
     case 'REROLL_SHOP_OFFERS': {
-      if (state.phase !== 'shop' || !shopTypeById(state.shop.type).reroll) return state
+      if (state.phase !== 'shop' || !shopTypeById(state.shop.type).reroll || state.shop.rerollLocked) return state
       const cost = rerollShopOffersCost(state)
       if (state.shards < cost) return state
       const fresh = rollShopStock(state, shopTypeById(state.shop.type))
@@ -1256,86 +1607,51 @@ function reduce(state, action) {
       }
     }
 
+    // One Nix deal per Black Market visit, the betrayal pact included.
     case 'TAKE_DEAL': {
       if (state.phase !== 'shop' || state.shop.dealTaken) return state
-      const deal = state.shop.deals?.find((d) => d.id === action.dealId)
+      const offered = [...(state.shop.deals || []), ...(state.shop.betrayal ? [state.shop.betrayal] : [])]
+      const deal = offered.find((d) => d.id === action.dealId)
       if (!deal || !dealAvailable(state, deal)) return state
-      const shop = { ...state.shop, dealTaken: deal.id }
-      state = { ...state, boons: addBoon(state, deal.id, 'nix', deal.relicId ?? deal.elementId ?? deal.shards ?? null) }
-      if (deal.id === 'blood_relic') {
-        return { ...state, lives: state.lives - 1, relics: [...state.relics, relicById(deal.relicId)], shop }
+      const betrayal = isBetrayal(deal.id)
+      const before = state.nixPacts || 0
+      let next = {
+        ...state,
+        shop: { ...state.shop, dealTaken: deal.id },
+        nixPacts: before + 1,
+        boons: addBoon(state, deal.id, 'nix', deal.relicId ?? deal.elementId ?? deal.shards ?? null),
       }
-      if (deal.id === 'loan') {
-        return { ...state, shards: state.shards + deal.shards, nextTargetMult: 1.5, shop }
-      }
-      if (deal.id === 'soul_die') {
-        const maxLives = state.maxLives - 1
-        const ownedElementsEver = state.ownedElementsEver.includes(deal.elementId)
-          ? state.ownedElementsEver
-          : [...state.ownedElementsEver, deal.elementId]
-        return {
-          ...state,
-          maxLives,
-          lives: Math.min(state.lives, maxLives),
-          dice: [...state.dice, makeDie(deal.elementId)],
-          ownedElementsEver,
-          shop,
-        }
-      }
-      if (deal.id === 'hollow_pact') {
-        return {
-          ...state,
-          permanentRerollBonus: state.permanentRerollBonus + 2,
-          relicCapBonus: (state.relicCapBonus || 0) - 1,
-          shop,
-        }
-      }
-      return state
+      next = addAccord(applyDeal(next, deal), betrayal ? 'betrayal' : 'pact')
+      return settleShrines(next, before)
     }
 
+    // Aeris's blessings (and the Prophecy), paid for as your Nix pacts
+    // demand (B3).
     case 'TAKE_BLESSING': {
       if (state.phase !== 'shop' || state.shop.blessingTaken) return state
-      const shop = { ...state.shop, blessingTaken: action.blessingId }
-      if (action.blessingId === 'prophecy') {
+      const id = action.blessingId
+      if (id !== 'prophecy' && !state.shop.blessings?.includes(id)) return state
+      if (!canPayAeris(state)) return state
+      const shop = { ...state.shop, blessingTaken: id, paid: aerisCost(state) }
+      if (id === 'prophecy') {
         const round = nextBossRound(state)
         if (!round) return state
         const boss = pickBossModifier(state, round)
-        return {
-          ...state,
-          map: { ...state.map, prophecy: { round, boss } },
-          boons: addBoon(state, 'prophecy', 'aeris', { round, bossId: boss.id }),
-          shop,
-        }
+        const paid = payAeris(state)
+        return addAccord(
+          {
+            ...paid,
+            map: { ...paid.map, prophecy: { round, boss } },
+            boons: addBoon(paid, 'prophecy', 'aeris', { round, bossId: boss.id }),
+            shop,
+          },
+          'blessing',
+        )
       }
-      if (!state.shop.blessings?.includes(action.blessingId)) return state
-      if (!blessingAvailable(state, action.blessingId)) return state
-      state = { ...state, boons: addBoon(state, action.blessingId, 'aeris') }
-      switch (action.blessingId) {
-        case 'mend':
-          return state.lives < state.maxLives
-            ? { ...state, lives: state.lives + 1, shop }
-            : { ...state, shards: state.shards + 8, shop }
-        case 'kindle': {
-          const growable = state.dice.filter((d) => nextTier(d.tierId))
-          const die = randomOf(growable)
-          const next = nextTier(die.tierId)
-          return {
-            ...state,
-            dice: state.dice.map((d) => (d.id === die.id ? { ...d, tierId: next.id, sides: next.sides } : d)),
-            shop: { ...shop, blessedDieId: die.id },
-          }
-        }
-        case 'tide':
-          return { ...state, nextRoundRerollBonus: (state.nextRoundRerollBonus || 0) + 3, shop }
-        case 'gale':
-          return { ...state, permanentRerollBonus: state.permanentRerollBonus + 1, shop }
-        case 'aether_gift': {
-          const def = randomOf(CONSUMABLES.filter((c) => c.rarity === RARITY.RARE))
-          return { ...state, consumables: giveConsumable(state, def), shop: { ...shop, giftId: def.id } }
-        }
-        default:
-          return state
-      }
+      if (!blessingAvailable(state, id)) return state
+      const paid = payAeris({ ...state, shop })
+      const blessed = applyBlessing({ ...paid, boons: addBoon(paid, id, 'aeris') }, id)
+      return addAccord(blessed, 'blessing')
     }
 
     case 'CHOOSE_BOSS_REWARD': {
@@ -1360,9 +1676,26 @@ function reduce(state, action) {
       if (round > WIN_ROUND && !state.endless) {
         return { ...withRecipe(state, QUADRA_FUSION_ID), phase: 'victory' }
       }
-      const map = travel(state.map, round)
+      let map = travel(state.map, round)
       if (!map) return state
+      // Leaving a Black Market empty-handed invites a Shrine ahead (B3);
+      // with Aeris gone, Shrines stay gone on newly laid Road too.
+      if (state.shop.type === 'blackmarket' && !state.shop.dealTaken && !aerisGone(state)) map = inviteShrine(map, state.round)
+      if (aerisGone(state)) map = banShrines(map, state.round)
       return enterRound({ ...state, map }, round)
+    }
+
+    // Blessing of Clarity: swap the stop this round leads to for another
+    // one linked from the last shop, once per charge.
+    case 'REROUTE': {
+      if ((state.phase !== 'rolling' && state.phase !== 'missed') || !(state.reroutes > 0) || !state.map) return state
+      const from = nodeById(state.map, state.map.path[state.map.path.length - 2])
+      if (!from?.next.includes(action.nodeId) || action.nodeId === state.map.currentId) return state
+      return {
+        ...state,
+        reroutes: state.reroutes - 1,
+        map: { ...state.map, currentId: action.nodeId, path: [...state.map.path.slice(0, -1), action.nodeId] },
+      }
     }
 
     // After a win: keep playing the same run, with targets still climbing.
@@ -1391,6 +1724,11 @@ function reduce(state, action) {
 export const selectors = {
   availableRerolls,
   scoreContext,
+  aerisCost,
+  canPayAeris,
+  aerisGone,
+  relicSellValue,
+  betrayalEligible,
   newDieCost,
   dieUpgradeCost,
   relicCost,

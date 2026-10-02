@@ -184,6 +184,76 @@ export const DEALS = [
     name: L('Hollow Pact', 'Pacto Hueco'),
     body: L('+2 rerolls every round. Lose 1 relic slot for the run.', '+2 relanzamientos cada ronda. Pierdes 1 espacio de reliquia en la partida.'),
   },
+  // EXPANSION.md B3: more pacts (Carlos, 2026-10-02).
+  {
+    id: 'gamble',
+    name: L("Gambler's Oath", 'Juramento del Apostador'),
+    body: L(
+      'Your next clear pays double Shards, or nothing at all. A coin decides.',
+      'Tu próxima ronda superada paga el doble de Fragmentos, o nada. Una moneda decide.',
+    ),
+  },
+  {
+    id: 'hollow_crown',
+    name: L('Hollow Crown', 'Corona Hueca'),
+    body: L('+1 relic slot, but your relics sell for 0 for the rest of the run.', '+1 espacio de reliquia, pero tus reliquias se venden por 0 el resto de la partida.'),
+  },
+  {
+    id: 'shadow_twin',
+    name: L('Shadow Twin', 'Gemelo de Sombra'),
+    body: L('Clone your best die. The clone fizzles on 1 and 2.', 'Clona tu mejor dado. El clon se apaga con 1 y 2.'),
+  },
+  {
+    id: 'long_night',
+    name: L('The Long Night', 'La Larga Noche'),
+    body: L(
+      'The next boss brings a second twist. Beat it for a legendary relic.',
+      'El próximo jefe trae un segundo giro. Si lo vences, ganas una reliquia legendaria.',
+    ),
+  },
+  {
+    id: 'bound_tongue',
+    name: L('Bound Tongue', 'Lengua Atada'),
+    body: L(
+      'The next boss is replaced by Ermal the Unbothered. Aeris can never appear again this run.',
+      'El próximo jefe es reemplazado por Ermal el Imperturbable. Aeris no podrá aparecer más en esta partida.',
+    ),
+  },
+]
+
+// Betrayal pacts (B3, Claude's spec): built from the Aeris blessings you
+// hold. One is offered per Black Market visit when you qualify. They break
+// the blessing and count double toward the Primordial.
+export const BETRAYALS = [
+  {
+    id: 'broken_vow',
+    name: L('Broken Vow', 'Voto Roto'),
+    body: L(
+      "Lose Blessing of Wind's +1 reroll. Take a legendary relic.",
+      'Pierdes el +1 relanzamiento de la Bendición de Viento. Toma una reliquia legendaria.',
+    ),
+  },
+  {
+    id: 'unspoken_prayer',
+    name: L('Unspoken Prayer', 'Plegaria Callada'),
+    body: L(
+      'Break your Prophecy: the foretold boss becomes a random lesser one, and +12 Shards.',
+      'Rompe tu Profecía: el jefe anunciado se vuelve uno menor al azar, y +12 Fragmentos.',
+    ),
+  },
+  {
+    id: 'stolen_breath',
+    name: L('Stolen Breath', 'Aliento Robado'),
+    body: L(
+      "Cancel Blessing of Tide's +3 rerolls. Your next clear pays double Shards.",
+      'Cancela los +3 relanzamientos de la Bendición de Marea. Tu próxima ronda superada paga el doble de Fragmentos.',
+    ),
+  },
+  {
+    id: 'severed_grace',
+    name: L('Severed Grace', 'Gracia Cortada'),
+    body: L('+1 Mult for the rest of the run. Shrines never appear again.', '+1 Multiplicador el resto de la partida. Los Santuarios no vuelven a aparecer.'),
+  },
 ]
 
 // --- Shrine blessings: free, pick one (or the prophecy instead). ---
@@ -218,6 +288,43 @@ export const BLESSINGS = [
     body: L('A free rare consumable (needs a free slot).', 'Un consumible raro gratis (necesita un espacio libre).'),
     element: 'aether',
   },
+  // B3: the same love for Aeris (Claude's spec).
+  {
+    id: 'plenty',
+    name: L('Blessing of Plenty', 'Bendición de Abundancia'),
+    body: L(
+      "Your next clear pays double Shards, but the next shop's offers can't be rerolled.",
+      'Tu próxima ronda superada paga el doble de Fragmentos, pero en la próxima tienda no se pueden renovar las ofertas.',
+    ),
+    element: 'midas',
+  },
+  {
+    id: 'ember_ward',
+    name: L('Blessing of Ember-ward', 'Bendición de Brasa Guardiana'),
+    body: L('Next round, no die can fizzle.', 'La próxima ronda, ningún dado puede apagarse.'),
+    element: 'fire',
+  },
+  {
+    id: 'clarity',
+    name: L('Blessing of Clarity', 'Bendición de Claridad'),
+    body: L(
+      'See two more rows of the Road, and change your chosen next stop once, even mid-round.',
+      'Ve dos filas más del Camino, y cambia tu próxima parada elegida una vez, incluso a mitad de ronda.',
+    ),
+    element: 'crystal',
+  },
+  {
+    id: 'communion',
+    name: L('Blessing of Communion', 'Bendición de Comunión'),
+    body: L('Next round, every reaction gives +0.5 more Mult.', 'La próxima ronda, cada reacción da +0.5 Multiplicador más.'),
+    element: 'prism',
+  },
+  {
+    id: 'grace',
+    name: L('Blessing of Grace', 'Bendición de Gracia'),
+    body: L('Restore all lives. Shrines skip your next two stops.', 'Recupera todas las vidas. Los Santuarios se saltan tus próximas dos paradas.'),
+    element: 'water',
+  },
 ]
 
 export const PROPHECY = {
@@ -227,8 +334,10 @@ export const PROPHECY = {
 }
 
 export function dealById(id) {
-  return DEALS.find((d) => d.id === id)
+  return DEALS.find((d) => d.id === id) ?? BETRAYALS.find((d) => d.id === id)
 }
+
+export const isBetrayal = (id) => BETRAYALS.some((b) => b.id === id)
 
 export function blessingById(id) {
   return BLESSINGS.find((b) => b.id === id)

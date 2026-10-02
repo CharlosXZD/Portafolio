@@ -10,7 +10,7 @@ import { localizeDifficulty } from '../data/i18n.js'
 import { selectors } from '../engine/gameReducer.js'
 import KeeperSprite from './KeeperSprite.jsx'
 import { shopTypeById } from '../data/shops.js'
-import { currentNode } from '../engine/map.js'
+import { currentNode, nodeById } from '../engine/map.js'
 import BoonsList from './BoonsList.jsx'
 
 export function Hearts({ lives, maxLives, size = 14 }) {
@@ -92,6 +92,11 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
   // The shop this round leads to (picked on the Road last shop).
   const node = state.map ? currentNode(state.map) : null
   const nextShop = node ? shopTypeById(node.type) : null
+  // Blessing of Clarity: the other stops linked from the last shop.
+  const rerouteTo =
+    state.reroutes > 0 && node
+      ? (nodeById(state.map, state.map.path[state.map.path.length - 2])?.next ?? []).filter((id) => id !== node.id)
+      : []
 
   return (
     <aside data-tut="hud" className="el-panel flex flex-col gap-5 p-4 lg:sticky lg:top-4 lg:self-start">
@@ -127,6 +132,30 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
               {nextShop.name[lang]}
             </span>
           </span>
+        </div>
+      )}
+
+      {/* Blessing of Clarity: swap the stop this round leads to. */}
+      {nextShop && state.reroutes > 0 && state.phase === 'rolling' && rerouteTo.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <span className="text-sm text-[var(--text-mute)]">{t('elementa.hud.rerouteHint').replace('{n}', state.reroutes)}</span>
+          <div className="flex flex-wrap gap-2">
+            {rerouteTo.map((id) => {
+                const type = shopTypeById(nodeById(state.map, id).type)
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => dispatch({ type: 'REROUTE', nodeId: id })}
+                    className="el-btn el-btn--sm"
+                    title={type.blurb[lang]}
+                  >
+                    <KeeperSprite id={type.keeper} size={16} />
+                    <span style={{ color: type.color }}>{type.name[lang]}</span>
+                  </button>
+                )
+              })}
+          </div>
         </div>
       )}
 

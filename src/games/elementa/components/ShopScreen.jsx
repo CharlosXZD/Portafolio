@@ -265,6 +265,20 @@ function ShopBanner({ label, color }) {
   )
 }
 
+// Allegiance lines (B3, B1): Aeris reacts to your Nix pacts, Nix to your
+// blessings, and both to a strong lean of the Accord (4 or more either way).
+function allegianceContext(state, keeper) {
+  const pacts = state.nixPacts || 0
+  const accord = state.accord || 0
+  const lean = accord >= 4 ? 'leanPrimordial' : accord <= -4 ? 'leanSplit' : null
+  if (keeper === 'aeris') return { urgent: pacts === 1 ? 'strange' : pacts === 2 ? 'shadow' : null, mood: lean }
+  if (keeper === 'nix') {
+    const claimed = selectors.aerisGone(state) ? 'claimed' : null
+    return { urgent: state.shop?.betrayal ? 'betrayal' : null, mood: claimed ?? lean ?? (pacts > 0 ? 'more' : null) }
+  }
+  return {}
+}
+
 /** The shop's keeper and what they say this visit (they remember you). */
 function KeeperGreeting({ state, type }) {
   const { t, lang } = useLanguage()
@@ -279,6 +293,7 @@ function KeeperGreeting({ state, type }) {
       visitKeeper(state.activeSlot, type.keeper, `${state.seed}-${state.round}-${type.id}`, {
         afterBoss: Boolean(state.shop?.afterBoss),
         lowLives: state.lives === 1,
+        ...allegianceContext(state, type.keeper),
       }),
     )
     // One greeting per shop visit.
@@ -533,7 +548,7 @@ export default function ShopScreen({ state, dispatch }) {
                 placement="right"
                 actions={[
                   {
-                    label: sellLabel(selectors.sellValueForRelic(relic)),
+                    label: sellLabel(selectors.relicSellValue(state, relic)),
                     variant: 'danger',
                     onClick: () => dispatch({ type: 'SELL_RELIC', relicId: relic.id }),
                   },
@@ -785,7 +800,7 @@ export default function ShopScreen({ state, dispatch }) {
             <RoadMap
               state={state}
               fromRound={state.round}
-              toRound={state.round + 3}
+              toRound={state.round + 3 + (state.roadSight || 0)}
               onPick={(nodeId) => {
                 playClick()
                 dispatch({ type: 'CHOOSE_PATH', nodeId })
@@ -829,7 +844,7 @@ export default function ShopScreen({ state, dispatch }) {
               playCoin()
               dispatch({ type: 'REROLL_SHOP_OFFERS' })
             }}
-            disabled={state.shards < rerollShopCost}
+            disabled={state.shards < rerollShopCost || shop.rerollLocked}
             className="el-btn el-btn--arcane w-full"
             title={`${rerollShopCost} ${shardsAbbr}`}
           >
@@ -842,10 +857,12 @@ export default function ShopScreen({ state, dispatch }) {
           </button>
         )}
         {type.reroll && (
-          <p className="-mt-3 text-center text-sm" style={{ color: state.shards < rerollShopCost ? 'var(--bad)' : 'var(--text-mute)' }}>
-            {(state.shards < rerollShopCost ? t('elementa.shop.rerollCantAfford') : t('elementa.shop.rerollCost'))
-              .replace('{n}', rerollShopCost)
-              .replace('{next}', rerollShopCost + 1)}
+          <p className="-mt-3 text-center text-sm" style={{ color: state.shards < rerollShopCost || shop.rerollLocked ? 'var(--bad)' : 'var(--text-mute)' }}>
+            {shop.rerollLocked
+              ? t('elementa.shop.rerollPlenty')
+              : (state.shards < rerollShopCost ? t('elementa.shop.rerollCantAfford') : t('elementa.shop.rerollCost'))
+                  .replace('{n}', rerollShopCost)
+                  .replace('{next}', rerollShopCost + 1)}
           </p>
         )}
       </aside>
@@ -948,13 +965,15 @@ function BrewShelf({ state, dispatch }) {
   )
 }
 
-/** Black Market (and Bazaar): risky deals, take one. */
+/** Black Market (and Bazaar): risky deals, take one. A betrayal pact
+ * (B3) joins them when you hold an Aeris blessing it can break. */
 function DealShelf({ state, dispatch }) {
   const { t, lang } = useLanguage()
   const shop = state.shop
+  const offers = [...shop.deals, ...(shop.betrayal ? [{ ...shop.betrayal, betrayal: true }] : [])]
   return (
     <OfferShelf title={t('elementa.shop.deals')} hint={t('elementa.shop.dealsHint')}>
-      {shop.deals.map((deal) => {
+      {offers.map((deal) => {
         const def = dealById(deal.id)
         let body = def.body[lang].replace('{shards}', deal.shards)
         let art = <KeeperSprite id="nix" size={40} />
@@ -968,14 +987,23 @@ function DealShelf({ state, dispatch }) {
           body = `${body} (${item.name})`
           art = <ItemIcon {...item} size={44} static />
         }
+        if (deal.betrayal) {
+          art = (
+            <span className="flex items-center gap-1">
+              <KeeperSprite id="nix" size={36} />
+              <span className="pixel-score text-[10px] text-[#ff6b7a]">x</span>
+              <KeeperSprite id="aeris" size={36} />
+            </span>
+          )
+        }
         const taken = shop.dealTaken === deal.id
         const can = !shop.dealTaken && selectors.dealAvailable(state, deal)
         return (
           <OfferCard
             key={deal.id}
-            title={def.name[lang]}
+            title={deal.betrayal ? `${t('elementa.shop.betrayal')}: ${def.name[lang]}` : def.name[lang]}
             body={body}
-            color="#8a5cff"
+            color={deal.betrayal ? '#ff6b7a' : '#8a5cff'}
             art={art}
             done={shop.dealTaken ? taken : undefined}
             disabled={!can}
@@ -997,6 +1025,21 @@ function DealShelf({ state, dispatch }) {
   )
 }
 
+/** What Aeris asks for a blessing right now (B3), as a short line. */
+function aerisPriceText(state, t, lang) {
+  const cost = selectors.aerisCost(state)
+  if (cost.kind === 'shards') return t('elementa.shop.aerisShards').replace('{n}', cost.amount)
+  if (cost.kind === 'consumable') {
+    const item = state.consumables.find((c) => c.instanceId === cost.instanceId)
+    return t('elementa.shop.aerisItem').replace('{item}', consumableDescriptor(item, lang).name)
+  }
+  if (cost.kind === 'relic') {
+    return t('elementa.shop.aerisItem').replace('{item}', relicDescriptor(relicById(cost.id), lang).name)
+  }
+  if (cost.kind === 'none') return t('elementa.shop.aerisNothing')
+  return null
+}
+
 /** Shrine: one free blessing, or a prophecy of the next boss. */
 function BlessingShelf({ state, dispatch }) {
   const { t, lang } = useLanguage()
@@ -1011,7 +1054,7 @@ function BlessingShelf({ state, dispatch }) {
         title: def.name[lang],
         body: def.body[lang],
         art: <PixelIcon name={def.element} size={32} />,
-        available: selectors.blessingAvailable(state, id),
+        available: selectors.blessingAvailable(state, id) && selectors.canPayAeris(state),
       }
     }),
     {
@@ -1019,11 +1062,17 @@ function BlessingShelf({ state, dispatch }) {
       title: PROPHECY.name[lang],
       body: PROPHECY.body[lang].replace('{round}', bossRound),
       art: <KeeperSprite id="aeris" size={40} />,
-      available: Boolean(bossRound),
+      available: Boolean(bossRound) && selectors.canPayAeris(state),
     },
   ]
+  // With Nix pacts, every blessing has a price (B3).
+  const price = shop.blessingTaken ? null : aerisPriceText(state, t, lang)
   return (
-    <OfferShelf title={t('elementa.shop.blessings')} hint={t('elementa.shop.blessingsHint')}>
+    <OfferShelf
+      title={t('elementa.shop.blessings')}
+      hint={price ? t('elementa.shop.blessingsHintPaid') : t('elementa.shop.blessingsHint')}
+      warning={price}
+    >
       {cards.map((c) => {
         const taken = shop.blessingTaken === c.id
         return (

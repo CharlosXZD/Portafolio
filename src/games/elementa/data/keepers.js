@@ -215,6 +215,18 @@ export const KEEPERS = {
       ],
     },
     afterBoss: L("A Fragment fell and you're still standing. That's worth something.", 'Cayó un Fragmento y sigues en pie. Eso vale algo.'),
+    // Allegiance (EXPANSION.md B3, B1): what Nix says about your pacts, about
+    // Aeris, and about where your run is leaning. Drafts for Carlos.
+    special: {
+      betrayal: L(
+        "She blessed you? How sweet. Let's find out how much that blessing is worth to you.",
+        '¿Ella te bendijo? Qué tierno. Veamos cuánto vale esa bendición para ti.',
+      ),
+      claimed: L("She won't come for you anymore. Only I will. Isn't that nice?", 'Ella ya no vendrá por ti. Solo yo. ¿No es bonito?'),
+      more: L('Back again. Good. The Primordial remembers everyone who helps it.', 'Otra vez aquí. Bien. El Primordial recuerda a todos los que lo ayudan.'),
+      leanPrimordial: L("You hear it too, don't you? It has been calling you home.", 'Tú también lo oyes, ¿verdad? Lleva tiempo llamándote a casa.'),
+      leanSplit: L('Still clinging to the pieces? The Split never lasts, Caster.', '¿Sigues aferrado a los pedazos? La División nunca dura, Lanzador.'),
+    },
     lowLives: L("You're low. That makes the deal sweeter. For me.", 'Te queda poco. Eso hace el trato más dulce. Para mí.'),
     loreAt: [2, 4, 7, 11],
     lore: [
@@ -257,6 +269,19 @@ export const KEEPERS = {
       ],
     },
     afterBoss: L('One Fragment sleeps again. The wind is lighter for it.', 'Un Fragmento vuelve a dormir. El viento está más ligero.'),
+    // Allegiance (B3, B1): Aeris senses your pacts with Nix, and your lean.
+    special: {
+      strange: L(
+        'Something is strange about you. My blessings will cost you Shards now.',
+        'Hay algo extraño en ti. Ahora mis bendiciones te costarán Fragmentos.',
+      ),
+      shadow: L('You carry a shadow. I can still help, for a price.', 'Llevas una sombra. Aún puedo ayudarte, a cambio de algo.'),
+      leanSplit: L('The pieces hold because of Casters like you. Thank you.', 'Los pedazos se sostienen gracias a Lanzadores como tú. Gracias.'),
+      leanPrimordial: L(
+        'Your dice hum with something very old. Be careful what you help become whole.',
+        'Tus dados zumban con algo muy antiguo. Cuidado con lo que ayudas a volver a ser uno.',
+      ),
+    },
     lowLives: L('Your breath is short. Let me lend you some of mine.', 'Te falta el aliento. Déjame prestarte un poco del mío.'),
     loreAt: [2, 4, 7, 11],
     lore: [

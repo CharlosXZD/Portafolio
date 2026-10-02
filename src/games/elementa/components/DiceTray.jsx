@@ -269,6 +269,12 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     const name = relic ? localize(lang, relic.name, RELICS_ES, relic.id, 'name') : '?'
     bossLine = lang === 'es' ? `${name} está sellada esta ronda.` : `${name} is sealed this round.`
   }
+  // The Long Night (B3): a second twist rides along this boss round.
+  if (boss && state.extraTwist) {
+    const extra = localizeBossModifier(state.extraTwist, lang)
+    bossTitle = `${bossTitle} + ${extra.name}`
+    bossLine = `${bossLine} ${extra.description}`
+  }
 
   // Bigger pools get smaller dice, but always a gap wide enough for the
   // reaction bar, and one row (wrapping broke drag-to-reorder).
