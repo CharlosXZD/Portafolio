@@ -25,6 +25,8 @@ import {
   markSeen,
   markDeckBeaten,
   markDifficultyBeaten,
+  markWin,
+  markCataclysmDice,
   learnRecipe,
   knowsRecipe,
   markEnding,
@@ -198,6 +200,9 @@ function ElementaGameInner() {
     const before = readProfile(slot)
     markDeckBeaten(slot, state.deckId)
     markDifficultyBeaten(slot, state.difficulty?.id)
+    markWin(slot, state.deckId, state.difficulty?.id)
+    // A Cataclysm win stamps every die in the final pool (P16).
+    if (state.difficulty?.id === 'cataclysm') markCataclysmDice(slot, state.dice.map((d) => d.elementId))
     // Beating Primordial hands over the Aether recipe (EXPANSION.md B6).
     if (learnRecipe(slot, 'aether')) notify([{ kind: 'recipe', id: 'aether' }])
     // A Neutral win shows the gods' visions and teaches their recipes,

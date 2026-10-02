@@ -26,6 +26,12 @@ export function emptyProfile() {
     // Endings reached on this file (B2), and per loadout (completion marks).
     endings: [],
     deckEndings: {},
+    // Wins as loadout x difficulty pairs (EXPANSION.md P16): the stake
+    // badges under each loadout. { [deckId]: [difficultyId, ...] }
+    wins: {},
+    // Every die element in the final pool of a Cataclysm win: they wear a
+    // gold sticker in the Gallery.
+    cataclysmDice: [],
   }
 }
 
@@ -46,7 +52,16 @@ function normalizeProfile(p = {}) {
     recipes: p.recipes || ((p.difficultiesBeaten || []).length > 0 ? ['aether'] : []),
     endings: p.endings || [],
     deckEndings: p.deckEndings || {},
+    wins: p.wins || winsFromLists(p.decksBeaten || [], p.difficultiesBeaten || []),
+    cataclysmDice: p.cataclysmDice || [],
   }
+}
+
+// Older files only know which loadouts and which difficulties were beaten,
+// not the pairing. Be generous: every beaten loadout counts on every beaten
+// difficulty (P16). The old lists keep driving the unlocks.
+function winsFromLists(decks, difficulties) {
+  return Object.fromEntries(decks.map((id) => [id, [...difficulties]]))
 }
 
 function readRaw(key) {

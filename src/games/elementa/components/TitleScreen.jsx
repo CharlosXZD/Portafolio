@@ -33,6 +33,37 @@ function Arrow({ dir, onClick, label, disabled = false }) {
   )
 }
 
+/**
+ * Stake badges under a loadout (EXPANSION.md P16), like Balatro's deck
+ * stickers: one flame per difficulty in its own color, lit once you have
+ * beaten this loadout on it, dim otherwise.
+ */
+function StakeBadges({ profile, deckId }) {
+  const { t, lang } = useLanguage()
+  const won = profile.wins?.[deckId] || []
+  return (
+    <span className="inline-flex items-center gap-2.5" role="list">
+      {DIFFICULTIES.map((d) => {
+        const lit = won.includes(d.id)
+        const name = localizeDifficulty(d, lang).name
+        const label = `${name}: ${t(lit ? 'elementa.title.stakeWon' : 'elementa.title.stakeNot')}`
+        return (
+          <span
+            key={d.id}
+            role="listitem"
+            title={label}
+            aria-label={label}
+            className="inline-flex"
+            style={lit ? { filter: `drop-shadow(0 0 5px ${d.color}aa)` } : { opacity: 0.35, filter: 'grayscale(1)' }}
+          >
+            <PixelIcon name="fire" size={16} color={lit ? d.color : '#8a8296'} hi={lit ? '#fff4d6' : '#c4bccf'} />
+          </span>
+        )
+      })}
+    </span>
+  )
+}
+
 /** One loadout, centered and large: its dice, its name, its tagline. */
 function LoadoutCard({ index, profile }) {
   const { t, lang } = useLanguage()
@@ -50,6 +81,8 @@ function LoadoutCard({ index, profile }) {
       <h3 className="el-logo text-2xl sm:text-3xl">{unlocked ? deck.name : '???'}</h3>
       {/* Which endings this loadout has reached (B2). */}
       {unlocked && <CompletionMarks profile={profile} deckId={deck.id} size={12} />}
+      {/* Which difficulties this loadout has beaten (P16). */}
+      {unlocked && <StakeBadges profile={profile} deckId={deck.id} />}
       <p className="min-h-[3rem] max-w-md text-lg leading-snug text-[var(--text-dim)]">
         {unlocked
           ? deck.tagline
@@ -105,7 +138,6 @@ function DifficultyCard({ index, profile }) {
   const { t, lang } = useLanguage()
   const diff = localizeDifficulty(DIFFICULTIES[index], lang)
   const unlocked = isDifficultyUnlocked(diff.id, profile)
-  const beaten = profile.difficultiesBeaten.includes(diff.id)
   const prev = index > 0 ? localizeDifficulty(DIFFICULTIES[index - 1], lang) : null
   return (
     <div className="flex items-center gap-5" style={unlocked ? undefined : { opacity: 0.45 }}>
@@ -122,7 +154,6 @@ function DifficultyCard({ index, profile }) {
         <span className="text-base leading-snug text-[var(--text-dim)]">
           {unlocked ? diff.tagline : t('elementa.title.difficultyHint').replace('{d}', prev.name)}
         </span>
-        {beaten && <span className="el-chip w-fit bg-[var(--good)] text-[var(--ink)]">{t('elementa.title.cleared')}</span>}
       </div>
     </div>
   )

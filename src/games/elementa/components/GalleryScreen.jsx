@@ -21,6 +21,7 @@ import AchievementsList from './AchievementsList.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
 import FamilyTags from './FamilyTag.jsx'
 import RichText from './RichText.jsx'
+import StarSticker from './StarSticker.jsx'
 import { DieDetails } from './DieInfo.jsx'
 import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
 import { keeperMemory } from '../utils/keepers.js'
@@ -78,7 +79,7 @@ function Detail({ entry, lang, t }) {
       </div>
     )
   }
-  const { item, extra, art } = entry
+  const { item, extra, art, sticker } = entry
   const glow = RARITY_GLOW[item.rarity] || RARITY_GLOW.common
   return (
     <div className="flex flex-col gap-4">
@@ -96,6 +97,12 @@ function Detail({ entry, lang, t }) {
       <p className="text-base leading-snug text-[var(--text)]">
         <RichText text={item.description} />
       </p>
+      {sticker && (
+        <div className="flex items-center gap-2 text-base text-[var(--gold-1)]">
+          <StarSticker size={18} />
+          {t('elementa.gallery.cataclysmSticker')}
+        </div>
+      )}
       {extra}
     </div>
   )
@@ -124,9 +131,10 @@ function Group({ title, color, note, entries, selectedKey, onSelect }) {
                 playClick()
                 onSelect(e.key)
               }}
-              className={selected ? 'outline outline-2 outline-offset-4 outline-[var(--gold-1)]' : ''}
+              className={`relative ${selected ? 'outline outline-2 outline-offset-4 outline-[var(--gold-1)]' : ''}`}
               aria-label={e.seen ? e.item.name : '???'}
             >
+              {e.sticker && e.seen && <StarSticker size={18} className="absolute -right-2 -top-2 z-10" />}
               {e.tile ??
                 (e.seen ? (
                   <ItemIcon static size={56} icon={e.item.icon} sprite={e.item.sprite} glyph={e.item.glyph} color={e.item.color} rarity={e.item.rarity} />
@@ -174,6 +182,8 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
           key: id,
           seen: seen.dice.has(id),
           families: familiesOf(id),
+          // Dice that helped beat Cataclysm wear a gold star (P16).
+          sticker: (profile.cataclysmDice || []).includes(id),
           item: { ...dieDescriptor(id, lang), rarity: rarityForElement(id) },
           extra: (
             <div className="flex flex-col gap-2">

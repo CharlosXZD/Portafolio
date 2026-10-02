@@ -44,6 +44,24 @@ export function markDifficultyBeaten(slot, difficultyId) {
   )
 }
 
+/** Records one win as a loadout x difficulty pair (P16). */
+export function markWin(slot, deckId, difficultyId) {
+  if (slot == null || !deckId || !difficultyId) return
+  updateProfile(slot, (p) => {
+    const have = p.wins[deckId] || []
+    return have.includes(difficultyId) ? p : { ...p, wins: { ...p.wins, [deckId]: [...have, difficultyId] } }
+  })
+}
+
+/** Remembers the dice that beat Cataclysm, for the Gallery sticker (P16). */
+export function markCataclysmDice(slot, elementIds) {
+  if (slot == null) return
+  updateProfile(slot, (p) => {
+    const fresh = [...new Set(elementIds)].filter((id) => !p.cataclysmDice.includes(id))
+    return fresh.length ? { ...p, cataclysmDice: [...p.cataclysmDice, ...fresh] } : p
+  })
+}
+
 export function knowsRecipe(profile, id) {
   return Boolean(profile?.recipes?.includes(id))
 }
