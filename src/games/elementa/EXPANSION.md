@@ -424,6 +424,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Tumbling dice:** dice now hop and turn when they roll. Options has "Dice roll animation: Tumble / Classic" (Reduced motion uses Classic).
 - **Element effects:** every die has its own little animation (flames, drips, wind, pebbles, sparks, frost, glints and more), so similar colors are easy to tell apart. Toggle it under Options, Display.
 - **Picking dice up:** in the shop, dragged dice lift and tilt under your cursor while the others slide aside, and dice wobble when you hover them.
+- **A real load screen:** continuing a saved run now shows the whole picture: stakes, lives, Shards, a round-by-round progress strip, your dice, relics and items (click to inspect), the Road ahead, active boons and the bosses you've beaten.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -582,7 +583,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E9. Load-save screen: use the whole screen
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note (Carlos):** the screen when you load a save is a little square in the center. It should use the whole screen, and better convey the items, dice, lives, and where in the game the player is.
 - **Proposal:** rebuild `components/RunPreview.jsx` as a full-screen layout.
