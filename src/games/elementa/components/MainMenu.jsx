@@ -6,7 +6,6 @@ import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { ELEMENTS } from '../data/elements.js'
 import OptionsScreen from './OptionsScreen.jsx'
 import PixelIcon from './PixelIcon.jsx'
-import { completion } from '../utils/profile.js'
 
 const ORBS = ['fire', 'water', 'earth', 'air']
 
@@ -36,7 +35,6 @@ export function Logo({ className = 'text-3xl sm:text-5xl md:text-7xl' }) {
 export default function MainMenu({ dispatch }) {
   const { t } = useLanguage()
   const [showOptions, setShowOptions] = useState(false)
-  const [done] = useState(() => completion().pct)
 
   function go(fn) {
     return () => {
@@ -61,10 +59,6 @@ export default function MainMenu({ dispatch }) {
       <nav className="flex w-64 flex-col gap-4">
         <button type="button" className="el-btn el-btn--gold el-btn--lg" onClick={go(() => dispatch({ type: 'GO_TO_SLOTS' }))}>
           {t('elementa.menu.play')}
-        </button>
-        <button type="button" className="el-btn" onClick={go(() => dispatch({ type: 'GO_TO_GALLERY' }))}>
-          {t('elementa.menu.gallery')}
-          <span className="el-key">{done}%</span>
         </button>
         <button type="button" className="el-btn" onClick={go(() => setShowOptions(true))}>
           {t('elementa.menu.options')}

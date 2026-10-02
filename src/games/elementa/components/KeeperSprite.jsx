@@ -1,0 +1,90 @@
+import { memo } from 'react'
+
+/**
+ * Placeholder keeper portraits (GDD §28), 14x14 like Pip: one shared face
+ * and body, with a different headpiece and palette per keeper, until
+ * Carlos draws the real ones. Keys: k outline, h headpiece, c accent,
+ * a face, b shade, w eye white, e pupil, d detail.
+ */
+const HEADS = {
+  // Wide-brim peddler hat with a feather.
+  tobb: ['.......cc.....', '....kkkckk....', '...khhhhhhk...', '.kkhhhhhhhhkk.', 'khhhhhhhhhhhhk'],
+  // Goggles pushed up on the forehead.
+  vessa: ['..............', '.....kkkk.....', '...kkhhhhkk...', '..kcckhhkcck..', '..kcckkkkcck..'],
+  // A cracked stone block.
+  curator: ['..............', '...kkkkkkkk...', '..khhhhhhhhk..', '..khhhkhhhhk..', '.khhhhhkhhhhk.'],
+  // Flame hair and a bandana.
+  brasa: ['....c..c..c...', '...cc.cc.cc...', '...khchhchhk..', '..khhhhhhhhk..', '..kddddddddk..'],
+  // A tall, crooked hood.
+  nix: ['......k.......', '.....khk......', '....khhhk.....', '...khhhhhk....', '..khhhhhhhk...'],
+  // A halo.
+  aeris: ['....cccccc....', '...c......c...', '....cccccc....', '.....kkkk.....', '...kkhhhhkk...'],
+}
+
+const MOUTHS = {
+  tobb: '..kaddddddaak.',
+  vessa: '..kaaadaaaaak.',
+  curator: '..kaddddddaak.',
+  brasa: '..kaaaddaaaak.',
+  nix: '..kaaaaaaaaak.',
+  aeris: '..kaaaddaaaak.',
+}
+
+const BODY = (mouth) => [
+  '.kkaaaaaaaakk.',
+  '..kaweaaweaak.',
+  '..kaaaaaaaaak.',
+  mouth,
+  '..kbaaaaaabk..',
+  '...kbbbbbbk...',
+  '..kcccccccck..',
+  '.kcccccccccck.',
+  '.kkkkkkkkkkkk.',
+]
+
+const PALETTES = {
+  tobb: { k: '#120c1a', h: '#8a5a34', c: '#e5533d', a: '#8fcf6a', b: '#5a9a45', w: '#ffffff', e: '#120c1a', d: '#5a3a22' },
+  vessa: { k: '#120c1a', h: '#2f7a6a', c: '#ffd166', a: '#bff0e6', b: '#7fc9ba', w: '#ffffff', e: '#1d4f5a', d: '#2f7a6a' },
+  curator: { k: '#120c1a', h: '#6b6f78', c: '#c8b6ff', a: '#a4a9b2', b: '#7c818c', w: '#ffe9a0', e: '#120c1a', d: '#4b4f58' },
+  brasa: { k: '#120c1a', h: '#5a2a1a', c: '#ff7a1a', a: '#f2a36b', b: '#c9774a', w: '#ffffff', e: '#3a1a0a', d: '#b8321f' },
+  nix: { k: '#0a0710', h: '#241a33', c: '#6a4fd6', a: '#3a3048', b: '#2a2338', w: '#ff5a8a', e: '#ff5a8a', d: '#120c1a' },
+  aeris: { k: '#120c1a', h: '#cfe3ff', c: '#ffe9a0', a: '#eef3ff', b: '#bccbe8', w: '#9fd8ff', e: '#3d6fe5', d: '#9fb0d0' },
+}
+
+function rowsFor(id) {
+  return [...HEADS[id], ...BODY(MOUTHS[id])]
+}
+
+function Sprite({ id, size }) {
+  const palette = PALETTES[id]
+  const rects = []
+  rowsFor(id).forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const fill = palette[row[x]]
+      if (fill) rects.push(<rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill={fill} />)
+    }
+  })
+  return (
+    <svg viewBox="0 0 14 14" width={size} height={size} shapeRendering="crispEdges" aria-hidden="true">
+      {rects}
+    </svg>
+  )
+}
+
+/** The Aether Bazaar's host is every keeper, side by side. */
+function KeeperSprite({ id, size = 64 }) {
+  if (id === 'conclave') {
+    const small = Math.round(size * 0.55)
+    return (
+      <span className="inline-flex items-end" style={{ gap: 2 }}>
+        {Object.keys(PALETTES).map((k) => (
+          <Sprite key={k} id={k} size={small} />
+        ))}
+      </span>
+    )
+  }
+  if (!PALETTES[id]) return null
+  return <Sprite id={id} size={size} />
+}
+
+export default memo(KeeperSprite)

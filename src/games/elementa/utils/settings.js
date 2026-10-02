@@ -10,6 +10,7 @@ const KEYS = {
   reducedMotion: 'elementa-reduced-motion',
   gameSpeed: 'elementa-game-speed',
   screenShake: 'elementa-screen-shake',
+  display: 'elementa-display',
 }
 
 function readNumber(key, fallback) {
@@ -109,4 +110,26 @@ export function getScreenShake() {
 }
 export function setScreenShake(v) {
   write(KEYS.screenShake, v)
+}
+
+// Display preferences (Options -> Display): how much information the round
+// screen shows. Stored as one JSON object so new toggles don't each need
+// their own key.
+export const DISPLAY_DEFAULTS = {
+  fontStyle: 'pixel', // 'pixel' | 'classic' | 'clean'
+  reactions: 'compact', // 'compact' | 'full' | 'off'
+  glows: true,
+  keyHints: true,
+  ledgerOpen: true,
+}
+export function getDisplay() {
+  try {
+    const raw = window.localStorage.getItem(KEYS.display)
+    return { ...DISPLAY_DEFAULTS, ...(raw ? JSON.parse(raw) : {}) }
+  } catch {
+    return { ...DISPLAY_DEFAULTS }
+  }
+}
+export function setDisplay(v) {
+  write(KEYS.display, JSON.stringify(v))
 }

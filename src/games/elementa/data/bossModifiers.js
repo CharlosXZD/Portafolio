@@ -51,6 +51,14 @@ export const BOSS_MODIFIERS = [
     effects: { noStraight: true },
   },
   {
+    // Named after beta tester Ermal. Genuinely does nothing.
+    id: 'ermal',
+    tier: 1,
+    name: 'Ermal the Unbothered',
+    description: 'Does absolutely nothing. Enjoy the break.',
+    effects: {},
+  },
+  {
     id: 'null_zone',
     tier: 2,
     name: 'Null Zone',

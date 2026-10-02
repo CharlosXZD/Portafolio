@@ -101,6 +101,7 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
       exit={{ opacity: 0, scale: 0.94, ...p.from }}
       transition={{ type: 'spring', bounce: 0.25, duration: 0.22 }}
       onClick={(e) => e.stopPropagation()}
+      data-tut-inspector=""
       className={`el-panel--dark el-panel absolute z-50 w-60 text-left ${p.box}`}
       style={{ '--edge': glow }}
     >

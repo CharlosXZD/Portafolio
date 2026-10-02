@@ -208,6 +208,17 @@ export const CONSUMABLES_ES = {
     name: 'Polvo de Éter',
     description: 'Aplícalo a un dado puro para convertirlo en una fusión doble aleatoria que contenga su elemento.',
   },
+  shard_pouch: { name: 'Bolsa de Fragmentos', description: 'Gana Fragmentos igual al doble de la ronda actual (mínimo 4).' },
+  lucky_charm: { name: 'Amuleto de la Suerte', description: '+3 relanzamientos: en esta ronda si lo usas durante una, si no en la próxima.' },
+  fusion_spark: {
+    name: 'Chispa de Fusión',
+    description: 'Abre la Forja de Fusión en esta tienda, aunque no hayas vencido a un jefe.',
+  },
+  mirror_shard: {
+    name: 'Fragmento de Espejo',
+    description: 'Aplícalo a un dado para añadir una copia exacta a tu reserva (necesita un espacio libre).',
+  },
+  loom_of_fate: { name: 'Telar del Destino', description: 'Renueva las ofertas de la tienda, gratis.' },
   arcane_seal: {
     name: 'Sello Arcano',
     description: 'Aplícalo a un dado para convertirlo en un dado Arcano raro o épico aleatorio, conservando su nivel.',
@@ -277,6 +288,7 @@ export const BOSS_MODIFIERS_ES = {
     description: 'Solo se permite 1 reroll esta ronda, sin importar cuántos tengas.',
   },
   null_zone: { name: 'Zona Nula', description: 'Uno de tus elementos no anota nada esta ronda.' },
+  ermal: { name: 'Ermal el Imperturbable', description: 'No hace absolutamente nada. Disfruta el descanso.' },
   drought: { name: 'Sequía', description: 'Ningún dado puede usar un bloqueo gratis esta ronda.' },
   tax_collector: { name: 'Recaudador', description: 'Cada reroll cuesta 1 Fragmento esta ronda.' },
   scatter: { name: 'Dispersión', description: 'Las escaleras no cuentan esta ronda. Pares y tríos sí.' },
@@ -296,6 +308,26 @@ export const REACTIONS_ES = {
   mist: { name: 'Neblina', description: 'El Agua viaja en el Aire: +0.5 Mult.' },
   bloom: { name: 'Florecer', description: 'El Agua nutre la Tierra: suma la cara mayor de los dos a la Base.' },
   dust: { name: 'Remolino', description: 'El Aire levanta la Tierra: +4 Base.' },
+  thunderhead: { name: 'Nubarrón', description: 'Relámpago junto a Vapor: se forma una tormenta. +2 Mult.' },
+  superconductor: {
+    name: 'Superconductor',
+    description: 'Relámpago junto a Hielo: corriente sin resistencia. +5 Base, +1.5 Mult.',
+  },
+  thermal_shock: {
+    name: 'Choque Térmico',
+    description: 'Hielo junto a Magma: la piedra se parte. Suma ambas caras a la Base, +1 Mult.',
+  },
+  geode: { name: 'Geoda', description: 'Lodo junto a Cristal: una geoda oculta. Suma ambas caras dos veces a la Base.' },
+  railgun: { name: 'Cañón de Riel', description: 'Acero junto a Relámpago: lanzamiento magnético. +3 Mult.' },
+  hurricane: { name: 'Huracán', description: 'Tormenta junto a Monzón: el cielo se rompe. +8 Base, +3 Mult.' },
+  caldera: {
+    name: 'Caldera',
+    description: 'Obsidiana junto a Magma: el volcán colapsa. Suma ambas caras dos veces a la Base, +1 Mult.',
+  },
+  ascension: {
+    name: 'Ascensión',
+    description: 'Éter junto a cualquier fusión: los elementos recuerdan que eran uno. +10 Base, +3 Mult.',
+  },
 }
 
 export function localizeReaction(reaction, lang) {

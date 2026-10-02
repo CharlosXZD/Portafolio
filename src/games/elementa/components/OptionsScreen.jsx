@@ -90,8 +90,18 @@ function Section({ title, children }) {
  */
 export default function OptionsScreen({ onClose }) {
   const { lang, setLang, t } = useLanguage()
-  const { crtEffect, setCrtEffect, reducedMotion, setReducedMotion, gameSpeed, setGameSpeed, screenShake, setScreenShake } =
-    useGameSettings()
+  const {
+    crtEffect,
+    setCrtEffect,
+    reducedMotion,
+    setReducedMotion,
+    gameSpeed,
+    setGameSpeed,
+    screenShake,
+    setScreenShake,
+    display,
+    updateDisplay,
+  } = useGameSettings()
 
   const [sfxVolume, setSfxVolumeState] = useState(getSfxVolume)
   const [musicVolume, setMusicVolumeState] = useState(getMusicVolume)
@@ -163,6 +173,32 @@ export default function OptionsScreen({ onClose }) {
             { value: 'instant', label: t('elementa.options.speedInstant') },
           ]}
         />
+      </Section>
+
+      <Section title={t('elementa.options.display')}>
+        <div className="text-base">{t('elementa.options.textStyle')}</div>
+        <Segmented
+          value={display.fontStyle}
+          onChange={(v) => updateDisplay({ fontStyle: v })}
+          options={[
+            { value: 'pixel', label: t('elementa.options.fontPixel') },
+            { value: 'classic', label: t('elementa.options.fontClassic') },
+            { value: 'clean', label: t('elementa.options.fontClean') },
+          ]}
+        />
+        <div className="text-base">{t('elementa.options.reactionList')}</div>
+        <Segmented
+          value={display.reactions}
+          onChange={(v) => updateDisplay({ reactions: v })}
+          options={[
+            { value: 'compact', label: t('elementa.options.reactionsCompact') },
+            { value: 'full', label: t('elementa.options.reactionsFull') },
+            { value: 'off', label: t('elementa.options.reactionsOff') },
+          ]}
+        />
+        <Toggle label={t('elementa.options.glows')} checked={display.glows} onChange={(v) => updateDisplay({ glows: v })} />
+        <Toggle label={t('elementa.options.keyHints')} checked={display.keyHints} onChange={(v) => updateDisplay({ keyHints: v })} />
+        <Toggle label={t('elementa.options.ledgerOpen')} checked={display.ledgerOpen} onChange={(v) => updateDisplay({ ledgerOpen: v })} />
       </Section>
 
       <Section title={t('elementa.backup.title')}>

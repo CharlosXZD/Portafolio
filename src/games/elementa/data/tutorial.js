@@ -5,6 +5,10 @@
 //
 // `when(state)` decides whether a group is relevant right now. Groups are
 // checked in order, so the first unseen, relevant one wins.
+//
+// A step with `waitFor(state)` is an action step: Pip asks the player to
+// do something, only the spotlighted element is clickable, and the step
+// advances by itself once `waitFor` returns true (polled).
 const distinctElements = (state) => new Set(state.dice.map((d) => d.elementId)).size
 
 export const TUTORIAL_GROUPS = [
@@ -21,16 +25,18 @@ export const TUTORIAL_GROUPS = [
       },
       {
         target: 'dice',
+        waitFor: (s) => s.dice.some((d) => d.held),
         text: {
-          en: 'These are your dice. Click one to hold it (or press 1-9). Held dice stay put when you reroll.',
-          es: 'Estos son tus dados. Haz clic en uno para guardarlo (o pulsa 1-9). Los dados guardados no se mueven al relanzar.',
+          en: 'These are your dice. Click the die you like best to HOLD it (or press its number key). Held dice glow gold and stay put.',
+          es: 'Estos son tus dados. Haz clic en el que más te guste para GUARDARLO (o pulsa su número). Los dados guardados brillan en dorado y no se mueven.',
         },
       },
       {
         target: 'reroll',
+        waitFor: (s) => s.rerollsUsed > 0 || s.phase !== 'rolling',
         text: {
-          en: 'Reroll throws every die you are not holding. You only get a few per round, so pick your moments.',
-          es: 'Relanzar vuelve a tirar todos los dados que no guardas. Solo tienes unos pocos por ronda, úsalos bien.',
+          en: 'Now press Reroll (or R). Every die you are NOT holding gets thrown again. You only get a few rerolls per round.',
+          es: 'Ahora pulsa Relanzar (o R). Todos los dados que NO guardas se vuelven a tirar. Solo tienes unos pocos por ronda.',
         },
       },
       {
@@ -63,9 +69,10 @@ export const TUTORIAL_GROUPS = [
       },
       {
         target: 'cast',
+        waitFor: (s) => s.phase !== 'rolling' || Boolean(document.querySelector('[data-casting]')),
         text: {
-          en: "When you're happy with the roll, Cast. Good luck!",
-          es: 'Cuando te guste la tirada, Lanza. ¡Buena suerte!',
+          en: 'Happy with it? Press Cast (or Enter) and watch the ledger add it all up.',
+          es: '¿Te gusta? Pulsa Lanzar (o Enter) y mira cómo la cuenta lo suma todo.',
         },
       },
     ],
@@ -96,9 +103,17 @@ export const TUTORIAL_GROUPS = [
       },
       {
         target: 'offers',
+        waitFor: () => Boolean(document.querySelector('[data-tut-inspector]')),
         text: {
-          en: 'Click anything for sale to read what it does, then buy it. Prices are on the gold tags.',
-          es: 'Haz clic en lo que está a la venta para ver qué hace y luego cómpralo. Los precios están en las etiquetas doradas.',
+          en: 'Click any die for sale to read what it does. Prices are on the gold tags.',
+          es: 'Haz clic en cualquier dado a la venta para ver qué hace. Los precios están en las etiquetas doradas.',
+        },
+      },
+      {
+        target: null,
+        text: {
+          en: 'Buy puts an item in your inventory. Consumables also have "Buy & use", which uses it right away, no slot needed.',
+          es: 'Comprar pone el objeto en tu inventario. Los consumibles también tienen "Comprar y usar", que lo usa de inmediato sin ocupar espacio.',
         },
       },
       {
@@ -113,6 +128,27 @@ export const TUTORIAL_GROUPS = [
         text: {
           en: 'When you are done shopping, head into the next round.',
           es: 'Cuando termines de comprar, pasa a la siguiente ronda.',
+        },
+      },
+    ],
+  },
+  {
+    id: 'road',
+    when: (s) => s.phase === 'shop' && Boolean(document.querySelector('[data-tut="map"]')),
+    steps: [
+      {
+        target: 'map',
+        waitFor: (s) => Boolean(s.map?.pendingId) || s.phase !== 'shop',
+        text: {
+          en: 'This is the Road. Every stop is a different shop with its own keeper: Markets, Alchemists, Forges, and rarer ones. Pick where you go next.',
+          es: 'Este es el Camino. Cada parada es una tienda distinta con su propio guardián: Mercados, Alquimistas, Forjas y otras más raras. Elige a dónde vas después.',
+        },
+      },
+      {
+        target: 'map',
+        text: {
+          en: 'Faces on the left mark boss rounds. The keepers remember you between runs, so visit often and they might tell you a story.',
+          es: 'Las caras a la izquierda marcan rondas de jefe. Los guardianes te recuerdan entre partidas: visítalos seguido y quizá te cuenten una historia.',
         },
       },
     ],
@@ -144,8 +180,15 @@ export const TUTORIAL_GROUPS = [
       {
         target: null,
         text: {
-          en: 'Hover any die to read what its element does. The Gallery (in the pause menu) lists every reaction.',
-          es: 'Pasa el cursor sobre un dado para leer qué hace su elemento. La Galería (en el menú de pausa) lista todas las reacciones.',
+          en: 'Each element has a family: the pure die plus every fusion made from it. A "Water-family die" means Water, Ice, Mud, Steam, and so on. Hover any die to see its families.',
+          es: 'Cada elemento tiene una familia: el dado puro y toda fusión hecha con él. Un "dado de la familia Agua" es Agua, Hielo, Lodo, Vapor, etc. Pasa el cursor sobre un dado para ver sus familias.',
+        },
+      },
+      {
+        target: null,
+        text: {
+          en: 'Run Info (top right) opens the Gallery with every reaction. Some reactions between fusion dice are secret: find them by experimenting.',
+          es: 'Info de partida (arriba a la derecha) abre la Galería con todas las reacciones. Algunas reacciones entre dados de fusión son secretas: descúbrelas experimentando.',
         },
       },
     ],

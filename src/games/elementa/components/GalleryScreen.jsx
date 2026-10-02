@@ -2,23 +2,57 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
-import { ELEMENTS, describeElement } from '../data/elements.js'
+import { ELEMENTS, PURE_ELEMENT_IDS, describeElement, rarityForElement } from '../data/elements.js'
 import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
-import { dieDescriptor, relicDescriptor, consumableDescriptor } from '../data/itemDescriptors.js'
-import { localize, ELEMENTS_ES, localizeDeck, localizeReaction } from '../data/i18n.js'
 import { REACTIONS } from '../data/reactions.js'
-import PixelIcon from './PixelIcon.jsx'
+import { BOSS_MODIFIERS, PRIMORDIAL } from '../data/bossModifiers.js'
+import { dieDescriptor, relicDescriptor, consumableDescriptor } from '../data/itemDescriptors.js'
+import { localize, ELEMENTS_ES, localizeDeck, localizeReaction, localizeBossModifier } from '../data/i18n.js'
 import { readProfile, completion, isDeckUnlocked, TOTALS } from '../utils/profile.js'
 import ItemIcon from './ItemIcon.jsx'
+import PixelIcon from './PixelIcon.jsx'
+import BossAvatar from './BossAvatar.jsx'
+import AchievementsList from './AchievementsList.jsx'
+import KeeperSprite from './KeeperSprite.jsx'
+import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
+import { keeperMemory } from '../utils/keepers.js'
 
 const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' },
   es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario' },
 }
 
-const byRarity = (a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity)
+// An element "family" is the pure element plus every fusion made from it.
+// Relic text like "Water-family die" means any die in that family.
+const FAMILY_TEXT = {
+  en: {
+    fire: 'Fire and every fusion made with Fire. They explode on their max face; the pure ones fizzle on a 1.',
+    water: 'Water and every fusion made with Water. They can lock for free, and locking refunds a reroll.',
+    earth: 'Earth and every fusion made with Earth. Steady, reliable value with no downside.',
+    air: 'Air and every fusion made with Air. They switch on set bonuses: pairs, threes, and straights.',
+    arcane: 'No element and no family. Arcane dice care about where they sit in your row.',
+    neutral: 'Not tied to any element.',
+  },
+  es: {
+    fire: 'Fuego y toda fusión hecha con Fuego. Explotan en su cara máxima; los puros se apagan con un 1.',
+    water: 'Agua y toda fusión hecha con Agua. Se bloquean gratis, y bloquear devuelve un reroll.',
+    earth: 'Tierra y toda fusión hecha con Tierra. Valor estable y confiable, sin desventajas.',
+    air: 'Aire y toda fusión hecha con Aire. Activan los bonos de set: pares, tríos y escaleras.',
+    arcane: 'Sin elemento ni familia. A los dados Arcanos les importa dónde están en tu fila.',
+    neutral: 'No está ligado a ningún elemento.',
+  },
+}
+
+function familiesOf(elementId) {
+  const def = ELEMENTS[elementId]
+  if (def.tier === 'arcane') return ['arcane']
+  if (def.tier === 'pure') return [elementId]
+  return def.parents
+}
+
+const byRarity = (a, b) => RARITY_ORDER.indexOf(a.item.rarity) - RARITY_ORDER.indexOf(b.item.rarity)
 
 function ProgressBar({ pct }) {
   const segments = 25
@@ -35,34 +69,29 @@ function ProgressBar({ pct }) {
   )
 }
 
-/** A locked, undiscovered tile: same footprint as an item, no details. */
-function MysteryTile({ size = 56 }) {
-  return <ItemIcon static size={size} glyph="?" color="#6e6480" />
-}
-
 function Detail({ entry, lang, t }) {
-  if (!entry) {
-    return <p className="text-base text-[var(--text-mute)]">{t('elementa.gallery.pickOne')}</p>
-  }
+  if (!entry) return <p className="text-base text-[var(--text-mute)]">{t('elementa.gallery.pickOne')}</p>
   if (!entry.seen) {
     return (
       <div className="flex flex-col gap-3">
         <div className="pixel-heading text-[10px] text-[var(--text-mute)]">???</div>
-        <p className="text-base text-[var(--text-dim)]">{t('elementa.gallery.undiscovered')}</p>
+        <p className="text-base text-[var(--text-dim)]">{entry.hint ?? t('elementa.gallery.undiscovered')}</p>
       </div>
     )
   }
-  const { item, extra } = entry
+  const { item, extra, art } = entry
   const glow = RARITY_GLOW[item.rarity] || RARITY_GLOW.common
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
-        <ItemIcon static size={72} icon={item.icon} sprite={item.sprite} glyph={item.glyph} color={item.color} rarity={item.rarity} />
+        {art ?? <ItemIcon static size={72} icon={item.icon} sprite={item.sprite} glyph={item.glyph} color={item.color} rarity={item.rarity} />}
         <div className="flex flex-col gap-2">
           <h3 className="pixel-heading text-[10px] leading-relaxed">{item.name}</h3>
-          <span className="el-chip self-start text-[var(--ink)]" style={{ background: glow }}>
-            {RARITY_LABEL[lang][item.rarity]}
-          </span>
+          {item.rarity && (
+            <span className="el-chip self-start text-[var(--ink)]" style={{ background: glow }}>
+              {RARITY_LABEL[lang][item.rarity]}
+            </span>
+          )}
         </div>
       </div>
       <p className="text-base leading-snug text-[var(--text)]">{item.description}</p>
@@ -71,32 +100,87 @@ function Detail({ entry, lang, t }) {
   )
 }
 
-export default function GalleryScreen({ onBack }) {
+/** A titled row of tiles (one rarity, one family, or everything). */
+function Group({ title, color, note, entries, selectedKey, onSelect }) {
+  return (
+    <section className="flex flex-col gap-3">
+      {title && (
+        <div className="flex flex-col gap-1">
+          <h3 className="el-label" style={color ? { color } : undefined}>
+            {title}
+          </h3>
+          {note && <p className="text-sm leading-snug text-[var(--text-mute)]">{note}</p>}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-4">
+        {entries.map((e) => {
+          const selected = selectedKey === e.key
+          return (
+            <button
+              key={e.key}
+              type="button"
+              onClick={() => {
+                playClick()
+                onSelect(e.key)
+              }}
+              className={selected ? 'outline outline-2 outline-offset-4 outline-[var(--gold-1)]' : ''}
+              aria-label={e.seen ? e.item.name : '???'}
+            >
+              {e.tile ??
+                (e.seen ? (
+                  <ItemIcon static size={56} icon={e.item.icon} sprite={e.item.sprite} glyph={e.item.glyph} color={e.item.color} rarity={e.item.rarity} />
+                ) : (
+                  <ItemIcon static size={56} glyph="?" color="#6e6480" />
+                ))}
+            </button>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+/**
+ * The per-file Gallery: every die, relic, consumable, boss, and reaction,
+ * discovered or not, grouped by rarity or family, plus loadouts and
+ * achievements. `slot` is the save file whose discoveries to show.
+ */
+export default function GalleryScreen({ slot, onBack, embedded = false }) {
   const { t, lang } = useLanguage()
-  const [profile] = useState(readProfile)
+  const [profile] = useState(() => readProfile(slot))
   const [tab, setTab] = useState('dice')
+  const [sort, setSort] = useState('rarity')
   const [selectedKey, setSelectedKey] = useState(null)
   const { pct, parts } = completion(profile)
 
-  const entries = useMemo(() => {
-    const seen = {
+  const seen = useMemo(
+    () => ({
       dice: new Set(profile.seen.dice),
       relics: new Set(profile.seen.relics),
       consumables: new Set(profile.seen.consumables),
-    }
+      bosses: new Set(profile.seen.bosses || []),
+      reactions: new Set(profile.seen.reactions || []),
+    }),
+    [profile],
+  )
+
+  const entries = useMemo(() => {
     if (tab === 'dice') {
       return Object.keys(ELEMENTS).map((id) => {
         const def = ELEMENTS[id]
         const { flagLines } = describeElement(id, lang)
-        const parents = def.parents
-          .map((p) => localize(lang, ELEMENTS[p].name, ELEMENTS_ES, p, 'name'))
-          .join(' + ')
+        const parents = def.parents.map((p) => localize(lang, ELEMENTS[p].name, ELEMENTS_ES, p, 'name')).join(' + ')
+        const families = familiesOf(id).map((f) => (f === 'arcane' ? t('elementa.gallery.arcane') : localize(lang, ELEMENTS[f].name, ELEMENTS_ES, f, 'name')))
         return {
           key: id,
           seen: seen.dice.has(id),
-          item: dieDescriptor(id, lang),
+          families: familiesOf(id),
+          item: { ...dieDescriptor(id, lang), rarity: rarityForElement(id) },
           extra: (
             <div className="flex flex-col gap-2">
+              <div className="text-base text-[var(--arcane-hi)]">
+                {t('elementa.gallery.families')}: {families.join(', ')}
+              </div>
               {parents && (
                 <div className="text-base text-[var(--gold-1)]">
                   {t('elementa.gallery.fusionOf')} {parents}
@@ -115,12 +199,102 @@ export default function GalleryScreen({ onBack }) {
       })
     }
     if (tab === 'relics') {
-      return [...RELICS].sort(byRarity).map((r) => ({ key: r.id, seen: seen.relics.has(r.id), item: relicDescriptor(r, lang) }))
+      return RELICS.map((r) => ({ key: r.id, seen: seen.relics.has(r.id), families: [r.element ?? 'neutral'], item: relicDescriptor(r, lang) }))
     }
-    return [...CONSUMABLES]
-      .sort(byRarity)
-      .map((c) => ({ key: c.id, seen: seen.consumables.has(c.id), item: consumableDescriptor(c, lang) }))
-  }, [tab, lang, profile, t])
+    if (tab === 'consumables') {
+      return CONSUMABLES.map((c) => ({ key: c.id, seen: seen.consumables.has(c.id), families: [c.element ?? 'neutral'], item: consumableDescriptor(c, lang) }))
+    }
+    if (tab === 'bosses') {
+      return [...BOSS_MODIFIERS, PRIMORDIAL].map((raw) => {
+        const b = localizeBossModifier(raw, lang)
+        const isSeen = seen.bosses.has(b.id)
+        const when =
+          b.tier === 3 ? t('elementa.gallery.bossFinal') : b.tier === 2 ? t('elementa.gallery.bossTier2') : t('elementa.gallery.bossTier1')
+        return {
+          key: b.id,
+          seen: isSeen,
+          tile: (
+            <span className="el-well flex h-16 w-16 items-center justify-center">
+              <BossAvatar id={b.id} size={48} unknown={!isSeen} />
+            </span>
+          ),
+          art: <BossAvatar id={b.id} size={72} />,
+          item: { name: b.name, description: b.description },
+          extra: <div className="text-base text-[#ff9a9a]">{when}</div>,
+          hint: t('elementa.gallery.bossHint'),
+        }
+      })
+    }
+    if (tab === 'keepers') {
+      return KEEPER_IDS.map((id) => {
+        const k = KEEPERS[id]
+        const mem = keeperMemory(profile, id)
+        const met = mem.visits > 0
+        const told = k.lore.slice(0, mem.lore)
+        return {
+          key: id,
+          seen: met,
+          tile: (
+            <span className="el-well flex h-16 items-center justify-center px-1" style={{ minWidth: 64 }}>
+              <span style={met ? undefined : { filter: 'brightness(0) opacity(0.35)' }}>
+                <KeeperSprite id={id} size={48} />
+              </span>
+            </span>
+          ),
+          art: <KeeperSprite id={id} size={72} />,
+          item: { name: k.name[lang], description: k.title[lang] },
+          extra: (
+            <div className="flex flex-col gap-2">
+              <div className="text-base text-[var(--gold-1)]">{t('elementa.keepers.visits').replace('{n}', mem.visits)}</div>
+              <div className="el-label">{t('elementa.gallery.keeperLore')}</div>
+              {told.length ? (
+                <ul className="flex flex-col gap-2 text-base text-[var(--text-dim)]">
+                  {told.map((line) => (
+                    <li key={line.en}>{line[lang]}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-base text-[var(--text-mute)]">{t('elementa.gallery.keeperNoLore')}</p>
+              )}
+            </div>
+          ),
+          hint: t('elementa.gallery.keeperUnmet'),
+        }
+      })
+    }
+    return []
+  }, [tab, lang, seen, t, profile])
+
+  const groups = useMemo(() => {
+    if (!['dice', 'relics', 'consumables'].includes(tab)) return [{ key: 'all', entries }]
+    if (sort === 'name') {
+      const named = [...entries].sort((a, b) => (a.seen ? a.item.name : '~').localeCompare(b.seen ? b.item.name : '~'))
+      return [{ key: 'all', entries: named }]
+    }
+    if (sort === 'family') {
+      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, 'arcane'] : [...PURE_ELEMENT_IDS, 'neutral']
+      return order
+        .map((f) => ({
+          key: f,
+          title:
+            f === 'arcane'
+              ? t('elementa.gallery.arcane')
+              : f === 'neutral'
+                ? t('elementa.gallery.neutral')
+                : `${localize(lang, ELEMENTS[f].name, ELEMENTS_ES, f, 'name')} ${t('elementa.gallery.family')}`,
+          color: ELEMENTS[f]?.color === '#8a6a3d' ? '#c89a5c' : ELEMENTS[f]?.color,
+          note: tab === 'dice' ? FAMILY_TEXT[lang][f] : null,
+          entries: entries.filter((e) => e.families.includes(f)).sort(byRarity),
+        }))
+        .filter((g) => g.entries.length > 0)
+    }
+    return RARITY_ORDER.map((r) => ({
+      key: r,
+      title: RARITY_LABEL[lang][r],
+      color: RARITY_GLOW[r],
+      entries: entries.filter((e) => e.item.rarity === r),
+    })).filter((g) => g.entries.length > 0)
+  }, [tab, sort, entries, lang, t])
 
   const selected = entries.find((e) => e.key === selectedKey) ?? null
 
@@ -128,9 +302,55 @@ export default function GalleryScreen({ onBack }) {
     { id: 'dice', label: t('elementa.gallery.dice'), count: parts.dice, total: TOTALS.dice },
     { id: 'relics', label: t('elementa.gallery.relics'), count: parts.relics, total: TOTALS.relics },
     { id: 'consumables', label: t('elementa.gallery.consumables'), count: parts.consumables, total: TOTALS.consumables },
+    { id: 'bosses', label: t('elementa.gallery.bosses'), count: parts.bosses, total: TOTALS.bosses },
+    {
+      id: 'keepers',
+      label: t('elementa.gallery.keepers'),
+      count: KEEPER_IDS.filter((id) => keeperMemory(profile, id).visits > 0).length,
+      total: KEEPER_IDS.length,
+    },
+    { id: 'reactions', label: t('elementa.gallery.reactions'), count: parts.reactions, total: TOTALS.reactions },
     { id: 'loadouts', label: t('elementa.gallery.loadouts'), count: parts.decks, total: TOTALS.decks },
-    { id: 'reactions', label: t('elementa.gallery.reactions') },
+    { id: 'achievements', label: t('elementa.achievements.title'), count: parts.achievements, total: TOTALS.achievements },
   ]
+
+  const reactionCard = (raw) => {
+    const r = localizeReaction(raw, lang)
+    const hidden = raw.secret && !seen.reactions.has(raw.id)
+    return (
+      <div key={r.id} className={`el-panel flex flex-col gap-3 p-4 ${hidden ? 'el-panel--dark opacity-70' : ''}`} style={hidden ? undefined : { '--edge': r.color }}>
+        <div className="flex items-center gap-3">
+          {hidden ? (
+            <span className="pixel-score text-xs text-[var(--text-mute)]">? + ?</span>
+          ) : raw.pair ? (
+            raw.pair.map((el, j) => (
+              <span key={el} className="flex items-center gap-3">
+                {j > 0 && <span className="pixel-score text-[10px] text-[var(--text-mute)]">+</span>}
+                {el === '*fusion' ? (
+                  <span className="text-base text-[var(--text-dim)]">{t('elementa.gallery.anyFusion')}</span>
+                ) : (
+                  <PixelIcon name={el} size={21} color={ELEMENTS[el].color} hi="#fff4d6" />
+                )}
+              </span>
+            ))
+          ) : r.elements ? (
+            r.elements.map((el, j) => (
+              <span key={el} className="flex items-center gap-3">
+                {j > 0 && <span className="pixel-score text-[10px] text-[var(--text-mute)]">+</span>}
+                <PixelIcon name={el} size={21} color={el === 'earth' ? '#c89a5c' : ELEMENTS[el].color} hi="#fff4d6" />
+              </span>
+            ))
+          ) : (
+            <span className="text-base text-[var(--text-dim)]">{t('elementa.gallery.sameKind')}</span>
+          )}
+        </div>
+        <div className="pixel-heading text-[10px]" style={{ color: hidden ? 'var(--text-mute)' : r.color }}>
+          {hidden ? '???' : r.name}
+        </div>
+        <div className="text-base leading-snug text-[var(--text)]">{hidden ? t('elementa.gallery.secretHint') : r.description}</div>
+      </div>
+    )
+  }
 
   return (
     <motion.div
@@ -139,18 +359,20 @@ export default function GalleryScreen({ onBack }) {
       transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
       className="flex w-full max-w-5xl flex-col gap-8"
     >
-      <div className="flex flex-col items-center gap-4 text-center">
-        <h2 className="pixel-heading text-xl text-[var(--gold-1)] sm:text-2xl">{t('elementa.menu.gallery')}</h2>
-        <div className="flex w-full max-w-md flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <span className="el-label">{t('elementa.gallery.completion')}</span>
-            <span className="pixel-score text-xs text-[var(--gold-1)]">{pct}%</span>
+      {!embedded && (
+        <div className="flex flex-col items-center gap-4 text-center">
+          <h2 className="pixel-heading text-xl text-[var(--gold-1)] sm:text-2xl">{t('elementa.menu.gallery')}</h2>
+          <div className="flex w-full max-w-md flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="el-label">{t('elementa.gallery.completion')}</span>
+              <span className="pixel-score text-xs text-[var(--gold-1)]">{pct}%</span>
+            </div>
+            <ProgressBar pct={pct} />
           </div>
-          <ProgressBar pct={pct} />
         </div>
-      </div>
+      )}
 
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-3">
         {TABS.map((tb) => (
           <button
             key={tb.id}
@@ -164,44 +386,43 @@ export default function GalleryScreen({ onBack }) {
             className={`el-btn el-btn--sm ${tab === tb.id ? 'el-btn--gold' : ''}`}
           >
             {tb.label}
-            {tb.total != null && (
-              <span className="el-key">
-                {tb.count}/{tb.total}
-              </span>
-            )}
+            <span className="el-key">
+              {tb.count}/{tb.total}
+            </span>
           </button>
         ))}
       </div>
 
-      {tab === 'reactions' ? (
-        <div className="flex flex-col gap-5">
-          <p className="text-center text-base text-[var(--text-dim)]">{t('elementa.gallery.reactionsIntro')}</p>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {REACTIONS.map((raw) => {
-              const r = localizeReaction(raw, lang)
-              return (
-                <div key={r.id} className="el-panel flex flex-col gap-3 p-4" style={{ '--edge': r.color }}>
-                  <div className="flex items-center gap-3">
-                    {r.elements ? (
-                      r.elements.map((el, j) => (
-                        <span key={el} className="flex items-center gap-3">
-                          {j > 0 && <span className="pixel-score text-[10px] text-[var(--text-mute)]">+</span>}
-                          <PixelIcon name={el} size={21} color={el === 'earth' ? '#c89a5c' : ELEMENTS[el].color} hi="#fff4d6" />
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-base text-[var(--text-dim)]">{t('elementa.gallery.sameKind')}</span>
-                    )}
-                  </div>
-                  <div className="pixel-heading text-[10px]" style={{ color: r.color }}>
-                    {r.name}
-                  </div>
-                  <div className="text-base leading-snug text-[var(--text)]">{r.description}</div>
-                </div>
-              )
-            })}
-          </div>
+      {['dice', 'relics', 'consumables'].includes(tab) && (
+        <div className="flex items-center justify-center gap-3">
+          <span className="el-label">{t('elementa.gallery.sortBy')}</span>
+          {['rarity', 'family', 'name'].map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => {
+                playClick()
+                setSort(s)
+              }}
+              className={`el-btn el-btn--sm ${sort === s ? 'el-btn--arcane' : ''}`}
+            >
+              {t(`elementa.gallery.sort_${s}`)}
+            </button>
+          ))}
         </div>
+      )}
+
+      {tab === 'reactions' ? (
+        <div className="flex flex-col gap-6">
+          <p className="text-center text-base text-[var(--text-dim)]">{t('elementa.gallery.reactionsIntro')}</p>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => !r.secret).map(reactionCard)}</div>
+          <h3 className="el-label text-center text-[var(--arcane-hi)]">
+            {t('elementa.gallery.secretReactions')} {parts.reactions}/{TOTALS.reactions}
+          </h3>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => r.secret).map(reactionCard)}</div>
+        </div>
+      ) : tab === 'achievements' ? (
+        <AchievementsList profile={profile} />
       ) : tab === 'loadouts' ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {DECKS.map((raw, i) => {
@@ -223,9 +444,9 @@ export default function GalleryScreen({ onBack }) {
                   {deck.dice.map((id, j) => {
                     const item = dieDescriptor(id, lang)
                     return unlocked ? (
-                      <ItemIcon key={j} static size={24} icon={item.icon} sprite={item.sprite} glyph={item.glyph} color={item.color} rarity={item.rarity} />
+                      <ItemIcon key={j} static size={24} icon={item.icon} glyph={item.glyph} color={item.color} rarity={item.rarity} />
                     ) : (
-                      <MysteryTile key={j} size={24} />
+                      <ItemIcon key={j} static size={24} glyph="?" color="#6e6480" />
                     )
                   })}
                 </div>
@@ -237,35 +458,18 @@ export default function GalleryScreen({ onBack }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
-          <div className="el-panel--dark el-panel flex flex-wrap content-start gap-4 p-5">
-            {entries.map((e) =>
-              e.seen ? (
-                <div key={e.key} className={selectedKey === e.key ? 'outline outline-2 outline-offset-4 outline-[var(--gold-1)]' : ''}>
-                  <ItemIcon
-                    size={56}
-                    icon={e.item.icon} sprite={e.item.sprite}
-                    glyph={e.item.glyph}
-                    color={e.item.color}
-                    rarity={e.item.rarity}
-                    title={e.item.name}
-                    onClick={() => {
-                      playClick()
-                      setSelectedKey(e.key)
-                    }}
-                  />
-                </div>
-              ) : (
-                <button
-                  key={e.key}
-                  type="button"
-                  onClick={() => setSelectedKey(e.key)}
-                  aria-label={t('elementa.gallery.undiscovered')}
-                  className={selectedKey === e.key ? 'outline outline-2 outline-offset-4 outline-[var(--text-mute)]' : ''}
-                >
-                  <MysteryTile />
-                </button>
-              ),
-            )}
+          <div className="el-panel--dark el-panel flex flex-col gap-6 p-5">
+            {groups.map((g) => (
+              <Group
+                key={g.key}
+                title={g.title}
+                color={g.color}
+                note={g.note}
+                entries={g.entries}
+                selectedKey={selectedKey}
+                onSelect={setSelectedKey}
+              />
+            ))}
           </div>
           <aside className="el-panel p-5 lg:sticky lg:top-4 lg:self-start">
             <Detail entry={selected} lang={lang} t={t} />
@@ -282,7 +486,7 @@ export default function GalleryScreen({ onBack }) {
           }}
           className="el-btn el-btn--ghost"
         >
-          {t('elementa.common.back')}
+          {embedded ? t('elementa.runInfo.run') : t('elementa.common.back')}
         </button>
       </div>
     </motion.div>

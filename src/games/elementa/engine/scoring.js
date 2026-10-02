@@ -1,10 +1,11 @@
-import { ELEMENTS, FLAGS, reactionElementsOf } from '../data/elements.js'
+import { ELEMENTS, FLAGS, TIERS, reactionElementsOf } from '../data/elements.js'
 import { REACTIONS, reactionById } from '../data/reactions.js'
+import { random } from './rng.js'
 
 const DEFAULT_EXPLODE_CAP = 10
 
 function randInt(max) {
-  return 1 + Math.floor(Math.random() * max)
+  return 1 + Math.floor(random() * max)
 }
 
 function hasFlag(elementId, flag) {
@@ -46,7 +47,7 @@ export function rollDie(elementId, sides, relics = []) {
     }
   }
 
-  return { value, total, explosions, rollId: Math.random() }
+  return { value, total, explosions, rollId: random() }
 }
 
 /** Rerolls every die in `dice` that is not held/locked, applying reroll-time relics. */
@@ -64,15 +65,15 @@ export function rerollPool(dice, relics = []) {
     Object.assign(die, rolled, { growth: 0 })
 
     const canDuplicate = hasFlag(die.elementId, FLAGS.DUPLICATE_ON_REROLL)
-    if (canDuplicate && Math.random() < 0.33) {
+    if (canDuplicate && random() < 0.33) {
       const targets = next.filter((d, j) => j !== i && !d.held && !d.locked)
       if (targets.length > 0) {
-        const target = targets[Math.floor(Math.random() * targets.length)]
+        const target = targets[Math.floor(random() * targets.length)]
         Object.assign(target, {
           value: die.value,
           total: die.total,
           explosions: die.explosions,
-          rollId: Math.random(),
+          rollId: random(),
         })
       }
     }
@@ -127,6 +128,13 @@ function adjacencyLinks(perDie, fx) {
   return links
 }
 
+const isFusion = (id) => [TIERS.DOUBLE, TIERS.TRIPLE].includes(ELEMENTS[id]?.tier)
+
+function secretPairMatches([x, y], a, b) {
+  const match = (want, got) => (want === '*fusion' ? isFusion(got) : want === got)
+  return (match(x, a) && match(y, b)) || (match(x, b) && match(y, a))
+}
+
 function findReactions(perDie, fx) {
   const found = []
   for (const [i, j] of adjacencyLinks(perDie, fx)) {
@@ -139,6 +147,10 @@ function findReactions(perDie, fx) {
     const ids = new Set()
     if (a.elementId === b.elementId) ids.add('resonance')
     for (const r of REACTIONS) {
+      if (r.secret) {
+        if (secretPairMatches(r.pair, a.elementId, b.elementId)) ids.add(r.id)
+        continue
+      }
       if (!r.elements) continue
       const [x, y] = r.elements
       if ((ea.includes(x) && eb.includes(y)) || (ea.includes(y) && eb.includes(x))) ids.add(r.id)
@@ -150,9 +162,13 @@ function findReactions(perDie, fx) {
           ? Math.min(a.value, b.value)
           : r.base === 'higherFace'
             ? Math.max(a.value, b.value)
-            : r.base
+            : r.base === 'bothFaces'
+              ? a.value + b.value
+              : r.base === 'bothFacesDouble'
+                ? (a.value + b.value) * 2
+                : r.base
       const mult = r.mult > 0 ? r.mult + (fx.reactionMultBonus || 0) : 0
-      found.push({ id, a: i, b: j, base: base + (fx.reactionBaseBonus || 0), mult })
+      found.push({ id, a: i, b: j, base: base + (fx.reactionBaseBonus || 0), mult, secret: Boolean(r.secret) })
     }
   }
   return found
@@ -178,7 +194,10 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       const fizzled = hasFlag(d.elementId, FLAGS.ZERO_ON_MIN) && d.value === 1
       if (fizzled) {
         const others = perDie.map((_, j) => j).filter((j) => j !== i)
-        if (others.length > 0) zeroTargets.add(others[Math.floor(Math.random() * others.length)])
+        // Picked from the fizzling die's own roll id rather than a fresh
+        // random draw, so the live preview and the real cast always agree.
+        const pick = Math.floor(((d.rollId * 9973) % 1) * others.length)
+        if (others.length > 0) zeroTargets.add(others[pick])
       }
     })
   }

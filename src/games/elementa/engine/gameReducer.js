@@ -16,6 +16,9 @@ import { deckById } from '../data/decks.js'
 import { difficultyById } from '../data/difficulty.js'
 import { BOSS_MODIFIERS, PRIMORDIAL, PRIMORDIAL_POOL, bossById, isBossRound } from '../data/bossModifiers.js'
 import { rollDie, rerollPool, evaluatePool, thresholdForRound, shardsEarned, interestFor } from './scoring.js'
+import { random, getRngState, setRngState, seedToState, randomSeed, cleanSeed } from './rng.js'
+import { shopTypeById, DEALS, BLESSINGS, dealById, blessingById } from '../data/shops.js'
+import { newMap, ensureLayers, nodeById, currentNode, nextChoices } from './map.js'
 
 const STARTING_TIER = 'd6'
 const STARTING_REROLLS = 3
@@ -87,7 +90,7 @@ function effectiveRelics(state) {
 }
 
 function randomOf(list) {
-  return list[Math.floor(Math.random() * list.length)]
+  return list[Math.floor(random() * list.length)]
 }
 
 // Primordial's current twist: a copy of one pool boss's effects, tagged so
@@ -98,7 +101,7 @@ function primordialWith(twistId) {
 }
 
 function pickBossModifier(state, round) {
-  if (round >= WIN_ROUND) return primordialWith(randomOf(PRIMORDIAL_POOL))
+  if (round % WIN_ROUND === 0) return primordialWith(randomOf(PRIMORDIAL_POOL))
   const ownedIds = [...new Set(state.dice.map((d) => d.elementId))]
   const maxTier = round >= 10 ? 2 : 1
   const pool = BOSS_MODIFIERS.filter((m) => {
@@ -158,22 +161,30 @@ function rollFreshRound(dice, relics) {
   }))
 }
 
-function applyDiscount(base, relics) {
+// `cut` is the current shop type's own price cut (data/shops.js), stacked
+// on top of any relic discount.
+function applyDiscount(base, relics, cut = 0) {
   const fx = relicEffects(relics)
-  return Math.max(1, Math.round(base * (1 - (fx.shopDiscountPct || 0))))
+  return Math.max(1, Math.round(base * (1 - (fx.shopDiscountPct || 0)) * (1 - cut)))
 }
 
-function dieUpgradeCost(die, relics) {
+function shopCut(shop, kind) {
+  if (!shop) return 0
+  const type = shopTypeById(shop.type)
+  return 1 - (1 - (type.discount || 0)) * (1 - (kind === 'consumable' ? type.consumableDiscount || 0 : 0))
+}
+
+function dieUpgradeCost(die, relics, shop) {
   const next = nextTier(die.tierId)
   if (!next) return null
-  return { next, cost: applyDiscount(next.upgradeCost, relics) }
+  return { next, cost: applyDiscount(next.upgradeCost, relics, shopCut(shop, 'upgrade')) }
 }
 
 function isFusionElement(elementId) {
   return ELEMENTS[elementId].tier !== 'pure'
 }
 
-function newDieCost(elementId, dice, relics) {
+function newDieCost(elementId, dice, relics, shop) {
   const tier = ELEMENTS[elementId].tier
   const owned = dice.filter((d) => d.elementId === elementId).length
   const base =
@@ -182,15 +193,15 @@ function newDieCost(elementId, dice, relics) {
       : tier === 'arcane'
         ? ARCANE_DIE_COST_BY_RARITY[rarityForElement(elementId)]
         : DIE_BASE_COST_BY_TIER[tier]
-  return applyDiscount(base, relics)
+  return applyDiscount(base, relics, shopCut(shop, 'die'))
 }
 
-function relicCost(relic, relics) {
-  return applyDiscount(costForRelic(relic), relics)
+function relicCost(relic, relics, shop) {
+  return applyDiscount(costForRelic(relic), relics, shopCut(shop, 'relic'))
 }
 
-function consumableCost(def, relics) {
-  return applyDiscount(costForConsumable(def), relics)
+function consumableCost(def, relics, shop) {
+  return applyDiscount(costForConsumable(def), relics, shopCut(shop, 'consumable'))
 }
 
 function rerollShopOffersCost(state) {
@@ -202,9 +213,9 @@ function rerollShopOffersCost(state) {
 // the fusion die, an alternative to hoping the shop offers it. Works for
 // any fusion tier: a double costs 2 parents, a triple 3, the quadra all 4.
 // See GDD.md §13a/§18.
-function forgeCost(relics, tier) {
+function forgeCost(relics, tier, shop) {
   const fx = relicEffects(relics)
-  return applyDiscount(Math.max(1, FORGE_BASE_COST_BY_TIER[tier] - (fx.forgeDiscount || 0)), relics)
+  return applyDiscount(Math.max(1, FORGE_BASE_COST_BY_TIER[tier] - (fx.forgeDiscount || 0)), relics, shopCut(shop, 'forge'))
 }
 
 function forgeableRecipes(state) {
@@ -212,8 +223,15 @@ function forgeableRecipes(state) {
   state.dice.forEach((d) => ownedCounts.set(d.elementId, (ownedCounts.get(d.elementId) || 0) + 1))
   return ALL_FUSION_IDS.map((fusionElementId) => {
     const def = ELEMENTS[fusionElementId]
-    const canForge = def.parents.every((p) => (ownedCounts.get(p) || 0) >= 1)
-    return { fusionElementId, parents: def.parents, tier: def.tier, canForge, cost: forgeCost(state.relics, def.tier) }
+    // The Forge is open only in Forge-type shops (or with a Fusion Spark).
+    const canForge = Boolean(state.shop?.forgeOpen) && def.parents.every((p) => (ownedCounts.get(p) || 0) >= 1)
+    return {
+      fusionElementId,
+      parents: def.parents,
+      tier: def.tier,
+      canForge,
+      cost: forgeCost(state.relics, def.tier, state.shop),
+    }
   })
 }
 
@@ -226,7 +244,7 @@ function weightedSample(items, n, weightFn) {
     const weights = pool.map(weightFn)
     const total = weights.reduce((a, b) => a + b, 0)
     if (total <= 0) break
-    let roll = Math.random() * total
+    let roll = random() * total
     let idx = weights.length - 1
     for (let i = 0; i < weights.length; i++) {
       roll -= weights[i]
@@ -245,14 +263,36 @@ function rarityWeight(item, round) {
   return RARITY_WEIGHT[item.rarity] ?? 1
 }
 
+// Vault luck: rarities unlock 3 rounds early and lean rare.
+const VAULT_WEIGHT = {
+  [RARITY.COMMON]: 1,
+  [RARITY.UNCOMMON]: 3,
+  [RARITY.RARE]: 4,
+  [RARITY.EPIC]: 3,
+  [RARITY.LEGENDARY]: 2,
+}
+
+function vaultWeight(item, round) {
+  if (item.kind !== 'relic') return rarityWeight(item, round)
+  if (round + 3 < RARITY_UNLOCK_ROUND[item.rarity]) return 0
+  return VAULT_WEIGHT[item.rarity] ?? 1
+}
+
+const RARITY_ORDER = [RARITY.COMMON, RARITY.UNCOMMON, RARITY.RARE, RARITY.EPIC, RARITY.LEGENDARY]
+
 // The whole shop is luck-gated the same way: a small random sample rather
 // than "everything you've unlocked, guaranteed". Relics and consumables
 // share one pool (an item is an item), dice are a separate pool, both
-// weighted by the same rarity scale/round-gating.
-function buildShopOffers(state) {
+// weighted by the same rarity scale/round-gating. What a shop stocks, and
+// how much of it, comes from its type (data/shops.js).
+function rollShopStock(state, type) {
   const ownedRelicIds = new Set(state.relics.map((r) => r.id))
-  const itemPool = [...RELICS.filter((r) => !ownedRelicIds.has(r.id)), ...CONSUMABLES]
-  const itemOffers = weightedSample(itemPool, 4, (item) => rarityWeight(item, state.round)).map((item) => ({
+  const itemPool = [
+    ...(type.itemKinds.includes('relic') ? RELICS.filter((r) => !ownedRelicIds.has(r.id)) : []),
+    ...(type.itemKinds.includes('consumable') ? CONSUMABLES : []),
+  ]
+  const weight = type.relicLuck ? vaultWeight : rarityWeight
+  const itemOffers = weightedSample(itemPool, type.items, (item) => weight(item, state.round)).map((item) => ({
     kind: item.kind,
     id: item.id,
   }))
@@ -262,15 +302,44 @@ function buildShopOffers(state) {
     id,
     rarity: rarityForElement(id),
   }))
-  const dieOfferCount = Math.min(3, allBuyable.length)
+  const dieOfferCount = Math.min(type.dice, allBuyable.length)
   const buyableElements = weightedSample(allBuyable, dieOfferCount, (item) =>
-    rarityWeight(item, state.round),
+    rarityWeight(item, state.round + (type.legendary ? 3 : 0)),
   ).map((item) => item.id)
 
+  return { itemOffers, buyableElements }
+}
+
+function rollDeal(state, id) {
+  if (id === 'blood_relic') {
+    const owned = new Set(state.relics.map((r) => r.id))
+    const pick = (rarity) => RELICS.filter((r) => r.rarity === rarity && !owned.has(r.id))
+    const pool = pick(RARITY.LEGENDARY).length ? pick(RARITY.LEGENDARY) : pick(RARITY.EPIC)
+    return pool.length ? { id, relicId: randomOf(pool).id } : null
+  }
+  if (id === 'soul_die') return { id, elementId: randomOf(TRIPLE_FUSION_IDS) }
+  if (id === 'loan') return { id, shards: 10 + state.round * 2 }
+  return { id }
+}
+
+function buildShopOffers(state, typeId = 'market') {
+  const type = shopTypeById(typeId)
+  const stock = rollShopStock(state, type)
+  const deals = type.deals
+    ? weightedSample(DEALS, type.deals, () => 1)
+        .map((d) => rollDeal(state, d.id))
+        .filter(Boolean)
+    : []
+  const blessings = type.blessings ? weightedSample(BLESSINGS, type.blessings, () => 1).map((b) => b.id) : []
   return {
-    itemOffers,
-    buyableElements,
+    type: type.id,
+    ...stock,
     rerollShopUses: 0,
+    forgeOpen: Boolean(type.forge),
+    deals,
+    dealTaken: false,
+    blessings,
+    blessingTaken: false,
   }
 }
 
@@ -286,8 +355,21 @@ function availableRerolls(state) {
   return cap - state.rerollsUsed
 }
 
-function maxDiceFor(difficulty) {
-  return difficulty.maxDiceOverride ?? MAX_DICE
+// Boss rewards (CHOOSE_BOSS_REWARD) can widen these for the rest of a run.
+function relicCapFor(state) {
+  return (state.difficulty?.relicCap ?? 5) + (state.relicCapBonus || 0)
+}
+
+function consumableCapFor(state) {
+  return MAX_CONSUMABLES + (state.consumableCapBonus || 0)
+}
+
+// Takes the run state (for the boss-reward bonus); a bare difficulty object
+// still works for callers that only know the difficulty.
+function maxDiceFor(stateOrDifficulty) {
+  const difficulty = stateOrDifficulty?.difficulty ?? stateOrDifficulty
+  const bonus = stateOrDifficulty?.difficulty ? stateOrDifficulty.diceCapBonus || 0 : 0
+  return (difficulty?.maxDiceOverride ?? MAX_DICE) + bonus
 }
 
 // --- Two entry points into a game session: the title screen (nothing to
@@ -325,10 +407,37 @@ function baseTitleState() {
     // Only meaningful during the 'runPreview' phase: the actual gameplay
     // phase a loaded save should drop into once RESUME_RUN fires.
     resumePhase: null,
+    // Run seed (8 characters) and the generator state (engine/rng.js).
+    seed: null,
+    rngState: null,
+    // Endless mode: keep going past the final round after a win.
+    endless: false,
+    // Permanent run upgrades picked after beating a boss.
+    relicCapBonus: 0,
+    consumableCapBonus: 0,
+    diceCapBonus: 0,
+    // The Road of shops (engine/map.js), generated from the seed.
+    map: null,
+    // Nix's Loan: the next round's target is multiplied by this once.
+    nextTargetMult: 1,
+    // Every Shrine blessing and Black Market deal taken this run (with the
+    // round), for the Boons panel and the run summary.
+    boons: [],
+    // What this run met: bosses faced and shops visited, for the summary.
+    chronicle: { bosses: [], shops: [] },
+    // Extra rerolls granted for the next round only (Lucky Charm).
+    nextRoundRerollBonus: 0,
+    // Highest single cast this run, for Run Info and achievements.
+    bestCast: 0,
   }
 }
 
-function startNewRun(deckId, difficultyId, activeSlot = null) {
+function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '') {
+  // Seed first, so every roll below is reproducible from it.
+  const seed = cleanSeed(seedInput) || randomSeed()
+  setRngState(seedToState(seed))
+  // The Road first, so its layout depends on the seed alone.
+  const map = newMap()
   const deck = deckById(deckId)
   const difficulty = difficultyById(difficultyId)
   const dice = deck.dice.map((elementId) => makeDie(elementId))
@@ -351,14 +460,153 @@ function startNewRun(deckId, difficultyId, activeSlot = null) {
     dice: applyBossRoundStart(rollFreshRound(dice, bossModifier ? [bossModifier] : relics), bossModifier),
     relics,
     ownedElementsEver: [...new Set(deck.dice)],
+    chronicle: noteBoss(null, bossModifier),
+    map,
+    seed,
+    rngState: getRngState(),
   }
+}
+
+// Shared by NEXT_ROUND and CONTINUE_ENDLESS: roll into `round`.
+function enterRound(state, round) {
+  const prophecy = state.map?.prophecy
+  const foretold = prophecy?.round === round ? revalidateBoss(state, prophecy.boss, round) : null
+  const bossModifier = isBossRound(round, state.difficulty) ? foretold ?? pickBossModifier(state, round) : null
+  return {
+    ...state,
+    phase: 'rolling',
+    round,
+    bossModifier,
+    map: prophecy?.round === round ? { ...state.map, prophecy: null } : state.map,
+    chronicle: noteBoss(state.chronicle, bossModifier),
+    threshold: Math.round(thresholdForRound(round, state.difficulty) * (state.nextTargetMult || 1)),
+    nextTargetMult: 1,
+    dice: applyBossRoundStart(
+      rollFreshRound(state.dice, bossModifier ? effectiveRelics({ relics: state.relics, bossModifier }) : state.relics),
+      bossModifier,
+    ),
+    rerollsUsed: 0,
+    rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
+    nextRoundRerollBonus: 0,
+    freezeChargesUsed: 0,
+    shop: null,
+    lastResult: null,
+  }
+}
+
+// A foretold boss (Shrine prophecy) was chosen rounds ago: re-check its
+// per-run target against the pool you have now, so it can never become
+// unwinnable (Null Zone on a mono pool) or point at a relic you sold.
+function revalidateBoss(state, boss, round) {
+  if (!boss) return null
+  if (boss.id === 'null_zone') {
+    const owned = [...new Set(state.dice.map((d) => d.elementId))]
+    if (owned.length < 2) return pickBossModifier(state, round)
+    if (owned.includes(boss.effects.bannedElementId)) return boss
+    return { ...boss, effects: { ...boss.effects, bannedElementId: randomOf(owned) } }
+  }
+  if (boss.id === 'silence') {
+    if (!state.relics.length) return pickBossModifier(state, round)
+    if (state.relics.some((r) => r.id === boss.effects.sealedRelicId)) return boss
+    return { ...boss, effects: { ...boss.effects, sealedRelicId: randomOf(state.relics).id } }
+  }
+  return boss
+}
+
+function noteBoss(chronicle, boss) {
+  const c = chronicle ?? { bosses: [], shops: [] }
+  if (!boss || c.bosses.includes(boss.id)) return c
+  return { ...c, bosses: [...c.bosses, boss.id] }
+}
+
+function addBoon(state, id, source, detail = null) {
+  return [...(state.boons || []), { id, source, round: state.round, detail }]
+}
+
+function nextBossRound(state) {
+  for (let r = state.round + 1; r < state.round + 40; r++) {
+    if (isBossRound(r, state.difficulty)) return r
+  }
+  return null
+}
+
+// What a boss reward does. The player gets both: one die grows a size, and
+// one slot of their choice (dice, relics or consumables).
+export const BOSS_REWARDS = ['dice', 'relics', 'consumables']
+
+function applyBossReward(state, { dieId, slot }) {
+  let dice = state.dice
+  const die = state.dice.find((d) => d.id === dieId)
+  const next = die && nextTier(die.tierId)
+  if (next) dice = state.dice.map((d) => (d.id === die.id ? { ...d, tierId: next.id, sides: next.sides } : d))
+  return {
+    ...state,
+    dice,
+    diceCapBonus: (state.diceCapBonus || 0) + (slot === 'dice' ? 1 : 0),
+    relicCapBonus: (state.relicCapBonus || 0) + (slot === 'relics' ? 1 : 0),
+    consumableCapBonus: (state.consumableCapBonus || 0) + (slot === 'consumables' ? 1 : 0),
+  }
+}
+
+function giveConsumable(state, def) {
+  return [...state.consumables, { ...def, instanceId: makeId() }]
+}
+
+const SHOP_ONLY_CONSUMABLES = ['spark', 'loom']
+
+function brewCost(state) {
+  return applyDiscount(4, state.relics, shopCut(state.shop, 'brew'))
+}
+
+// Whether a Black Market deal can be paid right now (never lethal, never
+// past a cap).
+function dealAvailable(state, deal) {
+  if (deal.id === 'blood_relic') return state.lives >= 2 && state.relics.length < relicCapFor(state)
+  if (deal.id === 'soul_die') return state.maxLives >= 2 && state.dice.length < maxDiceFor(state)
+  if (deal.id === 'hollow_pact') return state.relics.length < relicCapFor(state)
+  return true
+}
+
+function blessingAvailable(state, id) {
+  if (id === 'kindle') return state.dice.some((d) => nextTier(d.tierId))
+  if (id === 'aether_gift') return state.consumables.length < consumableCapFor(state)
+  return true
+}
+
+// Moves along the Road into `round`: to the picked stop, or the only one.
+// Returns null when the player still has to choose.
+function travel(map, round, autoPick = false) {
+  if (!map) return null
+  const grown = ensureLayers(map, round + 1)
+  const choices = nextChoices(grown)
+  const pick =
+    nodeById(grown, grown.pendingId) ?? (choices.length === 1 || autoPick ? choices[0] : null)
+  if (!pick) return null
+  return { ...grown, currentId: pick.id, pendingId: null, path: [...grown.path, pick.id] }
+}
+
+// A save from before the Road existed: lay one out and stand on round N.
+function legacyMap(save) {
+  if (!save?.round) return null
+  const map = ensureLayers(newMap(), save.round + 1)
+  const node = map.layers[save.round - 1].find((n) => n.type === 'market') ?? map.layers[save.round - 1][0]
+  return { ...map, currentId: node.id, path: [node.id] }
 }
 
 export function initialState() {
   return baseTitleState()
 }
 
+// Restores the seeded generator from the state before each action and saves
+// it back after, so randomness is part of the (saveable) game state.
 export function gameReducer(state, action) {
+  if (typeof state.rngState === 'number') setRngState(state.rngState)
+  const next = reduce(state, action)
+  if (next !== state && typeof next.rngState === 'number') return { ...next, rngState: getRngState() }
+  return next
+}
+
+function reduce(state, action) {
   switch (action.type) {
     case 'GO_TO_SLOTS':
       return { ...baseTitleState(), phase: 'slots' }
@@ -366,8 +614,10 @@ export function gameReducer(state, action) {
     case 'GO_TO_CREDITS':
       return { ...baseTitleState(), phase: 'credits' }
 
-    case 'GO_TO_GALLERY':
-      return { ...baseTitleState(), phase: 'gallery' }
+    // A save file's home screen: continue or start a run, gallery,
+    // achievements. Also where a finished or quit run returns to.
+    case 'GO_TO_HUB':
+      return { ...baseTitleState(), phase: 'hub', activeSlot: action.slot ?? state.activeSlot }
 
     case 'BACK_TO_MENU':
       return { ...baseTitleState(), phase: 'menu' }
@@ -376,23 +626,33 @@ export function gameReducer(state, action) {
     // picking. The save file on disk is untouched, only the in-memory
     // hydrated state is thrown away.
     case 'BACK_TO_SLOTS_FROM_PREVIEW':
-      return { ...baseTitleState(), phase: 'slots' }
+      return { ...baseTitleState(), phase: 'hub', activeSlot: state.activeSlot }
 
     // Chosen an empty slot from the save-slot screen: go pick a deck and
     // difficulty (the existing TitleScreen), remembering which slot the
     // resulting run should autosave to.
     case 'NEW_RUN_SETUP':
-      return { ...baseTitleState(), phase: 'title', activeSlot: action.slot }
+      return { ...baseTitleState(), phase: 'title', activeSlot: action.slot ?? state.activeSlot }
 
     case 'START_RUN':
-      return startNewRun(action.deckId, action.difficultyId, state.activeSlot)
+      return startNewRun(action.deckId, action.difficultyId, state.activeSlot, action.seed)
 
     // Chosen a filled slot: hydrate its full snapshot, but land on a
     // preview screen (dice loadout, difficulty, round) rather than
     // dropping straight back into whatever mid-round state it was saved
     // at. The saved phase is stashed in resumePhase for RESUME_RUN.
     case 'LOAD_RUN':
-      return { ...action.save, phase: 'runPreview', resumePhase: action.save.phase }
+      // Older saves predate seeds: give them a generator state so the rest
+      // of the run is still saved and reproducible from here on.
+      return {
+        ...action.save,
+        activeSlot: action.slot ?? action.save.activeSlot,
+        rngState: action.save.rngState ?? Math.floor(Math.random() * 4294967296),
+        // Saves from before the Road: lay one out from here.
+        map: action.save.map ?? legacyMap(action.save),
+        phase: 'runPreview',
+        resumePhase: action.save.phase,
+      }
 
     case 'RESUME_RUN': {
       if (state.phase !== 'runPreview' || !state.resumePhase) return state
@@ -443,7 +703,7 @@ export function gameReducer(state, action) {
       if (fx.undertowRippleReroll) {
         const targets = dice.filter((d) => d.id !== action.dieId && !d.held && !d.locked)
         if (targets.length > 0) {
-          const target = targets[Math.floor(Math.random() * targets.length)]
+          const target = targets[Math.floor(random() * targets.length)]
           const rolled = rollDie(target.elementId, target.sides, effectiveRelics(state))
           dice = dice.map((d) => (d.id === target.id ? { ...d, ...rolled } : d))
         }
@@ -476,7 +736,7 @@ export function gameReducer(state, action) {
       if (fx.overclockZeroChance) {
         dice = dice.map((d) => {
           if (d.held || d.locked) return d
-          if (Math.random() < fx.overclockZeroChance) {
+          if (random() < fx.overclockZeroChance) {
             return { ...d, value: 1, total: 1, explosions: 0 }
           }
           return d
@@ -511,14 +771,24 @@ export function gameReducer(state, action) {
         let lives = state.lives
         if (state.round % LIFE_REGEN_EVERY_N_ROUNDS === 0 && lives < state.maxLives) lives += 1
 
+        const beatBoss = Boolean(state.bossModifier)
+        // The shop you walk into is the stop you picked on the Road.
+        const shopType = currentNode(state.map)?.type ?? 'market'
+        const chronicle = state.chronicle ?? { bosses: [], shops: [] }
+        // Beating the final boss ends the run on the spot (Endless picks up
+        // from the reward and shop, see CONTINUE_ENDLESS).
+        const won = state.round >= WIN_ROUND && !state.endless
         return {
           ...state,
-          phase: 'shop',
-          lastResult: { ...result, passed, threshold: state.threshold, shardGain },
+          // Beating a boss first offers a permanent upgrade, then the shop.
+          phase: won ? 'victory' : beatBoss ? 'bossReward' : 'shop',
+          chronicle: won ? chronicle : { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
+          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss },
           shards,
           permanentRerollBonus,
           lives,
-          shop: buildShopOffers(state),
+          bestCast: Math.max(state.bestCast || 0, result.roundScore),
+          shop: { ...buildShopOffers(state, shopType), afterBoss: beatBoss },
         }
       }
 
@@ -556,8 +826,8 @@ export function gameReducer(state, action) {
 
     case 'BUY_DIE': {
       if (state.phase !== 'shop') return state
-      if (state.dice.length >= maxDiceFor(state.difficulty)) return state
-      const cost = newDieCost(action.elementId, state.dice, state.relics)
+      if (state.dice.length >= maxDiceFor(state)) return state
+      const cost = newDieCost(action.elementId, state.dice, state.relics, state.shop)
       if (state.shards < cost) return state
       const die = makeDie(action.elementId)
       const ownedElementsEver = state.ownedElementsEver.includes(action.elementId)
@@ -590,7 +860,7 @@ export function gameReducer(state, action) {
     }
 
     case 'FUSE_DICE': {
-      if (state.phase !== 'shop') return state
+      if (state.phase !== 'shop' || !state.shop?.forgeOpen) return state
       const def = ELEMENTS[action.fusionElementId]
       if (!def || def.tier === 'pure') return state
       const usedIds = new Set()
@@ -601,7 +871,7 @@ export function gameReducer(state, action) {
         usedIds.add(match.id)
         parentDice.push(match)
       }
-      const cost = forgeCost(state.relics, def.tier)
+      const cost = forgeCost(state.relics, def.tier, state.shop)
       if (state.shards < cost) return state
       const fusionDie = makeDie(action.fusionElementId)
       const ownedElementsEver = state.ownedElementsEver.includes(action.fusionElementId)
@@ -617,10 +887,10 @@ export function gameReducer(state, action) {
 
     case 'BUY_RELIC': {
       if (state.phase !== 'shop') return state
-      if (state.relics.length >= state.difficulty.relicCap) return state
+      if (state.relics.length >= relicCapFor(state)) return state
       const relic = relicById(action.relicId)
       if (!relic || state.relics.some((r) => r.id === relic.id)) return state
-      const cost = relicCost(relic, state.relics)
+      const cost = relicCost(relic, state.relics, state.shop)
       if (state.shards < cost) return state
       return {
         ...state,
@@ -648,10 +918,10 @@ export function gameReducer(state, action) {
 
     case 'BUY_CONSUMABLE': {
       if (state.phase !== 'shop') return state
-      if (state.consumables.length >= MAX_CONSUMABLES) return state
+      if (state.consumables.length >= consumableCapFor(state)) return state
       const def = consumableById(action.consumableId)
       if (!def) return state
-      const cost = consumableCost(def, state.relics)
+      const cost = consumableCost(def, state.relics, state.shop)
       if (state.shards < cost) return state
       return {
         ...state,
@@ -664,6 +934,29 @@ export function gameReducer(state, action) {
           ),
         },
       }
+    }
+
+    // Buy a consumable and use it right away: no inventory slot needed, so
+    // it works even when the consumable inventory is full.
+    case 'BUY_AND_APPLY_CONSUMABLE': {
+      if (state.phase !== 'shop') return state
+      const def = consumableById(action.consumableId)
+      if (!def || !state.shop.itemOffers.some((o) => o.kind === 'consumable' && o.id === def.id)) return state
+      const cost = consumableCost(def, state.relics, state.shop)
+      if (state.shards < cost) return state
+      const instanceId = makeId()
+      const bought = {
+        ...state,
+        shards: state.shards - cost,
+        consumables: [...state.consumables, { ...def, instanceId }],
+        shop: {
+          ...state.shop,
+          itemOffers: state.shop.itemOffers.filter((o) => !(o.kind === 'consumable' && o.id === def.id)),
+        },
+      }
+      const applied = reduce(bought, { type: 'APPLY_CONSUMABLE', instanceId, dieId: action.dieId ?? null })
+      // Couldn't apply (e.g. no valid target): undo the purchase entirely.
+      return applied === bought ? state : applied
     }
 
     case 'SELL_CONSUMABLE': {
@@ -679,10 +972,14 @@ export function gameReducer(state, action) {
       }
     }
 
+    // Consumables work in the shop and during a round (except the ones
+    // that only make sense in a shop: Fusion Spark, Loom of Fate).
     case 'APPLY_CONSUMABLE': {
-      if (state.phase !== 'shop') return state
+      const rolling = state.phase === 'rolling'
+      if (state.phase !== 'shop' && !rolling) return state
       const item = state.consumables.find((c) => c.instanceId === action.instanceId)
       if (!item) return state
+      if (rolling && SHOP_ONLY_CONSUMABLES.includes(item.type)) return state
 
       const spent = state.consumables.filter((c) => c.instanceId !== action.instanceId)
       if (item.target === 'self') {
@@ -692,6 +989,31 @@ export function gameReducer(state, action) {
         if (item.type === 'heal') {
           if (state.lives >= state.maxLives) return state
           return { ...state, lives: state.lives + 1, consumables: spent }
+        }
+        if (item.type === 'pouch') {
+          return { ...state, shards: state.shards + Math.max(4, state.round * 2), consumables: spent }
+        }
+        if (item.type === 'charm') {
+          // Used mid-round it helps right now; in a shop, next round.
+          if (rolling) return { ...state, rerollsBonusThisRound: state.rerollsBonusThisRound + 3, consumables: spent }
+          return { ...state, nextRoundRerollBonus: (state.nextRoundRerollBonus || 0) + 3, consumables: spent }
+        }
+        if (item.type === 'spark') {
+          if (state.shop?.forgeOpen) return state
+          return { ...state, shop: { ...state.shop, forgeOpen: true }, consumables: spent }
+        }
+        if (item.type === 'loom') {
+          const fresh = rollShopStock(state, shopTypeById(state.shop.type))
+          return {
+            ...state,
+            shop: {
+              ...state.shop,
+              itemOffers: fresh.itemOffers,
+              buyableElements: fresh.buyableElements,
+              restocks: (state.shop.restocks || 0) + 1,
+            },
+            consumables: spent,
+          }
         }
         return state
       }
@@ -712,6 +1034,9 @@ export function gameReducer(state, action) {
         const prev = prevTier(die.tierId)
         if (!prev) return state
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, tierId: prev.id, sides: prev.sides } : d))
+      } else if (item.type === 'clone') {
+        if (state.dice.length >= maxDiceFor(state)) return state
+        dice = [...state.dice, { ...die, id: makeId(), held: false, locked: false, lockedVia: null, rollId: random() }]
       } else if (item.type === 'hone') {
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, bonus: (d.bonus || 0) + 2 } : d))
       } else if (item.type === 'infuse' || item.type === 'arcanize') {
@@ -737,6 +1062,10 @@ export function gameReducer(state, action) {
         return state
       }
 
+      // A die that shrank mid-round can't keep a face it no longer has.
+      dice = dice.map((d) =>
+        d.value > d.sides ? { ...d, value: d.sides, total: d.sides, explosions: 0, rollId: random() } : d,
+      )
       return {
         ...state,
         dice,
@@ -746,39 +1075,171 @@ export function gameReducer(state, action) {
     }
 
     case 'REROLL_SHOP_OFFERS': {
-      if (state.phase !== 'shop') return state
+      if (state.phase !== 'shop' || !shopTypeById(state.shop.type).reroll) return state
       const cost = rerollShopOffersCost(state)
       if (state.shards < cost) return state
-      const fresh = buildShopOffers(state)
+      const fresh = rollShopStock(state, shopTypeById(state.shop.type))
       return {
         ...state,
         shards: state.shards - cost,
-        shop: { ...fresh, rerollShopUses: state.shop.rerollShopUses + 1 },
+        shop: { ...state.shop, ...fresh, rerollShopUses: state.shop.rerollShopUses + 1, restocks: (state.shop.restocks || 0) + 1 },
       }
+    }
+
+    // Forge (and Bazaar): pay to grow one die a size.
+    case 'UPGRADE_DIE': {
+      if (state.phase !== 'shop' || !shopTypeById(state.shop.type).upgrades) return state
+      const die = state.dice.find((d) => d.id === action.dieId)
+      const up = die && dieUpgradeCost(die, state.relics, state.shop)
+      if (!up || state.shards < up.cost) return state
+      return {
+        ...state,
+        shards: state.shards - up.cost,
+        dice: state.dice.map((d) => (d.id === die.id ? { ...d, tierId: up.next.id, sides: up.next.sides } : d)),
+      }
+    }
+
+    // Alchemist (and Bazaar): two owned consumables become one of a rarer
+    // kind (one step above the rarer input, as high as the pool goes).
+    case 'BREW': {
+      if (state.phase !== 'shop' || !shopTypeById(state.shop.type).brew) return state
+      const [a, b] = [action.a, action.b].map((id) => state.consumables.find((c) => c.instanceId === id))
+      if (!a || !b || a.instanceId === b.instanceId) return state
+      const cost = brewCost(state)
+      if (state.shards < cost) return state
+      const want = Math.max(RARITY_ORDER.indexOf(a.rarity), RARITY_ORDER.indexOf(b.rarity)) + 1
+      const top = Math.max(...CONSUMABLES.map((c) => RARITY_ORDER.indexOf(c.rarity)))
+      const rarity = RARITY_ORDER[Math.min(want, top)]
+      const def = randomOf(CONSUMABLES.filter((c) => c.rarity === rarity))
+      const rest = state.consumables.filter((c) => c.instanceId !== a.instanceId && c.instanceId !== b.instanceId)
+      return {
+        ...state,
+        shards: state.shards - cost,
+        consumables: [...rest, { ...def, instanceId: makeId() }],
+        shop: { ...state.shop, lastBrew: def.id },
+      }
+    }
+
+    case 'TAKE_DEAL': {
+      if (state.phase !== 'shop' || state.shop.dealTaken) return state
+      const deal = state.shop.deals?.find((d) => d.id === action.dealId)
+      if (!deal || !dealAvailable(state, deal)) return state
+      const shop = { ...state.shop, dealTaken: deal.id }
+      state = { ...state, boons: addBoon(state, deal.id, 'nix', deal.relicId ?? deal.elementId ?? deal.shards ?? null) }
+      if (deal.id === 'blood_relic') {
+        return { ...state, lives: state.lives - 1, relics: [...state.relics, relicById(deal.relicId)], shop }
+      }
+      if (deal.id === 'loan') {
+        return { ...state, shards: state.shards + deal.shards, nextTargetMult: 1.5, shop }
+      }
+      if (deal.id === 'soul_die') {
+        const maxLives = state.maxLives - 1
+        const ownedElementsEver = state.ownedElementsEver.includes(deal.elementId)
+          ? state.ownedElementsEver
+          : [...state.ownedElementsEver, deal.elementId]
+        return {
+          ...state,
+          maxLives,
+          lives: Math.min(state.lives, maxLives),
+          dice: [...state.dice, makeDie(deal.elementId)],
+          ownedElementsEver,
+          shop,
+        }
+      }
+      if (deal.id === 'hollow_pact') {
+        return {
+          ...state,
+          permanentRerollBonus: state.permanentRerollBonus + 2,
+          relicCapBonus: (state.relicCapBonus || 0) - 1,
+          shop,
+        }
+      }
+      return state
+    }
+
+    case 'TAKE_BLESSING': {
+      if (state.phase !== 'shop' || state.shop.blessingTaken) return state
+      const shop = { ...state.shop, blessingTaken: action.blessingId }
+      if (action.blessingId === 'prophecy') {
+        const round = nextBossRound(state)
+        if (!round) return state
+        const boss = pickBossModifier(state, round)
+        return {
+          ...state,
+          map: { ...state.map, prophecy: { round, boss } },
+          boons: addBoon(state, 'prophecy', 'aeris', { round, bossId: boss.id }),
+          shop,
+        }
+      }
+      if (!state.shop.blessings?.includes(action.blessingId)) return state
+      if (!blessingAvailable(state, action.blessingId)) return state
+      state = { ...state, boons: addBoon(state, action.blessingId, 'aeris') }
+      switch (action.blessingId) {
+        case 'mend':
+          return state.lives < state.maxLives
+            ? { ...state, lives: state.lives + 1, shop }
+            : { ...state, shards: state.shards + 8, shop }
+        case 'kindle': {
+          const growable = state.dice.filter((d) => nextTier(d.tierId))
+          const die = randomOf(growable)
+          const next = nextTier(die.tierId)
+          return {
+            ...state,
+            dice: state.dice.map((d) => (d.id === die.id ? { ...d, tierId: next.id, sides: next.sides } : d)),
+            shop: { ...shop, blessedDieId: die.id },
+          }
+        }
+        case 'tide':
+          return { ...state, nextRoundRerollBonus: (state.nextRoundRerollBonus || 0) + 3, shop }
+        case 'gale':
+          return { ...state, permanentRerollBonus: state.permanentRerollBonus + 1, shop }
+        case 'aether_gift': {
+          const def = randomOf(CONSUMABLES.filter((c) => c.rarity === RARITY.RARE))
+          return { ...state, consumables: giveConsumable(state, def), shop: { ...shop, giftId: def.id } }
+        }
+        default:
+          return state
+      }
+    }
+
+    case 'CHOOSE_BOSS_REWARD': {
+      if (state.phase !== 'bossReward' || !BOSS_REWARDS.includes(action.slot)) return state
+      const canGrow = state.dice.some((d) => nextTier(d.tierId))
+      const die = state.dice.find((d) => d.id === action.dieId)
+      if (canGrow && !(die && nextTier(die.tierId))) return state
+      return { ...applyBossReward(state, action), phase: 'shop' }
+    }
+
+    // Pick the next stop on the Road (a shop linked from the current one).
+    case 'CHOOSE_PATH': {
+      if (state.phase !== 'shop' || !state.map) return state
+      if (!nextChoices(state.map).some((n) => n.id === action.nodeId)) return state
+      return { ...state, map: { ...state.map, pendingId: action.nodeId } }
     }
 
     case 'NEXT_ROUND': {
       if (state.phase !== 'shop') return state
       const round = state.round + 1
-      if (round > WIN_ROUND) {
+      if (round > WIN_ROUND && !state.endless) {
         return { ...state, phase: 'victory' }
       }
-      const bossModifier = isBossRound(round, state.difficulty) ? pickBossModifier(state, round) : null
+      const map = travel(state.map, round)
+      if (!map) return state
+      return enterRound({ ...state, map }, round)
+    }
+
+    // After a win: keep playing the same run, with targets still climbing.
+    // The final boss's reward and shop come first, then round 16.
+    case 'CONTINUE_ENDLESS': {
+      if (state.phase !== 'victory') return state
+      const shopType = currentNode(state.map)?.type ?? 'market'
+      const chronicle = state.chronicle ?? { bosses: [], shops: [] }
       return {
         ...state,
-        phase: 'rolling',
-        round,
-        bossModifier,
-        threshold: thresholdForRound(round, state.difficulty),
-        dice: applyBossRoundStart(
-          rollFreshRound(state.dice, bossModifier ? effectiveRelics({ relics: state.relics, bossModifier }) : state.relics),
-          bossModifier,
-        ),
-        rerollsUsed: 0,
-        rerollsBonusThisRound: 0,
-        freezeChargesUsed: 0,
-        shop: null,
-        lastResult: null,
+        endless: true,
+        phase: 'bossReward',
+        chronicle: { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
+        shop: { ...buildShopOffers(state, shopType), afterBoss: true },
       }
     }
 
@@ -804,8 +1265,16 @@ export const selectors = {
   rarityUnlockRound: (rarity) => RARITY_UNLOCK_ROUND[rarity],
   maxDiceFor,
   maxConsumables: MAX_CONSUMABLES,
+  relicCapFor,
+  consumableCapFor,
+  winRound: WIN_ROUND,
   effectiveRelics,
   isBossRound,
   forgeCost,
   forgeableRecipes,
+  brewCost,
+  dealAvailable,
+  blessingAvailable,
+  nextBossRound,
+  shopOnlyConsumables: SHOP_ONLY_CONSUMABLES,
 }

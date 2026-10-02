@@ -8,6 +8,10 @@ import PixelIcon from './PixelIcon.jsx'
 import { relicDescriptor, consumableDescriptor } from '../data/itemDescriptors.js'
 import { localizeDifficulty } from '../data/i18n.js'
 import { selectors } from '../engine/gameReducer.js'
+import KeeperSprite from './KeeperSprite.jsx'
+import { shopTypeById } from '../data/shops.js'
+import { currentNode } from '../engine/map.js'
+import BoonsList from './BoonsList.jsx'
 
 export function Hearts({ lives, maxLives, size = 14 }) {
   const { lang } = useLanguage()
@@ -46,7 +50,7 @@ export function Stat({ label, children, accent }) {
   )
 }
 
-function MiniIcon({ itemKey, item, openKey, onOpenChange }) {
+function MiniIcon({ itemKey, item, openKey, onOpenChange, actions, armed = false }) {
   const isOpen = openKey === itemKey
   return (
     <div className="relative">
@@ -57,10 +61,11 @@ function MiniIcon({ itemKey, item, openKey, onOpenChange }) {
         color={item.color}
         rarity={item.rarity}
         title={item.name}
+        armed={armed}
         onClick={() => onOpenChange(isOpen ? null : itemKey)}
       />
       <AnimatePresence>
-        {isOpen && <ItemInspector item={item} onClose={() => onOpenChange(null)} placement="right" />}
+        {isOpen && <ItemInspector item={item} actions={actions} onClose={() => onOpenChange(null)} placement="right" />}
       </AnimatePresence>
     </div>
   )
@@ -77,12 +82,16 @@ function EmptySlot({ size = 48 }) {
  * consumables, each inspectable. Replaces the old one-line strip that
  * floated above the dice.
  */
-export default function RoundHUD({ state }) {
+export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
   const { lang, t } = useLanguage()
   const [openKey, setOpenKey] = useState(null)
   const difficulty = state.difficulty ? localizeDifficulty(state.difficulty, lang) : null
-  const relicCap = state.difficulty?.relicCap ?? state.relics.length
+  const relicCap = selectors.relicCapFor(state)
+  const consumableCap = selectors.consumableCapFor(state)
   const boss = Boolean(state.bossModifier)
+  // The shop this round leads to (picked on the Road last shop).
+  const node = state.map ? currentNode(state.map) : null
+  const nextShop = node ? shopTypeById(node.type) : null
 
   return (
     <aside data-tut="hud" className="el-panel flex flex-col gap-5 p-4 lg:sticky lg:top-4 lg:self-start">
@@ -109,6 +118,20 @@ export default function RoundHUD({ state }) {
         <ShardCount value={state.shards} />
       </div>
 
+      {nextShop && (
+        <div className="el-well flex items-center gap-3 px-3 py-2" title={nextShop.blurb[lang]}>
+          <KeeperSprite id={nextShop.keeper} size={28} />
+          <span className="flex flex-col leading-tight">
+            <span className="el-label">{t('elementa.hud.nextStop')}</span>
+            <span className="text-base" style={{ color: nextShop.color }}>
+              {nextShop.name[lang]}
+            </span>
+          </span>
+        </div>
+      )}
+
+      <BoonsList state={state} />
+
       <section className="flex flex-col gap-3">
         <h3 className="el-label">
           {t('elementa.shop.relics')} {state.relics.length}/{relicCap}
@@ -131,19 +154,39 @@ export default function RoundHUD({ state }) {
 
       <section className="flex flex-col gap-3">
         <h3 className="el-label">
-          {t('elementa.shop.consumables')} {state.consumables.length}/{selectors.maxConsumables}
+          {t('elementa.shop.consumables')} {state.consumables.length}/{consumableCap}
         </h3>
         <div className="flex flex-wrap gap-3 p-1">
-          {state.consumables.map((c) => (
-            <MiniIcon
-              key={c.instanceId}
-              itemKey={`consumable-${c.instanceId}`}
-              item={consumableDescriptor(c, lang)}
-              openKey={openKey}
-              onOpenChange={setOpenKey}
-            />
-          ))}
-          {Array.from({ length: Math.max(0, selectors.maxConsumables - state.consumables.length) }).map((_, i) => (
+          {state.consumables.map((c) => {
+            const shopOnly = selectors.shopOnlyConsumables.includes(c.type)
+            const usable = dispatch && state.phase === 'rolling' && !shopOnly
+            return (
+              <MiniIcon
+                key={c.instanceId}
+                itemKey={`consumable-${c.instanceId}`}
+                item={consumableDescriptor(c, lang)}
+                armed={armedConsumable === c.instanceId}
+                actions={
+                  dispatch && state.phase === 'rolling'
+                    ? [
+                        {
+                          label: shopOnly ? t('elementa.hud.shopOnly') : t('elementa.shop.apply'),
+                          disabled: !usable,
+                          onClick: () => {
+                            if (c.target === 'self') dispatch({ type: 'APPLY_CONSUMABLE', instanceId: c.instanceId, dieId: null })
+                            else onArm?.(c.instanceId)
+                            setOpenKey(null)
+                          },
+                        },
+                      ]
+                    : undefined
+                }
+                openKey={openKey}
+                onOpenChange={setOpenKey}
+              />
+            )
+          })}
+          {Array.from({ length: Math.max(0, consumableCap - state.consumables.length) }).map((_, i) => (
             <EmptySlot key={i} />
           ))}
         </div>

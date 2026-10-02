@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
@@ -122,12 +122,27 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
     return () => clearTimeout(id)
   }, [state, active, paused, progress])
 
-  useEffect(() => {
-    onActiveChange?.(Boolean(active))
-  }, [active, onActiveChange])
-
   const step = active ? active.group.steps[active.index] : null
+  const actionStep = Boolean(step?.waitFor)
+
+  // Info steps pause the game; action steps let the player act.
+  useEffect(() => {
+    onActiveChange?.(Boolean(active) && !actionStep)
+  }, [active, actionStep, onActiveChange])
+
   const rect = useTargetRect(step?.target ?? null)
+
+  // Action steps advance by themselves once the player has done the thing.
+  const stateRef = useRef(state)
+  stateRef.current = state
+  useEffect(() => {
+    if (!step?.waitFor) return
+    const id = setInterval(() => {
+      if (step.waitFor(stateRef.current)) next(true)
+    }, 200)
+    return () => clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
   function finishGroup() {
     markTutorialSeen(active.group.id)
@@ -135,8 +150,8 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
     setActive(null)
   }
 
-  function next() {
-    playClick()
+  function next(silent = false) {
+    if (!silent) playClick()
     if (active.index + 1 < active.group.steps.length) setActive({ ...active, index: active.index + 1 })
     else finishGroup()
   }
@@ -153,6 +168,9 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
   useEffect(() => {
     if (!active) return
     function onKey(e) {
+      // Action steps leave the keyboard to the game (hotkeys are part of
+      // what Pip is teaching); only Escape still closes the tutorial.
+      if (actionStep && e.key !== 'Escape') return
       e.stopImmediatePropagation()
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault()
@@ -164,7 +182,7 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
     window.addEventListener('keydown', onKey, { capture: true })
     return () => window.removeEventListener('keydown', onKey, { capture: true })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active])
+  }, [active, actionStep])
 
   const pad = 10
   // Keep the bubble out of the spotlight: if the target sits in the lower
@@ -180,7 +198,7 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60]"
+          className={`fixed inset-0 z-[60] ${actionStep ? 'pointer-events-none' : ''}`}
           role="dialog"
           aria-modal="true"
           aria-label={t('elementa.tutorial.label')}
@@ -199,6 +217,16 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
             <div className="absolute inset-0 bg-[#07050c]/70" />
           )}
 
+          {/* Action steps: block clicks everywhere except the spotlight. */}
+          {actionStep && rect && (
+            <>
+              <div className="pointer-events-auto absolute inset-x-0 top-0" style={{ height: Math.max(0, rect.y - pad) }} />
+              <div className="pointer-events-auto absolute inset-x-0 bottom-0" style={{ top: rect.y + rect.h + pad }} />
+              <div className="pointer-events-auto absolute left-0" style={{ top: rect.y - pad, height: rect.h + pad * 2, width: Math.max(0, rect.x - pad) }} />
+              <div className="pointer-events-auto absolute right-0" style={{ top: rect.y - pad, height: rect.h + pad * 2, left: rect.x + rect.w + pad }} />
+            </>
+          )}
+
           <div
             className={`absolute inset-x-4 flex gap-3 sm:left-8 sm:right-auto sm:max-w-xl ${
               lowTarget ? 'top-4 items-start sm:top-8' : 'bottom-4 items-end sm:bottom-8'
@@ -212,7 +240,7 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
               initial={{ opacity: 0, y: 10, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ type: 'spring', bounce: 0.3, duration: 0.35 }}
-              className="el-panel flex flex-1 flex-col gap-4 p-4"
+              className="el-panel pointer-events-auto flex flex-1 flex-col gap-4 p-4"
               style={{ '--edge': '#ffd166' }}
             >
               <div className="flex items-center justify-between">
@@ -228,10 +256,14 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
                 <button type="button" onClick={skipAll} className="el-btn el-btn--ghost el-btn--sm">
                   {t('elementa.tutorial.skip')}
                 </button>
-                <button type="button" onClick={next} className="el-btn el-btn--gold el-btn--sm">
-                  {last ? t('elementa.tutorial.gotIt') : t('elementa.tutorial.next')}
-                  <span className="el-key">Enter</span>
-                </button>
+                {actionStep ? (
+                  <span className="text-sm text-[var(--gold-hi)]">{t('elementa.tutorial.doIt')}</span>
+                ) : (
+                  <button type="button" onClick={() => next()} className="el-btn el-btn--gold el-btn--sm">
+                    {last ? t('elementa.tutorial.gotIt') : t('elementa.tutorial.next')}
+                    <span className="el-key">Enter</span>
+                  </button>
+                )}
               </div>
             </motion.div>
           </div>

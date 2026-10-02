@@ -464,4 +464,9 @@ export const ITEM_ART = {
   phoenix_feather: ['feather', '#e5533d'],
   aether_dust: ['orb', '#c8b6ff'],
   arcane_seal: ['coin', '#8f6bff'],
+  shard_pouch: ['bag', '#8a5a34', '#ffd166'],
+  lucky_charm: ['clover', '#5fd38a'],
+  fusion_spark: ['flame', '#ff7a45', '#ffe27a'],
+  mirror_shard: ['gem', '#b8c4d6'],
+  loom_of_fate: ['hourglass', '#9a5f34', '#ffd166'],
 }

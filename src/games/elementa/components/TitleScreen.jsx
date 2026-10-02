@@ -8,6 +8,7 @@ import { localizeDeck, localizeDifficulty } from '../data/i18n.js'
 import { dieDescriptor } from '../data/itemDescriptors.js'
 import ItemIcon from './ItemIcon.jsx'
 import { readProfile, isDeckUnlocked, isDifficultyUnlocked } from '../utils/profile.js'
+import { cleanSeed } from '../engine/rng.js'
 
 function OptionCard({ selected, onClick, children, accent, disabled = false }) {
   return (
@@ -29,9 +30,10 @@ function OptionCard({ selected, onClick, children, accent, disabled = false }) {
 }
 
 /** New-run setup: pick starting dice and stakes, then begin. */
-export default function TitleScreen({ dispatch }) {
+export default function TitleScreen({ slot, dispatch }) {
   const { t, lang } = useLanguage()
-  const [profile] = useState(readProfile)
+  const [profile] = useState(() => readProfile(slot))
+  const [seed, setSeed] = useState('')
   // Default to the newest loadout the player has unlocked: that's usually
   // the one they want to try next.
   const [deckId, setDeckId] = useState(
@@ -135,12 +137,25 @@ export default function TitleScreen({ dispatch }) {
         </div>
       </section>
 
+      <label className="flex flex-col items-center gap-2">
+        <span className="el-label">{t('elementa.title.seed')}</span>
+        <input
+          value={seed}
+          onChange={(e) => setSeed(cleanSeed(e.target.value))}
+          placeholder={t('elementa.title.seedPlaceholder')}
+          maxLength={8}
+          spellCheck={false}
+          style={{ fontFamily: 'var(--small-font)' }}
+          className="el-well w-56 px-3 py-2 text-center text-lg uppercase tracking-[0.3em] text-[var(--gold-hi)] outline-none placeholder:text-sm placeholder:normal-case placeholder:tracking-normal placeholder:text-[var(--text-mute)] focus:shadow-[0_0_0_2px_var(--gold-1)]"
+        />
+      </label>
+
       <div className="flex items-center gap-6">
         <button
           type="button"
           onClick={() => {
             playClick()
-            dispatch({ type: 'GO_TO_SLOTS' })
+            dispatch({ type: 'GO_TO_HUB' })
           }}
           className="el-btn el-btn--ghost"
         >
@@ -150,7 +165,7 @@ export default function TitleScreen({ dispatch }) {
           type="button"
           onClick={() => {
             playClick()
-            dispatch({ type: 'START_RUN', deckId, difficultyId })
+            dispatch({ type: 'START_RUN', deckId, difficultyId, seed })
           }}
           className="el-btn el-btn--gold el-btn--lg min-w-[220px]"
         >

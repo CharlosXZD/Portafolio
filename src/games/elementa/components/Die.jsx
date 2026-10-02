@@ -11,6 +11,7 @@ import Tooltip from './Tooltip.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY } from './DieSprite.jsx'
 import { mix } from '../utils/color.js'
+import { dieColors } from './DieToken.jsx'
 
 const FLICKER_TICK_MS = 45
 const FLICKER_TICKS = 7
@@ -34,9 +35,11 @@ export default function Die({
   size = 84,
   hidden = false,
   lockBlocked = false,
-  reactLeft = null,
-  reactRight = null,
+  linkColors = null,
+  linkGap = 24,
+  targeting = false,
   isDragging,
+  showHotkey = true,
 }) {
   const { reducedMotion } = useGameSettings()
   const { lang, t } = useLanguage()
@@ -46,6 +49,11 @@ export default function Die({
   const isLocked = die.locked && die.lockedVia === 'lock'
   const isFrozen = die.locked && die.lockedVia === 'freeze'
   const description = describeElement(die.elementId, lang)
+  // Which element families this die belongs to (pure: itself, fusion: its
+  // parents), the same notion relic text uses ("Water-family die").
+  const families = (def.tier === 'pure' ? [die.elementId] : def.parents).map((f) =>
+    localize(lang, ELEMENTS[f].name, ELEMENTS_ES, f, 'name'),
+  )
   const rarity = rarityForElement(die.elementId)
   const rarityGlow = rarity !== RARITY.COMMON ? RARITY_GLOW[rarity] : null
 
@@ -85,23 +93,17 @@ export default function Die({
     mountedLockedVia.current = die.lockedVia
   }, [die.lockedVia])
 
-  const pose = isFrozen
-    ? { y: 0, scale: 0.94, rotate: 0 }
-    : isLocked
-      ? { y: 0, scale: 1, rotate: 0 }
-      : { y: die.held ? -12 : 0, scale: die.held ? 1.04 : 1, rotate: 0 }
+  // Every die stays on the same baseline: held/locked/frozen read through
+  // the colored ring and the tag underneath, not by moving the die (a lift
+  // made mixed rows look misaligned).
+  const pose = { y: 0, scale: 1, rotate: 0 }
 
   // Die body colors come from the element, darkened toward the night
   // palette so pale elements (Air, Steam) still carry a light number.
-  const base = isFrozen ? '#3a7cb0' : def.color
-  const colors = {
-    top: mix(base, '#1a1426', 0.38),
-    bottom: mix(base, '#120d1c', 0.58),
-    rim: isFrozen ? '#bfefff' : mix(base, '#ffffff', 0.35),
-    shade: mix(base, '#0a0710', 0.7),
-    facet: mix(base, '#120d1c', 0.5),
-  }
-  const ringColor = scoring
+  const colors = dieColors(die.elementId, isFrozen)
+  const ringColor = targeting
+    ? '#b89cff'
+    : scoring
     ? '#ffd166'
     : die.held && !die.locked
       ? '#ffd166'
@@ -123,6 +125,11 @@ export default function Die({
               {elementName} <span className="text-[var(--text-mute)]">d{die.sides}</span>
             </div>
             <p className="mb-2 text-[var(--text)]">{description.tagline}</p>
+            {families.length > 0 && (
+              <p className="mb-2 text-[var(--arcane-hi)]">
+                {t('elementa.gallery.families')}: {families.join(', ')}
+              </p>
+            )}
             <ul className="flex list-none flex-col gap-1">
               {description.flagLines.map((line) => (
                 <li key={line} className="before:mr-1.5 before:text-[var(--gold-2)] before:content-['+']">
@@ -145,7 +152,7 @@ export default function Die({
             playClick()
             onToggleHeld(die.id)
           }}
-          disabled={die.locked || revealing}
+          disabled={(die.locked && !targeting) || revealing}
           whileTap={die.locked || revealing ? {} : juicyTap(reducedMotion)}
           whileHover={die.locked || revealing ? {} : juicyHover(reducedMotion)}
           animate={pose}
@@ -161,18 +168,20 @@ export default function Die({
         >
           <DieSprite tier={die.tierId} size={size} {...colors} ringColor={ringColor} />
 
-          {/* Reaction glow on the side(s) where this die reacts with a neighbor. */}
-          {reactLeft && (
+          {/* Reaction bar in the gap to the right neighbor: one segment per
+              reaction on this link, centered in the gap so bars never overlap. */}
+          {linkColors && (
             <span
-              className="pointer-events-none absolute -left-3 top-1/4 h-1/2 w-1.5"
-              style={{ background: reactLeft, boxShadow: `0 0 10px 2px ${reactLeft}` }}
-            />
-          )}
-          {reactRight && (
-            <span
-              className="pointer-events-none absolute -right-3 top-1/4 h-1/2 w-1.5"
-              style={{ background: reactRight, boxShadow: `0 0 10px 2px ${reactRight}` }}
-            />
+              className="pointer-events-none absolute top-1/4 flex h-1/2 w-1.5 flex-col"
+              style={{
+                right: -(linkGap / 2) - 3,
+                boxShadow: `0 0 10px 2px ${linkColors[0]}`,
+              }}
+            >
+              {linkColors.map((c) => (
+                <span key={c} className="flex-1" style={{ background: c }} />
+              ))}
+            </span>
           )}
 
           <span className="pointer-events-none absolute left-[18%] top-[16%]" style={die.tierId === 'd3' ? { left: '43%', top: '26%' } : undefined}>
@@ -284,7 +293,7 @@ export default function Die({
             </span>
           )}
           {die.held && !die.locked && <span className="el-chip bg-[var(--gold-1)] text-[var(--ink)]">{t('elementa.die.held')}</span>}
-          {!die.held && !die.locked && !canFreeLock && !canFreeze && hotkey != null && (
+          {showHotkey && !die.held && !die.locked && !canFreeLock && !canFreeze && hotkey != null && (
             <span className="pixel-score text-[8px] text-[var(--text-mute)]">{hotkey}</span>
           )}
         </div>

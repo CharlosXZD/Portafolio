@@ -14,13 +14,17 @@ function fmt(n) {
   return Math.round(n * 100) / 100
 }
 
-export function useLineLabel() {
+export function useLineLabel(discovered) {
   const { t, lang } = useLanguage()
   return (line) => {
     if (line.kind === 'dice') return t('elementa.cast.dice')
     if (line.kind === 'explosions') return `${t('elementa.cast.explosions')} x${line.count}`
     if (line.kind === 'set') return SET_TIER_LABEL[lang][line.tier] ?? line.tier
-    if (line.kind === 'reaction') return localizeReaction(reactionById(line.id), lang).name
+    if (line.kind === 'reaction') {
+      const r = reactionById(line.id)
+      if (r.secret && discovered && !discovered.has(r.id)) return '???'
+      return localizeReaction(r, lang).name
+    }
     if (line.kind === 'relic') {
       const relic = relicById(line.id)
       return relic ? localize(lang, relic.name, RELICS_ES, relic.id, 'name') : t('elementa.cast.boss')
@@ -59,9 +63,9 @@ function Line({ label, value, op, state, color }) {
  * a live preview; during the cast reveal, lines light up one at a time
  * (`activeStep` says which), so the player watches the math happen.
  */
-export default function CastLedger({ result, reveal, hidden, target }) {
+export default function CastLedger({ result, reveal, hidden, target, open = true, onToggle, discovered }) {
   const { t } = useLanguage()
-  const label = useLineLabel()
+  const label = useLineLabel(discovered)
 
   const lineState = (section, index) => {
     if (!reveal) return 'idle'
@@ -81,8 +85,34 @@ export default function CastLedger({ result, reveal, hidden, target }) {
 
   return (
     <aside className="el-panel--dark el-panel flex w-full flex-col gap-4 p-4 lg:w-64">
-      <h3 className="pixel-heading text-[10px] text-[var(--gold-hi)]">{t('elementa.cast.ledger')}</h3>
-      {hidden ? (
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="pixel-heading text-[10px] text-[var(--gold-hi)]">{t('elementa.cast.ledger')}</h3>
+        {onToggle && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onToggle()
+            }}
+            className="el-btn el-btn--sm"
+            aria-expanded={open}
+          >
+            {open ? t('elementa.cast.hide') : t('elementa.cast.show')}
+          </button>
+        )}
+      </div>
+      {!open ? (
+        !hidden && (
+          <div className="flex flex-col gap-1">
+            <span className="pixel-score text-[10px] text-[var(--gold-1)]">
+              {fmt(base)} x {fmt(mult)} = {score}
+            </span>
+            <span className="text-sm" style={{ color: diff >= 0 ? 'var(--good)' : 'var(--text-dim)' }}>
+              {diff >= 0 ? t('elementa.cast.clearsBy').replace('{n}', diff) : t('elementa.cast.shortBy').replace('{n}', -diff)}
+            </span>
+          </div>
+        )
+      ) : hidden ? (
         <p className="text-base text-[var(--text-mute)]">{t('elementa.cast.hidden')}</p>
       ) : (
         <>

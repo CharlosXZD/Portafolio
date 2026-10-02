@@ -13,6 +13,7 @@ export default function CreditsScreen({ dispatch }) {
   const { t } = useLanguage()
   const credits = [
     { role: t('elementa.credits.roleDesign'), name: 'Carlos A. de la Peña González' },
+    { role: t('elementa.credits.roleTesters'), name: 'Ermal' },
     { role: t('elementa.credits.roleInspiration'), name: 'Balatro, Ultrapool' },
   ]
 

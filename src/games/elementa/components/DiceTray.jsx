@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, Reorder, motion, useAnimationControls } from 'framer-motion'
 import Die from './Die.jsx'
 import CastLedger from './CastLedger.jsx'
@@ -14,6 +14,8 @@ import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import AnimatedNumber from './AnimatedNumber.jsx'
 import TargetBar from './TargetBar.jsx'
 import PixelIcon from './PixelIcon.jsx'
+import BossAvatar from './BossAvatar.jsx'
+import { readProfile } from '../utils/profile.js'
 import { playRoll, playClick, playCoin, playBossRound } from '../utils/sound.js'
 
 // Per game-speed timings for the score reveal (Options -> Scoring speed).
@@ -93,9 +95,9 @@ function finishReveal(r) {
   return cur
 }
 
-export default function DiceTray({ state, dispatch, availableRerolls, paused = false }) {
+export default function DiceTray({ state, dispatch, availableRerolls, paused = false, armedConsumable = null, onArmedDone }) {
   const { t, lang } = useLanguage()
-  const { gameSpeed, screenShake, reducedMotion } = useGameSettings()
+  const { gameSpeed, screenShake, reducedMotion, display, updateDisplay } = useGameSettings()
   const shake = useAnimationControls()
   const [flash, setFlash] = useState(null)
   const timing = TIMING[gameSpeed] ?? TIMING.normal
@@ -110,6 +112,24 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const showHint = state.round === 1 && state.rerollsUsed === 0
   const narrow = useNarrow()
   const draggingRef = useRef(false)
+  // Secret reactions this save file has discovered; others show as "???".
+  const discovered = useMemo(
+    () => new Set(readProfile(state.activeSlot).seen.reactions || []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state.activeSlot, state.round, state.lastResult],
+  )
+
+  // Escape cancels a consumable waiting for its target die.
+  useEffect(() => {
+    if (!armedConsumable) return
+    function onKey(e) {
+      if (e.key !== 'Escape') return
+      e.stopImmediatePropagation()
+      onArmedDone?.()
+    }
+    window.addEventListener('keydown', onKey, { capture: true })
+    return () => window.removeEventListener('keydown', onKey, { capture: true })
+  }, [armedConsumable, onArmedDone])
 
   useEffect(() => {
     if (boss) playBossRound()
@@ -215,16 +235,15 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const multShown = hidden ? '?' : fmt(revealing ? reveal.mult : preview.multiplier)
   const liveScore = revealing ? Math.round(reveal.base * reveal.mult) : preview.roundScore
 
-  // Neighbor glows: color each die's left/right edge where a reaction
-  // between direct neighbors is firing.
-  const glow = {}
-  if (!hidden) {
+  // Neighbor links: one bar in the gap between two reacting neighbors,
+  // split into one segment per reaction on that link.
+  const links = {}
+  if (!hidden && display.glows) {
     shown.reactions.forEach((r) => {
       if (Math.abs(r.a - r.b) !== 1) return
-      const [l, rgt] = r.a < r.b ? [r.a, r.b] : [r.b, r.a]
+      const l = Math.min(r.a, r.b)
       const color = reactionById(r.id).color
-      glow[l] = { ...glow[l], right: color }
-      glow[rgt] = { ...glow[rgt], left: color }
+      links[l] = [...new Set([...(links[l] || []), color])]
     })
   }
 
@@ -243,7 +262,30 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     bossLine = lang === 'es' ? `${name} está sellada esta ronda.` : `${name} is sealed this round.`
   }
 
-  const size = narrow || state.dice.length > 6 ? 64 : 96
+  // Bigger pools get smaller dice, but always a gap wide enough for the
+  // reaction bar, and one row (wrapping broke drag-to-reorder).
+  const n = state.dice.length
+  const size = narrow ? 56 : n <= 5 ? 96 : n <= 7 ? 76 : 60
+  const gap = narrow ? 18 : n <= 5 ? 40 : n <= 7 ? 28 : 20
+
+  // Reaction chips: 'full' lists every trigger, 'compact' groups repeats
+  // ("Kindle x3 +4.5 Mult"), 'off' hides them (the ledger still lists them).
+  const reactionChips = []
+  if (!hidden && display.reactions !== 'off') {
+    if (display.reactions === 'full') {
+      shown.reactions.forEach((r, i) => reactionChips.push({ key: `${r.id}-${r.a}-${r.b}-${i}`, id: r.id, count: 1, base: r.base, mult: r.mult }))
+    } else {
+      const byId = new Map()
+      shown.reactions.forEach((r) => {
+        const g = byId.get(r.id) ?? { key: r.id, id: r.id, count: 0, base: 0, mult: 0 }
+        g.count += 1
+        g.base += r.base
+        g.mult += r.mult
+        byId.set(r.id, g)
+      })
+      reactionChips.push(...byId.values())
+    }
+  }
 
   return (
     <>
@@ -264,10 +306,13 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
       </AnimatePresence>
       <motion.div
         animate={shake}
-        className="grid min-h-[calc(100vh-2rem)] grid-cols-1 gap-6 py-2 xl:grid-cols-[1fr_16rem]"
+        data-casting={revealing ? '' : undefined}
+        className="grid grid-cols-1 gap-6 py-2 xl:grid-cols-[1fr_16rem] xl:items-start"
         onClick={revealing ? skipReveal : undefined}
       >
-        <div className="flex flex-col items-center justify-between gap-6">
+        {/* Its own fixed height, so a longer or shorter ledger next to it
+            can never stretch the row and move the dice. */}
+        <div className="flex min-h-[calc(100vh-3rem)] flex-col items-center justify-between gap-6">
           <div className="flex w-full max-w-2xl flex-col items-center gap-5">
             {boss && (
               <motion.div
@@ -278,6 +323,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 className="el-panel flex w-full items-center gap-4 px-4 py-3"
                 style={{ background: '#3a0f18', '--edge': '#ff5a5a' }}
               >
+                <BossAvatar id={boss.id} size={48} />
                 <span className="el-chip shrink-0 bg-[#ff5a5a] text-[var(--ink)]">
                   {boss.id === 'primordial' ? t('elementa.diceTray.finalBoss') : t('elementa.diceTray.bossRound')}
                 </span>
@@ -338,13 +384,24 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
           </div>
 
           {/* The table. Drag dice to reorder: neighbors react. */}
-          <div data-backdrop-anchor data-tut="dice" className="flex flex-1 flex-col items-center justify-center gap-6">
+          <div data-tut="dice" className="flex flex-1 flex-col items-center justify-center gap-6">
+            {armedConsumable && (
+              <div className="el-panel flex items-center gap-4 px-4 py-2" style={{ '--edge': 'var(--arcane-hi)' }}>
+                <span className="text-base text-[var(--arcane-hi)]">{t('elementa.shop.chooseDieToApply')}</span>
+                <button type="button" onClick={() => onArmedDone?.()} className="el-btn el-btn--sm">
+                  {t('elementa.shop.cancel')}
+                  <span className="el-key">Esc</span>
+                </button>
+              </div>
+            )}
             <Reorder.Group
               as="div"
               axis="x"
+              data-backdrop-anchor
               values={state.dice.map((d) => d.id)}
               onReorder={(order) => dispatch({ type: 'REORDER_DICE', order })}
-              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-6 px-2 sm:gap-x-10"
+              className={`flex items-center justify-center gap-y-6 px-2 ${narrow ? 'flex-wrap' : 'flex-nowrap'}`}
+              style={{ columnGap: gap }}
             >
               {state.dice.map((die, i) => {
                 const dieResult = shown.dice.find((d) => d.id === die.id)
@@ -364,10 +421,19 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       size={size}
                       hidden={hidden}
                       lockBlocked={Boolean(fx.noFreeLock)}
-                      reactLeft={glow[i]?.left ?? null}
-                      reactRight={glow[i]?.right ?? null}
+                      linkColors={links[i] ?? null}
+                      linkGap={gap}
+                      targeting={Boolean(armedConsumable)}
                       isDragging={() => draggingRef.current}
-                      onToggleHeld={(id) => dispatch({ type: 'TOGGLE_HELD', dieId: id })}
+                      showHotkey={display.keyHints}
+                      onToggleHeld={(id) => {
+                        if (armedConsumable) {
+                          dispatch({ type: 'APPLY_CONSUMABLE', instanceId: armedConsumable, dieId: id })
+                          onArmedDone?.()
+                          return
+                        }
+                        dispatch({ type: 'TOGGLE_HELD', dieId: id })
+                      }}
                       onLock={(id) => dispatch({ type: 'LOCK_DIE', dieId: id })}
                       onFreeze={(id) => dispatch({ type: 'FREEZE_DIE', dieId: id })}
                       canFreeze={canFreeze}
@@ -380,25 +446,28 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
               })}
             </Reorder.Group>
 
-            {/* Active reactions, named. */}
-            <div className="flex min-h-7 flex-wrap justify-center gap-3">
-              {!hidden &&
-                shown.reactions.map((r, i) => {
-                  const def = localizeReaction(reactionById(r.id), lang)
-                  const parts = []
-                  if (r.base > 0) parts.push(`+${r.base} ${t('elementa.diceTray.base')}`)
-                  if (r.mult > 0) parts.push(`+${r.mult} ${t('elementa.diceTray.mult')}`)
-                  return (
-                    <span
-                      key={`${r.id}-${r.a}-${r.b}-${i}`}
-                      title={def.description}
-                      className="el-chip text-[var(--ink)]"
-                      style={{ background: def.color }}
-                    >
-                      {def.name} {parts.join(' ')}
-                    </span>
-                  )
-                })}
+            {/* Active reactions, named (see Options -> Display). A fixed-height
+                box, so reactions appearing or vanishing never shift the dice. */}
+            <div className="flex h-[4.5rem] max-w-3xl flex-wrap content-start justify-center gap-3 overflow-hidden">
+              {reactionChips.map((c) => {
+                const raw = reactionById(c.id)
+                const def = localizeReaction(raw, lang)
+                const secretName = raw.secret && !discovered.has(raw.id) ? '???' : def.name
+                const parts = []
+                if (c.base > 0) parts.push(`+${fmt(c.base)} ${t('elementa.diceTray.base')}`)
+                if (c.mult > 0) parts.push(`+${fmt(c.mult)} ${t('elementa.diceTray.mult')}`)
+                return (
+                  <span
+                    key={c.key}
+                    title={secretName === '???' ? t('elementa.gallery.secretHint') : def.description}
+                    className="el-chip text-[var(--ink)]"
+                    style={{ background: def.color }}
+                  >
+                    {secretName}
+                    {c.count > 1 ? ` x${c.count}` : ''} {parts.join(' ')}
+                  </span>
+                )
+              })}
             </div>
           </div>
 
@@ -445,12 +514,22 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 {t('elementa.diceTray.freeze')} {freezeCharges - state.freezeChargesUsed}
               </span>
             )}
-            <span className="hidden text-sm text-[var(--text-mute)] sm:inline">{t('elementa.diceTray.keys')}</span>
+            {display.keyHints && (
+              <span className="hidden text-sm text-[var(--text-mute)] sm:inline">{t('elementa.diceTray.keys')}</span>
+            )}
           </div>
         </div>
 
-        <div data-tut="ledger" className="xl:sticky xl:top-16 xl:self-start">
-          <CastLedger result={shown} reveal={reveal} hidden={hidden} target={state.threshold} />
+        <div data-tut="ledger" className="xl:sticky xl:top-16 xl:max-h-[calc(100vh-5rem)] xl:self-start xl:overflow-y-auto">
+          <CastLedger
+            result={shown}
+            reveal={reveal}
+            hidden={hidden}
+            target={state.threshold}
+            discovered={discovered}
+            open={display.ledgerOpen}
+            onToggle={() => updateDisplay({ ledgerOpen: !display.ledgerOpen })}
+          />
         </div>
       </motion.div>
     </>

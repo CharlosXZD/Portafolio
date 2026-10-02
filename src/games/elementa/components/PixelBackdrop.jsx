@@ -86,7 +86,7 @@ function drawStatic(ctx, W, H, scene) {
   const img = ctx.createImageData(W, H)
   const rgb = sky.map((hex) => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)])
   for (let y = 0; y < H; y++) {
-    const t = (y / (H - 1)) * (rgb.length - 1)
+    const t = (y / Math.max(1, H - 1)) * (rgb.length - 1)
     const band = Math.min(rgb.length - 2, Math.floor(t))
     const frac = t - band
     for (let x = 0; x < W; x++) {
@@ -154,7 +154,9 @@ function ring(ctx, cx, cy, r) {
 function drawCircle(ctx, W, H, time, boss, anchor) {
   const cx = Math.round(anchor ? anchor.x : W / 2)
   const cy = Math.round(anchor ? anchor.y : H * 0.46)
-  const r = Math.round(Math.min(W, H) * 0.27)
+  // Grows with the dice row, so a big pool still sits inside the circle.
+  const fit = anchor?.w ? anchor.w / 2 + 10 : 0
+  const r = Math.round(Math.min(Math.max(Math.min(W, H) * 0.27, fit), Math.min(W, H) * 0.47))
   ctx.globalAlpha = 0.22
   ctx.fillStyle = boss ? '#ff5a5a' : '#8f6bff'
   ring(ctx, cx, cy, r)
@@ -218,7 +220,7 @@ export default function PixelBackdrop({ scene = 'menu', anchor = '[data-backdrop
         return
       }
       const r = el.getBoundingClientRect()
-      anchorPos = { x: (r.left + r.width / 2) / PX, y: (r.top + r.height / 2) / PX }
+      anchorPos = { x: (r.left + r.width / 2) / PX, y: (r.top + r.height / 2) / PX, w: r.width / PX }
     }
 
     function resize() {

@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useTexture, Float, RoundedBox } from '@react-three/drei'
+import { NearestFilter } from 'three'
 
 const icons = [
   {
@@ -19,6 +20,13 @@ const icons = [
     background: '/icons/project-wellness.png',
     mark: '/icons/project-wellness-mark.png',
   },
+  {
+    label: 'Elementa',
+    color: '#1b1636',
+    mark: '/icons/elementa-mark.png',
+    // Pixel art: sample with nearest-neighbor so it stays crisp, not blurry.
+    pixel: true,
+  },
 ]
 
 const radius = 1.35
@@ -29,8 +37,14 @@ const cardRadius = 0.1
 // Alpha-tested cutout plane instead of alpha-blended: this makes the layer behave like
 // normal opaque geometry (proper depth test + write), which is what avoids the transparency
 // sorting/z-fighting glitches you get from stacking multiple alpha-blended planes close together.
-function IconLayer({ url, z, scale, offset = [0, 0], color, renderOrder }) {
+function IconLayer({ url, z, scale, offset = [0, 0], color, renderOrder, pixel = false }) {
   const texture = useTexture(url)
+  if (pixel && texture.magFilter !== NearestFilter) {
+    texture.magFilter = NearestFilter
+    texture.minFilter = NearestFilter
+    texture.generateMipmaps = false
+    texture.needsUpdate = true
+  }
   return (
     <mesh position={[offset[0], offset[1], z]} renderOrder={renderOrder}>
       <planeGeometry args={[scale, scale]} />
@@ -65,12 +79,13 @@ function IconCard({ icon, angle }) {
         <IconLayer
           url={icon.mark}
           z={frontZ + 0.03}
-          scale={cardSize * 0.9}
+          scale={cardSize * (icon.pixel ? 0.78 : 0.9)}
           offset={[0.025, -0.025]}
           color="black"
           renderOrder={2}
+          pixel={icon.pixel}
         />
-        <IconLayer url={icon.mark} z={frontZ + 0.05} scale={cardSize * 0.9} renderOrder={3} />
+        <IconLayer url={icon.mark} z={frontZ + 0.05} scale={cardSize * (icon.pixel ? 0.78 : 0.9)} renderOrder={3} pixel={icon.pixel} />
       </group>
     </Float>
   )

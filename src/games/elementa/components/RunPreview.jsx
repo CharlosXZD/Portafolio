@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
 import ItemIcon from './ItemIcon.jsx'
+import DieToken from './DieToken.jsx'
 import { Hearts, ShardCount, Stat } from './RoundHUD.jsx'
 import { dieDescriptor, relicDescriptor, consumableDescriptor } from '../data/itemDescriptors.js'
 import { localizeDifficulty } from '../data/i18n.js'
@@ -13,7 +14,10 @@ function IconRow({ label, items }) {
       <h3 className="el-label">{label}</h3>
       {items.length > 0 ? (
         <div className="flex flex-wrap justify-center gap-3">
-          {items.map(({ key, item, size = 32 }) => (
+          {items.map(({ key, item, size = 32, die }) =>
+            die ? (
+              <DieToken key={key} die={die} size={size + 8} title={`${item.name} d${die.sides}`} />
+            ) : (
             <ItemIcon
               key={key}
               static
@@ -24,7 +28,8 @@ function IconRow({ label, items }) {
               rarity={item.rarity}
               title={item.name}
             />
-          ))}
+            ),
+          )}
         </div>
       ) : (
         <div className="text-base text-[var(--text-mute)]">{t('elementa.common.noneYet')}</div>
@@ -63,7 +68,7 @@ export default function RunPreview({ state, dispatch }) {
 
       <IconRow
         label={t('elementa.runPreview.diceLoadout')}
-        items={state.dice.map((die) => ({ key: die.id, item: dieDescriptor(die.elementId, lang), size: 40 }))}
+        items={state.dice.map((die) => ({ key: die.id, item: dieDescriptor(die.elementId, lang), size: 40, die }))}
       />
       <IconRow
         label={t('elementa.runPreview.relics')}

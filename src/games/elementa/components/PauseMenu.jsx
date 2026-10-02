@@ -11,7 +11,7 @@ import GalleryScreen from './GalleryScreen.jsx'
  * ElementaGame.jsx) while a run is live. The single home for Options and
  * leaving the run, from every in-run screen including the shop.
  */
-export default function PauseMenu({ dispatch, onResume }) {
+export default function PauseMenu({ slot, dispatch, onResume }) {
   const { t } = useLanguage()
   const [showOptions, setShowOptions] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
@@ -62,7 +62,7 @@ export default function PauseMenu({ dispatch, onResume }) {
           {t('elementa.options.title')}
         </button>
         <ConfirmButton
-          onConfirm={() => dispatch({ type: 'RETURN_HOME' })}
+          onConfirm={() => dispatch({ type: 'GO_TO_HUB' })}
           className="el-btn el-btn--danger"
           armedClassName="el-btn el-btn--danger brightness-125"
           confirmLabel={t('elementa.pause.confirmAbandon')}
@@ -76,7 +76,7 @@ export default function PauseMenu({ dispatch, onResume }) {
           className="fixed inset-0 z-50 flex justify-center overflow-y-auto bg-[#07050c] px-4 py-10"
           onClick={(e) => e.stopPropagation()}
         >
-          <GalleryScreen onBack={() => setShowGallery(false)} />
+          <GalleryScreen slot={slot} onBack={() => setShowGallery(false)} />
         </div>
       )}
     </Modal>
