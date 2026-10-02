@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion'
-import { ELEMENTS, FLAGS, describeElement, rarityForElement } from '../data/elements.js'
+import { ELEMENTS, FLAGS, rarityForElement } from '../data/elements.js'
 import { RARITY, RARITY_GLOW } from '../data/relics.js'
 import { playClick, playLock, playFreeze } from '../utils/sound.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
@@ -8,7 +8,10 @@ import { juicyHover, juicyTap } from '../utils/motionPresets.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { localize, ELEMENTS_ES } from '../data/i18n.js'
 import Tooltip from './Tooltip.jsx'
-import FamilyTags from './FamilyTag.jsx'
+import ItemInspector from './ItemInspector.jsx'
+import { DieHoverCard, DieFullModal } from './DieInfo.jsx'
+import { dieDescriptor } from '../data/itemDescriptors.js'
+import { useLongPress } from '../utils/useLongPress.js'
 import ElementFx from './ElementFx.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY } from './DieSprite.jsx'
@@ -75,7 +78,6 @@ export default function Die({
   const canFreeLock = (acting.flags[FLAGS.FREE_LOCK] || tideLock) && !die.locked && !lockBlocked
   const isLocked = die.locked && die.lockedVia === 'lock'
   const isFrozen = die.locked && die.lockedVia === 'freeze'
-  const description = describeElement(die.elementId, lang)
   const rarity = rarityForElement(die.elementId)
   const rarityGlow = rarity !== RARITY.COMMON ? RARITY_GLOW[rarity] : null
 
@@ -83,6 +85,22 @@ export default function Die({
   const [rolling, setRolling] = useState(false)
   const [displayValue, setDisplayValue] = useState(die.value)
   const [settleKey, setSettleKey] = useState(0)
+
+  // Detail levels (EXPANSION.md P5 to P9): the click popover and the
+  // click-and-hold dialog. Hold never toggles the die.
+  const [infoOpen, setInfoOpen] = useState(false)
+  const [fullOpen, setFullOpen] = useState(false)
+  const longPress = useLongPress(
+    () => {
+      setInfoOpen(false)
+      setFullOpen(true)
+    },
+    { enabled: !revealing },
+  )
+  // A new roll or a cast closes the popover: it describes the old state.
+  useEffect(() => {
+    setInfoOpen(false)
+  }, [die.rollId, revealing])
 
   const mountedLockedVia = useRef(die.lockedVia)
   const [lockEventKey, setLockEventKey] = useState(0)
@@ -178,42 +196,32 @@ export default function Die({
         )}
       </div>
       <Tooltip
+        disabled={infoOpen}
         content={
-          <div>
-            <div className="pixel-heading mb-2 text-[10px]" style={{ color: colors.rim }}>
-              {elementName} <span className="text-[var(--text-mute)]">d{die.sides}</span>
-            </div>
-            <p className="mb-2 text-[var(--text)]">{description.tagline}</p>
-            {acting.id !== die.elementId && (
-              <p className="mb-2 text-[var(--arcane-hi)]">
-                {t('elementa.die.actingAs').replace('{die}', localize(lang, acting.name, ELEMENTS_ES, acting.id, 'name'))}
-              </p>
-            )}
-            {/* The same family chips as the shop and Gallery (E2). */}
-            <FamilyTags elementId={die.elementId} className="mb-2" />
-            <ul className="flex list-none flex-col gap-1">
-              {description.flagLines.map((line) => (
-                <li key={line} className="before:mr-1.5 before:text-[var(--gold-2)] before:content-['+']">
-                  {line}
-                </li>
-              ))}
-            </ul>
-            {typeof contribution === 'number' && showFace && (
-              <p className="mt-2 text-[var(--gold-1)]">
-                {lang === 'es' ? `Anota ${contribution} esta tirada` : `Scores ${contribution} this roll`}
-              </p>
-            )}
-          </div>
+          <DieHoverCard
+            elementId={die.elementId}
+            sides={die.sides}
+            bonus={die.bonus || 0}
+            score={!showFace ? '?' : typeof contribution === 'number' ? Math.round(contribution * 10) / 10 : null}
+          />
         }
       >
         <motion.button
           type="button"
+          {...longPress.handlers}
           onClick={() => {
             if (revealing || isDragging?.()) return
+            if (longPress.consumed()) return
+            // A locked die can't be held, but it can still be read.
+            if (die.locked && !targeting) {
+              setInfoOpen(true)
+              return
+            }
             playClick()
             onToggleHeld(die.id)
+            if (!targeting) setInfoOpen(true)
           }}
-          disabled={(die.locked && !targeting) || revealing}
+          disabled={revealing}
           whileTap={die.locked || revealing ? {} : juicyTap(reducedMotion)}
           whileHover={die.locked || revealing ? {} : juicyHover(reducedMotion)}
           animate={pose}
@@ -329,7 +337,35 @@ export default function Die({
             )}
           </AnimatePresence>
         </motion.button>
+        <AnimatePresence>
+          {infoOpen && (
+            <ItemInspector
+              item={{
+                ...dieDescriptor(die.elementId, lang),
+                name: `${elementName} d${die.sides}`,
+                footnote:
+                  acting.id !== die.elementId
+                    ? t('elementa.die.actingAs').replace('{die}', localize(lang, acting.name, ELEMENTS_ES, acting.id, 'name'))
+                    : undefined,
+                onInfo: () => {
+                  setInfoOpen(false)
+                  setFullOpen(true)
+                },
+              }}
+              onClose={() => setInfoOpen(false)}
+            />
+          )}
+        </AnimatePresence>
       </Tooltip>
+      {fullOpen && (
+        <DieFullModal
+          elementId={die.elementId}
+          sides={die.sides}
+          bonus={die.bonus || 0}
+          score={!showFace ? '?' : typeof contribution === 'number' ? Math.round(contribution * 10) / 10 : null}
+          onClose={() => setFullOpen(false)}
+        />
+      )}
       {/* Actions and the hotkey below. Fixed size, centered on the die:
           buttons appearing or vanishing never widen the column or move the
           dice, and the row keeps its height during the cast. */}

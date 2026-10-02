@@ -8,6 +8,7 @@
 import { ELEMENTS, rarityForElement } from './elements.js'
 import { localize, RELICS_ES, CONSUMABLES_ES, ELEMENTS_ES } from './i18n.js'
 import { ITEM_ART } from './sprites.js'
+import { diceText } from './diceText.js'
 
 function spriteFor(id) {
   const art = ITEM_ART[id]
@@ -62,7 +63,10 @@ export function dieDescriptor(elementId, lang = 'en') {
     kind: 'die',
     id: elementId,
     name,
-    description: localize(lang, def.tagline, ELEMENTS_ES, elementId, 'tagline'),
+    // The short text with a bit of lore (data/diceText.js, P9). The old
+    // tagline is gone from the UI: the full view lists the mechanics.
+    description: diceText(elementId, lang).short,
+    tags: diceText(elementId, lang).tags,
     rarity: rarityForElement(elementId),
     color: def.color,
     glyph: name[0],
@@ -85,6 +89,7 @@ export function forgeDescriptor(recipe, lang = 'en') {
     id: recipe.fusionElementId,
     name,
     description,
+    tags: diceText(recipe.fusionElementId, lang).tags,
     rarity: rarityForElement(recipe.fusionElementId),
     color: def.color,
     glyph: name[0],

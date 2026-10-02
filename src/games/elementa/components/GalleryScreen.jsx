@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
-import { ELEMENTS, PURE_ELEMENT_IDS, describeElement, rarityForElement, familiesOf } from '../data/elements.js'
+import { ELEMENTS, PURE_ELEMENT_IDS, rarityForElement, familiesOf } from '../data/elements.js'
 import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
@@ -20,6 +20,8 @@ import BossAvatar from './BossAvatar.jsx'
 import AchievementsList from './AchievementsList.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
 import FamilyTags from './FamilyTag.jsx'
+import RichText from './RichText.jsx'
+import { DieDetails } from './DieInfo.jsx'
 import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
 import { keeperMemory } from '../utils/keepers.js'
 
@@ -91,7 +93,9 @@ function Detail({ entry, lang, t }) {
           )}
         </div>
       </div>
-      <p className="text-base leading-snug text-[var(--text)]">{item.description}</p>
+      <p className="text-base leading-snug text-[var(--text)]">
+        <RichText text={item.description} />
+      </p>
       {extra}
     </div>
   )
@@ -165,7 +169,6 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
     if (tab === 'dice') {
       return Object.keys(ELEMENTS).map((id) => {
         const def = ELEMENTS[id]
-        const { flagLines } = describeElement(id, lang)
         const parents = def.parents.map((p) => localize(lang, ELEMENTS[p].name, ELEMENTS_ES, p, 'name')).join(' + ')
         return {
           key: id,
@@ -183,13 +186,8 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
                     : `${t('elementa.gallery.fusionOf')} ${parents}`}
                 </div>
               )}
-              <ul className="flex flex-col gap-1 text-base text-[var(--text-dim)]">
-                {flagLines.map((line) => (
-                  <li key={line} className="before:mr-1.5 before:text-[var(--gold-2)] before:content-['+']">
-                    {line}
-                  </li>
-                ))}
-              </ul>
+              {/* The full level of detail (P5 to P9): mechanics and keywords. */}
+              <DieDetails elementId={id} />
             </div>
           ),
         }

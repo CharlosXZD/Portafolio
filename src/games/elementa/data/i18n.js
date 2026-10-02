@@ -187,7 +187,7 @@ export const RELICS_ES = {
   steady: { name: 'Firmeza', description: 'Los dados de la familia Tierra nunca sacan menos de 3.' },
   chain_break: {
     name: 'Cadena Rota',
-    description: 'Los dados de la familia Fuego explotan con sus dos caras más altas, no solo la máxima. La cadena de Ognen no tiene límite.',
+    description: 'Los dados de la familia Fuego explotan con sus dos caras más altas. La cadena de Ognen no tiene límite.',
   },
   pantheon: { name: 'Panteón', description: 'Puedes tener un segundo dado dios.' },
 }

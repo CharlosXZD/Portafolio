@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
 /** Hover-only info panel. Wraps any element; shows `content` above it. */
-export default function Tooltip({ content, children, className = '' }) {
+export default function Tooltip({ content, children, className = '', disabled = false }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -15,7 +15,7 @@ export default function Tooltip({ content, children, className = '' }) {
     >
       {children}
       <AnimatePresence>
-        {open && (
+        {open && !disabled && (
           <motion.div
             initial={{ opacity: 0, y: 4, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

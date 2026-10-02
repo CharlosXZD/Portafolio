@@ -3,45 +3,12 @@ import { motion } from 'framer-motion'
 import { RARITY_GLOW } from '../data/relics.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import FamilyTags from './FamilyTag.jsx'
+import KeywordTags from './KeywordTag.jsx'
+import RichText from './RichText.jsx'
 
-const RARITY_LABEL = {
+export const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine' },
   es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino' },
-}
-
-// Highlights numbers, element names, and Shard/Fragmento mentions in a
-// description, a lighter version of Balatro's colored-keyword card text.
-// Matches both languages' keywords since the description text itself is
-// already localized by the time it reaches here (see data/itemDescriptors.js).
-const KEYWORD_RE =
-  /(\+?-?\d+(?:\.\d+)?x?%?|\bShards?\b|\bFragmentos?\b|\bEarth\b|\bWater\b|\bFire\b|\bAir\b|\bTierra\b|\bAgua\b|\bFuego\b|\bAire\b)/g
-
-function highlightDescription(text) {
-  const parts = text.split(KEYWORD_RE)
-  return parts.map((part, i) => {
-    if (/^\+?-?\d/.test(part)) {
-      return (
-        <span key={i} className="text-[var(--gold-1)]">
-          {part}
-        </span>
-      )
-    }
-    if (/^(Shards?|Fragmentos?)$/.test(part)) {
-      return (
-        <span key={i} className="text-[var(--gold-1)]">
-          {part}
-        </span>
-      )
-    }
-    if (/^(Earth|Water|Fire|Air|Tierra|Agua|Fuego|Aire)$/.test(part)) {
-      return (
-        <span key={i} className="text-[#9fd4ff]">
-          {part}
-        </span>
-      )
-    }
-    return part
-  })
 }
 
 /**
@@ -70,7 +37,7 @@ const PLACEMENT = {
 
 export default function ItemInspector({ item, onClose, actions = [], placement = 'top' }) {
   const ref = useRef(null)
-  const { lang } = useLanguage()
+  const { lang, t } = useLanguage()
 
   useEffect(() => {
     function handlePointerDown(e) {
@@ -103,6 +70,9 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
       exit={{ opacity: 0, scale: 0.94, ...p.from }}
       transition={{ type: 'spring', bounce: 0.25, duration: 0.22 }}
       onClick={(e) => e.stopPropagation()}
+      // On the table the popover sits inside a draggable die: pressing it
+      // must not start a drag.
+      onPointerDown={(e) => e.stopPropagation()}
       data-tut-inspector=""
       className={`el-panel--dark el-panel absolute z-50 w-60 text-left ${p.box}`}
       style={{ '--edge': glow }}
@@ -118,8 +88,20 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
       </div>
       {/* Dice and forge recipes show their families next to the rarity (E2). */}
       {(item.kind === 'die' || item.kind === 'forge') && <FamilyTags elementId={item.id} className="px-3 pb-2" />}
-      <p className="px-3 pb-3 text-[15px] leading-snug text-[var(--text-dim)]">{highlightDescription(item.description)}</p>
+      <p className="px-3 pb-3 text-[15px] leading-snug text-[var(--text-dim)]">
+        <RichText text={item.description} />
+      </p>
+      {item.tags?.length > 0 && <KeywordTags ids={item.tags} className="px-3 pb-3" />}
       {item.footnote && <p className="-mt-1 px-3 pb-3 text-sm text-[var(--text-mute)]">{item.footnote}</p>}
+      {/* Level 3 is one click away for touch and keyboard players (P5). */}
+      {item.onInfo && (
+        <div className="flex items-center justify-between gap-2 px-3 pb-3">
+          <span className="text-sm leading-tight text-[var(--text-mute)]">{t('elementa.info.holdHint')}</span>
+          <button type="button" className="el-btn el-btn--sm shrink-0" onClick={() => item.onInfo()}>
+            {t('elementa.info.button')}
+          </button>
+        </div>
+      )}
       {actions.length > 0 && (
         <div className="flex flex-wrap gap-3 border-t-2 border-[var(--ink)] bg-black/20 px-3 py-3">
           {actions.map((a) => (

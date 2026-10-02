@@ -11,6 +11,9 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import RoundResult from './RoundResult.jsx'
 import ItemIcon from './ItemIcon.jsx'
 import ItemInspector from './ItemInspector.jsx'
+import Tooltip from './Tooltip.jsx'
+import { DieHoverCard, DieFullModal } from './DieInfo.jsx'
+import { useLongPress } from '../utils/useLongPress.js'
 import PriceTag from './PriceTag.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import { Hearts, ShardCount, Stat } from './RoundHUD.jsx'
@@ -35,6 +38,18 @@ import { KEEPERS } from '../data/keepers.js'
  */
 function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, openKey, onOpenChange, size = 72, placement, showCaption = true, affordable = true, renderIcon }) {
   const isOpen = openKey === itemKey
+  // Dice (and the dice a forge recipe makes) get the three levels of detail
+  // (EXPANSION.md P5 to P9): hover for the basics, click for the short text,
+  // click and hold (or right-click, or the Info button) for everything.
+  const dieId = item.kind === 'die' || item.kind === 'forge' ? item.id : null
+  const [fullOpen, setFullOpen] = useState(false)
+  const longPress = useLongPress(
+    () => {
+      onOpenChange(null)
+      setFullOpen(true)
+    },
+    { enabled: Boolean(dieId) },
+  )
 
   function handleClick() {
     if (onIconClick) {
@@ -44,29 +59,66 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
     onOpenChange(isOpen ? null : itemKey)
   }
 
+  const icon = renderIcon ? renderIcon(handleClick) : (
+    <ItemIcon
+      size={size}
+      glyph={item.glyph}
+      icon={item.icon} sprite={item.sprite}
+      color={item.color}
+      rarity={item.rarity}
+      armed={armed}
+      title={item.name}
+      onClick={handleClick}
+    />
+  )
+
   return (
     <div className="relative flex flex-col items-center gap-2" style={{ width: showCaption ? size + 24 : size }}>
       <PriceTag cost={cost} affordable={affordable} />
-      {renderIcon ? renderIcon(handleClick) : (
-      <ItemIcon
-        size={size}
-        glyph={item.glyph}
-        icon={item.icon} sprite={item.sprite}
-        color={item.color}
-        rarity={item.rarity}
-        armed={armed}
-        title={item.name}
-        onClick={handleClick}
-      />
+      {dieId ? (
+        <Tooltip
+          disabled={isOpen}
+          content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} />}
+        >
+          {/* A press that turned into a hold must not also click. */}
+          <span
+            {...longPress.handlers}
+            onClickCapture={(e) => {
+              if (longPress.consumed()) {
+                e.stopPropagation()
+                e.preventDefault()
+              }
+            }}
+          >
+            {icon}
+          </span>
+        </Tooltip>
+      ) : (
+        icon
       )}
       {showCaption && (
         <span className="text-center text-sm leading-tight text-[var(--text-dim)]">{caption ?? item.name}</span>
       )}
       <AnimatePresence>
         {isOpen && actions && (
-          <ItemInspector item={{ ...item, cost }} actions={actions} placement={placement} onClose={() => onOpenChange(null)} />
+          <ItemInspector
+            item={{
+              ...item,
+              cost,
+              onInfo: dieId
+                ? () => {
+                    onOpenChange(null)
+                    setFullOpen(true)
+                  }
+                : undefined,
+            }}
+            actions={actions}
+            placement={placement}
+            onClose={() => onOpenChange(null)}
+          />
         )}
       </AnimatePresence>
+      {fullOpen && <DieFullModal elementId={dieId} sides={item.sides} bonus={item.bonus || 0} onClose={() => setFullOpen(false)} />}
     </div>
   )
 }
@@ -482,6 +534,8 @@ export default function ShopScreen({ state, dispatch }) {
               const base = dieDescriptor(die.elementId, lang)
               const item = {
                 ...base,
+                sides: die.sides,
+                bonus: die.bonus || 0,
                 name: `${elementName} d${die.sides}${die.bonus ? ` +${die.bonus}` : ''}`,
                 description: die.bonus
                   ? `${base.description} ${t('elementa.shop.dieBonus').replace('{n}', die.bonus)}`
@@ -645,7 +699,7 @@ export default function ShopScreen({ state, dispatch }) {
               <IconSlot
                 key={elementId}
                 itemKey={`dieoffer-${elementId}`}
-                item={{ ...dieDescriptor(elementId, lang), name: `${dieDescriptor(elementId, lang).name} d3` }}
+                item={{ ...dieDescriptor(elementId, lang), name: `${dieDescriptor(elementId, lang).name} d3`, sides: 3 }}
                 renderIcon={(onClick) => (
                   <DieToken
                     die={{ id: `offer-${elementId}`, elementId, tierId: 'd3', sides: 3 }}
@@ -892,7 +946,7 @@ function UpgradeShelf({ state, dispatch, openKey, setOpenKey, buy }) {
           <IconSlot
             key={die.id}
             itemKey={`upgrade-${die.id}`}
-            item={{ ...item, name: `${item.name} d${die.sides} > d${up.next.sides}` }}
+            item={{ ...item, sides: die.sides, name: `${item.name} d${die.sides} > d${up.next.sides}` }}
             caption={`d${die.sides} > d${up.next.sides}`}
             renderIcon={(onClick) => <DieToken die={die} size={56} onClick={onClick} title={item.name} />}
             cost={up.cost}
