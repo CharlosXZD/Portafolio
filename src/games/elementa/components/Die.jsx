@@ -29,7 +29,7 @@ function PixelArrow({ up }) {
 }
 
 // Three distinct "committed" states, each with its own feel:
-//  - held:   reversible, weightless. Lifts up, no color change.
+//  - held:   reversible, weightless. A gold ring and a tag above the die.
 //  - locked: the die's own element sealing itself in place. Grounded,
 //            a bounce-in glow in the element's color (a "rune settling").
 //  - frozen: a universal relic effect, not tied to any element. Clamps the
@@ -140,7 +140,20 @@ export default function Die({
   const extra = (die.growth || 0) + (die.patience || 0) + (die.bonus || 0)
 
   return (
-    <div className="flex flex-col items-center gap-5">
+    <div className="flex flex-col items-center gap-4">
+      {/* State tags sit above the die (EXPANSION.md E7), in a fixed-height
+          row, so a tag appearing never moves anything. */}
+      <div className="flex h-6 items-center justify-center whitespace-nowrap" style={{ width: size }}>
+        {!revealing && isLocked && (
+          <span className="el-chip text-[var(--ink)]" style={{ backgroundColor: def.color }}>
+            {t('elementa.die.locked')}
+          </span>
+        )}
+        {!revealing && isFrozen && <span className="el-chip bg-[#7dd3fc] text-[var(--ink)]">{t('elementa.die.frozen')}</span>}
+        {!revealing && die.held && !die.locked && (
+          <span className="el-chip bg-[var(--gold-1)] text-[var(--ink)]">{t('elementa.die.held')}</span>
+        )}
+      </div>
       <Tooltip
         content={
           <div>
@@ -287,10 +300,11 @@ export default function Die({
           </AnimatePresence>
         </motion.button>
       </Tooltip>
-      {/* Fixed size, centered on the die: buttons appearing or vanishing
-          never widen the column or move the dice. */}
-      {!revealing && (
-        <div className="relative h-6" style={{ width: size }}>
+      {/* Actions and the hotkey below. Fixed size, centered on the die:
+          buttons appearing or vanishing never widen the column or move the
+          dice, and the row keeps its height during the cast. */}
+      <div className="relative h-6" style={{ width: size }}>
+        {!revealing && (
         <div className="absolute left-1/2 top-0 flex h-6 -translate-x-1/2 items-center gap-1.5 whitespace-nowrap">
           {canFreeLock && (
             <motion.button
@@ -356,26 +370,12 @@ export default function Die({
               {t('elementa.die.gust')}
             </motion.button>
           )}
-          {isLocked && (
-            <span
-              className="el-chip text-[var(--ink)]"
-              style={{ backgroundColor: def.color }}
-            >
-              {t('elementa.die.locked')}
-            </span>
-          )}
-          {isFrozen && (
-            <span className="el-chip bg-[#7dd3fc] text-[var(--ink)]">
-              {t('elementa.die.frozen')}
-            </span>
-          )}
-          {die.held && !die.locked && <span className="el-chip bg-[var(--gold-1)] text-[var(--ink)]">{t('elementa.die.held')}</span>}
-          {showHotkey && !die.held && !die.locked && !canFreeLock && !canFreeze && !canDrift && !canGust && hotkey != null && (
+          {showHotkey && !die.locked && !canFreeLock && !canFreeze && !canDrift && !canGust && hotkey != null && (
             <span className="pixel-score text-[8px] text-[var(--text-mute)]">{hotkey}</span>
           )}
         </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

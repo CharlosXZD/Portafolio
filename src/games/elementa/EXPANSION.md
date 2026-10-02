@@ -416,6 +416,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **The Aether recipe:** Aether can't be forged or bought until you beat Primordial on that save file. Your first win teaches you the recipe, and the Curator has something to say about it.
 - **Family abilities:** Fire dice that fizzle refund a reroll (Kindling), Earth dice grow while they wait (Patience), and Air dice can nudge a face by 1 once per round (Drift).
 - **Three new relics:** Heat (Fire), Gust (Air) and Steady (Earth).
+- **Clearer dice:** Held, Locked and Frozen tags now sit above the die; buttons and hotkeys stay below, and nothing shifts when they change.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -534,7 +535,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E7. "Held" tag above the die
 
-**Status: Ready** (v0.4, decided by Carlos)
+**Status: Built** (v0.4)
 
 - **Note (Carlos):** move the held tag to the top of the die, so it isn't confused with the bottom.
 - **Proposal:**
