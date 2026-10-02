@@ -10,6 +10,8 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 **About "Claude's spec":** some Ready items contain details marked *Claude's spec* or *default*. Carlos approved building them as written so work isn't blocked; build them exactly as specified. List every such default in your end-of-phase report so Carlos can tune them after playtesting.
 
+**Work in the main checkout only.** Do not create git worktrees, sibling folders, or copies of the project unless Carlos explicitly asks. (An earlier phase used a sibling worktree `Portafolio-v0.5` to keep a playtest undisturbed; Carlos did not want the extra folder. Work on the current branch in `/Users/charly/Desktop/Projects/Portafolio`.) If you need isolation, use a branch and ask first.
+
 **Never build from `IDEAS.md`** (Carlos's inbox of loose ideas). Never treat `CONTENT.md` as a plan: it describes only the current game.
 
 **Read first, in this order:**
@@ -492,6 +494,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.4** | The Road | Already built, not yet released or committed: the Road map, shop types, keepers, music themes, playtest pass (Part D). Add B6 (Aether recipe), B7 (credits), the E1 to E10 playtest polish, and E12 (in-game patch notes), all Ready. E11 moves to v0.5. The version tag becomes "v0.4 alpha" through E12. Then bump the in-game version tag (`ElementaGame.jsx`, currently "v0.3 alpha"). |
 | **v0.5** | Allegiance | **Ready.** E11 (new-run screen). B10 balance changes plus Bullion, Masquerade and Chameleon. B3 (pacts, betrayal pacts, new blessings), plus the B1 Accord meter recording with its dialog hints (paths not yet active). New Nix and Aeris dialog for the pact costs and lockout. No new endings yet. |
 | **v0.6** | Three Paths | **Ready.** B1 (Accord meter goes live, the three final battles, the gauntlet, the Primordial die), B2 (path unlock via god visions, ending cards, Endings tab, completion marks), B4 (gods, Divine rarity, Pantheon, Chain Break). |
+| **v0.6.5** | Polish | Carlos's v0.6 playtest notes, Part F (P1 to P18). Most are **Ready**; P2 (Chisel and Flasks) needs Carlos's answers first. Ships before the Firmament. |
 | **v0.7** | The Firmament | B5: path doors, the Firmament continuation, Wardens, Mythic dice, the d100 growth path. A4: Firmament keepers and returning characters. B9: the first new item kinds (Constellations and Runes). |
 | **v0.8** | Rewriting reality | A3: realm 3 (Empyrean and Pleroma), formula-rewriting bosses, B10 number dice, editable die faces, Laws. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; B10 if not shipped earlier (Carlos decides when). B11 dice without numbers could land in v0.7 (poker, Joker) and v0.8 (sigils). |
@@ -783,6 +786,177 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ---
 
+# Part F: Alpha v0.6.5 "Polish" (Carlos's v0.6 playtest notes)
+
+Carlos's playtest of Alpha v0.6, 2026-10-03. The numbers P1 to P18 match the numbers in his note. **Status key:** Built (done on branch `elementa-v0.6.5`), Ready (build it), Proposed (needs Carlos before building).
+
+## Already done
+
+- **P1 Built: dice bought in the shop are d3.** `BUY_DIE` creates a d3 (`SHOP_DIE_TIER` in `engine/gameReducer.js`), and the shop offers show the d3 shape and read "Fire d3". Starting dice, forged dice and Soul Die stay d6. **Interaction to remember:** with d3 shop dice, the old Chisel (shrinks a d6 to a d3) loses its point, which is part of why P2 needs a redesign.
+- **P13 Built: symbols on d3 are centered.** A lone element mark on a d3 sits at the triangle's centroid (`dieIconY` in `components/DieSprite.jsx`), not on the face-number line.
+- **P17 Built: the cleared tag is a corner sash.** `ClearedSash` in `components/TitleScreen.jsx`: a green pixel band across the top-right corner of the loadout panel that stamps in. The old chip under the card is gone. The difficulty card still has its own "Cleared" chip until P16 replaces it.
+- **P18 Mostly done: the extra folder.** `Portafolio-v0.5` was a git worktree the agent made on Claude's instruction, so a playtest could run undisturbed while work continued. All work now lives in the main folder on branch `elementa-v0.6.5` (created from the v0.6 tip). **Left for Carlos:** stop the dev server running in `Portafolio-v0.5`, then run `git worktree remove ../Portafolio-v0.5` from the main folder. The branch `elementa-v0.5` stays as history. The agent must not recreate it (see the rule at the top).
+
+## P2. Chisel redesign, and a possible Flask consumable
+
+**Status: Proposed. Carlos wants to workshop this: do not build until he answers.**
+
+- **Carlos's note:** Chisel needs to cost less and have a better upside. Ideas: split a d6 into two d3, a d10 into two d5, a d20 into two d10; a d5 splits into a d3 plus a Transmute, or some other consumable. Maybe a new consumable like an "Estus".
+- **Problem to solve:** there is no d5 tier (the sizes are d3, d6, d10, d20), and the dice cap is 10, so splitting needs a free slot.
+- **Claude's recommended spec (nearest existing tier, no new tier):**
+
+| Die | Chisel result |
+|---|---|
+| d20 | two d10 |
+| d10 | two d6 |
+| d6 | two d3 |
+| d3 | cannot split: it is ground into a random Transmute of its own element (the die is removed) |
+
+  - The copies keep the element and any permanent bonus (Whetstone). Needs one free dice slot, except the d3 case.
+  - **Price:** Common, 3 Shards (down from 5).
+  - **Why it works:** with d3 shop dice, Chisel becomes "buy one die, get two", and it rewards Upgrade Stones on the way up.
+- **Alternative (needs Carlos):** add a real d5 tier between d3 and d6 so d10 splits into two d5 as he wrote.
+- **Flasks (the "Estus" idea):** a new consumable family that is refilled instead of used up: it has 1 to 3 charges and refills at every camp or boss. First flask: **Ember Flask**, restores 1 life per charge. This overlaps with Phoenix Feather, so Carlos should decide whether Flasks replace it or sit beside it. Parked in `IDEAS.md` until decided.
+- **Questions for Carlos:** (1) nearest-tier splitting or a new d5? (2) is the d3 grinds-into-a-Transmute rule right? (3) Flasks now, or later?
+
+## P3. A richer rolling animation
+
+**Status: Ready**
+
+Carlos: the Tumble animation is on the right track but only rolls the icon left and right; give it more flare. Improve `components/Die.jsx`'s Tumble (keep the Classic option, and Reduced motion forcing Classic):
+- **A toss arc.** The die lifts off, spins with real 3D rotation (CSS `perspective` with `rotateX` and `rotateY`, not just a horizontal flip), and lands with two diminishing bounces. Keep the total duration near today's so rerolls don't feel slower.
+- **A ground shadow** that shrinks as the die rises and grows as it falls.
+- **A landing burst by element:** Fire sheds embers, Water splashes, Air swirls, Earth puffs dust, Lightning sparks, and so on, reusing the particle code from `components/ElementFx.jsx`.
+- **Weight by size:** a d20 lands heavier (longer settle, slightly bigger shadow, a tiny table nudge) and a d3 lighter.
+- **A face that slows down:** the number flickers fast while spinning, then ticks slower and slower before it lands (ease-out ticks).
+- **A cascade:** dice start 40 ms apart, left to right, so the pool ripples instead of moving in lockstep.
+- **Sound:** a soft landing tick per die, pitched by size (a small extension to `utils/sound.js`).
+
+## P4. A compressed cast ledger
+
+**Status: Ready**
+
+Carlos: the Cast ledger gets crowded when the same effect repeats. In `components/CastLedger.jsx`:
+- **Group repeated lines** by source and kind: "Kindle x6  +6 Mult" instead of six rows. Keep the order of first appearance.
+- **A small expand arrow** on each group shows the individual lines.
+- **The cast reveal** (`components/DiceTray.jsx` `buildReveal`) steps once per group, with the count ticking up ("x1", "x2", ...), instead of once per line. Dice score popups stay per die.
+- **A ledger-wide "Expand all / Compact"** control, stored with the other display options. Compact is the default.
+
+## P5 to P9 and P15. One description system, three levels of detail
+
+**Status: Ready.** This is the largest item. Carlos's goal: players should not need to read a novel to understand a die, but everything must still be available. The table (the circle), the shop, the inventory and the Gallery all use the same system, and the numbers look the same everywhere.
+
+**The three levels** (apply to dice; relics, consumables and bosses reuse the same component, with their existing short text as level 2):
+
+1. **Hover (basic information only):**
+   - Name (for example Lightning).
+   - Type: "D6".
+   - Families as colored chips (Air, Fire), the same chips as E2's `FamilyTag`.
+   - **Score:** the die's current contribution, shown as an important number, not a plain line: a small "SCORE" label with a large gold pixel-font number and an ink shadow, like the family chips are important. It reads "?" under Eclipse.
+   - Nothing else. No description.
+2. **Click (short description):**
+   - Clicking still holds or releases the die, exactly as today (on the table; in the shop it opens the inspector).
+   - It also opens a small popover with the **short description**: one or two short sentences, with a bit of lore, and the **keyword tags** (below).
+   - A footer line: "Hold for more, or see the Gallery."
+3. **Click and hold (full description):** pressing for about 450 ms opens the full description, the same content as the Gallery's die detail.
+   - It must **not** toggle the held state.
+   - It stays open until you click outside or press Esc.
+   - Also reachable by right-click, and by an "Info" button inside the short popover, so touch and keyboard players can get there.
+
+**Keyword tags (Carlos's example):** a fire die shows `#Explodes` and `#Fizzles`, and Lightning would add `#Kindling`. Each tag is a colored chip. Hovering or tapping a tag shows a one-line definition ("Fizzles: a die that rolls a 1 scores nothing this round").
+- Keywords live in a new `data/keywords.js`: `{ id, label, color, definition }` per keyword, bilingual.
+- Start with: Explodes, Fizzles, Kindling, Drift, Patience, FreeLock, Refund, Sets, Wild, Reaction, Copy, Mirror, Chain, Divine.
+- The full description lists every keyword the die uses, with its definition.
+
+**Short descriptions with a little lore (P9):** rewrite the short text of every die so it says what the die does in a few words, with a touch of the world's lore.
+- **Rules:** at most two short sentences, no stacked numbers, plain words. The long flag-by-flag text moves to the full view.
+- **New file:** `data/diceText.js` (bilingual), one entry per die: `{ short, tags: [...], full }`. Cover every die in `ELEMENTS`, including the gods, the Primordial die, Bullion, Masquerade and Chameleon.
+- **Tone examples (not final copy; Carlos will rewrite):**
+  - **Fire:** "A spark from the first Split. It explodes on its top face, but a 1 burns it out." `#Explodes #Fizzles`
+  - **Water:** "It remembers every shape it has held. It locks for free and gives a reroll back." `#FreeLock #Refund`
+  - **Lightning:** "A Storm's first word. It explodes like Fire and calls sets like Air." `#Explodes #Fizzles #Sets`
+- **Compress the forged dice (P6):** the forged dice (doubles, triples, Aether, the gods) are too long for play. Their short text names the one idea that defines them. The full flag-by-flag text stays in the full view and the Gallery.
+
+**Matching shop and table, with numbers in yellow (P15):**
+- **One shared component** (for example `components/RichText.jsx` plus `components/DieInfo.jsx`) renders descriptions in the shop inspector, the inventory, the table tooltip and popovers, and the Gallery. It replaces today's separate `highlightDescription` in `components/ItemInspector.jsx` and the plain tooltip text in `components/Die.jsx`.
+- **Numbers and units are gold** (as the shop shows them now: `+2`, `x1.5`, `50%`), element names use their element colors, and keywords are tag chips. Same look in every place.
+- **Check every relic, consumable and boss text** against the same rules, and shorten any over about 120 characters (the full text still shows on hold).
+
+## P10. Hide the running total until you cast
+
+**Status: Ready.** Carlos asked what Claude thinks: **good idea.** It gives a cast the tension Balatro's scoring has. Players still see Base and Mult and the ledger, so they can do the math; the payoff is the reveal.
+
+- **New option:** "Show live total" (`utils/settings.js`, Options > Display). **Off by default.**
+- **When off:**
+  - Before casting, show Base, Mult and the Cast ledger as now. The big Score number is replaced by "?", and the target bar sits empty (it still shows the target).
+  - On cast, the score is revealed **step by step** as the ledger lines light up, and the target bar fills little by little alongside it. This already works in the reveal code (`reveal.base * reveal.mult`); it just needs the pre-cast state hidden.
+  - Applies to the preview only, never to the final verdict.
+- **When on:** exactly today's behavior.
+- **Interactions:** Eclipse (faces hidden) already shows "?" and keeps working. The tutorial text that mentions the score preview needs a short rewrite for the default-off case.
+- **Double cast** (items, dice or pacts that let you cast twice) is a good follow-up, but needs its own design. It is parked in `IDEAS.md`.
+
+## P11. Real explosion animations
+
+**Status: Ready**
+
+Carlos: explosions should be clearer, an actual animation so the player sees how they chain, different for each Fire-family die (Lightning thunders, Fire explodes, and so on).
+- **Engine:** `rollDie` in `engine/scoring.js` currently returns only the total and the explosion count. Add a `chain` array (the faces rolled in order, for example `[6, 6, 4]`) to the returned die, so the UI can replay the chain. Older saves without it fall back to the count. Gameplay does not change.
+- **Replay:** when a die lands on its max face and explodes, show each step in turn:
+  - A burst on the die.
+  - The face re-rolls visibly into the next value.
+  - A "+N" chip, and an "x2", "x3" counter that grows in intensity.
+  - The whole chain takes at most about 1.2 s, even for long chains (speed up for long chains).
+- **Per-die flavor** (small, reusing `ElementFx.jsx`):
+
+| Die | Explosion |
+|---|---|
+| Fire | Flame burst and embers |
+| Lightning | Forked bolt, a quick white flash |
+| Steel | Sparks, a metal flash |
+| Steam | A cloud puff |
+| Storm | A thunder cloud and a flash |
+| Obsidian | Shattering shards |
+| Magma | A lava splash |
+| Aether | A radiant ring |
+| Ognen | A pillar of fire |
+
+- **Sound:** a short boom per explosion, rising in pitch along the chain.
+- Honors Reduced motion (one simple flash) and the existing screen-shake option.
+
+## P12. Drift and lock animations
+
+**Status: Ready**
+- **Drift:** an air animation: a gust sweeps across the die, the face number ticks up or down with an arrow, and wind streaks drift off. Varies a little for each Air-family die (Lightning adds a spark, Crystal a glint, Zephyr a heavier gust).
+- **Locking:** a chain animation: pixel chain links wrap around the die and a lock clicks shut. Per family: Water ripples, Ice frosts over, Mud clamps thick, Steel clangs, Monsoon swirls. Frozen dice (Petrify) keep their ice effect.
+- Both honor Reduced motion (a simple highlight instead).
+
+## P14. Relics and pacts react while the score is added
+
+**Status: Ready**
+
+Carlos: when an item does something during score calculation, show its reaction.
+- During the cast reveal, when a ledger line comes from a relic (`kind: 'relic'` with an `id`), that relic's icon in the round HUD plays a short trigger animation: a bounce and a glow, plus a floating "+N Base" or "+x Mult" chip above it.
+- The same for **Boons and pacts** that change scoring, such as Blessing of Communion (E1's icons).
+- Needs a stable way to find the icon: add `data-relic-id` and `data-boon-id` attributes in `components/RoundHUD.jsx`.
+- The grouped ledger (P4) triggers the animation once per group, with the group's total.
+
+## P16. Per-loadout difficulty badges, and Cataclysm stickers
+
+**Status: Ready**
+
+Carlos: the difficulty picker should not have a "Cleared" tag. Under each loadout, show badges for which difficulties you have beaten that loadout on, like Balatro's deck stickers. Also add a sticker, as a reward, to the dice in the Gallery that you used to beat Cataclysm.
+- **Data:** record wins as loadout x difficulty pairs in the profile, for example `profile.wins = { [deckId]: [difficultyId, ...] }` (`utils/saveManager.js`, `utils/profile.js`, and the run-end bookkeeping in `ElementaGame.jsx`).
+  - **Migration:** the old profile only has two separate lists (`decksBeaten`, `difficultiesBeaten`). For each beaten loadout, assume it was beaten on every difficulty in `difficultiesBeaten` (generous, since the pairing cannot be known). Keep the old fields working so unlocks do not break.
+- **Loadout card:** a row of small stake badges under the loadout, one per difficulty (a flame in its color, bright if beaten with this loadout, dim otherwise), with a tooltip. Keep the corner sash (P17) for "beaten on any difficulty".
+- **Difficulty card:** remove its "Cleared" chip.
+- **Cataclysm sticker:** when a run is won on Cataclysm, record every die element in the final pool as `profile.cataclysmDice`. In the Gallery's Dice tab, those dice show a small gold sticker (a pixel star) with the tooltip "Beat Cataclysm with this die". It counts toward nothing; it is just a reward. (Carlos wrote "Calamity", meaning Cataclysm.)
+
+## Patch notes for this release
+
+Add "Alpha v0.6.5 Polish" to Part D and `data/patchNotes.js`, in plain language: d3 shop dice, the three-level descriptions with keyword tags, the compact ledger, the hidden live total option, explosion, drift and lock animations, relic reactions, loadout badges, the cleared sash, and the new roll animation. Bump the in-game version tag.
+
+---
+
 ## Decision log
 
 - **2026-09-30:**
@@ -845,3 +1019,9 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
   - Gaea's drawback hits Earth dice; Varuna's 1 sets every die to 1 (B4).
   - Nix's new pacts approved; Aeris gets the same love, with new blessings, including a safe Shard doubler (B3).
   - Claude's specs filled the remaining gaps (Accord weights, Split boss twist, gauntlet stages, betrayal pacts, new blessings, Pantheon) so v0.5 and v0.6 are Ready. Carlos can tune them after playtesting.
+- **2026-10-03:**
+  - Carlos's v0.6 playtest notes become Alpha v0.6.5 "Polish", between v0.6 and v0.7 (Part F, P1 to P18).
+  - P1 (shop dice are d3), P13 (d3 symbol centering) and P17 (cleared tag as a corner sash) built by Claude on branch `elementa-v0.6.5`.
+  - P18: the extra folder was a git worktree created on Claude's instruction; work moved to the main folder, and agents must not create extra folders again.
+  - P10: a good idea; "Show live total" setting, off by default.
+  - P2 (Chisel and Flasks) stays Proposed until Carlos answers the three questions.
