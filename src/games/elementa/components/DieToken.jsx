@@ -1,7 +1,7 @@
 import { ELEMENTS } from '../data/elements.js'
 import { mix } from '../utils/color.js'
 import PixelIcon from './PixelIcon.jsx'
-import DieSprite, { dieNumberY } from './DieSprite.jsx'
+import DieSprite, { dieNumberY, dieIconY } from './DieSprite.jsx'
 import ElementFx from './ElementFx.jsx'
 
 // Die body colors come from the element, darkened toward the night palette
@@ -44,7 +44,7 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
       {face == null ? (
         <span
           className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-          style={{ top: `${dieNumberY(die.tierId) * 100}%`, filter: 'drop-shadow(2px 2px 0 var(--ink))' }}
+          style={{ top: `${dieIconY(die.tierId) * 100}%`, filter: 'drop-shadow(2px 2px 0 var(--ink))' }}
         >
           <PixelIcon name={die.elementId} size={Math.round(size * (die.tierId === 'd3' ? 0.26 : 0.34))} color="#fffaf0" hi={def.color} />
         </span>

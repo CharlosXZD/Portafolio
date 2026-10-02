@@ -645,7 +645,15 @@ export default function ShopScreen({ state, dispatch }) {
               <IconSlot
                 key={elementId}
                 itemKey={`dieoffer-${elementId}`}
-                item={dieDescriptor(elementId, lang)}
+                item={{ ...dieDescriptor(elementId, lang), name: `${dieDescriptor(elementId, lang).name} d3` }}
+                renderIcon={(onClick) => (
+                  <DieToken
+                    die={{ id: `offer-${elementId}`, elementId, tierId: 'd3', sides: 3 }}
+                    size={72}
+                    onClick={onClick}
+                    title={`${dieDescriptor(elementId, lang).name} d3`}
+                  />
+                )}
                 cost={cost}
                 affordable={state.shards >= cost}
                 actions={[

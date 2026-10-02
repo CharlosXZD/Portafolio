@@ -38,7 +38,6 @@ function LoadoutCard({ index, profile }) {
   const { t, lang } = useLanguage()
   const deck = localizeDeck(DECKS[index], lang)
   const unlocked = isDeckUnlocked(deck.id, profile)
-  const beaten = profile.decksBeaten.includes(deck.id)
   const prev = index > 0 ? localizeDeck(DECKS[index - 1], lang) : null
   return (
     <div className="flex flex-col items-center gap-5 text-center">
@@ -58,8 +57,46 @@ function LoadoutCard({ index, profile }) {
             ? t('elementa.title.unlockHint').replace('{deck}', prev.name)
             : t('elementa.gallery.locked')}
       </p>
-      {beaten && <span className="el-chip bg-[var(--good)] text-[var(--ink)]">{t('elementa.title.cleared')}</span>}
     </div>
+  )
+}
+
+/**
+ * A pixel sash across the top-right corner of the loadout panel. It stamps
+ * in (and out) as you move between loadouts; the panel clips its ends.
+ */
+function ClearedSash({ show, reducedMotion }) {
+  const { t } = useLanguage()
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          key="sash"
+          initial={reducedMotion ? false : { opacity: 0, scale: 1.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={reducedMotion ? undefined : { opacity: 0, scale: 1.3 }}
+          transition={{ type: 'spring', bounce: 0.4, duration: 0.35 }}
+          className="pointer-events-none absolute right-0 top-0 z-10 h-28 w-28 overflow-hidden"
+          style={{ transformOrigin: 'top right' }}
+        >
+          <span
+            className="pixel-score absolute flex h-6 w-44 items-center justify-center text-[8px] uppercase tracking-widest text-white"
+            style={{
+              right: -50,
+              top: 22,
+              transform: 'rotate(45deg)',
+              textShadow: '2px 2px 0 var(--ink)',
+              // Two-tone green with a 2px checker dither, like the rest of the pixel kit.
+              background:
+                'conic-gradient(#ffffff26 25%, transparent 0 50%, #ffffff26 0 75%, transparent 0) 0 0 / 4px 4px, linear-gradient(to bottom, #8bdc5c 0 45%, #4f9a33 45% 100%)',
+              boxShadow: '0 -2px 0 var(--ink), 0 2px 0 var(--ink), inset 0 2px 0 #c8f5a8',
+            }}
+          >
+            {t('elementa.title.cleared')}
+          </span>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -162,6 +199,7 @@ export default function TitleScreen({ slot, dispatch }) {
         <div className="flex w-full items-center gap-3">
           <Arrow dir={-1} onClick={() => stepDeck(-1)} label={t('elementa.title.prevDeck')} />
           <div className="el-panel relative flex min-h-[19rem] flex-1 items-center justify-center overflow-hidden px-4 py-6">
+            <ClearedSash show={profile.decksBeaten.includes(deck.id)} reducedMotion={reducedMotion} />
             <AnimatePresence mode="popLayout" custom={dir} initial={false}>
               <motion.div
                 key={deckIndex}

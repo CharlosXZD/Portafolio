@@ -36,6 +36,9 @@ import { newMap, ensureLayers, nodeById, currentNode, nextChoices, retypeAhead }
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
 
 const STARTING_TIER = 'd6'
+// Dice bought in a shop arrive small; Upgrade Stones, the Forge and boss
+// rewards are how they grow. Forged and starting dice stay d6.
+const SHOP_DIE_TIER = 'd3'
 const STARTING_REROLLS = 3
 const WIN_ROUND = 15
 const LIFE_REGEN_EVERY_N_ROUNDS = 4
@@ -1527,7 +1530,7 @@ function reduce(state, action) {
       if (state.dice.length >= maxDiceFor(state)) return state
       const cost = newDieCost(action.elementId, state.dice, state.relics, state.shop)
       if (state.shards < cost) return state
-      const die = makeDie(action.elementId)
+      const die = makeDie(action.elementId, SHOP_DIE_TIER)
       const ownedElementsEver = state.ownedElementsEver.includes(action.elementId)
         ? state.ownedElementsEver
         : [...state.ownedElementsEver, action.elementId]

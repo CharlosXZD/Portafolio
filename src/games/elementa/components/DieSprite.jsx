@@ -100,6 +100,12 @@ export function dieNumberY(tier) {
   return (SHAPES[tier] ?? SHAPES.d6).numberY
 }
 
+// Where a lone element mark goes. A d3's face number sits low, in the wide
+// base, but a mark with no number belongs at the triangle's centroid.
+export function dieIconY(tier) {
+  return tier === 'd3' ? 0.61 : dieNumberY(tier)
+}
+
 function DieSprite({ tier = 'd6', size = 96, top, bottom, rim, shade, facet, ringColor = null }) {
   const { grid } = classify(tier)
   const colors = {
