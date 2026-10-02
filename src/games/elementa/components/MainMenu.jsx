@@ -5,6 +5,9 @@ import { playClick } from '../utils/sound.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { ELEMENTS } from '../data/elements.js'
 import OptionsScreen from './OptionsScreen.jsx'
+import PatchNotesScreen from './PatchNotesScreen.jsx'
+import { LATEST_VERSION, isNewerVersion } from '../data/patchNotes.js'
+import { getSeenVersion } from '../utils/settings.js'
 import PixelIcon from './PixelIcon.jsx'
 
 const ORBS = ['fire', 'water', 'earth', 'air']
@@ -35,6 +38,10 @@ export function Logo({ className = 'text-3xl sm:text-5xl md:text-7xl' }) {
 export default function MainMenu({ dispatch }) {
   const { t } = useLanguage()
   const [showOptions, setShowOptions] = useState(false)
+  const [showNotes, setShowNotes] = useState(false)
+  // NEW until this version's notes have been opened once.
+  const [seenVersion, setSeenVersionState] = useState(getSeenVersion)
+  const hasNews = isNewerVersion(LATEST_VERSION, seenVersion)
 
   function go(fn) {
     return () => {
@@ -63,12 +70,26 @@ export default function MainMenu({ dispatch }) {
         <button type="button" className="el-btn" onClick={go(() => setShowOptions(true))}>
           {t('elementa.menu.options')}
         </button>
+        <button type="button" className="el-btn relative" onClick={go(() => setShowNotes(true))}>
+          {t('elementa.menu.whatsNew')}
+          {hasNews && (
+            <span className="el-chip absolute -right-3 -top-3 bg-[var(--gold-1)] text-[var(--ink)]">{t('elementa.patchNotes.new')}</span>
+          )}
+        </button>
         <button type="button" className="el-btn" onClick={go(() => dispatch({ type: 'GO_TO_CREDITS' }))}>
           {t('elementa.menu.credits')}
         </button>
       </nav>
 
-      {showOptions && <OptionsScreen onClose={() => setShowOptions(false)} />}
+      {showOptions && <OptionsScreen onClose={() => setShowOptions(false)} onNotesSeen={() => setSeenVersionState(LATEST_VERSION)} />}
+      {showNotes && (
+        <PatchNotesScreen
+          onClose={() => {
+            setShowNotes(false)
+            setSeenVersionState(LATEST_VERSION)
+          }}
+        />
+      )}
     </motion.div>
   )
 }

@@ -43,6 +43,7 @@ import FileHub from './components/FileHub.jsx'
 import BossReward from './components/BossReward.jsx'
 import RunInfo from './components/RunInfo.jsx'
 import Toasts from './components/Toasts.jsx'
+import { LATEST_VERSION } from './data/patchNotes.js'
 import './elementa.css'
 
 // Phases where a run is actually in progress and worth persisting. Meta
@@ -290,7 +291,7 @@ function ElementaGameInner() {
       )}
 
       <span className="pointer-events-none fixed bottom-2 right-3 z-10 text-[10px] text-[var(--text-mute)]">
-        v0.3 alpha
+        v{LATEST_VERSION} alpha
       </span>
 
       {paused && inRun && <PauseMenu slot={slot} dispatch={dispatch} onResume={() => setPaused(false)} />}

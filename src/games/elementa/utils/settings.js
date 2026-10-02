@@ -11,6 +11,7 @@ const KEYS = {
   gameSpeed: 'elementa-game-speed',
   screenShake: 'elementa-screen-shake',
   display: 'elementa-display',
+  seenVersion: 'elementa-seen-version',
 }
 
 function readNumber(key, fallback) {
@@ -110,6 +111,19 @@ export function getScreenShake() {
 }
 export function setScreenShake(v) {
   write(KEYS.screenShake, v)
+}
+
+// The newest patch notes version the player has opened (data/patchNotes.js),
+// for the NEW chip on "What's new". Null until they open it once.
+export function getSeenVersion() {
+  try {
+    return window.localStorage.getItem(KEYS.seenVersion)
+  } catch {
+    return null
+  }
+}
+export function setSeenVersion(v) {
+  write(KEYS.seenVersion, v)
 }
 
 // Display preferences (Options -> Display): how much information the round

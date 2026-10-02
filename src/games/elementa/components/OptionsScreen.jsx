@@ -13,6 +13,7 @@ import { playClick, refreshMusicVolume, applyMusicEnabled } from '../utils/sound
 import Modal from './Modal.jsx'
 import BackupControls from './BackupControls.jsx'
 import { resetTutorial } from '../utils/tutorial.js'
+import PatchNotesScreen from './PatchNotesScreen.jsx'
 
 function Segmented({ options, value, onChange }) {
   return (
@@ -88,7 +89,7 @@ function Section({ title, children }) {
  * The site-wide light/dark theme toggle is intentionally gone from here:
  * the game always renders in its own palette.
  */
-export default function OptionsScreen({ onClose }) {
+export default function OptionsScreen({ onClose, onNotesSeen }) {
   const { lang, setLang, t } = useLanguage()
   const {
     crtEffect,
@@ -107,10 +108,12 @@ export default function OptionsScreen({ onClose }) {
   const [musicVolume, setMusicVolumeState] = useState(getMusicVolume)
   const [musicEnabled, setMusicEnabledState] = useState(getMusicEnabled)
   const [tutorialReset, setTutorialReset] = useState(false)
+  const [showNotes, setShowNotes] = useState(false)
 
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.key !== 'Escape') return
+      // The patch notes on top handle their own Escape.
+      if (e.key !== 'Escape' || showNotes) return
       // Capture phase + stopImmediatePropagation: this overlay may sit on
       // top of the pause menu, whose own window-level Escape listener
       // (ElementaGame.jsx) would otherwise close that too.
@@ -119,7 +122,7 @@ export default function OptionsScreen({ onClose }) {
     }
     window.addEventListener('keydown', handleKeyDown, { capture: true })
     return () => window.removeEventListener('keydown', handleKeyDown, { capture: true })
-  }, [onClose])
+  }, [onClose, showNotes])
 
   function changeSfxVolume(v) {
     persistSfxVolume(v)
@@ -234,11 +237,33 @@ export default function OptionsScreen({ onClose }) {
         </button>
       </Section>
 
+      <Section title={t('elementa.patchNotes.title')}>
+        <button
+          type="button"
+          className="el-btn el-btn--sm"
+          onClick={() => {
+            playClick()
+            setShowNotes(true)
+          }}
+        >
+          {t('elementa.patchNotes.open')}
+        </button>
+      </Section>
+
       <Section title={t('elementa.options.visuals')}>
         <Toggle label={t('elementa.options.screenShake')} checked={screenShake} onChange={setScreenShake} />
         <Toggle label={t('elementa.options.crtEffect')} checked={crtEffect} onChange={setCrtEffect} />
         <Toggle label={t('elementa.options.reducedMotion')} checked={reducedMotion} onChange={setReducedMotion} />
       </Section>
+
+      {showNotes && (
+        <PatchNotesScreen
+          onClose={() => {
+            setShowNotes(false)
+            onNotesSeen?.()
+          }}
+        />
+      )}
     </Modal>
   )
 }

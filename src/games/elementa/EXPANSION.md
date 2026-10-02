@@ -425,6 +425,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 - **Element effects:** every die has its own little animation (flames, drips, wind, pebbles, sparks, frost, glints and more), so similar colors are easy to tell apart. Toggle it under Options, Display.
 - **Picking dice up:** in the shop, dragged dice lift and tilt under your cursor while the others slide aside, and dice wobble when you hover them.
 - **A real load screen:** continuing a saved run now shows the whole picture: stakes, lives, Shards, a round-by-round progress strip, your dice, relics and items (click to inspect), the Road ahead, active boons and the bosses you've beaten.
+- **What's new:** a patch notes screen on the main menu and in Options, with every version. A NEW chip appears when there's a version you haven't read.
 - **Credits:** The Binding of Isaac joins Balatro and Ultrapool as an inspiration.
 
 ### v0.3 "Beta feedback" (2026-09-28)
@@ -638,7 +639,7 @@ Carlos's notes from playing. Each gets a proposal and a target phase.
 
 ## E12. In-game patch notes ("What's new")
 
-**Status: Ready** (v0.4, decided by Carlos 2026-10-01)
+**Status: Built** (v0.4). Backups include `elementa-seen-version` (confirmed: `utils/backup.js` exports every `elementa-*` key).
 
 - **Note (Carlos):** add a section in the game to see the new additions, like patch notes, including previous versions.
 - **Spec:**
