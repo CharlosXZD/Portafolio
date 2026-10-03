@@ -19,6 +19,11 @@ const HEADS = {
   nix: ['......k.......', '.....khk......', '....khhhk.....', '...khhhhhk....', '..khhhhhhhk...'],
   // A halo.
   aeris: ['....cccccc....', '...c......c...', '....cccccc....', '.....kkkk.....', '...kkhhhhkk...'],
+  // The Firmament's keepers (EXPANSION.md H6): a rolled map tucked in a cap,
+  // a clock-face monocle crown, and Mote, a speck of the Void with tiny horns.
+  atlas: ['..........cc..', '....kkkkkcck..', '...khhhhhhhk..', '..khhhhhhhhhk.', '..kddddddddk..'],
+  horologist: ['.....kccck....', '....kcdddck...', '....kcdcdck...', '...kkhhhhhkk..', '..khhhhhhhhk..'],
+  mote: ['..............', '...k......k...', '...hk....kh...', '....khhhhk....', '...khhhhhhk...'],
 }
 
 const MOUTHS = {
@@ -28,6 +33,9 @@ const MOUTHS = {
   brasa: '..kaaaddaaaak.',
   nix: '..kaaaaaaaaak.',
   aeris: '..kaaaddaaaak.',
+  atlas: '..kaaddddaaak.',
+  horologist: '..kaaaaaaaaak.',
+  mote: '..kaaadaaaaak.',
 }
 
 const BODY = (mouth) => [
@@ -49,7 +57,13 @@ const PALETTES = {
   brasa: { k: '#120c1a', h: '#5a2a1a', c: '#ff7a1a', a: '#f2a36b', b: '#c9774a', w: '#ffffff', e: '#3a1a0a', d: '#b8321f' },
   nix: { k: '#0a0710', h: '#241a33', c: '#6a4fd6', a: '#3a3048', b: '#2a2338', w: '#ff5a8a', e: '#ff5a8a', d: '#120c1a' },
   aeris: { k: '#120c1a', h: '#cfe3ff', c: '#ffe9a0', a: '#eef3ff', b: '#bccbe8', w: '#9fd8ff', e: '#3d6fe5', d: '#9fb0d0' },
+  atlas: { k: '#120c1a', h: '#2f5a8a', c: '#f2e6c8', a: '#e8c9a0', b: '#c49a74', w: '#ffffff', e: '#1d3a5a', d: '#7ad1ff' },
+  horologist: { k: '#120c1a', h: '#5a4a2a', c: '#c9a46b', a: '#d8d0c0', b: '#a89f8c', w: '#fff4d6', e: '#3a2a12', d: '#fff4d6' },
+  mote: { k: '#05030a', h: '#2a2338', c: '#8a7aa8', a: '#1a1424', b: '#120c1a', w: '#ff4fd8', e: '#ffffff', d: '#8a7aa8' },
 }
+
+// The Aether Bazaar's crowd: the keepers of Elementa.
+const CONCLAVE = ['tobb', 'vessa', 'curator', 'brasa', 'nix', 'aeris']
 
 function rowsFor(id) {
   return [...HEADS[id], ...BODY(MOUTHS[id])]
@@ -77,7 +91,7 @@ function KeeperSprite({ id, size = 64 }) {
     const small = Math.round(size * 0.55)
     return (
       <span className="inline-flex items-end" style={{ gap: 2 }}>
-        {Object.keys(PALETTES).map((k) => (
+        {CONCLAVE.map((k) => (
           <Sprite key={k} id={k} size={small} />
         ))}
       </span>

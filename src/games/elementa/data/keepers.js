@@ -33,6 +33,13 @@ export const KEEPERS = {
       ],
     },
     afterBoss: L('You beat a Fragment? Then you can afford my prices.', '¿Venciste a un Fragmento? Entonces puedes pagar mis precios.'),
+    // Past the door (EXPANSION.md H6): Tobb goes everywhere.
+    special: {
+      firmament: L(
+        "What, you thought I'd stay behind? I go everywhere, Caster. The prices up here are astronomical. That's a joke. Mostly.",
+        '¿Qué, creías que me iba a quedar atrás? Voy a todas partes, Lanzador. Aquí arriba los precios son astronómicos. Es un chiste. Casi.',
+      ),
+    },
     lowLives: L('You look rough. Buy something shiny, it helps. Trust me.', 'Te ves fatal. Compra algo brillante, ayuda. Créeme.'),
     loreAt: [2, 4, 7, 11],
     lore: [
@@ -226,6 +233,11 @@ export const KEEPERS = {
       more: L('Back again. Good. The Primordial remembers everyone who helps it.', 'Otra vez aquí. Bien. El Primordial recuerda a todos los que lo ayudan.'),
       leanPrimordial: L("You hear it too, don't you? It has been calling you home.", 'Tú también lo oyes, ¿verdad? Lleva tiempo llamándote a casa.'),
       leanSplit: L('Still clinging to the pieces? The Split never lasts, Caster.', '¿Sigues aferrado a los pedazos? La División nunca dura, Lanzador.'),
+      // Past the door: the eclipse market (H6).
+      firmament: L(
+        'Welcome to the eclipse market. No more hiding in alleys. Up here I sell under a black sun, and everyone pays.',
+        'Bienvenido al mercado del eclipse. Ya no me escondo en callejones. Aquí arriba vendo bajo un sol negro, y todos pagan.',
+      ),
     },
     lowLives: L("You're low. That makes the deal sweeter. For me.", 'Te queda poco. Eso hace el trato más dulce. Para mí.'),
     loreAt: [2, 4, 7, 11],
@@ -281,6 +293,11 @@ export const KEEPERS = {
         'Your dice hum with something very old. Be careful what you help become whole.',
         'Tus dados zumban con algo muy antiguo. Cuidado con lo que ayudas a volver a ser uno.',
       ),
+      // Past the door: Aeris in her true form (H6).
+      firmament: L(
+        'Here the wind is not a messenger. It is me, all of me. Ask, Caster, and the sky will answer.',
+        'Aquí el viento no es un mensajero. Soy yo, toda yo. Pide, Lanzador, y el cielo responderá.',
+      ),
     },
     lowLives: L('Your breath is short. Let me lend you some of mine.', 'Te falta el aliento. Déjame prestarte un poco del mío.'),
     loreAt: [2, 4, 7, 11],
@@ -296,6 +313,98 @@ export const KEEPERS = {
         'Cada partida que recorres es una plegaria. Cada Fragmento que vences mantiene el mundo dividido, y por eso, vivo.',
       ),
     ],
+  },
+
+  // --- The Firmament's keepers (EXPANSION.md H6). All drafts. ---
+  atlas: {
+    id: 'atlas',
+    name: L('Atlas', 'Atlas'),
+    title: L('Cartographer', 'Cartógrafo'),
+    intro: L(
+      'Mind the ink, it is still wet. I am Atlas. I draw the Roads up here, and sometimes the Roads agree with me.',
+      'Cuidado con la tinta, todavía está fresca. Soy Atlas. Dibujo los Caminos aquí arriba, y a veces los Caminos me hacen caso.',
+    ),
+    greet: {
+      stranger: [
+        L('Every map is a promise. Mine are mostly kept.', 'Todo mapa es una promesa. Los míos casi siempre se cumplen.'),
+        L('Where to next? I can make it somewhere better.', '¿A dónde ahora? Puedo hacer que sea un lugar mejor.'),
+      ],
+      regular: [
+        L('You walk my lines well. I drew this one with you in mind.', 'Recorres bien mis líneas. Dibujé esta pensando en ti.'),
+        L('A Warden moved last night. I redrew three rows.', 'Un Custodio se movió anoche. Redibujé tres filas.'),
+      ],
+      friend: [
+        L('I left a corner of every map blank for you. Fill it however you like.', 'Dejé una esquina de cada mapa en blanco para ti. Llénala como quieras.'),
+        L('Sit. The stars can wait to be charted.', 'Siéntate. Las estrellas pueden esperar a ser trazadas.'),
+      ],
+    },
+    afterBoss: L('A Warden fell? Then a border just moved. Give me a moment.', '¿Cayó un Custodio? Entonces una frontera acaba de moverse. Dame un momento.'),
+    lowLives: L('You are running out of map, Caster. Let me draw you a shorter way.', 'Se te acaba el mapa, Lanzador. Déjame dibujarte un camino más corto.'),
+    loreAt: [2, 4],
+    lore: [
+      L(
+        'The Firmament is not a place. It is the frame around every place. The Wardens are its corners.',
+        'El Firmamento no es un lugar. Es el marco alrededor de todos los lugares. Los Custodios son sus esquinas.',
+      ),
+      L(
+        'There is a spot on every map I draw that will not take ink. A blank. I think something lives there.',
+        'Hay un punto en cada mapa que dibujo que no acepta tinta. Un blanco. Creo que algo vive ahí.',
+      ),
+    ],
+  },
+
+  horologist: {
+    id: 'horologist',
+    name: L('The Horologist', 'El Relojero'),
+    title: L('Keeper of the hours', 'Guardián de las horas'),
+    intro: L(
+      'You are four seconds late. Not to worry, I wound them back. I am the Horologist. Time is my trade.',
+      'Llegas cuatro segundos tarde. No te preocupes, los rebobiné. Soy el Relojero. El tiempo es mi oficio.',
+    ),
+    greet: {
+      stranger: [
+        L('Tick. Tock. Buy something before the hour turns.', 'Tic. Tac. Compra algo antes de que cambie la hora.'),
+        L('Every die rolls in time. Mine roll twice.', 'Todo dado rueda en el tiempo. Los míos ruedan dos veces.'),
+      ],
+      regular: [
+        L('Back again, at exactly the right moment. As usual.', 'De vuelta, en el momento exacto. Como siempre.'),
+        L('I have been expecting you since tomorrow.', 'Te esperaba desde mañana.'),
+      ],
+      friend: [
+        L('For you I stopped every clock in the shop. Take your time. Literally.', 'Por ti detuve todos los relojes de la tienda. Tómate tu tiempo. Literalmente.'),
+        L('We have met before. You just have not got there yet.', 'Ya nos conocemos. Solo que tú todavía no has llegado ahí.'),
+      ],
+    },
+    afterBoss: L('The Clockwork? A crude design. Mine are better. Do not tell it I said so.', '¿El Mecanismo? Un diseño tosco. Los míos son mejores. No le digas que lo dije.'),
+    lowLives: L('Your time is short. I can sell you a little more of it.', 'Te queda poco tiempo. Puedo venderte un poco más.'),
+    loreAt: [2, 4],
+    lore: [
+      L(
+        'Kairos is the right moment. Chrono is every moment. The Casters only ever had the first.',
+        'Kairós es el momento justo. Crono es todo momento. Los Lanzadores solo tuvieron el primero.',
+      ),
+      L(
+        'Before the Split there was no time, only the dream. Time is what the pieces do while they wait.',
+        'Antes de la División no había tiempo, solo el sueño. El tiempo es lo que hacen los pedazos mientras esperan.',
+      ),
+    ],
+  },
+
+  mote: {
+    id: 'mote',
+    name: L('Mote', 'Mote'),
+    title: L('A speck of the Void', 'Una mota del Vacío'),
+    // Mote does not talk until it has eaten enough (H7: its first words).
+    intro: L('...', '...'),
+    greet: {
+      stranger: [L('...', '...'), L('(it stares at your dice)', '(mira fijamente tus dados)')],
+      regular: [L('(it opens its mouth, hopefully)', '(abre la boca, esperanzado)'), L('more?', '¿más?')],
+      friend: [L('you came back. you always bring food.', 'volviste. siempre traes comida.'), L('i remember you. i remember everything you fed me.', 'te recuerdo. recuerdo todo lo que me diste.')],
+    },
+    afterBoss: L('(it licks its lips)', '(se relame)'),
+    lowLives: L('(it looks at you, a little worried)', '(te mira, un poco preocupado)'),
+    loreAt: [5],
+    lore: [L('before the first word there was nothing. i was the nothing. now i am a little something.', 'antes de la primera palabra no había nada. yo era la nada. ahora soy un poco de algo.')],
   },
 
   // The Aether Bazaar is hosted by every keeper at once.

@@ -29,6 +29,15 @@ const WHERE = {
   shop_blackmarket: L('Black Market (Nix)', 'Mercado Negro (Nix)'),
   shop_shrine: L('Shrine (Aeris)', 'Santuario (Aeris)'),
   shop_bazaar: L('Aether Bazaar (every keeper)', 'Bazar del Éter (todos los guardianes)'),
+  shop_cartography: L("Atlas's Cartography (the Firmament)", 'Cartografía de Atlas (el Firmamento)'),
+  shop_clockwork: L("The Horologist's Clockwork (the Firmament)", 'El Mecanismo del Relojero (el Firmamento)'),
+  shop_pantry: L("Mote's Pantry (the Firmament)", 'La Despensa de Mote (el Firmamento)'),
+  boss_dawn: L('Warden: The Dawn (rounds 20 to 30)', 'Custodio: El Alba (rondas 20 a 30)'),
+  boss_umbra: L('Warden: The Umbra (rounds 20 to 30)', 'Custodio: La Umbra (rondas 20 a 30)'),
+  boss_clockwork: L('Warden: The Clockwork (rounds 20 to 30)', 'Custodio: El Mecanismo (rondas 20 a 30)'),
+  boss_expanse: L('Warden: The Expanse (rounds 20 to 30)', 'Custodio: La Extensión (rondas 20 a 30)'),
+  boss_maelstrom: L('Warden: The Maelstrom (rounds 20 to 30)', 'Custodio: La Vorágine (rondas 20 a 30)'),
+  boss_hollow: L('Warden: The Hollow (rounds 20 to 30)', 'Custodio: El Hueco (rondas 20 a 30)'),
 }
 
 const TEXT = {

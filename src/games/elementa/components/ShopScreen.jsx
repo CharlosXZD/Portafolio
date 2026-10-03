@@ -24,7 +24,9 @@ import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { juicyHover } from '../utils/motionPresets.js'
 import DieToken from './DieToken.jsx'
 import BoonsList from './BoonsList.jsx'
-import { shopTypeById, dealById, blessingById, PROPHECY } from '../data/shops.js'
+import { shopTypeById, dealById, blessingById, PROPHECY, ATLAS_SERVICES, MOTE_STAGES, MOTE_FULL } from '../data/shops.js'
+import BossAvatar from './BossAvatar.jsx'
+import { bossById } from '../data/bossModifiers.js'
 import { nextChoices, nodeById } from '../engine/map.js'
 import { tierById } from '../data/diceTiers.js'
 import { visitKeeper, lineText } from '../utils/keepers.js'
@@ -324,6 +326,8 @@ function ShopBanner({ label, color }) {
 function allegianceContext(state, keeper) {
   const pacts = state.nixPacts || 0
   const accord = state.accord || 0
+  // Past the door, Tobb, Aeris and Nix speak in their true forms (H6).
+  if (state.realm === 'firmament' && KEEPERS[keeper]?.special?.firmament) return { mood: 'firmament' }
   const lean = accord >= 4 ? 'leanPrimordial' : accord <= -4 ? 'leanSplit' : null
   if (keeper === 'aeris') return { urgent: pacts === 1 ? 'strange' : pacts === 2 ? 'shadow' : null, mood: lean }
   if (keeper === 'nix') {
@@ -494,7 +498,10 @@ export default function ShopScreen({ state, dispatch }) {
 
   const shardsAbbr = t('elementa.shop.shardsAbbr')
   const buyLabel = (cost) => `${t('elementa.shop.buy')} ${cost}`
-  const sellLabel = (cost) => `${t('elementa.shop.sell')} +${cost}`
+  // Mote buys for half again the sell value (H6).
+  const pantry = Boolean(type.pantry)
+  const sellLabel = (cost) =>
+    pantry ? `${t('elementa.pantry.feed')} +${selectors.motePays(cost)}` : `${t('elementa.shop.sell')} +${cost}`
   const forgeLabel = (cost) => `${t('elementa.shop.forge')} ${cost}`
 
   const rerollShopCost = selectors.rerollShopOffersCost(state)
@@ -780,6 +787,10 @@ export default function ShopScreen({ state, dispatch }) {
         )}
 
         {type.brew && <BrewShelf state={state} dispatch={dispatch} />}
+
+        {type.services && <ServiceShelf state={state} dispatch={dispatch} />}
+
+        {type.pantry && <PantryShelf state={state} dispatch={dispatch} />}
 
         {shop.deals?.length > 0 && <DealShelf state={state} dispatch={dispatch} />}
 
@@ -1107,6 +1118,130 @@ function DealShelf({ state, dispatch }) {
         )
       })}
     </OfferShelf>
+  )
+}
+
+/** Atlas's Cartography (EXPANSION.md H6): three map services, once each. */
+function ServiceShelf({ state, dispatch }) {
+  const { t, lang } = useLanguage()
+  const shop = state.shop
+  const peek = shop.peek ? localizeBossModifier(bossById(shop.peek.bossId), lang) : null
+  return (
+    <OfferShelf title={t('elementa.atlas.title')} hint={t('elementa.atlas.hint')}>
+      {ATLAS_SERVICES.map((service) => {
+        const used = shop.servicesUsed?.includes(service.id)
+        const blocked = service.id === 'path' && selectors.unlinkedNext(state.map).length === 0
+        const can = !used && !blocked && state.shards >= service.cost
+        return (
+          <OfferCard
+            key={service.id}
+            title={service.name[lang]}
+            body={
+              service.id === 'peek' && peek
+                ? t('elementa.atlas.peeked').replace('{boss}', peek.name).replace('{round}', shop.peek.round)
+                : service.body[lang]
+            }
+            color="#7ad1ff"
+            art={service.id === 'peek' && peek ? <BossAvatar id={shop.peek.bossId} size={40} /> : <KeeperSprite id="atlas" size={40} />}
+            done={used ? true : undefined}
+            disabled={!can}
+            button={
+              used
+                ? t('elementa.atlas.done')
+                : blocked
+                  ? t('elementa.atlas.noPath')
+                  : `${t('elementa.atlas.use')} ${service.cost}`
+            }
+            onClick={() => {
+              playCoin()
+              dispatch({ type: 'USE_SERVICE', serviceId: service.id })
+            }}
+          />
+        )
+      })}
+    </OfferShelf>
+  )
+}
+
+/**
+ * Mote's Pantry (H6): it buys your goods (sell them from the left), a meter
+ * of everything it has eaten on this file, and the secret stock it opens.
+ */
+function PantryShelf({ state, dispatch }) {
+  const { t, lang } = useLanguage()
+  const { reducedMotion } = useGameSettings()
+  const fed = state.moteFed || 0
+  const stock = state.shop.moteStock || []
+  return (
+    <div className="flex w-full max-w-2xl flex-col gap-5">
+      <div className="el-panel flex flex-col gap-3 px-4 py-3" style={{ '--edge': '#8a7aa8' }}>
+        <div className="flex items-center justify-between">
+          <span className="el-label text-[#cdb4ff]">{t('elementa.pantry.appetite')}</span>
+          <span className="pixel-score text-[10px] text-[#cdb4ff]">
+            {Math.min(fed, MOTE_FULL)} / {MOTE_FULL}
+          </span>
+        </div>
+        <div className="relative h-3 w-full bg-[var(--stone-0)]" style={{ boxShadow: '0 0 0 2px var(--ink)' }}>
+          <motion.div
+            className="h-full bg-[#8a7aa8]"
+            initial={false}
+            animate={{ width: `${Math.min(100, (fed / MOTE_FULL) * 100)}%` }}
+            transition={reducedMotion ? { duration: 0 } : { type: 'spring', bounce: 0.2, duration: 0.6 }}
+          />
+          {MOTE_STAGES.map((n) => (
+            <span
+              key={n}
+              className="absolute top-[-4px] h-[20px] w-[2px]"
+              style={{ left: `${(n / MOTE_FULL) * 100}%`, background: fed >= n ? '#ff4fd8' : 'var(--text-mute)' }}
+              title={`${n}`}
+            />
+          ))}
+        </div>
+        <p className="text-sm text-[var(--text-dim)]">
+          {fed >= MOTE_FULL ? t('elementa.pantry.full') : t('elementa.pantry.hint')}
+        </p>
+      </div>
+      {stock.length > 0 && (
+        <OfferShelf title={t('elementa.pantry.secret')} hint={t('elementa.pantry.secretHint')}>
+          {stock.map((offer, i) => {
+            const cost = selectors.moteOfferCost(state, offer)
+            let title
+            let body
+            let art
+            if (offer.kind === 'pact') {
+              title = dealById('hollow_pact').name[lang]
+              body = dealById('hollow_pact').body[lang]
+              art = <KeeperSprite id="mote" size={40} />
+            } else if (offer.kind === 'consumable') {
+              const item = consumableDescriptor(consumableById(offer.id), lang)
+              title = item.name
+              body = item.description
+              art = <ItemIcon {...item} size={44} static />
+            } else {
+              title = `${dieDescriptor(offer.elementId, lang).name} d6 WARP`
+              body = t('elementa.pantry.warpDie')
+              art = <DieToken die={{ id: `mote-${i}`, elementId: offer.elementId, tierId: 'd6', sides: 6, edition: 'warp' }} size={48} />
+            }
+            return (
+              <OfferCard
+                key={`${offer.kind}-${offer.id ?? offer.elementId}-${i}`}
+                title={title}
+                body={body}
+                color="#ff4fd8"
+                art={art}
+                done={offer.sold ? true : undefined}
+                disabled={offer.sold || state.shards < cost}
+                button={offer.sold ? t('elementa.pantry.sold') : `${t('elementa.shop.buy')} ${cost}`}
+                onClick={() => {
+                  playCoin()
+                  dispatch({ type: 'BUY_MOTE', index: i })
+                }}
+              />
+            )
+          })}
+        </OfferShelf>
+      )}
+    </div>
   )
 }
 

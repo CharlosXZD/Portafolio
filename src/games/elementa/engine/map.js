@@ -198,3 +198,44 @@ export function retypeAhead(map, afterRound, filter, fn) {
   )
   return { ...map, layers }
 }
+
+// --- Atlas's services (EXPANSION.md H6). ---
+
+/**
+ * Redraw: the row after `round` is drawn again with the Firmament's shop
+ * weights, keeping its nodes and links. The path follower's stop and the
+ * stretch's legendary shop stay as they are.
+ */
+export function redrawRow(map, round) {
+  const layer = map.layers[round]
+  if (!layer) return map
+  const kept = layer.filter((n) => n.follower || n.type === 'astral' || n.type === 'bazaar').map((n) => n.type)
+  const used = [...kept]
+  const fresh = layer.map((n) => {
+    if (n.follower || n.type === 'astral' || n.type === 'bazaar') return n
+    const options = FIRMAMENT_SHOP_WEIGHTS.filter((w) => w.id !== 'astral' && !used.includes(w.id))
+    const type = options.length ? pickWeighted(options) : n.type
+    used.push(type)
+    return { ...n, type }
+  })
+  return { ...map, layers: map.layers.map((l, i) => (i === round ? fresh : l)) }
+}
+
+/** The shops in the next row not yet linked from the current stop. */
+export function unlinkedNext(map) {
+  const node = currentNode(map)
+  if (!node) return []
+  return (map.layers[node.round] || []).filter((n) => !node.next.includes(n.id))
+}
+
+/** Add a path: link the current stop to one more shop in the next row. */
+export function addPath(map) {
+  const node = currentNode(map)
+  const options = unlinkedNext(map)
+  if (!node || options.length === 0) return map
+  const pick = options[Math.floor(random() * options.length)]
+  const layers = map.layers.map((layer) =>
+    layer.map((n) => (n.id === node.id ? { ...n, next: [...n.next, pick.id].sort() } : n)),
+  )
+  return { ...map, layers }
+}

@@ -153,6 +153,37 @@ export const MUSIC_THEMES = {
     perc: 'k . h . s . h . k . h k s . h h',
     voices: { lead: 'square', bass: 'triangle', pad: 'sine' },
   },
+  // The Firmament's keepers (EXPANSION.md H6).
+  // Atlas's Cartography: a wandering major line, like a pen on a map.
+  shop_cartography: {
+    root: 50,
+    scale: 'major',
+    step: 0.13,
+    lead: '0 . 2 . 4 - 2 . 5 . 4 . 2 - - . 4 . 5 . 7 - 5 . 4 . 2 . 0 - - .',
+    bass: '0 . . . 4 . . . 3 . . . 4 . . .',
+    perc: 'k . t . h . t . k . t . h . t t',
+    voices: { lead: 'triangle', bass: 'triangle' },
+  },
+  // The Horologist's Clockwork: ticks and a precise dorian music box.
+  shop_clockwork: {
+    root: 55,
+    scale: 'dorian',
+    step: 0.12,
+    lead: '7 . 4 . 2 . 4 . 7 . 9 . 7 . 4 . 2 . 0 . 2 . 4 . 2 . 0 . -1 . 0 .',
+    bass: '0 . . . 0 . . . 3 . . . 4 . . .',
+    perc: 't . t . b . t . t . t . t . b .',
+    voices: { lead: 'sine', bass: 'triangle' },
+  },
+  // Mote's Pantry: a hungry little minor hop, low and soft, bubbles.
+  shop_pantry: {
+    root: 41,
+    scale: 'pentMinor',
+    step: 0.14,
+    lead: '0 . . 2 . . 3 . 2 . . 0 . . . . 4 . . 3 . . 2 . 0 . . -1 . . . .',
+    bass: '0 - - - . . . . -2 - - - . . . .',
+    perc: 'p . . . z . . . p . p . . . . .',
+    voices: { lead: 'square', bass: 'sine' },
+  },
 
   // --- Bosses ---
   boss_calm_winds: {

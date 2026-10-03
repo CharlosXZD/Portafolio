@@ -47,8 +47,30 @@ import {
   chronoLoop,
 } from './scoring.js'
 import { random, getRngState, setRngState, seedToState, randomSeed, cleanSeed } from './rng.js'
-import { shopTypeById, DEALS, BLESSINGS, BETRAYALS, isBetrayal, FOLLOWER_SHOP } from '../data/shops.js'
-import { newMap, ensureLayers, nodeById, currentNode, nextChoices, retypeAhead, enterFirmament } from './map.js'
+import {
+  shopTypeById,
+  DEALS,
+  BLESSINGS,
+  BETRAYALS,
+  isBetrayal,
+  FOLLOWER_SHOP,
+  ATLAS_SERVICES,
+  MOTE_STAGES,
+  MOTE_RATE,
+  MOTE_PACT_PRICE,
+} from '../data/shops.js'
+import {
+  newMap,
+  ensureLayers,
+  nodeById,
+  currentNode,
+  nextChoices,
+  retypeAhead,
+  enterFirmament,
+  redrawRow,
+  addPath,
+  unlinkedNext,
+} from './map.js'
 import { firmamentEnding } from '../data/endings.js'
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
 
@@ -94,8 +116,8 @@ const RARITY_UNLOCK_ROUND = {
   [RARITY.RARE]: 4,
   [RARITY.EPIC]: 7,
   [RARITY.LEGENDARY]: 10,
-  // Mythic dice are sold only in the Firmament (H3), from round 16.
-  [RARITY.MYTHIC]: 16,
+  // Mythic dice are sold only in the Firmament (H3), from its first shop.
+  [RARITY.MYTHIC]: 15,
 }
 
 const RARITY_WEIGHT = {
@@ -636,8 +658,59 @@ function buildShopOffers(state, typeId = 'market') {
     dealTaken: false,
     blessings,
     blessingTaken: false,
+    // Atlas (H6): the services used this visit. Mote: its secret stock.
+    ...(type.services ? { servicesUsed: [] } : {}),
+    ...(type.pantry ? { moteTier: moteTier(state.moteFed), moteStock: moteStockFor(state, 0, moteTier(state.moteFed)) } : {}),
   }
 }
+
+// --- Mote's Pantry (EXPANSION.md H6). ---
+
+/** How many stages of Mote's secret stock its appetite has opened. */
+function moteTier(fed = 0) {
+  return MOTE_STAGES.filter((n) => fed >= n).length
+}
+
+/**
+ * The secret stock for the stages from `from` to `to` (Claude's default):
+ * at 40, a Hollow Pact and a random die carrying Warp; at 120, a Warp Seal
+ * and an unlocked Mythic die the run lacks, with Warp (a Chrono if none).
+ */
+function moteStockFor(state, from, to) {
+  const out = []
+  if (from < 1 && to >= 1) {
+    out.push({ kind: 'pact', id: 'hollow_pact' })
+    const unlocked = fusionsUnlockedBy(state.ownedElementsEver).filter((id) => id !== QUADRA_FUSION_ID || knowsAether(state))
+    out.push({ kind: 'die', elementId: randomOf([...PURE_ELEMENT_IDS, ...unlocked, ...ARCANE_DIE_IDS]) })
+  }
+  if (from < 2 && to >= 2) {
+    out.push({ kind: 'consumable', id: 'warp_seal' })
+    const mythics = MYTHIC_DIE_IDS.filter((id) => state.mythics?.includes(id) && !holdsKind(state.dice, id))
+    out.push({ kind: 'die', elementId: mythics.length ? randomOf(mythics) : CHRONO_ID })
+  }
+  return out
+}
+
+/** What one of Mote's offers costs. Its dice are d6 and carry Warp (+12). */
+function moteOfferCost(state, offer) {
+  if (offer.kind === 'pact') return MOTE_PACT_PRICE
+  if (offer.kind === 'consumable') return consumableCost(consumableById(offer.id), state.relics, state.shop)
+  return newDieCost(offer.elementId, state.dice, state.relics, null, STARTING_TIER) + WARP_PREMIUM
+}
+
+/**
+ * A sale in the Pantry: Mote pays 150% (rounded up) and eats the item's sell
+ * value; a new stage opens more of its stock on the spot.
+ */
+function feedMote(state, value) {
+  const fed = (state.moteFed || 0) + value
+  const before = state.shop.moteTier || 0
+  const tier = moteTier(fed)
+  const stock = tier > before ? [...(state.shop.moteStock || []), ...moteStockFor(state, before, tier)] : state.shop.moteStock
+  return { ...state, moteFed: fed, shop: { ...state.shop, moteTier: tier, moteStock: stock } }
+}
+
+const motePays = (value) => Math.ceil(value * MOTE_RATE)
 
 function availableRerolls(state) {
   const fx = relicEffects(effectiveRelics(state))
@@ -1953,11 +2026,10 @@ function reduce(state, action) {
       if (!die || die.elementId === PRIMORDIAL_DIE_ID) return state
       const fx = relicEffects(state.relics)
       const value = sellValueForDie(die, isFusionElement(die.elementId)) + (fx.sellBonus || 0)
-      return {
-        ...state,
-        shards: state.shards + value,
-        dice: state.dice.filter((d) => d.id !== action.dieId),
-      }
+      const sold = { ...state, dice: state.dice.filter((d) => d.id !== action.dieId) }
+      // Mote pays half again, and remembers the meal (H6).
+      if (state.shop.type === 'pantry') return feedMote({ ...sold, shards: state.shards + motePays(value) }, value)
+      return { ...sold, shards: state.shards + value }
     }
 
     case 'FUSE_DICE': {
@@ -2020,11 +2092,9 @@ function reduce(state, action) {
       if (!relic) return state
       const fx = relicEffects(state.relics)
       const value = relicSellValue(state, relic, fx)
-      return {
-        ...state,
-        shards: state.shards + value,
-        relics: state.relics.filter((r) => r.id !== action.relicId),
-      }
+      const sold = { ...state, relics: state.relics.filter((r) => r.id !== action.relicId) }
+      if (state.shop.type === 'pantry') return feedMote({ ...sold, shards: state.shards + motePays(value) }, value)
+      return { ...sold, shards: state.shards + value }
     }
 
     case 'BUY_CONSUMABLE': {
@@ -2076,11 +2146,9 @@ function reduce(state, action) {
       if (!item) return state
       const fx = relicEffects(state.relics)
       const value = sellValueForConsumable(item) + (fx.sellBonus || 0)
-      return {
-        ...state,
-        shards: state.shards + value,
-        consumables: state.consumables.filter((c) => c.instanceId !== action.instanceId),
-      }
+      const sold = { ...state, consumables: state.consumables.filter((c) => c.instanceId !== action.instanceId) }
+      if (state.shop.type === 'pantry') return feedMote({ ...sold, shards: state.shards + motePays(value) }, value)
+      return { ...sold, shards: state.shards + value }
     }
 
     // Consumables work in the shop and during a round (except the ones
@@ -2384,6 +2452,62 @@ function reduce(state, action) {
       }
     }
 
+    // Atlas's Cartography (EXPANSION.md H6): one of each service per visit.
+    case 'USE_SERVICE': {
+      if (state.phase !== 'shop' || !shopTypeById(state.shop.type).services || !state.map) return state
+      const service = ATLAS_SERVICES.find((x) => x.id === action.serviceId)
+      if (!service || state.shop.servicesUsed?.includes(service.id) || state.shards < service.cost) return state
+      const map = ensureLayers(state.map, state.round + 1)
+      let next = map
+      let peek = null
+      if (service.id === 'redraw') next = redrawRow(map, state.round)
+      if (service.id === 'path') {
+        if (unlinkedNext(map).length === 0) return state
+        next = addPath(map)
+      }
+      if (service.id === 'peek') {
+        // The next Warden, like a Prophecy (it is fixed by the set).
+        const round = [20, 25, 30].find((r) => r > state.round)
+        const warden = round && wardenFor(state.path, state.firmamentSet, round)
+        if (!warden) return state
+        peek = { round, bossId: warden.id }
+        next = { ...map, peeks: { ...(map.peeks || {}), [round]: warden.id } }
+      }
+      return {
+        ...state,
+        shards: state.shards - service.cost,
+        map: next,
+        shop: { ...state.shop, servicesUsed: [...(state.shop.servicesUsed || []), service.id], ...(peek ? { peek } : {}) },
+      }
+    }
+
+    // Mote's secret stock (H6).
+    case 'BUY_MOTE': {
+      if (state.phase !== 'shop' || state.shop.type !== 'pantry') return state
+      const offer = state.shop.moteStock?.[action.index]
+      if (!offer || offer.sold) return state
+      const cost = moteOfferCost(state, offer)
+      if (state.shards < cost) return state
+      let next = state
+      if (offer.kind === 'pact') {
+        // Mote's Hollow Pact is no deal with Nix: no pact counted, no Accord.
+        if (state.relics.length >= relicCapFor(state)) return state
+        next = applyDeal(state, { id: 'hollow_pact' })
+      } else if (offer.kind === 'consumable') {
+        if (state.consumables.length >= consumableCapFor(state)) return state
+        next = { ...state, consumables: giveConsumable(state, consumableById(offer.id)) }
+      } else {
+        const die = makeDie(offer.elementId, STARTING_TIER, 'warp')
+        if (!fitsPool(state, [...state.dice, die]) || holdsKind(state.dice, offer.elementId)) return state
+        const ownedElementsEver = state.ownedElementsEver.includes(offer.elementId)
+          ? state.ownedElementsEver
+          : [...state.ownedElementsEver, offer.elementId]
+        next = { ...state, dice: [...state.dice, die], ownedElementsEver }
+      }
+      const stock = state.shop.moteStock.map((o, i) => (i === action.index ? { ...o, sold: true } : o))
+      return { ...next, shards: next.shards - cost, shop: { ...next.shop, moteStock: stock } }
+    }
+
     // The Crossroads (EXPANSION.md H1): rest here and end the run with the
     // Elementa ending, or walk through the door.
     case 'REST_HERE': {
@@ -2469,6 +2593,10 @@ export const selectors = {
   emptySlots,
   holdsTime,
   finalRound,
+  moteOfferCost,
+  motePays,
+  moteTier,
+  unlinkedNext,
   doorOpen,
   firmamentSets,
   isFixedBoss,

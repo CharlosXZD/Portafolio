@@ -99,7 +99,11 @@ export default function RoadMap({
       {rows.map((round) => {
         const boss = isBossRound(round, state.difficulty)
         // The final boss is always Primordial; others only once foretold.
-        const known = boss && (round % 15 === 0 ? 'primordial' : prophecy?.round === round ? prophecy.boss.id : null)
+        // Past the door, a Warden shows once Atlas lets you peek (H6).
+        const firm = state.realm === 'firmament' && round > 15
+        const peeked = firm ? map.peeks?.[round] : null
+        const known =
+          boss && (peeked ?? (!firm && round % 15 === 0 ? 'primordial' : prophecy?.round === round ? prophecy.boss.id : null))
         return (
           <div
             key={`label-${round}`}

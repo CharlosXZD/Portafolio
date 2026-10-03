@@ -713,6 +713,20 @@ const strings = {
   'elementa.toast.mythic': { en: 'Mythic die unlocked', es: 'Dado Mítico desbloqueado' },
   'elementa.toast.warden': { en: 'Warden defeated', es: 'Custodio derrotado' },
   'elementa.gallery.bossWarden': { en: 'A Warden of the Firmament. Guards {die}.', es: 'Un Custodio del Firmamento. Guarda {die}.' },
+  'elementa.atlas.title': { en: 'Atlas\'s services', es: 'Los servicios de Atlas' },
+  'elementa.atlas.hint': { en: 'Each one once per visit, paid in Shards.', es: 'Cada uno una vez por visita, pagado en Fragmentos.' },
+  'elementa.atlas.use': { en: 'Use', es: 'Usar' },
+  'elementa.atlas.done': { en: 'Done', es: 'Hecho' },
+  'elementa.atlas.noPath': { en: 'No path left to add', es: 'No queda sendero por añadir' },
+  'elementa.atlas.peeked': { en: '{boss} waits at round {round}.', es: '{boss} espera en la ronda {round}.' },
+  'elementa.pantry.feed': { en: 'Feed', es: 'Alimentar' },
+  'elementa.pantry.appetite': { en: 'Mote\'s appetite', es: 'El apetito de Mote' },
+  'elementa.pantry.hint': { en: 'Sell from your inventory on the left: Mote pays 150% and remembers every meal. At 40 and 120 it opens more of its secret stock.', es: 'Vende desde tu inventario a la izquierda: Mote paga el 150% y recuerda cada comida. Con 40 y 120 abre más de su mercancía secreta.' },
+  'elementa.pantry.full': { en: 'Mote is full. Something is changing in it.', es: 'Mote está lleno. Algo está cambiando en él.' },
+  'elementa.pantry.secret': { en: 'Secret stock', es: 'Mercancía secreta' },
+  'elementa.pantry.secretHint': { en: 'What Mote keeps for those who feed it.', es: 'Lo que Mote guarda para quien lo alimenta.' },
+  'elementa.pantry.warpDie': { en: 'A d6 with Warp: it does not count toward your dice cap.', es: 'Un d6 con Warp: no cuenta para tu límite de dados.' },
+  'elementa.pantry.sold': { en: 'Sold', es: 'Vendido' },
 }
 
 export default strings

@@ -15,6 +15,9 @@
 //   consumableDiscount extra cut on consumables only
 //   reroll            the offers can be rerolled for Shards
 //   camp              the safety camp after a missed round (not on the Road)
+//   dieStock / consumableStock   a fixed stock instead of the rarity pools
+//   services          Atlas's map services (Redraw, Add a path, Peek)
+//   pantry            Mote buys your goods and keeps a secret stock
 const L = (en, es) => ({ en, es })
 
 export const SHOP_TYPES = {
@@ -144,6 +147,57 @@ export const SHOP_TYPES = {
     reroll: true,
     legendary: true,
   },
+  // --- The Firmament's own keepers (EXPANSION.md H6). ---
+  // Atlas sells no goods: three map services, paid in Shards.
+  cartography: {
+    id: 'cartography',
+    keeper: 'atlas',
+    name: L("Atlas's Cartography", 'Cartografía de Atlas'),
+    blurb: L(
+      'No goods. Redraw the next row of the Road, add a path to it, or peek at the next Warden.',
+      'Sin mercancía. Redibuja la próxima fila del Camino, añade un sendero o espía al próximo Custodio.',
+    ),
+    color: '#7ad1ff',
+    music: 'shop_cartography',
+    dice: 0,
+    items: 0,
+    itemKinds: [],
+    services: true,
+    reroll: false,
+  },
+  // The Horologist: the Chrono die and two time consumables.
+  clockwork: {
+    id: 'clockwork',
+    keeper: 'horologist',
+    name: L("The Horologist's Clockwork", 'El Mecanismo del Relojero'),
+    blurb: L('The Chrono die, the Stopwatch and the Time Capsule.', 'El dado Crono, el Cronómetro y la Cápsula del Tiempo.'),
+    color: '#c9a46b',
+    music: 'shop_clockwork',
+    dice: 1,
+    dieStock: ['chrono'],
+    items: 2,
+    itemKinds: ['consumable'],
+    consumableStock: ['stopwatch', 'time_capsule'],
+    reroll: false,
+  },
+  // Mote sells nothing: it buys anything for half again its sell value, and
+  // what it eats opens a secret stock.
+  pantry: {
+    id: 'pantry',
+    keeper: 'mote',
+    name: L("Mote's Pantry", 'La Despensa de Mote'),
+    blurb: L(
+      'Sells nothing. Buys any die, relic or consumable for 150% of its sell value. It is always hungry.',
+      'No vende nada. Compra cualquier dado, reliquia o consumible por el 150% de su valor de venta. Siempre tiene hambre.',
+    ),
+    color: '#8a7aa8',
+    music: 'shop_pantry',
+    dice: 0,
+    items: 0,
+    itemKinds: [],
+    pantry: true,
+    reroll: false,
+  },
   // Not a Road stop: after a missed round, Tobb sets up camp (EXPANSION.md
   // E10). A few Shards on arrival, a small Market, then retry the round.
   camp: {
@@ -197,8 +251,43 @@ export const FIRMAMENT_SHOP_WEIGHTS = [
   { id: 'vault', weight: 8, from: 1 },
   { id: 'shrine', weight: 6, from: 1 },
   { id: 'blackmarket', weight: 6, from: 1 },
+  { id: 'cartography', weight: 10, from: 1 },
+  { id: 'clockwork', weight: 8, from: 1 },
+  { id: 'pantry', weight: 8, from: 1 },
   { id: 'astral', weight: 2, from: 1 },
 ]
+
+// Atlas's services (H6, Claude's default prices), each once per visit.
+export const ATLAS_SERVICES = [
+  {
+    id: 'redraw',
+    cost: 6,
+    name: L('Redraw', 'Redibujar'),
+    body: L('The next row of the Road is drawn again.', 'La próxima fila del Camino se dibuja de nuevo.'),
+  },
+  {
+    id: 'path',
+    cost: 5,
+    name: L('Add a path', 'Añadir un sendero'),
+    body: L('Link this stop to one more shop in the next row.', 'Une esta parada con una tienda más de la próxima fila.'),
+  },
+  {
+    id: 'peek',
+    cost: 8,
+    name: L('Peek', 'Espiar'),
+    body: L('Learn which Warden waits next, like a Prophecy.', 'Descubre qué Custodio espera después, como una Profecía.'),
+  },
+]
+
+// Mote's appetite (H6): what it has eaten on this file, summed sell value.
+// Each stage opens more of its secret stock; at FULL it is full (what that
+// does is not built yet, EXPANSION.md A5).
+export const MOTE_STAGES = [40, 120]
+export const MOTE_FULL = 400
+// What Mote pays for your goods, over their sell value.
+export const MOTE_RATE = 1.5
+// The secret stock's Hollow Pact price (Claude's default).
+export const MOTE_PACT_PRICE = 15
 
 // Each path's follower (H6): one of their shops is guaranteed in every
 // Firmament stretch. Aeris's Shrine for the Split, Nix's eclipse market for
