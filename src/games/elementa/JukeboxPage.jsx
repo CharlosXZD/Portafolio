@@ -33,6 +33,7 @@ const WHERE = {
   scene_firmament: L('Story: the visions and the Firmament', 'Historia: las visiones y el Firmamento'),
   shop_cartography: L("Atlas's Cartography (the Firmament)", 'Cartografía de Atlas (el Firmamento)'),
   shop_clockwork: L("The Horologist's Clockwork (the Firmament)", 'El Mecanismo del Relojero (el Firmamento)'),
+  shop_observatory: L("Seren's Observatory (the Firmament)", 'El Observatorio de Seren (el Firmamento)'),
   shop_pantry: L("Mote's Pantry (the Firmament)", 'La Despensa de Mote (el Firmamento)'),
   boss_dawn: L('Warden: The Dawn (rounds 20 to 30)', 'Custodio: El Alba (rondas 20 a 30)'),
   boss_umbra: L('Warden: The Umbra (rounds 20 to 30)', 'Custodio: La Umbra (rondas 20 a 30)'),

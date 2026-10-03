@@ -77,9 +77,6 @@ The Umbra (a swallowed die scores 0 and Darkness-like) was fun and hard to beat,
 
 #### Second configuration
 
-**Note** We do all of the posible configutations. 
-
-
 ##### Base Elements
 |Name|Element|Ability|
 |----|-------|-------|
@@ -109,6 +106,8 @@ The Umbra (a swallowed die scores 0 and Darkness-like) was fun and hard to beat,
 | Stasis | Time + Void ||
 | Cosmos | Space + Void ||
 
+
+*Note: The combinations for 3 elements and beyond will not be used for now.*
 
 ##### Combinations for 3 elements
 
@@ -170,6 +169,30 @@ The Umbra (a swallowed die scores 0 and Darkness-like) was fun and hard to beat,
 |------|-------------|-------|
 |/////|Dark + Light + Time + Space + Chaos + Void||
 
+
+
+
+#### Claude's proposal for the workshop (2026-10-03)
+
+**Recommendation: Configuration 2, curated.** Six base elements and 12 new dice instead of 21: the six base dice, the three opposed pairs, and three more chosen for flavor. The other pair-fusions wait for later. Mythic dice stay as they are.
+
+| Group | Dice | Where it is made |
+|---|---|---|
+| Stable (always works) | Shadow (Dark + Light), Continuum (Time + Space), Oblivion (Chaos + Void) | Shadow at the normal Forge; Continuum at the Horologist; Oblivion at Mote (feed it two dice, it gives one back) |
+| Volatile (can collapse) | Paradox (Chaos + Time), Singularity (Light + Void), Abyss (Dark + Void) | Only at the new **Cosmologist's bench** (a keeper who joins the Forge), with a stated chance |
+
+(Paradox is also a reaction name, so one of them needs a new name.)
+
+**So the player is never betrayed:**
+- The Cosmologist shows the odds before you commit (for example "Singularity: 60%").
+- A failure is not a loss: the two dice collapse into a **Black Hole**, a real die with its own use (scores 0 itself, adds Mult for each die it swallowed this run), so a bad roll still gives something.
+- A **Stabilizer** (a Constellation-like consumable, sold by Seren or the Cosmologist) raises a fusion to 100%.
+- The six base dice are forged from recipes the file learns when each Warden falls (like the gods), so nothing is a surprise purchase.
+
+**Base dice (first thoughts, weaker than their Mythic):**
+Light: neighbors never fizzle. Dark: the die on its right scores 0 and half of that goes to Mult. Time: +1 reroll each round. Space: reacts with the die two places away too. Chaos: a random pure element each roll. Void: +0.5 Mult per empty dice slot.
+
+**Open:** names for the base dice (Dark and Darkness would clash), how each base die is forged, and whether volatile fusions can also gate the true ending.
 
 
 ---

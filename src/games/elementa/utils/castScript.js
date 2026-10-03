@@ -33,7 +33,7 @@ export function buildCastScript(result) {
       // A die that a Beacon, Satellite or Mirror changed lights its helper too.
       boosts: d.boosts ?? [],
       lit: [i, ...(d.boosts ?? []).map((b) => b.from)],
-      links: (d.boosts ?? []).map((b) => [b.from, i]),
+      links: (d.boosts ?? []).filter((b) => b.from !== i).map((b) => [b.from, i]),
     }),
   )
   for (const section of ['base', 'mult']) {

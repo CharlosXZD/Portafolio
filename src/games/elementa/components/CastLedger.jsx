@@ -24,11 +24,13 @@ export function useLineLabel(discovered) {
   return (line) => {
     if (line.kind === 'dice') return t('elementa.cast.dice')
     if (line.kind === 'explosions') return `${t('elementa.cast.explosions')} x${line.count}`
-    if (line.kind === 'set') return SET_TIER_LABEL[lang][line.tier] ?? line.tier
+    // A levelled reaction or set says so ("Kindle Lv 3", EXPANSION.md J1).
+    const lv = line.level > 0 ? ` ${t('elementa.cast.level').replace('{n}', line.level)}` : ''
+    if (line.kind === 'set') return (SET_TIER_LABEL[lang][line.tier] ?? line.tier) + lv
     if (line.kind === 'reaction') {
       const r = reactionById(line.id)
       if (r.secret && discovered && !discovered.has(r.id)) return '???'
-      return localizeReaction(r, lang).name
+      return localizeReaction(r, lang).name + lv
     }
     if (line.kind === 'boon') return dealById(line.id)?.name[lang] ?? '?'
     // Items and the Celestial dice that put a line on the ledger (I1, I2).

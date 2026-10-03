@@ -44,6 +44,7 @@ Where each plays, its key, scale, tempo and length (a bar is 16 steps). "pad" me
 | `shop_bazaar` | Aether Bazaar (every keeper) | C3 lydian | 125 | 2 | pad, drums |
 | `shop_cartography` | Atlas's Cartography (the Firmament) | D3 major | 115 | 2 | drums |
 | `shop_clockwork` | The Horologist's Clockwork (the Firmament) | G3 dorian | 125 | 2 | drums |
+| `shop_observatory` | Seren's Observatory (the Firmament) | D4 lydian | 75 | 2 | pad |
 | `shop_pantry` | Mote's Pantry (the Firmament) | F2 pentMinor | 107 | 2 | drums |
 | `boss_calm_winds` | Boss: Calm Winds | D3 lydian | 75 | 2 | drums |
 | `boss_grounded` | Boss: Grounded | E2 minor | 94 | 2 | drums |

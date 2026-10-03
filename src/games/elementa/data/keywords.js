@@ -30,7 +30,7 @@ export const KEYWORDS = Object.fromEntries(
     // The Firmament (EXPANSION.md H3 to H5).
     K('mythic', '#ff4fd8', L('Mythic', 'Mítico'), L('No element. One of each kind per run, and it cannot be copied.', 'Sin elemento. Uno de cada tipo por partida, y no se puede copiar.')),
     K('warp', '#a66bff', L('Warp', 'Warp'), L('Does not count toward your dice cap. At most 3 Warp dice at once.', 'No cuenta para tu límite de dados. Como mucho 3 dados Warp a la vez.')),
-    K('loop', '#8f7bff', L('Loop', 'Bucle'), L('A 1 rerolls every unheld die for free, and the better pool stays.', 'Un 1 vuelve a tirar gratis todo dado no guardado, y se queda la mejor reserva.')),
+    K('loop', '#8f7bff', L('Loop', 'Bucle'), L('Any 1 rerolls every unheld die for free, and the better pool stays.', 'Cualquier 1 vuelve a tirar gratis todo dado no guardado, y se queda la mejor reserva.')),
     K('floor', '#fff2a8', L('Floor', 'Piso'), L('No die can score below this face.', 'Ningún dado puede anotar menos que esta cara.')),
     K('devour', '#6a4fb8', L('Devour', 'Devora'), L('Its neighbors score 0, and their score becomes Mult.', 'Sus vecinos anotan 0, y su puntaje se vuelve Multiplicador.')),
     K('undo', '#b9a6ff', L('Undo', 'Deshacer'), L('Takes back your last reroll, and refunds it.', 'Deshace tu último reroll, y lo devuelve.')),
@@ -40,6 +40,12 @@ export const KEYWORDS = Object.fromEntries(
     K('pulse', '#ff8fd0', L('Pulse', 'Pulso'), L('Gains Base for every reroll made this round.', 'Gana Base por cada reroll hecho esta ronda.')),
     K('flare', '#c58cff', L('Flare', 'Destello'), L('Its face goes to Mult instead of Base.', 'Su cara va al Mult en lugar de la Base.')),
     K('rerolls', '#ffe08a', L('Rerolls', 'Rerolls'), L('Gives you extra rerolls while it is in your pool.', 'Te da rerolls extra mientras esté en tu reserva.')),
+    // The Runes (J3), shown on a die that carries one.
+    K('rune_echo', '#9fd8ff', L('Echo', 'Eco'), L('Rune: the die scores twice.', 'Runa: el dado anota dos veces.')),
+    K('rune_glass', '#d6f2ff', L('Glass', 'Cristal'), L('Rune: doubled score, but it may shatter after a cast.', 'Runa: puntaje doble, pero puede romperse tras un lanzamiento.')),
+    K('rune_kinship', '#ffb8e8', L('Kinship', 'Parentesco'), L("Rune: counts as its left neighbor's element for reactions.", 'Runa: cuenta como el elemento de su vecino izquierdo para las reacciones.')),
+    K('rune_ember', '#ff8a4d', L('Ember', 'Brasa'), L('Rune: explodes on its top two faces.', 'Runa: explota con sus dos caras más altas.')),
+    K('rune_anchor', '#9fb4c8', L('Anchor', 'Ancla'), L('Rune: never fizzles.', 'Runa: nunca se apaga.')),
   ].map((k) => [k.id, k]),
 )
 

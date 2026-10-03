@@ -24,6 +24,8 @@ const HEADS = {
   atlas: ['..........cc..', '....kkkkkcck..', '...khhhhhhhk..', '..khhhhhhhhhk.', '..kddddddddk..'],
   horologist: ['.....kccck....', '....kcdddck...', '....kcdcdck...', '...kkhhhhhkk..', '..khhhhhhhhk..'],
   mote: ['..............', '...k......k...', '...hk....kh...', '....khhhhk....', '...khhhhhhk...'],
+  // Seren (J2): a cap with a star on it.
+  seren: ['.......c......', '......ccc.....', '....kkkckk....', '...khhhhhhk...', '..khhhhhhhhk..'],
 }
 
 const MOUTHS = {
@@ -36,6 +38,7 @@ const MOUTHS = {
   atlas: '..kaaddddaaak.',
   horologist: '..kaaaaaaaaak.',
   mote: '..kaaadaaaaak.',
+  seren: '..kaaaddaaaak.',
 }
 
 const BODY = (mouth) => [
@@ -59,6 +62,7 @@ const PALETTES = {
   aeris: { k: '#120c1a', h: '#cfe3ff', c: '#ffe9a0', a: '#eef3ff', b: '#bccbe8', w: '#9fd8ff', e: '#3d6fe5', d: '#9fb0d0' },
   atlas: { k: '#120c1a', h: '#2f5a8a', c: '#f2e6c8', a: '#e8c9a0', b: '#c49a74', w: '#ffffff', e: '#1d3a5a', d: '#7ad1ff' },
   horologist: { k: '#120c1a', h: '#5a4a2a', c: '#c9a46b', a: '#d8d0c0', b: '#a89f8c', w: '#fff4d6', e: '#3a2a12', d: '#fff4d6' },
+  seren: { k: '#120c1a', h: '#3a3f8a', c: '#ffe9a0', a: '#e6d4c8', b: '#bfa8a0', w: '#ffffff', e: '#1d2260', d: '#9fb8ff' },
   mote: { k: '#05030a', h: '#2a2338', c: '#8a7aa8', a: '#1a1424', b: '#120c1a', w: '#ff4fd8', e: '#ffffff', d: '#8a7aa8' },
 }
 

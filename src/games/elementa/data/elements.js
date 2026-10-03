@@ -30,7 +30,7 @@ export const FLAGS = {
   MIMIC_LEFT: 'mimicLeft', // Masquerade: abilities and score of the left die
   MIMIC_SPLIT: 'mimicSplit', // Chameleon: abilities of the left, score of the right
   // EXPANSION.md H3 to H5: the Firmament's dice.
-  CHRONO: 'chronoLoop', // Chrono: a 1 rewinds time and rerolls the whole pool
+  CHRONO: 'chronoLoop', // Chrono: any 1 rewinds time and rerolls the whole pool
   LIGHT: 'lightFloor', // Light: no die scores below its face
   DARKNESS: 'darkness', // Darkness: eats its neighbors into Mult
   TIME: 'timeRewind', // Time: undo a reroll once per round
@@ -418,7 +418,7 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#8f7bff',
-    tagline: 'A 1 rewinds time: every unheld die rolls again, and you keep the better pool.',
+    tagline: 'Any die that rolls a 1 rewinds time: every unheld die rolls again, and you keep the better pool. Repeats until no 1 is left (up to 8 times).',
     flags: flagSet(FLAGS.CHRONO),
   },
   // --- The Celestial dice (EXPANSION.md I1): arcane dice sold only past the

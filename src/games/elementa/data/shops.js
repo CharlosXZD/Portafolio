@@ -18,6 +18,9 @@
 //   dieStock / consumableStock   a fixed stock instead of the rarity pools
 //   services          Atlas's map services (Redraw, Add a path, Peek)
 //   pantry            Mote buys your goods and keeps a secret stock
+//   observatory       Seren sells Constellations (duplicates allowed)
+//   runesOnly / runes the item shelf is all Runes (Forge) / Runes join the pool
+//   horologist / celestial   the Horologist's rotating pool / a guaranteed Celestial die
 const L = (en, es) => ({ en, es })
 
 export const SHOP_TYPES = {
@@ -68,8 +71,10 @@ export const SHOP_TYPES = {
     color: '#ff7a1a',
     music: 'shop_forge',
     dice: 2,
-    items: 0,
-    itemKinds: [],
+    // Runes (EXPANSION.md J3) are sold here: two on the shelf.
+    items: 2,
+    itemKinds: ['consumable'],
+    runesOnly: true,
     forge: true,
     upgrades: true,
     reroll: true,
@@ -121,6 +126,7 @@ export const SHOP_TYPES = {
     discount: 0.25,
     reroll: true,
     legendary: true,
+    runes: true,
   },
   // The Firmament's legendary shop (EXPANSION.md H6): the Aether Bazaar's
   // stock rules under the realm's own name. One per stretch, always the
@@ -146,6 +152,7 @@ export const SHOP_TYPES = {
     discount: 0.25,
     reroll: true,
     legendary: true,
+    runes: true,
     // One Celestial die is always on offer (I3).
     celestial: true,
   },
@@ -184,6 +191,24 @@ export const SHOP_TYPES = {
     itemKinds: ['relic', 'consumable'],
     horologist: true,
     reroll: false,
+  },
+  // Seren's Observatory (EXPANSION.md J2): four Constellations a visit, drawn
+  // by weight (Black Hole rarely), duplicates allowed. Firmament only.
+  observatory: {
+    id: 'observatory',
+    keeper: 'seren',
+    name: L("Seren's Observatory", 'El Observatorio de Seren'),
+    blurb: L(
+      'Four Constellations a visit. Each one permanently levels a reaction or a set type.',
+      'Cuatro Constelaciones por visita. Cada una sube para siempre una reacción o un tipo de set.',
+    ),
+    color: '#9fb8ff',
+    music: 'shop_observatory',
+    dice: 0,
+    items: 4,
+    itemKinds: ['consumable'],
+    observatory: true,
+    reroll: true,
   },
   // Mote sells nothing: it buys anything for half again its sell value, and
   // what it eats opens a secret stock.
@@ -266,6 +291,7 @@ export const FIRMAMENT_SHOP_WEIGHTS = [
   { id: 'blackmarket', weight: 6, from: 1 },
   { id: 'cartography', weight: 10, from: 1 },
   { id: 'clockwork', weight: 8, from: 1 },
+  { id: 'observatory', weight: 8, from: 1 },
   { id: 'pantry', weight: 8, from: 1 },
   { id: 'astral', weight: 2, from: 1 },
 ]

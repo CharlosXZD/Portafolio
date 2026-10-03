@@ -14,6 +14,8 @@
 // Extra rerolls used to be an always-available shop button; they're a
 // luck-gated consumable now, like everything else purchasable.
 import { RARITY, RARITY_COST } from './relics.js'
+import { CONSTELLATIONS, BLACK_HOLE_TEXT, constellationText } from './constellations.js'
+import { RUNES } from './runes.js'
 
 export const CONSUMABLES = [
   {
@@ -290,6 +292,56 @@ export const CONSUMABLES = [
     itemConcept: 'a thick almanac bound in star-blue cloth, pages marked with dates',
     description: 'Shows the next three targets and the next boss modifier, exactly.',
   },
+  // --- Constellations (EXPANSION.md J1): permanently level one reaction or
+  // set type. Firmament only; Seren's Observatory sells them, other
+  // Firmament shops rarely. They apply at once, with no target. ---
+  ...CONSTELLATIONS.map((c) => ({
+    id: `const_${c.id}`,
+    name: c.en,
+    kind: 'consumable',
+    type: 'constellation',
+    levels: c.target,
+    target: 'self',
+    rarity: RARITY.UNCOMMON,
+    cost: 6,
+    element: null,
+    firmament: true,
+    constellation: true,
+    stockWeight: 0.3,
+    itemConcept: `a small brass star chart marked with the sign of ${c.targetEn}`,
+    description: constellationText(c, 'en'),
+  })),
+  {
+    id: 'const_black_hole',
+    name: 'Black Hole',
+    kind: 'consumable',
+    type: 'blackhole',
+    target: 'self',
+    rarity: RARITY.LEGENDARY,
+    cost: 25,
+    element: null,
+    firmament: true,
+    constellation: true,
+    stockWeight: 0.4,
+    itemConcept: 'a black glass sphere ringed in a thin bright halo',
+    description: BLACK_HOLE_TEXT.en,
+  },
+  // --- Runes (J3): socketed into one die. Forge-type shops and the
+  // Firmament Market. ---
+  ...RUNES.map((r) => ({
+    id: `rune_${r.id}`,
+    name: r.name.en,
+    kind: 'consumable',
+    type: 'rune',
+    rune: r.id,
+    target: 'die',
+    rarity: r.rarity,
+    element: null,
+    runeItem: true,
+    stockWeight: 0.6,
+    itemConcept: `a small carved stone glowing with the rune of ${r.id}`,
+    description: r.description.en,
+  })),
 ]
 
 export function consumableById(id) {

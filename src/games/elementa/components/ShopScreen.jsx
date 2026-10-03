@@ -121,7 +121,7 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
         )}
       </AnimatePresence>
       {fullOpen && (
-        <DieFullModal elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} onClose={() => setFullOpen(false)} />
+        <DieFullModal elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} rune={item.rune} onClose={() => setFullOpen(false)} />
       )}
     </div>
   )
@@ -548,6 +548,7 @@ export default function ShopScreen({ state, dispatch }) {
                 sides: die.sides,
                 bonus: die.bonus || 0,
                 edition: die.edition,
+                rune: die.rune,
                 name: `${elementName} d${die.sides}${die.bonus ? ` +${die.bonus}` : ''}`,
                 description: die.bonus
                   ? `${base.description} ${t('elementa.shop.dieBonus').replace('{n}', die.bonus)}`
@@ -812,7 +813,7 @@ export default function ShopScreen({ state, dispatch }) {
           {shop.itemOffers.length === 0 && (
             <p className="text-base text-[var(--text-mute)]">{t('elementa.shop.nothingToOffer')}</p>
           )}
-          {shop.itemOffers.map((offer) => {
+          {shop.itemOffers.map((offer, idx) => {
             if (offer.kind === 'relic') {
               const relic = relicById(offer.id)
               const cost = selectors.relicCost(relic, state.relics, shop)
@@ -839,8 +840,8 @@ export default function ShopScreen({ state, dispatch }) {
             const cost = selectors.consumableCost(def, state.relics, shop)
             return (
               <IconSlot
-                key={`consumable-${offer.id}`}
-                itemKey={`consumableoffer-${offer.id}`}
+                key={`consumable-${offer.id}-${idx}`}
+                itemKey={`consumableoffer-${offer.id}-${idx}`}
                 item={consumableDescriptor(def, lang)}
                 cost={cost}
                 affordable={state.shards >= cost}

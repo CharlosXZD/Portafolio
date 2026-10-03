@@ -4,6 +4,8 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import AnimatedNumber from './AnimatedNumber.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import { relicById } from '../data/relics.js'
+import { ELEMENTS } from '../data/elements.js'
+import { localize, ELEMENTS_ES } from '../data/i18n.js'
 import { relicDescriptor } from '../data/itemDescriptors.js'
 import { playSuccess, playFail, playLifeLost } from '../utils/sound.js'
 
@@ -85,6 +87,15 @@ export default function RoundResult({ state, dispatch, compact = false }) {
               .join(' · ')}
           </span>
         </div>
+      )}
+      {/* Rune of Glass (EXPANSION.md J3): what broke after the cast. */}
+      {r.shattered?.length > 0 && (
+        <p className="text-center text-base text-[#d6f2ff]">
+          {t('elementa.roundResult.shattered').replace(
+            '{dice}',
+            r.shattered.map((id) => localize(lang, ELEMENTS[id].name, ELEMENTS_ES, id, 'name')).join(', '),
+          )}
+        </p>
       )}
       {r.longNightRelic && (
         <p className="text-base text-[var(--arcane-hi)]">

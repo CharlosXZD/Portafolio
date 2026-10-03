@@ -402,6 +402,47 @@ export const KEEPERS = {
     ],
   },
 
+  seren: {
+    id: 'seren',
+    name: L('Seren', 'Seren'),
+    title: L('The astronomer', 'La astrónoma'),
+    intro: L(
+      'Quiet, please, the sky is thinking. I am Seren. I chart the shapes the stars make when nobody is rolling anything.',
+      'Silencio, por favor, el cielo está pensando. Soy Seren. Dibujo las formas que hacen las estrellas cuando nadie tira nada.',
+    ),
+    greet: {
+      stranger: [
+        L('Every reaction is a star you have not drawn yet. Buy one.', 'Cada reacción es una estrella que aún no has dibujado. Compra una.'),
+        L('Look up. No, further. There.', 'Mira arriba. No, más lejos. Ahí.'),
+      ],
+      regular: [
+        L('Your stars are coming along nicely. Mind the glare.', 'Tus estrellas van muy bien. Cuidado con el resplandor.'),
+        L('I saved you a good one. It fell this morning.', 'Te guardé una buena. Cayó esta mañana.'),
+      ],
+      friend: [
+        L('For you I leave the lens uncovered. Do not tell the Wardens.', 'Para ti dejo la lente destapada. No se lo digas a los Custodios.'),
+        L('You and I have charted half this sky. The other half is shy.', 'Tú y yo hemos trazado medio cielo. La otra mitad es tímida.'),
+      ],
+    },
+    afterBoss: L('A Warden down. The sky is a little wider tonight.', 'Un Custodio menos. El cielo es un poco más ancho esta noche.'),
+    lowLives: L('You are burning low. Take a star, it keeps longer than a heart.', 'Te estás apagando. Toma una estrella, dura más que un corazón.'),
+    loreAt: [2, 4, 6],
+    lore: [
+      L(
+        'A Constellation is just a habit the stars picked up. Feed a habit often enough and it becomes a law.',
+        'Una Constelación es solo una costumbre que las estrellas adoptaron. Alimenta una costumbre bastante y se vuelve ley.',
+      ),
+      L(
+        'The Black Hole is not a star. It is where the sky keeps what it has not decided about yet.',
+        'El Agujero Negro no es una estrella. Es donde el cielo guarda lo que todavía no ha decidido.',
+      ),
+      L(
+        'Atlas draws where the Roads go. I draw why. We do not speak much, the maps get crowded.',
+        'Atlas dibuja adónde van los Caminos. Yo dibujo por qué. No hablamos mucho, los mapas se llenan.',
+      ),
+    ],
+  },
+
   mote: {
     id: 'mote',
     name: L('Mote', 'Mote'),

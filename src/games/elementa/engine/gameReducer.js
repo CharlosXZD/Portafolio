@@ -75,6 +75,8 @@ import {
   unlinkedNext,
 } from './map.js'
 import { firmamentEnding } from '../data/endings.js'
+import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
+import { GLASS_BREAK_CHANCE } from '../data/runes.js'
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
 
 const STARTING_TIER = 'd6'
@@ -377,6 +379,23 @@ function scoreContext(state) {
     // Mult that comes from items rather than dice (I2): the Metronome, the
     // Cuckoo Clock.
     bonusMult: itemMult(state),
+    // Levelled reactions and sets (J1).
+    constellations: state.constellations || {},
+  }
+}
+
+/**
+ * Rune of Glass (EXPANSION.md J3): after a cast has scored, each Glass die
+ * has GLASS_BREAK_CHANCE to shatter and leave the pool, one seeded draw per
+ * die, left to right. The pool never loses its last die.
+ */
+function shatterGlass(state) {
+  const broken = state.dice.filter((d) => d.rune === 'glass' && random() < GLASS_BREAK_CHANCE).map((d) => d.id)
+  if (broken.length === 0) return { state, shattered: [] }
+  if (broken.length >= state.dice.length) broken.pop()
+  return {
+    state: { ...state, dice: state.dice.filter((d) => !broken.includes(d.id)) },
+    shattered: state.dice.filter((d) => broken.includes(d.id)).map((d) => d.elementId),
   }
 }
 
@@ -456,6 +475,12 @@ function newDieCost(elementId, dice, relics, shop, sizeId = SHOP_DIE_TIER) {
 
 function relicCost(relic, relics, shop) {
   return applyDiscount(costForRelic(relic), relics, shopCut(shop, 'relic'))
+}
+
+// Buying removes one copy of an offer (a Constellation can be offered twice).
+function dropOffer(offers, kind, id) {
+  const i = offers.findIndex((o) => o.kind === kind && o.id === id)
+  return i < 0 ? offers : offers.filter((_, j) => j !== i)
 }
 
 function consumableCost(def, relics, shop) {
@@ -591,7 +616,18 @@ function rollShopStock(state, type) {
   const firmament = state.realm === 'firmament'
   const ownedRelicIds = new Set(state.relics.map((r) => r.id))
   if (type.horologist) return rollHorologistStock(state, ownedRelicIds)
-  const consumablePool = CONSUMABLES.filter((c) => (!c.firmament || firmament) && !c.horologistOnly)
+  // Seren's Observatory: four Constellations, duplicates allowed (J2).
+  if (type.observatory) {
+    const stars = CONSUMABLES.filter((c) => c.constellation)
+    const offers = Array.from({ length: type.items }, () => weightedSample(stars, 1, (c) => (c.id === 'const_black_hole' ? 0.2 : 1))[0])
+    return finishStock(state, offers.map((c) => ({ kind: 'consumable', id: c.id })), [], state.round)
+  }
+  // Runes (J3): the Forge's whole shelf, the Bazaar and Exchange's pool, and
+  // the Firmament Market's pool.
+  const runesIn = type.runes || (firmament && type.id === 'market')
+  const consumablePool = type.runesOnly
+    ? CONSUMABLES.filter((c) => c.runeItem)
+    : CONSUMABLES.filter((c) => (!c.firmament || firmament) && !c.horologistOnly && (!c.runeItem || runesIn))
   const itemPool = [
     ...(type.itemKinds.includes('relic')
       ? RELICS.filter(
@@ -870,6 +906,8 @@ function baseTitleState() {
     // The Horologist's wares (I2): the Metronome's rounds, the Cuckoo Clock's.
     metronome: null,
     cuckooRound: null,
+    // Constellations (J1): { [reaction or set id]: level } for the run.
+    constellations: {},
     // Highest single cast this run, for Run Info and achievements.
     bestCast: 0,
     // Secret recipes this save file knows (copied from the profile).
@@ -1236,6 +1274,9 @@ export function consumableTargetOk(state, item, die) {
       if (uncopyable(die)) return false
       return Boolean(plan) && (plan.kind === 'chip' || fitsPool(state, [...state.dice, die]))
     }
+    // Runes (J3): any die but a Mythic one, Entropy included.
+    case 'rune':
+      return !isMythic(die.elementId) && die.rune !== item.rune
     // Warp Seal (H3): any die without Warp, under the Warp cap.
     case 'warp':
       return !isWarp(die) && warpCount(state.dice) < WARP_CAP
@@ -1896,6 +1937,7 @@ function reduce(state, action) {
         const kindled =
           !state.roundBuffs?.noFizzle &&
           d.value === 1 &&
+          d.rune !== 'anchor' &&
           elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) &&
           inFamily(d.elementId, 'fire')
         if (kindled) kindling += 1
@@ -1980,10 +2022,15 @@ function reduce(state, action) {
       if (state.dice.some((d) => d.maelstromFrom)) state = { ...state, dice: state.dice.map((d) => ({ ...d, ...unmaelstrom(d) })) }
       // A god of the gauntlet falls; three more stages before the ending.
       if (passed && state.gauntlet && state.gauntlet.stage < GOD_TRIALS.length - 1) {
-        return advanceGauntlet(state, { ...result, passed, threshold: state.threshold })
+        const glass = shatterGlass(state)
+        return advanceGauntlet(glass.state, { ...result, passed, threshold: state.threshold, shattered: glass.shattered })
       }
       // Primordial Unbound only borrowed your dice: give the pool back.
       if (state.bossModifier?.variant === 'unbound' && state.roundPool) state = { ...state, dice: state.roundPool }
+      // Rune of Glass (J3): after scoring, each glass die may shatter.
+      const glass = shatterGlass(state)
+      state = glass.state
+      result.shattered = glass.shattered
 
       if (passed) {
         const earned = shardsEarned(result.roundScore, state.threshold, state.difficulty)
@@ -2222,9 +2269,7 @@ function reduce(state, action) {
         consumables: [...state.consumables, { ...def, instanceId: makeId() }],
         shop: {
           ...state.shop,
-          itemOffers: state.shop.itemOffers.filter(
-            (o) => !(o.kind === 'consumable' && o.id === def.id),
-          ),
+          itemOffers: dropOffer(state.shop.itemOffers, 'consumable', def.id),
         },
       }
     }
@@ -2244,7 +2289,7 @@ function reduce(state, action) {
         consumables: [...state.consumables, { ...def, instanceId }],
         shop: {
           ...state.shop,
-          itemOffers: state.shop.itemOffers.filter((o) => !(o.kind === 'consumable' && o.id === def.id)),
+          itemOffers: dropOffer(state.shop.itemOffers, 'consumable', def.id),
         },
       }
       const applied = reduce(bought, { type: 'APPLY_CONSUMABLE', instanceId, dieId: action.dieId ?? null })
@@ -2289,6 +2334,20 @@ function reduce(state, action) {
         if (item.type === 'rewind') {
           if (!rolling || !state.lastReroll) return state
           return { ...undoReroll(state), consumables: spent }
+        }
+        // A Constellation (J1) levels one reaction or set type, up to the cap.
+        if (item.type === 'constellation') {
+          const level = state.constellations?.[item.levels] || 0
+          if (level >= LEVEL_CAP) return state
+          return { ...state, constellations: { ...state.constellations, [item.levels]: level + 1 }, consumables: spent }
+        }
+        // Black Hole (J1): one level to every reaction and set type.
+        if (item.type === 'blackhole') {
+          const now = state.constellations || {}
+          if (LEVELABLE.every((id) => (now[id] || 0) >= LEVEL_CAP)) return state
+          const next = { ...now }
+          LEVELABLE.forEach((id) => (next[id] = Math.min(LEVEL_CAP, (next[id] || 0) + 1)))
+          return { ...state, constellations: next, consumables: spent }
         }
         // Hourglass (I2): the next 3 rerolls this round are free. Only
         // useful mid-round.
@@ -2404,6 +2463,10 @@ function reduce(state, action) {
         // Warp Seal (H3).
         if (!consumableTargetOk(state, item, die)) return state
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, edition: 'warp' } : d))
+      } else if (item.type === 'rune') {
+        // A Rune (J3) goes in one die; a second replaces the first.
+        if (!consumableTargetOk(state, item, die)) return state
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, rune: item.rune } : d))
       } else if (item.type === 'watch') {
         // Pocket Watch (I2): next round this die starts held, on this face.
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, watch: d.value } : d))
@@ -2424,7 +2487,7 @@ function reduce(state, action) {
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, elementId, growth: 0 } : d))
         if (!ownedElementsEver.includes(elementId)) ownedElementsEver = [...ownedElementsEver, elementId]
       } else if (item.type === 'transmute') {
-        dice = state.dice.map((d) => (d.id === die.id ? { ...d, elementId: item.targetElementId } : d))
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, elementId: item.targetElementId, rune: null } : d))
         if (!ownedElementsEver.includes(item.targetElementId)) {
           ownedElementsEver = [...ownedElementsEver, item.targetElementId]
         }

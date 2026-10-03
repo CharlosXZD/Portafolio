@@ -13,6 +13,7 @@ import BoonsList from './BoonsList.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
 import PixelSprite from './PixelSprite.jsx'
 import { SHOP_TYPES } from '../data/shops.js'
+import { CONSTELLATIONS, LEVEL_CAP } from '../data/constellations.js'
 
 function Row({ label, children }) {
   return (
@@ -113,6 +114,33 @@ export default function RunInfo({ state, onClose, initialTab = 'run' }) {
             </Row>
           </div>
         ) : null}
+
+        {/* Constellations (EXPANSION.md J1): what has been levelled this run. */}
+        {tab === 'run' && state.realm === 'firmament' && (
+          <div className="el-panel w-full max-w-md p-5">
+            <h3 className="el-label mb-3">{t('elementa.runInfo.constellations')}</h3>
+            <ul className="flex flex-col gap-2">
+              {CONSTELLATIONS.map((c) => {
+                const level = state.constellations?.[c.target] || 0
+                return (
+                  <li key={c.id} className="flex items-center justify-between gap-3 text-base" style={{ opacity: level ? 1 : 0.5 }}>
+                    <span>{lang === 'es' ? c.es : c.en}</span>
+                    <span className="flex items-center gap-2">
+                      <span className="flex gap-[2px]">
+                        {Array.from({ length: LEVEL_CAP }, (_, i) => (
+                          <span key={i} className="h-2 w-1.5" style={{ background: i < level ? 'var(--gold-1)' : '#2a2338' }} />
+                        ))}
+                      </span>
+                      <span className="pixel-score w-12 text-right text-[9px] text-[var(--gold-1)]">
+                        {t('elementa.cast.level').replace('{n}', level)}
+                      </span>
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
 
         {tab === 'run' && (state.boons || []).length > 0 && (
           <div className="el-panel w-full max-w-md p-5">

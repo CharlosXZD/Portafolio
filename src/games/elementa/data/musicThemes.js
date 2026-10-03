@@ -203,6 +203,21 @@ export const MUSIC_THEMES = {
     perc: 't . t . b . t . t . t . t . b .',
     voices: { lead: 'sine', bass: 'triangle' },
   },
+  // Seren's Observatory (EXPANSION.md J2): calm and high, a slow lydian line
+  // over a long pad, like stars coming out one at a time.
+  shop_observatory: {
+    root: 62,
+    scale: 'lydian',
+    step: 0.2,
+    lead: '4 - - . 6 - . . 7 - - . 6 - . . 9 - - . 7 - . . 6 - - . 4 - . .',
+    bass: '0 - - - - - - - 0 - - - - - - - 3 - - - - - - - 4 - - - - - - -',
+    pad: [
+      [0, 2, 4],
+      [3, 5, 7],
+    ],
+    perc: '. . . . . . . . . . . . . . . .',
+    voices: { lead: 'sine', bass: 'sine', pad: 'sine' },
+  },
   // Mote's Pantry: a hungry little minor hop, low and soft, bubbles.
   shop_pantry: {
     root: 41,

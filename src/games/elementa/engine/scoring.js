@@ -3,6 +3,7 @@ import { tierById } from '../data/diceTiers.js'
 import { REACTIONS, reactionById } from '../data/reactions.js'
 import { random } from './rng.js'
 import { godPowers, rollContext } from './gods.js'
+import { levelBonus } from '../data/constellations.js'
 
 const DEFAULT_EXPLODE_CAP = 10
 // Darkness (EXPANSION.md H3) adds its neighbors' score to Mult divided by
@@ -70,7 +71,8 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
   let explosions = 0
   const chain = [value]
 
-  if (hasFlag(elementId, FLAGS.EXPLODE) || hasFlag(elementId, FLAGS.COMET)) {
+  // A Rune of Ember (J3) makes any die explode (ctx.runeExplode).
+  if (hasFlag(elementId, FLAGS.EXPLODE) || hasFlag(elementId, FLAGS.COMET) || ctx.runeExplode) {
     // A boss round's "Calm Winds" twist caps every explosion chain at
     // exactly 1 (the first max face still explodes once, then stops),
     // overriding even an uncapped-chain relic for the round. `ctx` (from
@@ -154,17 +156,20 @@ export function rerollPool(dice, relics = [], opts = {}) {
 }
 
 /**
- * Chrono (H4): when a Chrono die that just rolled lands on a 1, time
+ * Chrono (H4): when a Chrono is in the pool and any die that just rolled lands on a 1, time
  * rewinds: every unheld, unlocked die rolls again for free (Chrono too) and
- * the better pool by round score stays. It repeats while Chrono still shows
+ * the better pool by round score stays. It repeats while any die still shows
  * a 1, at most CHRONO_LOOP_CAP times. `rolled` is the set of die ids that
  * rolled this time (held and locked dice never trigger it); `settle` runs
  * after each extra roll (Varuna's tide). Returns the pool and the count.
  */
 export function chronoLoop(dice, relics = [], ctx = {}, rolled = null, settle = (x) => x) {
   const triggered = (pool) => {
+    // Any die that just rolled a 1 sets it off while a Chrono is in the pool
+    // (v0.7.1 playtest: it used to need Chrono's own 1).
     const acting = actingElementIds(pool)
-    return pool.some((d, i) => hasFlag(acting[i], FLAGS.CHRONO) && d.value === 1 && (!rolled || rolled.has(d.id)))
+    if (!pool.some((d, i) => hasFlag(acting[i], FLAGS.CHRONO))) return false
+    return pool.some((d) => d.value === 1 && !d.held && !d.locked && (!rolled || rolled.has(d.id)))
   }
   let current = dice
   let loops = 0
@@ -265,8 +270,10 @@ function secretPairMatches([x, y], a, b) {
   return (match(x, a) && match(y, b)) || (match(x, b) && match(y, a))
 }
 
-function findReactions(perDie, fx, extraMult = 0) {
+function findReactions(perDie, fx, extraMult = 0, constellations = null) {
   const found = []
+  // A Rune of Kinship (J3): for reactions, the die is its left neighbor.
+  const reactAs = perDie.map((d, i) => (d.rune === 'kinship' && i > 0 ? perDie[i - 1].actingAs : d.actingAs))
   for (const [i, j, factor = 1] of adjacencyLinks(perDie, fx)) {
     const a = perDie[i]
     const b = perDie[j]
@@ -275,18 +282,20 @@ function findReactions(perDie, fx, extraMult = 0) {
     const live = (x) => x.contribution > 0 || x.swallowed || x.darkened || hasFlag(x.actingAs, FLAGS.VOID)
     if (!(live(a) && live(b))) continue
     const strict = a.contribution > 0 && b.contribution > 0
-    const ea = reactionElementsOf(a.actingAs)
-    const eb = reactionElementsOf(b.actingAs)
+    const ra = reactAs[i]
+    const rb = reactAs[j]
+    const ea = reactionElementsOf(ra)
+    const eb = reactionElementsOf(rb)
     const ids = new Set()
     // Mythic dice have no element: only the secret reactions that name them
     // can fire (v0.7).
     if (ea.length === 0 || eb.length === 0) {
-      for (const r of REACTIONS) if (r.secret && secretPairMatches(r.pair, a.actingAs, b.actingAs)) ids.add(r.id)
+      for (const r of REACTIONS) if (r.secret && secretPairMatches(r.pair, ra, rb)) ids.add(r.id)
     } else {
-    if (a.actingAs === b.actingAs) ids.add('resonance')
+    if (ra === rb) ids.add('resonance')
     for (const r of REACTIONS) {
       if (r.secret) {
-        if (secretPairMatches(r.pair, a.actingAs, b.actingAs)) ids.add(r.id)
+        if (secretPairMatches(r.pair, ra, rb)) ids.add(r.id)
         continue
       }
       if (!r.elements) continue
@@ -307,14 +316,17 @@ function findReactions(perDie, fx, extraMult = 0) {
               : r.base === 'bothFacesDouble'
                 ? (a.value + b.value) * 2
                 : r.base
-      const mult = r.mult > 0 ? r.mult + (fx.reactionMultBonus || 0) + extraMult : 0
+      // A Constellation's levels (J1) add on top, base reactions only.
+      const lv = r.secret || r.mythic ? { level: 0, base: 0, mult: 0 } : levelBonus(constellations, id)
+      const mult = r.mult > 0 ? r.mult + (fx.reactionMultBonus || 0) + extraMult + lv.mult : 0
       found.push({
         id,
         a: i,
         b: j,
-        base: (base + (fx.reactionBaseBonus || 0)) * factor,
+        base: (base + (fx.reactionBaseBonus || 0) + lv.base) * factor,
         mult: mult * factor,
         secret: Boolean(r.secret),
+        level: lv.level,
       })
     }
   }
@@ -325,6 +337,8 @@ function findReactions(perDie, fx, extraMult = 0) {
 // low faces (B3). Blessing of Ember-ward cancels every fizzle for a round.
 function fizzles(d, ctx, fx = {}) {
   if (ctx.noFizzle) return false
+  // A Rune of Anchor (J3): this die never fizzles.
+  if (d.rune === 'anchor') return false
   // Ognen fizzles on 1 to 3 (B4), and so does the Fire family in his trial.
   const upTo = Math.max(
     d.fizzleUpTo || 0,
@@ -472,6 +486,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (fx.highFaceHalf && d.value > 4) contribution /= 2
       if (d.elementId === 'earth' && fx.earthPipMultiplier) contribution *= fx.earthPipMultiplier
       if (hasFlag(d.actingAs, FLAGS.DOUBLE_ON_SET) && winningValues.has(d.id)) contribution *= 2
+      // A Rune of Glass (J3): the die's score is doubled (it may shatter after).
+      if (d.rune === 'glass') {
+        contribution *= 2
+        noteBoost(d, { rune: 'glass', from: i, factor: 2 })
+      }
       if (hasFlag(d.elementId, FLAGS.GROWS)) contribution += d.growth || 0
       if (inFamily(d.elementId, 'earth')) contribution += d.patience || 0
       // Heat: every explosion this round warms the whole Fire family.
@@ -534,6 +553,12 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (perDie[j].contribution > 0) noteBoost(perDie[j], { id: d.elementId, from: i, factor: 1.5 })
     }
   })
+  // A Rune of Echo (J3): the die scores twice, after Beacon's boost.
+  perDie.forEach((d, i) => {
+    if (d.rune !== 'echo' || !(d.contribution > 0)) return
+    d.contribution *= 2
+    noteBoost(d, { rune: 'echo', from: i, factor: 2 })
+  })
   if (fx.bookendsBonus && n > 0) {
     perDie[0].contribution += perDie[0].contribution > 0 ? fx.bookendsBonus : 0
     if (n > 1) perDie[n - 1].contribution += perDie[n - 1].contribution > 0 ? fx.bookendsBonus : 0
@@ -582,11 +607,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     baseLines.push({ kind: 'relic', id: sourceOf(relics, 'explodeFlatBonus'), value: v, op: 'add' })
   }
 
-  const reactions = findReactions(perDie, fx, ctx.reactionMultBonus || 0)
+  const reactions = findReactions(perDie, fx, ctx.reactionMultBonus || 0, ctx.constellations)
   reactions.forEach((r) => {
     if (r.base > 0) {
       baseValue += r.base
-      baseLines.push({ kind: 'reaction', id: r.id, value: r.base, op: 'add', dice: [r.a, r.b] })
+      baseLines.push({ kind: 'reaction', id: r.id, value: r.base, op: 'add', dice: [r.a, r.b], level: r.level })
     }
   })
 
@@ -601,13 +626,14 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   addMult({ kind: 'explosions', value: 0.5 * explodeCount, count: explodeCount })
   if (setTier) {
     const relicBonus = fx.setBonusMultBonus?.[setTier] || 0
-    let tierMult = BASE_TIER_MULT[setTier] + relicBonus
+    const lv = levelBonus(ctx.constellations, setTier)
+    let tierMult = BASE_TIER_MULT[setTier] + relicBonus + lv.mult
     if (fx.waterFamilySetBonusDouble && setIsAllWaterFamily) tierMult *= 2
     if (setTier === 'pair' && fx.pairMultBonus) tierMult += fx.pairMultBonus
-    addMult({ kind: 'set', tier: setTier, value: tierMult })
+    addMult({ kind: 'set', tier: setTier, value: tierMult, level: lv.level })
   }
   reactions.forEach((r) => {
-    if (r.mult > 0) addMult({ kind: 'reaction', id: r.id, value: r.mult, dice: [r.a, r.b] })
+    if (r.mult > 0) addMult({ kind: 'reaction', id: r.id, value: r.mult, dice: [r.a, r.b], level: r.level })
   })
   if (fx.multPerExplodingDie) {
     addMult({

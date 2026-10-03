@@ -117,7 +117,7 @@ Sold only past the door (see §7b), never in Elementa. Every die from Elementa s
 
 | Die | Rarity | Where | Price | Abilities |
 |---|---|---|---|---|
-| **Chrono** | Legendary | The Horologist's Clockwork only | 30 | A 1 rewinds time: every unheld die rolls again, and you keep the better pool. • When it lands on a 1, every unheld die rolls again for free (it too), and you keep the better pool. Up to 8 times. • Sold only by the Horologist, in the Firmament. |
+| **Chrono** | Legendary | The Horologist's Clockwork only | 30 | Any die that rolls a 1 rewinds time: every unheld die rolls again, and you keep the better pool, repeating until no 1 is left (up to 8 times). • When it lands on a 1, every unheld die rolls again for free (it too), and you keep the better pool. Up to 8 times. • Sold only by the Horologist, in the Firmament. |
 | **Entropy** | Mythic | Forge only, once the file has beaten all six Wardens | 300 to forge (Light, Darkness, Time, Space, Chaos, Void and Aether) | Everything at once. Scores its face + 104, and +10 Mult. • Scores its face + 104, and adds +10 to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
 
 ### Celestial dice (Alpha v0.7.2; Firmament only)

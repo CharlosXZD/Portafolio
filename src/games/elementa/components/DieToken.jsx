@@ -1,4 +1,5 @@
 import { ELEMENTS } from '../data/elements.js'
+import { runeById } from '../data/runes.js'
 import { mix } from '../utils/color.js'
 import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY, dieIconY, dieNumberScale } from './DieSprite.jsx'
@@ -113,6 +114,12 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
         </>
       )}
       <DieMarks die={die} size={size} />
+      {die.rune && (
+        <span
+          className="pointer-events-none absolute -bottom-1 -right-1 h-2.5 w-2.5"
+          style={{ background: runeById(die.rune).color, boxShadow: '0 0 0 2px #1d1829' }}
+        />
+      )}
       {die.watch && (
         <span className="el-chip pointer-events-none absolute -bottom-2 -left-2 bg-[#c9a46b] text-[var(--ink)]" style={{ fontSize: 7 }}>
           <PixelIcon name="reroll" size={7} color="#1d1829" hi="#1d1829" />

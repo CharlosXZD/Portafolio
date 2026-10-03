@@ -64,7 +64,7 @@ export const ELEMENTS_ES = {
   zenith: { name: 'Cénit', tagline: 'Mientras esté en tu reserva: +1 reroll cada ronda, +1 más desde la ronda 20 y otro desde la 25.' },
   chameleon: { name: 'Camaleón', tagline: 'Copia las habilidades del dado a su izquierda y el puntaje del dado a su derecha.' },
   // The Firmament (EXPANSION.md H3 to H5).
-  chrono: { name: 'Crono', tagline: 'Un 1 rebobina el tiempo: todo dado no guardado vuelve a tirarse, y te quedas con la mejor reserva.' },
+  chrono: { name: 'Crono', tagline: 'Cualquier 1 rebobina el tiempo: todo dado no guardado vuelve a tirarse, y te quedas con la mejor reserva. Se repite hasta que no quede ningún 1 (hasta 8 veces).' },
   light: { name: 'Luz', tagline: 'Ningún dado puede anotar menos que su cara. Nada se apaga y las caras siguen visibles.' },
   darkness: { name: 'Oscuridad', tagline: 'Los dados a sus lados anotan 0. Lo que habrían anotado va a tu Multiplicador.' },
   time: { name: 'Tiempo', tagline: 'Una vez por ronda, deshaz tu último reroll y recupéralo. Los rerolls sin usar pasan a la siguiente ronda, hasta +3.' },
@@ -224,7 +224,12 @@ export const RELICS_ES = {
   },
 }
 
+import { CONSTELLATIONS_ES } from './constellations.js'
+import { RUNES } from './runes.js'
+
 export const CONSUMABLES_ES = {
+  ...CONSTELLATIONS_ES,
+  ...Object.fromEntries(RUNES.map((r) => [`rune_${r.id}`, { name: r.name.es, description: r.description.es }])),
   upgrade_stone: {
     name: 'Piedra de Mejora',
     description: 'Aplícala a un dado para subir su nivel un escalón (d6 a d10, etc.).',
