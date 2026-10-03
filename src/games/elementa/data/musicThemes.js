@@ -343,3 +343,37 @@ export function themeForState(state) {
   if (p === 'gameover') return 'gameover'
   return 'menu'
 }
+
+// --- Jukebox support (JukeboxPage.jsx, MUSIC.md) ---
+// The themes as written in this file, kept before any saved edit is applied.
+export const BUILTIN_THEMES = JSON.parse(JSON.stringify(MUSIC_THEMES))
+
+const OVERRIDES_KEY = 'elementa-music-overrides'
+
+export function readMusicOverrides() {
+  try {
+    const raw = window.localStorage.getItem(OVERRIDES_KEY)
+    const parsed = raw ? JSON.parse(raw) : {}
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+/** Saves one edited theme in this browser (null puts the built-in one back) and applies it. */
+export function saveMusicOverrides(id, theme) {
+  const all = readMusicOverrides()
+  if (theme) all[id] = theme
+  else delete all[id]
+  try {
+    window.localStorage.setItem(OVERRIDES_KEY, JSON.stringify(all))
+  } catch {
+    // storage blocked: the edit only lasts until the page is closed
+  }
+  MUSIC_THEMES[id] = theme ?? JSON.parse(JSON.stringify(BUILTIN_THEMES[id]))
+}
+
+// Edits saved from the Jukebox replace the built-in themes in this browser.
+Object.entries(readMusicOverrides()).forEach(([id, theme]) => {
+  if (BUILTIN_THEMES[id]) MUSIC_THEMES[id] = theme
+})

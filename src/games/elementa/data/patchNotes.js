@@ -12,6 +12,38 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.6.7',
+    name: L('Showtime', 'Función'),
+    date: null,
+    highlights: [
+      L(
+        'The cast is now a show. Every step follows the Cast ledger in order, and you can see who is doing what.',
+        'El lanzamiento ahora es un espectáculo. Cada paso sigue la cuenta del hechizo en orden, y se ve quién hace qué.',
+      ),
+      L(
+        'The source lights up: the die lifts, a reaction draws a line between its two dice, a set is outlined and named, a relic or pact bounces.',
+        'La fuente se ilumina: el dado se levanta, una reacción traza una línea entre sus dos dados, un set se enmarca con su nombre, una reliquia o pacto rebota.',
+      ),
+      L(
+        'A number pops out of it, blue for Base, red for Mult and a big red one for a multiplier, and flies into the Base or Mult box, which pulses and ticks up. A multiplier shakes the Mult box.',
+        'Sale un número, azul para Base, rojo para Mult y uno rojo grande para un multiplicador, y vuela hasta la caja de Base o Mult, que pulsa y sube. Un multiplicador sacude la caja de Mult.',
+      ),
+      L(
+        'A caption under the score names the source, for example "Kindle: Fire + Air, +1 Mult".',
+        'Un letrero bajo el puntaje nombra la fuente, por ejemplo "Yesca: Fuego + Aire, +1 Mult".',
+      ),
+      L(
+        'Each step ticks higher than the last, with a heavier hit for multipliers.',
+        'Cada paso suena más agudo que el anterior, con un golpe más pesado para los multiplicadores.',
+      ),
+      L(
+        'It follows your scoring speed (Instant skips the show) and Reduced motion: numbers and captions stay, flying and shaking go.',
+        'Sigue tu velocidad de puntaje (Instantáneo se salta el espectáculo) y Reducir movimiento: los números y letreros se quedan, el vuelo y las sacudidas se van.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.6.6',
     name: L('Loose ends', 'Cabos sueltos'),
     date: null,
@@ -29,8 +61,8 @@ export const PATCH_NOTES = [
         'Varuna es más amable: en vez de volver todo tu grupo 1, su desventaja hace que los 1 salgan un 50% más seguido. Su prueba en el desafío de los dioses funciona igual.',
       ),
       L(
-        'Fixed Kindling handing out endless rerolls (a forced 1 counted as a fizzle). It is now capped at 3 rerolls per round.',
-        'Arreglado Avivar, que daba relanzamientos sin fin (un 1 forzado contaba como apagado). Ahora tiene un tope de 3 relanzamientos por ronda.',
+        'Fixed Kindling handing out rerolls from forced 1s: only a die that really fizzles pays one back now.',
+        'Arreglado Avivar, que daba relanzamientos por 1 forzados: ahora solo paga uno un dado que de verdad se apaga.',
       ),
       L(
         'Masquerade and Chameleon now roll with the abilities they borrow, so a copied Chrono rewinds its 1s and a copied Fire die explodes.',

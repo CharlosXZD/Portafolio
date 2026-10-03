@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-03 (Alpha v0.6.5 "Polish" in development), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-03 (Alpha v0.6.7 "Showtime" in development), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -17,12 +17,13 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 - **Reactions:** two side-by-side dice react if between them they cover a reaction's two elements, and both actually scored (a fizzled die doesn't react). Fusions bring every parent element, so one link can fire several reactions.
 - **Families:** a family is the pure element plus every fusion containing it. Water-family relics look for the free-lock ability; Earth relics currently only count **pure** Earth (see §12).
 - **Family abilities** (v0.4), shared by the whole family; a fusion gets one per family it belongs to (Lightning has Kindling and Drift):
-  - **Fire, Kindling:** a die that fizzles on a 1 after a reroll grants +1 reroll this round, at most 3 a round (only dice that can fizzle, so not Steel, Obsidian or Magma).
+  - **Fire, Kindling:** a die that fizzles on a 1 after a reroll grants +1 reroll this round, with no cap (only dice that can fizzle, so not Steel, Obsidian or Magma).
   - **Water:** free locks that refund a reroll (unchanged).
   - **Earth, Patience:** +2 for every reroll it sits out (held or locked) this round. Unlike Sapling, it keeps the bonus if it is rerolled later in the round.
   - **Air, Drift:** once per round (one charge total), nudge one Air-family die up or down by 1, free. Landing on the max face doesn't explode; frozen dice can't drift.
-- **Score reveal (v0.6.5):** before you cast, the Score reads "?" and the target bar sits empty (Options, Display, "Show live total before casting" brings the old live number back). Base, Mult and the Cast ledger always show. On cast the score is added up step by step.
-- **Cast ledger (v0.6.5):** repeated lines from one source are grouped ("Kindle x6 +6"), with an arrow to show each line and an "Expand all / Compact" switch. The cast reveal steps once per group, the count ticking up.
+- **Score reveal (v0.6.5):** before you cast, the Score reads "?" and the target bar sits empty (Options, Display, "Show live total before casting" brings the old live number back). Base, Mult and the Cast ledger always show. On cast the score is added up step by step (see the next bullet).
+- **Cast ledger (v0.6.5):** repeated lines from one source are grouped ("Kindle x6 +6"), with an arrow to show each line and an "Expand all / Compact" switch. The cast reveal takes one step per group.
+- **Cast choreography (v0.6.7):** the cast follows the ledger's order. Each step lights its source (a die lifts, a reaction draws a line between its two dice, a set is outlined and named, a relic or pact bounces), pops a number (blue Base, red Mult, a bigger red multiplier) that flies into the Base or Mult box, and shows a caption ("Kindle: Fire + Air, +1 Mult"). Steps tick higher through the cast; multipliers hit heavier. Instant skips it; Reduced motion drops the flying and shaking.
 - **Dice details (v0.6.5):** three levels. Hover: name, type, families, current score. Click (still holds or releases the die): the short description and keyword tags. Click and hold about half a second, right-click, or the Info button: the full description. The Gallery shows the full one.
 - **Loadouts and stakes (v0.6.5):** each loadout shows one flame per difficulty, lit once that loadout has beaten it. Dice in your final pool when you beat Cataclysm wear a gold star in the Gallery.
 - **Rerolls:** 3 per round (Inferno and Cataclysm: 2). Locks on Water-family dice are free and refund +1.

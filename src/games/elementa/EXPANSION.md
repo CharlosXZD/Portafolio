@@ -339,7 +339,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 | **Time** | Once per round, Rewind: undo your last reroll and refund it; unused rerolls carry over (up to +3) |
 | **Space** | The dice on both sides of Space, and the two end dice, all count as neighbors of each other |
 | **Chaos** | Every roll it becomes a random die from the whole game in a random size; locking keeps its form |
-| **Void** | Scores nothing; every empty slot you have (dice, relic, consumable) gives +1 Mult (Claude's proposal, Carlos added Void without an ability) |
+| **Void** | Scores nothing; every empty slot you have (dice, relic, consumable) gives +1 Mult |
 
 **Void's ability (Decided, Carlos):** scores nothing; every empty slot (dice, relic, consumable) gives +1 Mult.
 
@@ -496,7 +496,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.6** | Three Paths | **Ready.** B1 (Accord meter goes live, the three final battles, the gauntlet, the Primordial die), B2 (path unlock via god visions, ending cards, Endings tab, completion marks), B4 (gods, Divine rarity, Pantheon, Chain Break). |
 | **v0.6.5** | Polish | Carlos's v0.6 playtest notes, Part F (P1 to P18). Built, except P2, which Carlos answered and v0.6.6 built. Ships before the Firmament. |
 | **v0.6.6** | Loose ends | Part G Q1 to Q3 and Carlos's d5 and Chisel answers: popovers on top, Varuna's 1-bias, the Kindling fix, copy dice rolling with borrowed abilities, the d5, sized shop dice, the new Chisel. **Built.** |
-| **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Ready.** |
+| **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Built.** |
 | **v0.7** | The Firmament | B5: path doors, the Firmament continuation, Wardens, Mythic dice, the d100 growth path. A4: Firmament keepers and returning characters. Part G Q4a: story beats before every big fight and a better god-vision and recipe scene. B9: the first new item kinds (Constellations and Runes). |
 | **v0.8** | Rewriting reality | A3: realm 3 (Empyrean and Pleroma), formula-rewriting bosses, B10 number dice, editable die faces, Laws. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; B10 if not shipped earlier (Carlos decides when). B11 dice without numbers could land in v0.7 (poker, Joker) and v0.8 (sigils). |
@@ -509,11 +509,16 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
 
+### Alpha v0.6.7 "Showtime" (in development, unreleased)
+- **Scoring choreography:** the cast follows the Cast ledger step by step. Each step lights its source (a die lifts, a reaction draws a line between its two dice, a set is outlined and named, a relic or pact bounces), pops a number (blue Base, red Mult, a bigger red multiplier) that flies into the Base or Mult box, which pulses and ticks up, and shows a caption saying who is doing what.
+- **Sound:** each step ticks higher than the last, with a heavier hit for multipliers.
+- **Settings:** Instant skips it; Reduced motion keeps the numbers and captions and drops the flying and shaking.
+
 ### Alpha v0.6.6 "Loose ends" (in development, unreleased)
 - **The d5:** a new die size between d3 and d6. Shop dice now come in d3, d5, d6, d10 and d20, each rarer and pricier than the last, with the bigger sizes showing up later in a run.
 - **New Chisel:** splits a die in two of the next size down; a d5 chips into a d3 and a Transmute; a d3 is too small; 3 Shards.
 - **Varuna is gentler:** 1s come up 50% more often instead of every die becoming a 1, in her drawback and in her trial.
-- **Fixed:** Kindling no longer hands out endless rerolls (capped at 3 per round, and forced 1s do not count). Masquerade and Chameleon roll with the abilities they borrow. Item descriptions and hover cards always appear on top.
+- **Fixed:** Kindling no longer hands out rerolls for forced 1s (only a die that really fizzles pays one back). Masquerade and Chameleon roll with the abilities they borrow. Item descriptions and hover cards always appear on top.
 - **Saves** now pick up the latest relics and consumables.
 
 ### Alpha v0.6.5 "Polish" (in development, unreleased)
@@ -982,7 +987,7 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
 
 **Status: Built** (Alpha v0.6.6).
 - **Varuna:** now "1s come up 50% more often" (drawback and gauntlet trial). The old rule (every die becomes 1, held and locked too) made it impossible to roll anything else once a 1 appeared.
-- **The exploit Carlos found:** that same forced-1 rule ran before the Kindling check, so every Fire die counted as a fizzle and paid a reroll, which fed Patience. Fixed at the root, and Kindling is capped at 3 rerolls per round because small dice fizzle so often that an uncapped Fire pool would reroll forever.
+- **The exploit Carlos found:** that same forced-1 rule ran before the Kindling check, so every Fire die counted as a fizzle and paid a reroll, which fed Patience. Fixed at the root. A cap of 3 rerolls a round on Kindling was tried and then removed on Carlos's request (2026-10-03): it stays uncapped, so a pool of several small Fire dice earns back about a reroll per reroll, on purpose.
 
 ## Q3. Chrono does not always rewind a 1
 
@@ -1010,7 +1015,7 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
 
 ## Q5. Scoring choreography, like Balatro
 
-**Status: Ready** for Alpha v0.6.7 "Showtime". Carlos: the explosion animations are nice, but the mult and interactions need clear animations that tell the player who is doing what; order matters, and it should follow the cast ledger, not just show a list.
+**Status: Built** (Alpha v0.6.7 "Showtime", GDD §35). Carlos: the explosion animations are nice, but the mult and interactions need clear animations that tell the player who is doing what; order matters, and it should follow the cast ledger, not just show a list.
 
 - **One rule: the order is the ledger's order**, step by step: each die left to right adds to Base, then flat Base bonuses, then reaction Base, then explosions' Mult, the set, reaction Mult, relics, and the final multiplier. Every step does the same four things, together:
   1. **The source lights up.** A die gets an outline and lifts a little; a relic or pact bounces (already built in P14); a reaction draws a bright line between its two dice; a set outlines every die in it with its name ("Pair", "Straight").
@@ -1097,6 +1102,7 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
   - P3, P4, P5 to P9, P10, P11, P12, P14, P15 and P16 built on branch `elementa-v0.6.5` (GDD §33). Defaults chosen by Claude are listed in the end-of-build report: keyword extras (Grows, Payout, Rewind, Boost, Doubles), the full view generated from flags, Info button and right-click as the touch and keyboard route to the full description, and a stake badge size of one flame per difficulty.
   - P2 (Chisel and Flasks) is still Proposed; nothing from `IDEAS.md` was built.
 - **2026-10-04:**
+  - Kindling stays uncapped (Carlos); the cap added in Alpha v0.6.6 was removed.
   - Playtest round 2 (Part G): popovers rendered in a portal (Q1 built); Varuna's drawback is a 50% bias toward 1s and Kindling is fixed and capped (Q2 built); Masquerade and Chameleon roll with borrowed abilities (Q3, Chrono).
   - A real d5 tier; shop dice sometimes come as d5, d6, d10, d20, pricier and progressively rarer; Chisel splits dice and does not work on a d3 (P2 built). Grinding a d3 into an item and Flasks stay open in `IDEAS.md`.
   - Story beats before every big fight and a better god-vision and recipes scene (with an achievement): Ready for Alpha v0.7 (Q4a). Full cinematics, 3D item sprites and more interesting items: Beta v0.1 (Q4b).
