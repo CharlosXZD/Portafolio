@@ -37,7 +37,13 @@ export function useStepCaption(discovered) {
   return (step, dice) => {
     const unit = t(step.section === 'base' ? 'elementa.diceTray.base' : 'elementa.diceTray.mult')
     const effect = `${stepValueText(step)} ${unit}`
-    if (step.kind === 'die') return { who: dieName(dice[step.dieIndex]), effect }
+    // A die that a neighbor changed says so: "Fire: Beacon x1.5, +9 Base".
+    if (step.kind === 'die') {
+      const detail = step.boosts
+        .map((b) => `${dieName(dice[b.from])} ${b.copy ? t('elementa.cast.copied') : b.factor ? `x${b.factor}` : `+${b.add}`}`)
+        .join(', ')
+      return { who: dieName(dice[step.dieIndex]), detail: detail || null, effect }
+    }
     const first = step.lines[0]
     let who = label(first)
     if (step.kind === 'reaction' || step.kind === 'relic' || step.kind === 'boon') {
@@ -121,7 +127,8 @@ export default function CastStage({ step, dwell, setLabel }) {
   // The pop takes the first 40% of the step, the flight the rest.
   const pop = 0.4
   const sec = Math.max(0.15, (dwell / 1000) * 0.92)
-  const reaction = step.kind === 'reaction' ? reactionById(step.id)?.color ?? '#ffffff' : null
+  // A reaction's line takes its color; a helper's link to a die it changed is gold.
+  const reaction = step.kind === 'reaction' ? reactionById(step.id)?.color ?? '#ffffff' : step.links.length ? '#ffd166' : null
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[60]">

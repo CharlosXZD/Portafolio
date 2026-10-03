@@ -387,6 +387,7 @@ const strings = {
   },
   'elementa.boons.almanacTargets': { en: 'Next targets: {targets}.', es: 'Próximos objetivos: {targets}.' },
   'elementa.die.watch': { en: 'Watch', es: 'Reloj' },
+  'elementa.cast.copied': { en: 'copied', es: 'copiado' },
   'elementa.cast.hide': { en: 'Hide', es: 'Ocultar' },
   'elementa.cast.show': { en: 'Show', es: 'Mostrar' },
   'elementa.runInfo.button': { en: 'Run info', es: 'Info' },

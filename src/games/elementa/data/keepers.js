@@ -377,7 +377,7 @@ export const KEEPERS = {
     },
     afterBoss: L('The Clockwork? A crude design. Mine are better. Do not tell it I said so.', '¿El Mecanismo? Un diseño tosco. Los míos son mejores. No le digas que lo dije.'),
     lowLives: L('Your time is short. I can sell you a little more of it.', 'Te queda poco tiempo. Puedo venderte un poco más.'),
-    loreAt: [2, 4],
+    loreAt: [2, 3, 4, 5, 6],
     lore: [
       L(
         'Kairos is the right moment. Chrono is every moment. The Casters only ever had the first.',
@@ -386,6 +386,18 @@ export const KEEPERS = {
       L(
         'Before the Split there was no time, only the dream. Time is what the pieces do while they wait.',
         'Antes de la División no había tiempo, solo el sueño. El tiempo es lo que hacen los pedazos mientras esperan.',
+      ),
+      L(
+        'I keep six things on the shelf and sell three of them. Which three depends on the minute you arrive. Do not ask me which minute.',
+        'Guardo seis cosas en el estante y vendo tres. Cuáles, depende del minuto en que llegues. No me preguntes qué minuto.',
+      ),
+      L(
+        'A Pulsar is a star that learned to count. Everything in this shop is just another way of counting.',
+        'Un Púlsar es una estrella que aprendió a contar. Todo en esta tienda es otra manera de contar.',
+      ),
+      L(
+        'The Mainspring is the oldest thing I own. It was in the first clock, the one that wound the dream.',
+        'El Resorte Maestro es lo más antiguo que tengo. Estaba en el primer reloj, el que dio cuerda al sueño.',
       ),
     ],
   },

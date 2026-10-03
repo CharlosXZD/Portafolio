@@ -30,8 +30,10 @@ export function buildCastScript(result) {
       total: d.contribution || 0,
       dieId: d.id,
       dieIndex: i,
-      lit: [i],
-      links: [],
+      // A die that a Beacon, Satellite or Mirror changed lights its helper too.
+      boosts: d.boosts ?? [],
+      lit: [i, ...(d.boosts ?? []).map((b) => b.from)],
+      links: (d.boosts ?? []).map((b) => [b.from, i]),
     }),
   )
   for (const section of ['base', 'mult']) {

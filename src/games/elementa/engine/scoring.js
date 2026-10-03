@@ -24,6 +24,12 @@ function randInt(max) {
   return 1 + Math.floor(random() * max)
 }
 
+// Who changed a die's score through its position (Beacon, Satellite, Mirror
+// and friends): display only, for the cast choreography's captions.
+function noteBoost(d, boost) {
+  d.boosts = [...(d.boosts ?? []), boost]
+}
+
 function hasFlag(elementId, flag) {
   return Boolean(ELEMENTS[elementId]?.flags[flag])
 }
@@ -476,7 +482,9 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       // Pulsar: +1 for every reroll made this round, up to +10 (I1).
       if (hasFlag(d.actingAs, FLAGS.PULSAR)) contribution += Math.min(PULSAR_CAP, ctx.rerollsMade || 0)
       // A Satellite on either side lifts the face by 1 (I1).
-      contribution += [i - 1, i + 1].filter((j) => perDie[j] && hasFlag(perDie[j].actingAs, FLAGS.SATELLITE)).length
+      const satellites = [i - 1, i + 1].filter((j) => perDie[j] && hasFlag(perDie[j].actingAs, FLAGS.SATELLITE))
+      contribution += satellites.length
+      satellites.forEach((j) => noteBoost(d, { id: 'satellite', from: j, add: 1 }))
       // Gaea scores the face of every other Earth-family die (B4).
       if (powers.some((p) => p.index === i && p.god === 'gaea')) {
         contribution += perDie.reduce((sum, o, j) => (j !== i && inFamily(o.elementId, 'earth') ? sum + o.value : sum), 0)
@@ -503,15 +511,28 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   // copying), Masquerade and Mirror what their left neighbor ends up with.
   const ownScores = perDie.map((d) => d.contribution)
   perDie.forEach((d, i) => {
-    if (i < n - 1 && hasFlag(d.elementId, FLAGS.MIMIC_SPLIT)) d.contribution = ownScores[i + 1]
+    if (i < n - 1 && hasFlag(d.elementId, FLAGS.MIMIC_SPLIT)) {
+      d.contribution = ownScores[i + 1]
+      d.boosts = []
+      noteBoost(d, { id: d.elementId, from: i + 1, copy: true })
+    }
   })
   perDie.forEach((d, i) => {
     const copiesLeft = hasFlag(d.elementId, FLAGS.MIRROR_LEFT) || hasFlag(d.elementId, FLAGS.MIMIC_LEFT)
-    if (i > 0 && copiesLeft) d.contribution = perDie[i - 1].contribution
+    if (i > 0 && copiesLeft) {
+      d.contribution = perDie[i - 1].contribution
+      d.boosts = []
+      noteBoost(d, { id: d.elementId, from: i - 1, copy: true })
+    }
   })
   perDie.forEach((d, i) => {
     if (!hasFlag(d.actingAs, FLAGS.BEACON)) return
-    for (const j of [i - 1, i + 1]) if (perDie[j]) perDie[j].contribution *= 1.5
+    for (const j of [i - 1, i + 1]) {
+      if (!perDie[j]) continue
+      perDie[j].contribution *= 1.5
+      // Only a die that actually scores shows the boost.
+      if (perDie[j].contribution > 0) noteBoost(perDie[j], { id: d.elementId, from: i, factor: 1.5 })
+    }
   })
   if (fx.bookendsBonus && n > 0) {
     perDie[0].contribution += perDie[0].contribution > 0 ? fx.bookendsBonus : 0

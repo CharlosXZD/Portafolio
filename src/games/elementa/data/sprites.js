@@ -483,6 +483,6 @@ export const ITEM_ART = {
   pocket_watch: ['gear', '#ffd166', '#fff4d6'],
   metronome: ['block', '#8a5a34', '#ffd166'],
   almanac: ['book', '#3d5fa5', '#ffd166'],
-  mainspring: ['gear', '#c9a46b', '#ffffff'],
+  mainspring: ['ring', '#c9a46b', '#ffffff'],
   cuckoo_clock: ['block', '#8a5a34', '#e5a53d'],
 }
