@@ -242,8 +242,18 @@ function adjacencyLinks(perDie, fx) {
 
 const isFusion = (id) => [TIERS.DOUBLE, TIERS.TRIPLE].includes(ELEMENTS[id]?.tier)
 
+// Secret pairs name exact dice, or '*fusion' (any double or triple fusion),
+// '*mythic' (any Mythic die) or '@fire' (any die of that element family,
+// v0.7: the Mythic reactions).
 function secretPairMatches([x, y], a, b) {
-  const match = (want, got) => (want === '*fusion' ? isFusion(got) : want === got)
+  const match = (want, got) =>
+    want === '*fusion'
+      ? isFusion(got)
+      : want === '*mythic'
+        ? ELEMENTS[got]?.tier === TIERS.MYTHIC
+        : want.startsWith('@')
+          ? reactionElementsOf(got).includes(want.slice(1))
+          : want === got
   return (match(x, a) && match(y, b)) || (match(x, b) && match(y, a))
 }
 
@@ -252,11 +262,19 @@ function findReactions(perDie, fx, extraMult = 0) {
   for (const [i, j, factor = 1] of adjacencyLinks(perDie, fx)) {
     const a = perDie[i]
     const b = perDie[j]
-    if (!(a.contribution > 0 && b.contribution > 0)) continue
+    // The Void and a die the Darkness swallowed score 0 but are still there:
+    // only the Mythic reactions (v0.7) may use them.
+    const live = (x) => x.contribution > 0 || x.swallowed || x.darkened || hasFlag(x.actingAs, FLAGS.VOID)
+    if (!(live(a) && live(b))) continue
+    const strict = a.contribution > 0 && b.contribution > 0
     const ea = reactionElementsOf(a.actingAs)
     const eb = reactionElementsOf(b.actingAs)
-    if (ea.length === 0 || eb.length === 0) continue
     const ids = new Set()
+    // Mythic dice have no element: only the secret reactions that name them
+    // can fire (v0.7).
+    if (ea.length === 0 || eb.length === 0) {
+      for (const r of REACTIONS) if (r.secret && secretPairMatches(r.pair, a.actingAs, b.actingAs)) ids.add(r.id)
+    } else {
     if (a.actingAs === b.actingAs) ids.add('resonance')
     for (const r of REACTIONS) {
       if (r.secret) {
@@ -267,8 +285,10 @@ function findReactions(perDie, fx, extraMult = 0) {
       const [x, y] = r.elements
       if ((ea.includes(x) && eb.includes(y)) || (ea.includes(y) && eb.includes(x))) ids.add(r.id)
     }
+    }
     for (const id of ids) {
       const r = reactionById(id)
+      if (!strict && !r.mythic) continue
       const base =
         r.base === 'lowerFace'
           ? Math.min(a.value, b.value)
@@ -508,6 +528,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (!perDie[j]) continue
       eaten += perDie[j].contribution
       perDie[j].contribution = 0
+      perDie[j].darkened = true
     }
     if (eaten > 0) darkLines.push({ kind: 'mythic', id: 'darkness', value: eaten / DARKNESS_DIVISOR, dice: [i] })
   })

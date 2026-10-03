@@ -526,7 +526,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 
 ## 7a. The three paths and the endings
 
-- **The path locks when you walk into round 15.** The Accord adds the dice in hand: +1 per fusion, Aether or Prism, -1 per pure die, -3 per god die. +6 or more is the Primordial path, -6 or less the Split path, anything else Neutral. Until the file knows the god recipes, every run is Neutral.
+- **The path locks when you walk into round 15.** The Accord adds the dice in hand: +1 per fusion, Aether or Prism, -1 per pure die, -3 per god die. +8 or more is the Primordial path, -6 or less the Split path, anything else Neutral. A pool of 4+ dice that all share one family also adds -3. Until the file knows the god recipes, every run is Neutral.
 - **Hints:** Aeris and Nix react to a lean of 4 or more; Pip says one line at round 14 (once the paths are open) about where you are heading; in round 15 the Primordial speaks a line for your path, and the arena tints red (Primordial) or blue-white (Split).
 - **Neutral:** the usual Primordial fight. Ending: **The Circle Holds**. The first Neutral win on a file shows the visions of Gaea, Ognen, Varuna and Zephyr and teaches their recipes (opening both other paths). Endless is only offered after this ending.
 - **Split:** Primordial Unbound (see §6). Ending: **The Split Holds Forever**.

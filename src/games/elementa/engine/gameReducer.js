@@ -639,10 +639,14 @@ function campPayout(round) {
 function buildShopOffers(state, typeId = 'market') {
   const type = shopTypeById(typeId)
   const stock = rollShopStock(state, type)
+  // Nix never offers a deal you could not pay (carlos, v0.7 notes): only
+  // pacts that are payable right now go on the table, and the pool is drawn
+  // from the whole list so a short offer is rare.
   const deals = type.deals
-    ? weightedSample(DEALS, type.deals, () => 1)
+    ? weightedSample(DEALS, DEALS.length, () => 1)
         .map((d) => rollDeal(state, d.id))
-        .filter(Boolean)
+        .filter((d) => d && dealAvailable(state, d))
+        .slice(0, type.deals)
     : []
   const blessings = type.blessings ? weightedSample(BLESSINGS, type.blessings, () => 1).map((b) => b.id) : []
   // A Black Market also offers one betrayal pact when you qualify (B3).
@@ -1221,22 +1225,32 @@ function legacyMap(save) {
 
 // What the dice in hand add to the Accord when round 15 begins (Claude's
 // spec): +1 per fusion, Aether or Prism, -1 per pure die, -3 per god die.
+const PRIMORDIAL_AT = 8
+const SPLIT_AT = -6
+const MONO_ACCORD = -3
 function accordFromPool(dice) {
-  return dice.reduce((sum, d) => {
+  const base = dice.reduce((sum, d) => {
     const def = ELEMENTS[d.elementId]
     if (def.tier === TIERS.GOD) return sum - 3
     if (def.tier === TIERS.PURE) return sum - 1
     if ([TIERS.DOUBLE, TIERS.TRIPLE, TIERS.QUADRA].includes(def.tier) || d.elementId === 'prism') return sum + 1
     return sum
   }, 0)
+  // A pool that stays in one family (every die shares it) leans to the Split
+  // (v0.7 notes: the Split should be reachable, if hard).
+  const mono =
+    dice.length >= 4 && ['fire', 'water', 'earth', 'air'].some((f) => dice.every((d) => inFamily(d.elementId, f)))
+  return base + (mono ? MONO_ACCORD : 0)
 }
 
-// Path thresholds (Claude's spec): +6 or more is the Primordial's, -6 or
-// less the Split's. Until the god recipes are known, always Neutral.
+// Path thresholds (v0.7 notes: Neutral was too hard to reach, so the
+// Primordial's line moved from +6 to +8): +8 or more is the Primordial's,
+// -6 or less the Split's (hard on purpose). Until the god recipes are
+// known, always Neutral.
 function pathFor(state, accord) {
   if (!knowsGods(state)) return 'neutral'
-  if (accord >= 6) return 'primordial'
-  if (accord <= -6) return 'split'
+  if (accord >= PRIMORDIAL_AT) return 'primordial'
+  if (accord <= SPLIT_AT) return 'split'
   return 'neutral'
 }
 

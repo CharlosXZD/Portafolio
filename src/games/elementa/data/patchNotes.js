@@ -12,6 +12,34 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.7.1',
+    name: L('Settling in', 'Asentándose'),
+    date: null,
+    highlights: [
+      L(
+        'Neutral is easier to reach: the Primordial path now needs a stronger pull (+8 instead of +6). The Split is still hard on purpose, but a pool that stays in one element family now leans toward it.',
+        'Neutral es más fácil de alcanzar: el camino del Primordial ahora pide un empuje mayor (+8 en vez de +6). La División sigue siendo difícil a propósito, pero una reserva que se queda en una sola familia de elemento ahora se inclina hacia ella.',
+      ),
+      L(
+        'Nix only offers pacts you can actually pay.',
+        'Nix solo ofrece pactos que de verdad puedes pagar.',
+      ),
+      L(
+        'The Road shows a portal where round 15 meets the Firmament.',
+        'El Camino muestra un portal donde la ronda 15 se une con el Firmamento.',
+      ),
+      L(
+        'The Gallery keeps dice you have not unlocked in an Unlocks box: no family, no rarity, nothing spoiled.',
+        'La Galería guarda los dados que aún no desbloqueas en una caja de Desbloqueos: sin familia, sin rareza, sin spoilers.',
+      ),
+      L(
+        'Nine new secret reactions for the Mythic dice, and 23 new achievements (most of them secret).',
+        'Nueve reacciones secretas nuevas para los dados Míticos, y 23 logros nuevos (casi todos secretos).',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.7',
     name: L('The Firmament', 'El Firmamento'),
     date: null,

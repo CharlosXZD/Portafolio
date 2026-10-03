@@ -684,6 +684,9 @@ const strings = {
   },
   // --- Elementa: the Firmament (EXPANSION.md Part H) ---
   'elementa.gallery.mythic': { en: 'Mythic', es: 'Mítico' },
+  'elementa.gallery.unlocks': { en: 'Unlocks', es: 'Por desbloquear' },
+  'elementa.gallery.unlocksNote': { en: 'Dice you have not unlocked yet. Nothing is said about them until you find them.', es: 'Dados que aún no desbloqueas. No se dice nada de ellos hasta que los encuentres.' },
+  'elementa.gallery.unlockHint': { en: 'Not unlocked yet. Keep playing.', es: 'Aún sin desbloquear. Sigue jugando.' },
   'elementa.die.warpLine': { en: 'It does not count toward your dice cap (at most 3 Warp dice).', es: 'No cuenta para tu límite de dados (como mucho 3 dados Warp).' },
   'elementa.die.chaosLine': { en: 'This roll it is a {die}.', es: 'En esta tirada es un {die}.' },
   'elementa.diceTray.rewind': { en: 'Rewind', es: 'Rebobinar' },

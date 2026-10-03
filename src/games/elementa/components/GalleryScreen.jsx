@@ -184,13 +184,21 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       return Object.keys(ELEMENTS).map((id) => {
         const def = ELEMENTS[id]
         const parents = def.parents.map((p) => localize(lang, ELEMENTS[p].name, ELEMENTS_ES, p, 'name')).join(' + ')
+        // Dice that must be unlocked (gods, the Primordial die, Mythic dice,
+        // Aether before its recipe) stay in an "Unlocks" box until found:
+        // no family, no rarity, so the Gallery spoils nothing (v0.7 notes).
+        const locked =
+          !seen.dice.has(id) &&
+          (['god', 'primal', 'mythic'].includes(def.tier) || (def.tier === 'quadra' && !knowsRecipe(profile, id)))
         return {
           key: id,
           seen: seen.dice.has(id),
-          families: familiesOf(id),
+          locked,
+          hint: locked ? t('elementa.gallery.unlockHint') : undefined,
+          families: locked ? [] : familiesOf(id),
           // Dice that helped beat Cataclysm wear a gold star (P16).
           sticker: (profile.cataclysmDice || []).includes(id),
-          item: { ...dieDescriptor(id, lang), rarity: rarityForElement(id) },
+          item: { ...dieDescriptor(id, lang), rarity: locked ? undefined : rarityForElement(id) },
           extra: (
             <div className="flex flex-col gap-2">
               <FamilyTags elementId={id} />
@@ -287,9 +295,13 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
 
   const groups = useMemo(() => {
     if (!['dice', 'relics', 'consumables'].includes(tab)) return [{ key: 'all', entries }]
+    const lockedEntries = entries.filter((e) => e.locked)
+    const unlocks = lockedEntries.length
+      ? [{ key: 'unlocks', title: t('elementa.gallery.unlocks'), note: t('elementa.gallery.unlocksNote'), entries: lockedEntries }]
+      : []
     if (sort === 'name') {
-      const named = [...entries].sort((a, b) => (a.seen ? a.item.name : '~').localeCompare(b.seen ? b.item.name : '~'))
-      return [{ key: 'all', entries: named }]
+      const named = entries.filter((e) => !e.locked).sort((a, b) => (a.seen ? a.item.name : '~').localeCompare(b.seen ? b.item.name : '~'))
+      return [{ key: 'all', entries: named }, ...unlocks]
     }
     if (sort === 'family') {
       const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, 'arcane', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral']
@@ -309,13 +321,16 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
           entries: entries.filter((e) => e.families.includes(f)).sort(byRarity),
         }))
         .filter((g) => g.entries.length > 0)
+        .concat(unlocks)
     }
     return RARITY_ORDER.map((r) => ({
       key: r,
       title: RARITY_LABEL[lang][r],
       color: RARITY_GLOW[r],
-      entries: entries.filter((e) => e.item.rarity === r),
-    })).filter((g) => g.entries.length > 0)
+      entries: entries.filter((e) => e.item.rarity === r && !e.locked),
+    }))
+      .filter((g) => g.entries.length > 0)
+      .concat(unlocks)
   }, [tab, sort, entries, lang, t])
 
   const selected = entries.find((e) => e.key === selectedKey) ?? null

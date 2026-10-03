@@ -496,6 +496,14 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
 
+### Alpha v0.7.1 "Settling in" (in development, unreleased)
+- **Paths:** the Primordial path now needs +8 (was +6); a pool of 4 or more dice that all share one element family counts -3 toward the Split (which stays hard, -6). Neutral is the wide middle.
+- **Nix:** only offers pacts that are payable right now (the whole pact list is drawn from, then filtered).
+- **The Road:** a portal between round 15 and 16.
+- **Gallery:** undiscovered gods, Primordial die, Mythic dice and Aether sit in an Unlocks box with no family or rarity.
+- **Reactions:** nine secret Mythic reactions (Eclipse, Event Horizon, Paradox, Solar Flare, Black Tide, Sinkhole, Slipstream, Frozen Moment, Cascade).
+- **Achievements:** 23 new, the Firmament ones secret.
+
 ### Alpha v0.7 "The Firmament" (in development, unreleased)
 - **The door and the Crossroads:** once a path's ending has been seen on the file, winning round 15 on that path again leads to the Crossroads: rest (the run ends with the Elementa ending) or enter the Firmament and keep the same run.
 - **The Firmament:** rounds 16 to 30 on a new stretch of the Road, with a Warden at 20, 25 and 30. Six Wardens in two sets of three: The Dawn, The Umbra, The Clockwork (a 90-second countdown), The Expanse, The Maelstrom and The Hollow.

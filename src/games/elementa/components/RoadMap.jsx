@@ -59,6 +59,8 @@ export default function RoadMap({
   const x = (col) => gutter + nodeSize / 2 + (inner * col) / (MAP_COLS - 1)
   const y = (round) => (toRound - round) * rowHeight + rowHeight / 2
   const height = rows.length * rowHeight
+  // The crossing between realms: a portal between round 15's row and round 16's.
+  const dividerY = rows.includes(15) && rows.includes(16) ? (y(15) + y(16)) / 2 : null
 
   useEffect(() => {
     if (!scrollToCurrent) return
@@ -95,7 +97,20 @@ export default function RoadMap({
     <div ref={scrollRef} className="relative" style={{ width, height }}>
       <svg className="absolute inset-0" width={width} height={height} aria-hidden="true">
         {edges}
+        {dividerY != null && (
+          <g>
+            <line x1={gutter - 6} y1={dividerY} x2={width} y2={dividerY} stroke="#9a7ee0" strokeWidth={2} strokeDasharray="2 5" opacity={0.8} />
+          </g>
+        )}
       </svg>
+      {dividerY != null && (
+        <div
+          className="pixel-score pointer-events-none absolute whitespace-nowrap rounded-sm px-2 py-[2px] text-[7px] uppercase tracking-wider text-[#e6d8ff]"
+          style={{ top: dividerY - 8, left: width - 46, transform: 'translateX(-50%)', background: '#1a1030', boxShadow: '0 0 0 2px #9a7ee0, 0 0 10px #7a5cff' }}
+        >
+          {lang === 'es' ? 'Al Firmamento' : 'The Firmament'}
+        </div>
+      )}
       {rows.map((round) => {
         const boss = isBossRound(round, state.difficulty)
         // The final boss is always Primordial; others only once foretold.

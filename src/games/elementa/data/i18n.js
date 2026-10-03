@@ -391,6 +391,15 @@ export const REACTIONS_ES = {
     name: 'Ascensión',
     description: 'Éter junto a cualquier fusión: los elementos recuerdan que eran uno. +10 Base, +3 Mult.',
   },
+  eclipse: { name: 'Eclipse', description: 'Luz junto a Oscuridad: el cielo se apaga al mediodía. Suma ambas caras dos veces a la Base, +2 Mult.' },
+  event_horizon: { name: 'Horizonte de Sucesos', description: 'Espacio junto al Vacío: nada vuelve a salir. +6 Base, +4 Mult.' },
+  paradox: { name: 'Paradoja', description: 'Tiempo junto al Caos: el efecto llega antes que la causa. +5 Base, +3 Mult.' },
+  solar_flare: { name: 'Llamarada Solar', description: 'Luz junto a un dado de la familia del Fuego: salta una llamarada. +4 Base, +1.5 Mult.' },
+  black_tide: { name: 'Marea Negra', description: 'Oscuridad junto a un dado de la familia del Agua: una marea sin luna. Suma la cara mayor a la Base, +1 Mult.' },
+  sinkhole: { name: 'Sumidero', description: 'El Vacío junto a un dado de la familia de la Tierra: el suelo cede. Suma ambas caras a la Base, +1 Mult.' },
+  slipstream: { name: 'Corriente', description: 'Espacio junto a un dado de la familia del Aire: un atajo por el cielo. +3 Base, +2 Mult.' },
+  frozen_moment: { name: 'Instante Helado', description: 'Tiempo junto a Hielo: un instante, guardado. Suma la cara menor a la Base, +2 Mult.' },
+  cascade: { name: 'Cascada', description: 'Entropía junto a un dado Mítico: cada Mítico recuerda que fue primero. +10 Base, +5 Mult.' },
 }
 
 export function localizeReaction(reaction, lang) {

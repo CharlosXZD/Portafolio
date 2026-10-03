@@ -3,7 +3,11 @@
 // "what should unlock" logic lives here; ElementaGame.jsx calls it and
 // writes the results through utils/profile.js.
 import { DECKS } from '../data/decks.js'
-import { SECRET_REACTION_IDS } from '../data/reactions.js'
+import { ELEMENTS, TIERS, MYTHIC_DIE_IDS } from '../data/elements.js'
+import { ENDING_IDS } from '../data/endings.js'
+import { SECRET_REACTION_IDS, REACTIONS } from '../data/reactions.js'
+
+const MYTHIC_REACTION_IDS = REACTIONS.filter((r) => r.mythic).map((r) => r.id)
 import { selectors } from '../engine/gameReducer.js'
 import { ALL_BOSS_IDS, TOTALS } from './profile.js'
 
@@ -31,6 +35,16 @@ export function achievementsFromState(state) {
   if (cap > 0 && state.relics.length >= cap) ids.push('full_relics')
   if (state.endless && state.round >= 20) ids.push('endless_20')
   if (state.bossModifier?.id === 'ermal') ids.push('ermal')
+  if ((state.nixPacts || 0) >= 3) ids.push('bad_company')
+  if ((state.boons || []).filter((b) => b.source === 'aeris').length >= 3) ids.push('blessed')
+  if (state.dice.some((d) => ELEMENTS[d.elementId]?.tier === TIERS.GOD)) ids.push('divine_spark')
+  if (state.realm === 'firmament' && state.round >= 16) ids.push('through_door')
+  if (state.realm === 'firmament' && state.round >= 25) ids.push('deep_sky')
+  if (state.dice.filter((d) => ELEMENTS[d.elementId]?.tier === TIERS.MYTHIC && d.elementId !== 'entropy').length >= 3) ids.push('mythic_trio')
+  if (state.dice.some((d) => d.edition === 'warp')) ids.push('warp_slot')
+  if (state.dice.some((d) => d.sides >= 100)) ids.push('century')
+  if (state.dice.some((d) => d.elementId === 'chrono')) ids.push('stopped_clock')
+  if (state.dice.some((d) => d.elementId === 'entropy')) ids.push('heat_death')
   return ids
 }
 
@@ -41,6 +55,7 @@ export function achievementsFromCast(state, result) {
   ids.push('first_clear')
   if (result.roundScore >= 1000) ids.push('cast_1000')
   if (result.roundScore >= 10000) ids.push('cast_10000')
+  if (result.roundScore >= 100000) ids.push('cast_100000')
   if (result.roundScore >= result.threshold * 5) ids.push('overkill')
   if ((result.reactions || []).length >= 5) ids.push('chain_reaction')
   if (result.beatBoss && state.rerollsUsed === 0) ids.push('one_shot')
@@ -53,6 +68,8 @@ export function achievementsFromVictory(state, profile) {
   if (state.difficulty?.id === 'cataclysm') ids.push('cataclysm')
   const beaten = new Set([...profile.decksBeaten, state.deckId])
   if (DECKS.every((d) => beaten.has(d.id))) ids.push('all_loadouts')
+  if (state.path === 'primordial') ids.push('made_whole')
+  if (state.path === 'split') ids.push('kept_apart')
   return ids
 }
 
@@ -62,6 +79,20 @@ export function achievementsFromProfile(profile) {
   const secrets = (profile.seen.reactions || []).filter((id) => SECRET_REACTION_IDS.includes(id))
   if (secrets.length >= 1) ids.push('secret_one')
   if (secrets.length >= SECRET_REACTION_IDS.length) ids.push('secret_all')
+  // The Firmament (v0.7).
+  const mythics = (profile.mythics || []).filter((id) => MYTHIC_DIE_IDS.includes(id))
+  if (mythics.length >= 1) ids.push('first_myth')
+  if (mythics.length >= MYTHIC_DIE_IDS.length) ids.push('six_unspoken')
+  const wardens = profile.wardens || []
+  if (wardens.length >= 1) ids.push('first_warden')
+  if (wardens.length >= 6) ids.push('all_wardens')
+  if ((profile.seen.reactions || []).some((id) => MYTHIC_REACTION_IDS.includes(id))) ids.push('beyond_chemistry')
+  if ((profile.mote?.fed || 0) >= 40) ids.push('first_course')
+  if ((profile.mote?.fed || 0) >= 400) ids.push('never_full')
+  const endings = profile.endings || []
+  if (endings.some((id) => id.startsWith('firmament_'))) ids.push('other_side')
+  if (['neutral', 'split', 'primordial'].every((id) => endings.includes(id))) ids.push('three_roads')
+  if (ENDING_IDS.every((id) => endings.includes(id))) ids.push('every_word')
   if (ALL_BOSS_IDS.every((id) => (profile.seen.bosses || []).includes(id))) ids.push('bestiary')
   // Remembering (G Q4a): the recipes scene has played (files that learned
   // the recipes before the scene existed count it as seen, utils/saveManager.js).
