@@ -38,6 +38,12 @@ export const FLAGS = {
   CHAOS: 'chaos', // Chaos: becomes a random die every roll
   VOID: 'void', // Void: +1 Mult per empty slot
   ENTROPY: 'entropy', // Entropy: face + 104, +10 Mult
+  // EXPANSION.md I1: the Celestial dice, sold only past the door.
+  COMET: 'comet', // Comet: explodes on its two top faces, scores double when it does
+  PULSAR: 'pulsar', // Pulsar: +1 Base per reroll this round, up to +10
+  SATELLITE: 'satellite', // Satellite: neighbors count their face +1; scores nothing
+  QUASAR: 'quasar', // Quasar: its face goes to Mult; one per run
+  ZENITH: 'zenith', // Zenith: +1 reroll a round, more at rounds 20 and 25
 }
 
 const flagSet = (...flags) => Object.fromEntries(flags.map((f) => [f, true]))
@@ -415,6 +421,70 @@ export const ELEMENTS = {
     tagline: 'A 1 rewinds time: every unheld die rolls again, and you keep the better pool.',
     flags: flagSet(FLAGS.CHRONO),
   },
+  // --- The Celestial dice (EXPANSION.md I1): arcane dice sold only past the
+  // door (Firmament Markets, the Astral Exchange, the Horologist). No unlock.
+  // `stockWeight` thins one out of the shop pool; `price` is its own price.
+  comet: {
+    id: 'comet',
+    name: 'Comet',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 16,
+    firmament: true,
+    parents: [],
+    color: '#8fd8ff',
+    tagline: 'Explodes on its two highest faces, and scores its whole total twice when it does.',
+    flags: flagSet(FLAGS.COMET),
+  },
+  pulsar: {
+    id: 'pulsar',
+    name: 'Pulsar',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 16,
+    firmament: true,
+    parents: [],
+    color: '#ff8fd0',
+    tagline: 'Every reroll this round adds +1 to its Base, up to +10.',
+    flags: flagSet(FLAGS.PULSAR),
+  },
+  satellite: {
+    id: 'satellite',
+    name: 'Satellite',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 16,
+    firmament: true,
+    parents: [],
+    color: '#b8c8e8',
+    tagline: 'The dice on both sides count their face +1. It does not score itself.',
+    flags: flagSet(FLAGS.SATELLITE),
+  },
+  quasar: {
+    id: 'quasar',
+    name: 'Quasar',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.LEGENDARY,
+    price: 30,
+    firmament: true,
+    stockWeight: 0.4,
+    parents: [],
+    color: '#c58cff',
+    tagline: 'Its face goes to Mult instead of Base. One per run.',
+    flags: flagSet(FLAGS.QUASAR),
+  },
+  zenith: {
+    id: 'zenith',
+    name: 'Zenith',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 16,
+    firmament: true,
+    parents: [],
+    color: '#ffe08a',
+    tagline: 'While it is in your pool: +1 reroll every round, +1 more from round 20 and again from round 25.',
+    flags: flagSet(FLAGS.ZENITH),
+  },
   // The six Mythic dice (H3): no element, one of each per run, each the
   // prize of the Warden that guards it. Sold only in the Firmament.
   light: {
@@ -514,11 +584,17 @@ export const PRIMORDIAL_DIE_ID = 'primordial_die'
 export const ARCANE_DIE_IDS = ['midas', 'sapling', 'mirror', 'conduit', 'kairos', 'beacon', 'prism', 'bullion', 'masquerade', 'chameleon']
 // The Firmament (H3, H4, H5).
 export const CHRONO_ID = 'chrono'
+// The Celestial dice (I1): sold only in the Firmament; the Horologist also
+// sells Pulsar and Zenith (I2), and Kairos there.
+export const CELESTIAL_DIE_IDS = ['comet', 'pulsar', 'satellite', 'quasar', 'zenith']
 export const MYTHIC_DIE_IDS = ['light', 'darkness', 'time', 'space', 'chaos', 'void']
 export const ENTROPY_ID = 'entropy'
 
 /** A Mythic die or Entropy: one of each kind per run (H3). */
 export const isMythic = (elementId) => ELEMENTS[elementId]?.tier === TIERS.MYTHIC
+
+/** Dice limited to one per run: the Mythic dice, and the Quasar (I1). */
+export const isOnePerRun = (elementId) => isMythic(elementId) || elementId === 'quasar'
 
 /** Dice that can grow past d20 in the Firmament (H5): Aether, the Mythic dice, Entropy. */
 export const canGrowBig = (elementId) => Boolean(ELEMENTS[elementId]?.bigGrowth)
@@ -640,6 +716,11 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.CHAOS]: 'Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form.',
   [FLAGS.VOID]: 'Scores 0. Every empty dice, relic and consumable slot gives +1 Mult.',
   [FLAGS.ENTROPY]: 'Scores its face + 104, and adds +10 to your Mult.',
+  [FLAGS.COMET]: 'Explodes on its two highest faces. When it explodes, it scores its whole total twice.',
+  [FLAGS.PULSAR]: 'Every reroll this round adds +1 to its Base, up to +10. It starts over next round.',
+  [FLAGS.SATELLITE]: 'Scores 0. The dice on both sides count their face +1 (explosion chains unchanged).',
+  [FLAGS.QUASAR]: 'Scores 0 Base. Its face goes to your Mult instead, flat. One per run.',
+  [FLAGS.ZENITH]: 'While it is in your pool: +1 reroll every round, +1 more from round 20 and again from round 25.',
   [FLAGS.BEACON]: 'Both neighbors score x1.5.',
   [FLAGS.ALL_ELEMENTS]: 'Reacts as Fire, Water, Earth, and Air at once.',
   [FLAGS.BULLION]: 'Scores 0, but pays your final Mult (rounded down) in Shards on a clear.',
@@ -665,12 +746,16 @@ const MYTHIC_TEXT = {
     space: 'Always carries Warp: it does not count toward your dice cap.',
     big: 'Can grow past d20 in the Firmament, up to d100.',
     chronoShop: 'Sold only by the Horologist, in the Firmament.',
+    celestial: 'Celestial: sold only in the Firmament.',
+    onePerRun: 'One per run. It cannot be copied.',
   },
   es: {
     one: 'Mítico: uno de cada tipo por partida. No se puede copiar.',
     space: 'Siempre lleva Warp: no cuenta para tu límite de dados.',
     big: 'Puede crecer más allá de d20 en el Firmamento, hasta d100.',
     chronoShop: 'Solo lo vende el Relojero, en el Firmamento.',
+    celestial: 'Celestial: solo se vende en el Firmamento.',
+    onePerRun: 'Uno por partida. No se puede copiar.',
   },
 }
 
@@ -681,6 +766,8 @@ export function mythicTextLines(elementId, lang = 'en') {
   if (elementId === 'space') out.push(text.space)
   if (canGrowBig(elementId)) out.push(text.big)
   if (elementId === CHRONO_ID) out.push(text.chronoShop)
+  if (CELESTIAL_DIE_IDS.includes(elementId)) out.push(text.celestial)
+  if (elementId === 'quasar') out.push(text.onePerRun)
   return out
 }
 

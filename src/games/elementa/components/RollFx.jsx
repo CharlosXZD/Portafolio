@@ -89,6 +89,11 @@ const LAND = {
   magma: ['splash', '#ff5a1a', '#ffd166'],
   monsoon: ['splash', '#5fb0c8', '#cfe6ee'],
   aether: ['ring', '#ffffff', '#ffe9a3'],
+  comet: ['embers', '#8fd8ff', '#ffffff'],
+  pulsar: ['ring', '#ff8fd0', '#ffffff'],
+  satellite: ['swirl', '#b8c8e8', '#ffffff'],
+  quasar: ['ring', '#c58cff', '#ffffff'],
+  zenith: ['crystals', '#ffe08a', '#ffffff'],
   prism: ['ring', '#ff7ad9', '#ffffff'],
   gaea: ['dust', '#c89a5c', '#ffe9a3'],
   ognen: ['embers', '#ff5a1a', '#ffe27a'],
@@ -169,6 +174,7 @@ const BOOM = {
   aether: 'ring',
   primordial_die: 'ring',
   ognen: 'pillar',
+  comet: 'flame',
 }
 
 const BOOM_COLORS = {

@@ -3,7 +3,8 @@ import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { relicById } from '../data/relics.js'
 import { reactionById } from '../data/reactions.js'
-import { localize, RELICS_ES, ELEMENTS_ES, localizeReaction } from '../data/i18n.js'
+import { localize, RELICS_ES, CONSUMABLES_ES, ELEMENTS_ES, localizeReaction } from '../data/i18n.js'
+import { consumableById } from '../data/consumables.js'
 import { ELEMENTS } from '../data/elements.js'
 import { overkillShards } from '../engine/scoring.js'
 import { dealById } from '../data/shops.js'
@@ -30,8 +31,13 @@ export function useLineLabel(discovered) {
       return localizeReaction(r, lang).name
     }
     if (line.kind === 'boon') return dealById(line.id)?.name[lang] ?? '?'
+    // Items and the Celestial dice that put a line on the ledger (I1, I2).
+    if (line.kind === 'consumable') {
+      const c = consumableById(line.id)
+      return c ? localize(lang, c.name, CONSUMABLES_ES, c.id, 'name') : '?'
+    }
     // The Firmament's dice (EXPANSION.md H3, H5): Darkness, Void, Entropy.
-    if (line.kind === 'mythic') return localize(lang, ELEMENTS[line.id]?.name ?? '?', ELEMENTS_ES, line.id, 'name')
+    if (line.kind === 'mythic' || line.kind === 'celestial') return localize(lang, ELEMENTS[line.id]?.name ?? '?', ELEMENTS_ES, line.id, 'name')
     if (line.kind === 'relic') {
       const relic = relicById(line.id)
       return relic ? localize(lang, relic.name, RELICS_ES, relic.id, 'name') : t('elementa.cast.boss')
@@ -128,7 +134,7 @@ export default function CastLedger({
       const state = groupState(section, gi)
       const { count, value } = g
       const isOpen = g.count > 1 && (overrides[g.key] ?? expanded)
-      const color = g.kind === 'reaction' ? reactionById(g.id)?.color : g.kind === 'mythic' ? ELEMENTS[g.id]?.color : null
+      const color = g.kind === 'reaction' ? reactionById(g.id)?.color : g.kind === 'mythic' || g.kind === 'celestial' ? ELEMENTS[g.id]?.color : null
       const rows = [
         <Line
           key={g.key}

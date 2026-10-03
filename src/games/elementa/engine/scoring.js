@@ -10,6 +10,8 @@ const DEFAULT_EXPLODE_CAP = 10
 export const DARKNESS_DIVISOR = 1
 // Chrono (H4): at most this many rewinds per roll, a safety stop.
 export const CHRONO_LOOP_CAP = 8
+// Pulsar (I1): at most this much Base from rerolls.
+export const PULSAR_CAP = 10
 // The sizes Chaos can take (H3).
 const CHAOS_SIZES = ['d3', 'd5', 'd6', 'd10', 'd20']
 // Every die Chaos can become: everything but the gods, the Primordial die
@@ -62,7 +64,7 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
   let explosions = 0
   const chain = [value]
 
-  if (hasFlag(elementId, FLAGS.EXPLODE)) {
+  if (hasFlag(elementId, FLAGS.EXPLODE) || hasFlag(elementId, FLAGS.COMET)) {
     // A boss round's "Calm Winds" twist caps every explosion chain at
     // exactly 1 (the first max face still explodes once, then stops),
     // overriding even an uncapped-chain relic for the round. `ctx` (from
@@ -450,8 +452,13 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     // the Umbra keeps a swallowed die out (H2).
     const empty = hasFlag(d.actingAs, FLAGS.VOID)
     const overexposed = fx.maxFaceZero && d.rolledFace === d.sides
-    const out = midas || bullion || empty || overexposed || d.swallowed
-    let contribution = fizzled || zeroTargets.has(i) || banned || out ? 0 : d.total
+    // The Satellite scores nothing itself, and the Quasar's face goes to
+    // Mult instead of Base (I1).
+    const celestialOut = hasFlag(d.actingAs, FLAGS.SATELLITE) || hasFlag(d.actingAs, FLAGS.QUASAR)
+    const out = midas || bullion || empty || overexposed || d.swallowed || celestialOut
+    // A Comet that exploded scores its whole total twice (I1).
+    const cometFactor = hasFlag(d.actingAs, FLAGS.COMET) && (d.explosions || 0) > 0 ? 2 : 1
+    let contribution = fizzled || zeroTargets.has(i) || banned || out ? 0 : d.total * cometFactor
     // Entropy (H5): its face + 104.
     if (contribution > 0 && hasFlag(d.actingAs, FLAGS.ENTROPY)) contribution += 104
 
@@ -466,6 +473,10 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
         contribution += fx.fireFamilyBonusPerExplosion * (ctx.explosionsThisRound || 0)
       }
       contribution += d.bonus || 0
+      // Pulsar: +1 for every reroll made this round, up to +10 (I1).
+      if (hasFlag(d.actingAs, FLAGS.PULSAR)) contribution += Math.min(PULSAR_CAP, ctx.rerollsMade || 0)
+      // A Satellite on either side lifts the face by 1 (I1).
+      contribution += [i - 1, i + 1].filter((j) => perDie[j] && hasFlag(perDie[j].actingAs, FLAGS.SATELLITE)).length
       // Gaea scores the face of every other Earth-family die (B4).
       if (powers.some((p) => p.index === i && p.god === 'gaea')) {
         contribution += perDie.reduce((sum, o, j) => (j !== i && inFamily(o.elementId, 'earth') ? sum + o.value : sum), 0)
@@ -602,9 +613,13 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   perDie.forEach((d, i) => {
     if (hasFlag(d.actingAs, FLAGS.VOID) && !d.swallowed) addMult({ kind: 'mythic', id: 'void', value: ctx.emptySlots || 0, dice: [i] })
     if (hasFlag(d.actingAs, FLAGS.ENTROPY) && d.contribution > 0) addMult({ kind: 'mythic', id: 'entropy', value: 10, dice: [i] })
+    // Quasar (I1): its face, flat, into Mult.
+    if (hasFlag(d.actingAs, FLAGS.QUASAR) && !d.swallowed && !zeroTargets.has(i) && !(fx.bannedElementId && d.elementId === fx.bannedElementId)) addMult({ kind: 'celestial', id: 'quasar', value: d.total, dice: [i] })
   })
   // Severed Grace (B3): +1 Mult for the rest of the run.
   if (ctx.permanentMult) addMult({ kind: 'boon', id: 'severed_grace', value: ctx.permanentMult })
+  // The Metronome and the Cuckoo Clock (I2).
+  ;(ctx.bonusMult || []).forEach((line) => addMult({ ...line }))
   if (fx.finalMultFactor) {
     multiplier *= fx.finalMultFactor
     multLines.push({ kind: 'relic', id: sourceOf(relics, 'finalMultFactor'), value: fx.finalMultFactor, op: 'mul' })

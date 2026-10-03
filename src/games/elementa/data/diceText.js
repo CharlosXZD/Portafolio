@@ -52,6 +52,12 @@ export const DICE_TEXT = {
   chaos: T('Never the same die twice. Every roll it becomes something else.', 'Nunca el mismo dado dos veces. En cada tirada se vuelve otra cosa.', ['mythic', 'shift']),
   void: T('Absence with an appetite. It scores nothing, and every empty slot feeds your Mult.', 'Una ausencia con hambre. No anota nada, y cada espacio vacío alimenta tu Multiplicador.', ['mythic', 'empty']),
   entropy: T('Every Mythic die and Aether, forged into the end of all things.', 'Todos los dados Míticos y el Éter, forjados en el fin de todas las cosas.', ['mythic']),
+  // The Celestial dice (EXPANSION.md I1).
+  comet: T('A star that burned out long ago and is still falling. Its biggest rolls blaze, and count twice.', 'Una estrella que se apagó hace siglos y aún cae. Sus tiradas más altas arden, y cuentan doble.', ['explodes', 'burst']),
+  pulsar: T('A dead star that ticks like a clock. Every reroll makes it hit harder.', 'Una estrella muerta que late como un reloj. Cada reroll la hace golpear más fuerte.', ['pulse']),
+  satellite: T('It scores nothing and lifts everyone near it.', 'No anota nada y levanta a todo el que tiene cerca.', ['boost']),
+  quasar: T('The brightest thing in the sky, and all of it goes to Mult. Only one can shine.', 'Lo más brillante del cielo, y todo va al Mult. Solo uno puede brillar.', ['flare']),
+  zenith: T('The highest point the Casters ever reached. Holding it buys you more time.', 'El punto más alto que los Lanzadores alcanzaron. Tenerlo te da más tiempo.', ['rerolls']),
 }
 
 export function diceText(elementId, lang = 'en') {

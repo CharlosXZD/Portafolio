@@ -146,6 +146,8 @@ export const SHOP_TYPES = {
     discount: 0.25,
     reroll: true,
     legendary: true,
+    // One Celestial die is always on offer (I3).
+    celestial: true,
   },
   // --- The Firmament's own keepers (EXPANSION.md H6). ---
   // Atlas sells no goods: three map services, paid in Shards.
@@ -165,19 +167,22 @@ export const SHOP_TYPES = {
     services: true,
     reroll: false,
   },
-  // The Horologist: the Chrono die and two time consumables.
+  // The Horologist (EXPANSION.md H6, I2): six things a visit, drawn from a
+  // pool (HOROLOGIST_STOCK), so a second visit is never the same shop.
   clockwork: {
     id: 'clockwork',
     keeper: 'horologist',
     name: L("The Horologist's Clockwork", 'El Mecanismo del Relojero'),
-    blurb: L('The Chrono die, the Stopwatch and the Time Capsule.', 'El dado Crono, el Cronómetro y la Cápsula del Tiempo.'),
+    blurb: L(
+      'Six things a visit: Chrono and one more die, three time consumables and a time relic.',
+      'Seis cosas por visita: Crono y otro dado, tres consumibles de tiempo y una reliquia del tiempo.',
+    ),
     color: '#c9a46b',
     music: 'shop_clockwork',
-    dice: 1,
-    dieStock: ['chrono'],
-    items: 2,
-    itemKinds: ['consumable'],
-    consumableStock: ['stopwatch', 'time_capsule'],
+    dice: 2,
+    items: 4,
+    itemKinds: ['relic', 'consumable'],
+    horologist: true,
     reroll: false,
   },
   // Mote sells nothing: it buys anything for half again its sell value, and
@@ -220,6 +225,14 @@ export const SHOP_TYPES = {
     reroll: true,
     camp: true,
   },
+}
+
+// What the Horologist draws from (I2): Chrono is always one die and one of
+// these is the other; three consumables of six; one of two time relics.
+export const HOROLOGIST_STOCK = {
+  dice: ['pulsar', 'zenith', 'kairos'],
+  consumables: ['stopwatch', 'time_capsule', 'sand_hourglass', 'pocket_watch', 'metronome', 'almanac'],
+  relics: ['mainspring', 'cuckoo_clock'],
 }
 
 export const SHOP_TYPE_IDS = Object.keys(SHOP_TYPES)

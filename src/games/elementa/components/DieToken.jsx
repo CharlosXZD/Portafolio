@@ -113,6 +113,11 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
         </>
       )}
       <DieMarks die={die} size={size} />
+      {die.watch && (
+        <span className="el-chip pointer-events-none absolute -bottom-2 -left-2 bg-[#c9a46b] text-[var(--ink)]" style={{ fontSize: 7 }}>
+          <PixelIcon name="reroll" size={7} color="#1d1829" hi="#1d1829" />
+        </span>
+      )}
       {extra > 0 && (
         <span className="el-chip pointer-events-none absolute -left-2 -top-2 bg-[#6fbf4a] text-[var(--ink)]" style={{ fontSize: 7 }}>
           +{extra}

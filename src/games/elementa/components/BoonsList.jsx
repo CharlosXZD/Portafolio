@@ -11,7 +11,7 @@ import { playClick } from '../utils/sound.js'
 import TriggerPulse from './TriggerPulse.jsx'
 import { useTriggerPulses } from '../utils/useTriggerPulses.js'
 
-const SOURCE_COLOR = { nix: '#8a5cff', aeris: '#9fd8ff' }
+const SOURCE_COLOR = { nix: '#8a5cff', aeris: '#9fd8ff', almanac: '#c9a46b' }
 const STATUS_COLOR = { active: '#5fd38a', pending: '#ffd166' }
 
 // Blessings and deals that keep working for the rest of the run.
@@ -36,6 +36,11 @@ export function boonStatus(boon, state) {
     if (state.round === boon.round + 1 && state.phase !== 'shop') return 'active'
     return 'spent'
   }
+  // The Almanac's page (I2): live until its boss round and its three targets pass.
+  if (boon.id === 'almanac') {
+    const last = Math.max(boon.detail?.round ?? 0, (boon.detail?.from ?? 0) + 2)
+    return state.round < last || (state.round === last && state.phase !== 'shop' && state.phase !== 'bossReward') ? 'pending' : 'spent'
+  }
   if (boon.id === 'prophecy') {
     const at = boon.detail?.round
     if (state.round < at || (state.round === at && state.phase !== 'shop' && state.phase !== 'bossReward')) return 'pending'
@@ -45,6 +50,18 @@ export function boonStatus(boon, state) {
 }
 
 function boonText(boon, lang, t) {
+  if (boon.id === 'almanac') {
+    const raw = boon.detail?.bossId === 'primordial' ? PRIMORDIAL : bossById(boon.detail?.bossId)
+    const boss = raw ? localizeBossModifier(raw, lang) : null
+    const targets = (boon.detail?.targets || []).join(', ')
+    return {
+      name: t('elementa.boons.almanac'),
+      body: boss
+        ? t('elementa.boons.almanacSays').replace('{targets}', targets).replace('{round}', boon.detail.round).replace('{boss}', boss.name)
+        : t('elementa.boons.almanacTargets').replace('{targets}', targets),
+      bossId: boss?.id,
+    }
+  }
   if (boon.id === 'prophecy') {
     const raw = boon.detail?.bossId === 'primordial' ? PRIMORDIAL : bossById(boon.detail?.bossId)
     const boss = raw ? localizeBossModifier(raw, lang) : null
@@ -92,7 +109,7 @@ function BoonIcons({ state, boons }) {
                 className="el-well relative flex h-11 w-11 items-center justify-center"
                 style={{ boxShadow: `inset 0 -3px 0 ${color}` }}
               >
-                {bossId ? <BossAvatar id={bossId} size={28} /> : <KeeperSprite id={b.source === 'nix' ? 'nix' : 'aeris'} size={28} />}
+                {bossId ? <BossAvatar id={bossId} size={28} /> : <KeeperSprite id={b.source === 'nix' ? 'nix' : b.source === 'almanac' ? 'horologist' : 'aeris'} size={28} />}
                 <span
                   className="absolute -right-1 -top-1 h-2.5 w-2.5"
                   style={{ background: STATUS_COLOR[status], boxShadow: '0 0 0 2px var(--ink)' }}
@@ -142,13 +159,13 @@ export default function BoonsList({ state, all = false, compact = false, summary
             <li
               key={`${b.id}-${b.round}-${i}`}
               className="el-well flex items-start gap-2 px-2 py-2"
-              style={{ boxShadow: `inset 3px 0 0 ${b.source === 'nix' ? '#8a5cff' : '#9fd8ff'}` }}
+              style={{ boxShadow: `inset 3px 0 0 ${SOURCE_COLOR[b.source] ?? SOURCE_COLOR.aeris}` }}
             >
               <span className="mt-0.5 shrink-0">
-                {bossId ? <BossAvatar id={bossId} size={22} /> : <KeeperSprite id={b.source === 'nix' ? 'nix' : 'aeris'} size={22} />}
+                {bossId ? <BossAvatar id={bossId} size={22} /> : <KeeperSprite id={b.source === 'nix' ? 'nix' : b.source === 'almanac' ? 'horologist' : 'aeris'} size={22} />}
               </span>
               <span className="flex min-w-0 flex-col leading-snug">
-                <span className="text-sm" style={{ color: b.source === 'nix' ? '#b89cff' : '#9fd8ff' }}>
+                <span className="text-sm" style={{ color: b.source === 'nix' ? '#b89cff' : SOURCE_COLOR[b.source] ?? '#9fd8ff' }}>
                   {name}
                   {!summary && status !== 'spent' && (
                     <span className="ml-2 text-[var(--text-mute)]">{t(`elementa.boons.${status}`)}</span>

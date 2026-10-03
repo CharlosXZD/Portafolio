@@ -111,6 +111,27 @@ const ICONS = {
     rows: ['ccccccc', '.chhhc.', '..chc..', '...c...', '..c.c..', '.chhhc.', 'ccccccc'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
+  // The Celestial dice (EXPANSION.md I1).
+  comet: {
+    rows: ['....hh.', '...hcc.', '.ch.cc.', 'c.hcc..', '..cc...', '.cc....', 'c......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  pulsar: {
+    rows: ['...c...', '...c...', '.c.h.c.', 'ccchccc', '.c.h.c.', '...c...', '...c...'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  satellite: {
+    rows: ['.c...c.', 'cc...cc', '.cchcc.', '..chc..', '.cchcc.', 'cc...cc', '.c...c.'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  quasar: {
+    rows: ['c..c..c', '.c.h.c.', '..chc..', 'chhhhhc', '..chc..', '.c.h.c.', 'c..c..c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  zenith: {
+    rows: ['...h...', '..chc..', '.chhhc.', 'ccchccc', '..chc..', '..chc..', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
   beacon: {
     rows: ['h..c..h', '..ccc..', '.chhhc.', '.chhhc.', '.ccccc.', '..ccc..', 'h.....h'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },

@@ -466,6 +466,10 @@ export default function Die({
           {extra > 0 && (
             <span className="el-chip absolute -left-3 -top-3 bg-[#6fbf4a] text-[var(--ink)]">+{extra}</span>
           )}
+          {/* A Pocket Watch (I2): it starts next round held, on this face. */}
+          {die.watch && (
+            <span className="el-chip absolute -bottom-3 -left-3 z-10 bg-[#c9a46b] text-[var(--ink)]">{t('elementa.die.watch')}</span>
+          )}
           {/* Kindling: a fizzled Fire-family die pays back a reroll. */}
           <AnimatePresence>
             {die.kindled && !rolling && showFace && !revealing && (

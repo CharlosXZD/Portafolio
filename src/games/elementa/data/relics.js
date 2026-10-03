@@ -502,6 +502,30 @@ export const RELICS = [
     description: 'You can hold a second god die.',
     effects: { godCap: 2 },
   },
+  // --- The Horologist's relics (EXPANSION.md I2): sold only by him, in the
+  // Firmament (`horologistOnly`). ---
+  {
+    id: 'mainspring',
+    name: 'Mainspring',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: null,
+    horologistOnly: true,
+    itemConcept: 'a coiled brass spring wound tight around a tiny gear',
+    description: 'Rerolls you do not use are banked for the next round, up to 3.',
+    effects: { bankRerolls: 3 },
+  },
+  {
+    id: 'cuckoo_clock',
+    name: 'Cuckoo Clock',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: null,
+    horologistOnly: true,
+    itemConcept: 'a carved wooden clock, the little bird mid-chirp',
+    description: 'Clear a round with 0 rerolls left: +5 Shards and +1 Mult on the next round.',
+    effects: { cuckooClock: true },
+  },
 ]
 
 export function relicById(id) {

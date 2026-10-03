@@ -380,6 +380,13 @@ const strings = {
   'elementa.title.stakeWon': { en: 'beaten with this loadout', es: 'superada con este equipo inicial' },
   'elementa.title.stakeNot': { en: 'not beaten yet', es: 'aún sin superar' },
   'elementa.gallery.cataclysmSticker': { en: 'Beat Cataclysm with this die', es: 'Superó Cataclismo con este dado' },
+  'elementa.boons.almanac': { en: 'Almanac', es: 'Almanaque' },
+  'elementa.boons.almanacSays': {
+    en: 'Next targets: {targets}. The boss in round {round} is {boss}.',
+    es: 'Próximos objetivos: {targets}. El jefe de la ronda {round} es {boss}.',
+  },
+  'elementa.boons.almanacTargets': { en: 'Next targets: {targets}.', es: 'Próximos objetivos: {targets}.' },
+  'elementa.die.watch': { en: 'Watch', es: 'Reloj' },
   'elementa.cast.hide': { en: 'Hide', es: 'Ocultar' },
   'elementa.cast.show': { en: 'Show', es: 'Mostrar' },
   'elementa.runInfo.button': { en: 'Run info', es: 'Info' },

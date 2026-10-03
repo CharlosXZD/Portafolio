@@ -4,7 +4,7 @@
 // gauntlet's trials (data/bossModifiers.js GOD_TRIALS) turn the drawbacks
 // on the player through boss effects. Scoring reads the powers in
 // engine/scoring.js; this file holds the rolling side.
-import { ELEMENTS, PRIMORDIAL_DIE_ID, inFamily } from '../data/elements.js'
+import { ELEMENTS, FLAGS, PRIMORDIAL_DIE_ID, inFamily } from '../data/elements.js'
 
 /** Every god power in the pool: { god, index, drawback }. */
 export function godPowers(dice) {
@@ -35,6 +35,8 @@ export function rollContext(die, dice, fx, acting = die.elementId) {
   let explodeFrom = die.sides
   // Chain Break: Fire-family dice explode on their top two faces.
   if (fx.fireTopTwoExplode && fire) explodeFrom = die.sides - 1
+  // Comet (I1) explodes on its two highest faces.
+  if (ELEMENTS[acting]?.flags[FLAGS.COMET]) explodeFrom = Math.min(explodeFrom, Math.max(1, die.sides - 1))
   // Ognen explodes on any face of 4 or more.
   const ognen = own.find((p) => p.god === 'ognen')
   if (ognen) explodeFrom = Math.min(explodeFrom, Math.min(4, die.sides))

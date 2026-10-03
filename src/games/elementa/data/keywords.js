@@ -36,6 +36,10 @@ export const KEYWORDS = Object.fromEntries(
     K('undo', '#b9a6ff', L('Undo', 'Deshacer'), L('Takes back your last reroll, and refunds it.', 'Deshace tu último reroll, y lo devuelve.')),
     K('shift', '#ff3fa4', L('Shift', 'Cambia'), L('Becomes a different random die on every roll.', 'Se vuelve otro dado al azar en cada tirada.')),
     K('empty', '#8a7aa8', L('Empty', 'Vacío'), L('Feeds on the empty slots you have.', 'Se alimenta de los espacios vacíos que tienes.')),
+    K('burst', '#8fd8ff', L('Burst', 'Estallido'), L('Scores its whole total twice when it explodes.', 'Anota todo su total dos veces cuando explota.')),
+    K('pulse', '#ff8fd0', L('Pulse', 'Pulso'), L('Gains Base for every reroll made this round.', 'Gana Base por cada reroll hecho esta ronda.')),
+    K('flare', '#c58cff', L('Flare', 'Destello'), L('Its face goes to Mult instead of Base.', 'Su cara va al Mult en lugar de la Base.')),
+    K('rerolls', '#ffe08a', L('Rerolls', 'Rerolls'), L('Gives you extra rerolls while it is in your pool.', 'Te da rerolls extra mientras esté en tu reserva.')),
   ].map((k) => [k.id, k]),
 )
 

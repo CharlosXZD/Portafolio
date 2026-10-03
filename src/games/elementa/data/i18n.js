@@ -57,6 +57,11 @@ export const ELEMENTS_ES = {
   varuna: { name: 'Varuna', tagline: 'La diosa del Agua. Todo dado se dobla ante su marea.' },
   zephyr: { name: 'Zephyr', tagline: 'El dios del Aire. Eleva cada set un escalón.' },
   primordial_die: { name: 'Primordial', tagline: 'Todos los mecanismos del Éter, y el poder de cada dios que derrotes.' },
+  comet: { name: 'Cometa', tagline: 'Explota con sus dos caras más altas, y anota todo su total dos veces cuando lo hace.' },
+  pulsar: { name: 'Púlsar', tagline: 'Cada reroll de esta ronda suma +1 a su Base, hasta +10.' },
+  satellite: { name: 'Satélite', tagline: 'Los dados a ambos lados cuentan su cara +1. No anota por sí mismo.' },
+  quasar: { name: 'Cuásar', tagline: 'Su cara va al Mult en lugar de la Base. Uno por partida.' },
+  zenith: { name: 'Cénit', tagline: 'Mientras esté en tu reserva: +1 reroll cada ronda, +1 más desde la ronda 20 y otro desde la 25.' },
   chameleon: { name: 'Camaleón', tagline: 'Copia las habilidades del dado a su izquierda y el puntaje del dado a su derecha.' },
   // The Firmament (EXPANSION.md H3 to H5).
   chrono: { name: 'Crono', tagline: 'Un 1 rebobina el tiempo: todo dado no guardado vuelve a tirarse, y te quedas con la mejor reserva.' },
@@ -93,6 +98,11 @@ export const FLAG_DESCRIPTIONS_ES = {
   chaos: 'En cada tirada se vuelve un dado al azar de todo el juego, de un tamaño al azar. Bloquearlo conserva su forma.',
   void: 'Anota 0. Cada espacio vacío de dados, reliquias y consumibles da +1 Multiplicador.',
   entropy: 'Anota su cara + 104, y suma +10 a tu Multiplicador.',
+  comet: 'Explota con sus dos caras más altas. Cuando explota, anota todo su total dos veces.',
+  pulsar: 'Cada reroll de esta ronda suma +1 a su Base, hasta +10. Empieza de nuevo la próxima ronda.',
+  satellite: 'Anota 0. Los dados a ambos lados cuentan su cara +1 (las cadenas de explosión no cambian).',
+  quasar: 'Anota 0 de Base. Su cara va a tu Multiplicador, tal cual. Uno por partida.',
+  zenith: 'Mientras esté en tu reserva: +1 reroll cada ronda, +1 más desde la ronda 20 y otro desde la 25.',
   beacon: 'Ambos vecinos anotan x1.5.',
   bullion: 'Anota 0, pero paga tu Multiplicador final (redondeado hacia abajo) en Fragmentos al superar la ronda.',
   mimicLeft: 'Actúa como el dado a su izquierda: sus habilidades y su puntaje.',
@@ -207,6 +217,11 @@ export const RELICS_ES = {
     description: 'Los dados de la familia Fuego explotan con sus dos caras más altas. La cadena de Ognen no tiene límite.',
   },
   pantheon: { name: 'Panteón', description: 'Puedes tener un segundo dado dios.' },
+  mainspring: { name: 'Resorte Maestro', description: 'Los rerolls que no uses se guardan para la próxima ronda, hasta 3.' },
+  cuckoo_clock: {
+    name: 'Reloj de Cuco',
+    description: 'Supera una ronda sin rerolls: +5 Fragmentos y +1 Mult en la siguiente ronda.',
+  },
 }
 
 export const CONSUMABLES_ES = {
@@ -257,6 +272,13 @@ export const CONSUMABLES_ES = {
   loom_of_fate: { name: 'Telar del Destino', description: 'Renueva las ofertas de la tienda, gratis.' },
   stopwatch: { name: 'Cronómetro', description: 'Durante una ronda: deshaz tu último reroll y recupéralo.' },
   time_capsule: { name: 'Cápsula del Tiempo', description: 'Guarda 2 rerolls para la próxima ronda.' },
+  sand_hourglass: { name: 'Reloj de Arena', description: 'Durante una ronda: tus próximos 3 rerolls de esta ronda no gastan un reroll.' },
+  pocket_watch: {
+    name: 'Reloj de Bolsillo',
+    description: 'Aplícalo a un dado: la próxima ronda empieza guardado, en la cara que muestra ahora.',
+  },
+  metronome: { name: 'Metrónomo', description: 'Durante las próximas 3 rondas, +1 Mult en cada lanzamiento.' },
+  almanac: { name: 'Almanaque', description: 'Muestra los próximos tres objetivos y el próximo modificador de jefe, con exactitud.' },
   warp_seal: {
     name: 'Sello Warp',
     description: 'Aplícalo a un dado para darle Warp: deja de contar para tu límite de dados (como mucho 3 dados Warp).',

@@ -18,6 +18,8 @@ import {
   ENTROPY_ID,
   CHRONO_ID,
   isMythic,
+  isOnePerRun,
+  CELESTIAL_DIE_IDS,
   canGrowBig,
 } from '../data/elements.js'
 import { nextTier, prevTier, tierById, sellValueForDie } from '../data/diceTiers.js'
@@ -58,6 +60,7 @@ import {
   MOTE_STAGES,
   MOTE_RATE,
   MOTE_PACT_PRICE,
+  HOROLOGIST_STOCK,
 } from '../data/shops.js'
 import {
   newMap,
@@ -305,12 +308,12 @@ function fitsPool(state, dice) {
 
 /** One of each Mythic die (and one Entropy) per run (H3). */
 function holdsKind(dice, elementId) {
-  return isMythic(elementId) && dice.some((d) => d.elementId === elementId)
+  return isOnePerRun(elementId) && dice.some((d) => d.elementId === elementId)
 }
 
 /** Dice that can't be copied: gods, the lent Primordial die, Mythic dice. */
 function uncopyable(die) {
-  return isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID || isMythic(die.elementId)
+  return isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID || isOnePerRun(die.elementId)
 }
 
 /** The size a die grows to next: past d20 only for big dice in the Firmament (H5). */
@@ -344,7 +347,17 @@ function chronoAfterRoll(dice, relics, ctx, rolled) {
 // the Drift and Gust charges, and the explosions Heat has seen so far.
 function freshRoundCounters(dice) {
   // Time (H3): the reroll Rewind can undo, and whether it was used.
-  return { driftUsed: false, gustUsed: false, explosionsThisRound: countExplosions(dice), lastReroll: null, rewindUsed: false }
+  // Pulsar counts the rerolls made (I1); the Hourglass's free rerolls (I2)
+  // last the round.
+  return {
+    driftUsed: false,
+    gustUsed: false,
+    explosionsThisRound: countExplosions(dice),
+    lastReroll: null,
+    rewindUsed: false,
+    rerollsMade: 0,
+    freeRerolls: 0,
+  }
 }
 
 // What scoring needs to know beyond the dice and relics.
@@ -359,7 +372,23 @@ function scoreContext(state) {
     noFizzle: Boolean(buffs.noFizzle),
     // Void (H3): every empty slot is +1 Mult.
     emptySlots: emptySlots(state),
+    // Pulsar (I1) counts the rerolls made this round.
+    rerollsMade: state.rerollsMade || 0,
+    // Mult that comes from items rather than dice (I2): the Metronome, the
+    // Cuckoo Clock.
+    bonusMult: itemMult(state),
   }
+}
+
+/** Metronome and Cuckoo Clock: +1 Mult on this round's cast (I2). */
+function itemMult(state) {
+  const out = []
+  const m = state.metronome
+  if (m && state.round >= m.from && state.round <= m.to) out.push({ kind: 'consumable', id: 'metronome', value: 1 })
+  if (state.cuckooRound === state.round && state.relics.some((r) => r.id === 'cuckoo_clock')) {
+    out.push({ kind: 'relic', id: 'cuckoo_clock', value: 1 })
+  }
+  return out
 }
 
 function rollFreshRound(dice, relics) {
@@ -378,7 +407,12 @@ function rollFreshRound(dice, relics) {
     ...rollDie(acting[i], d.sides, relics, rollContext(d, pool, fx, acting[i])),
   }))
   // Varuna's tide settles every roll (B4), and a Chrono 1 rewinds it (H4).
-  return chronoAfterRoll(settleTide(rolled), relics, {}, null).dice
+  // A Pocket Watch (I2) keeps its die on the face it showed, held.
+  return chronoAfterRoll(settleTide(rolled), relics, {}, null).dice.map((d) => {
+    if (!d.watch) return d
+    const v = Math.min(d.watch, d.sides)
+    return { ...d, watch: null, value: v, total: v, explosions: 0, chain: [v], held: true }
+  })
 }
 
 // `cut` is the current shop type's own price cut (data/shops.js), stacked
@@ -556,22 +590,22 @@ const RARITY_ORDER = [RARITY.COMMON, RARITY.UNCOMMON, RARITY.RARE, RARITY.EPIC, 
 function rollShopStock(state, type) {
   const firmament = state.realm === 'firmament'
   const ownedRelicIds = new Set(state.relics.map((r) => r.id))
-  // A keeper with a fixed stock (the Horologist, H6) sells only that.
-  const consumablePool = type.consumableStock
-    ? CONSUMABLES.filter((c) => type.consumableStock.includes(c.id))
-    : CONSUMABLES.filter((c) => !c.firmament || firmament)
+  if (type.horologist) return rollHorologistStock(state, ownedRelicIds)
+  const consumablePool = CONSUMABLES.filter((c) => !c.firmament || firmament)
   const itemPool = [
     ...(type.itemKinds.includes('relic')
       ? RELICS.filter(
-          (r) => !ownedRelicIds.has(r.id) && (!r.needsGods || knowsGods(state)) && (!r.bazaarOnly || type.legendary),
+          (r) =>
+            !ownedRelicIds.has(r.id) &&
+            (!r.needsGods || knowsGods(state)) &&
+            (!r.bazaarOnly || type.legendary) &&
+            !r.horologistOnly,
         )
       : []),
     ...(type.itemKinds.includes('consumable') ? consumablePool : []),
   ]
   const weight = type.relicLuck ? vaultWeight : rarityWeight
-  const itemOffers = weightedSample(itemPool, type.items, (item) =>
-    type.consumableStock ? 1 : weight(item, state.round) * (item.stockWeight ?? 1),
-  ).map((item) => ({
+  const itemOffers = weightedSample(itemPool, type.items, (item) => weight(item, state.round) * (item.stockWeight ?? 1)).map((item) => ({
     kind: item.kind,
     id: item.id,
   }))
@@ -580,19 +614,33 @@ function rollShopStock(state, type) {
     (id) => id !== QUADRA_FUSION_ID || knowsAether(state),
   )
   // The Firmament still sells every die from Elementa, plus the Mythic dice
-  // this file has unlocked and the run does not hold yet (H3).
+  // this file has unlocked and the run does not hold yet (H3), and the
+  // Celestial dice (I3).
   const mythics = firmament ? MYTHIC_DIE_IDS.filter((id) => state.mythics?.includes(id) && !holdsKind(state.dice, id)) : []
-  const allBuyable = (type.dieStock ?? [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...mythics]).map((id) => ({
-    id,
-    rarity: rarityForElement(id),
-  }))
+  const celestials = firmament ? CELESTIAL_DIE_IDS.filter((id) => !holdsKind(state.dice, id)) : []
+  const asOffer = (id) => ({ id, rarity: rarityForElement(id), stockWeight: ELEMENTS[id].stockWeight ?? 1 })
+  const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...mythics, ...celestials].map(asOffer)
   const dieOfferCount = Math.min(type.dice, allBuyable.length)
   const luckyRound = state.round + (type.legendary ? 3 : 0)
-  const buyableElements = weightedSample(allBuyable, dieOfferCount, (item) =>
-    type.dieStock ? 1 : rarityWeight(item, luckyRound),
-  ).map((item) => item.id)
-  // Each die on offer has its own size, most often a d3; a Mythic die
-  // arrives as a d6.
+  const dieWeight = (item) => rarityWeight(item, luckyRound) * item.stockWeight
+  // The Astral Exchange always has a Celestial die on its shelf (I3).
+  const guaranteed =
+    type.celestial && celestials.length && dieOfferCount > 0 ? weightedSample(celestials.map(asOffer), 1, () => 1) : []
+  const buyableElements = [
+    ...guaranteed,
+    ...weightedSample(
+      allBuyable.filter((o) => !guaranteed.some((g) => g.id === o.id)),
+      dieOfferCount - guaranteed.length,
+      dieWeight,
+    ),
+  ].map((item) => item.id)
+  return finishStock(state, itemOffers, buyableElements, luckyRound)
+}
+
+// Each die on offer has its own size, most often a d3; a Mythic die arrives
+// as a d6. In the Firmament an offer now and then comes with Warp (H3).
+function finishStock(state, itemOffers, buyableElements, luckyRound) {
+  const firmament = state.realm === 'firmament'
   const dieSizes = Object.fromEntries(
     buyableElements.map((id) => [
       id,
@@ -601,18 +649,29 @@ function rollShopStock(state, type) {
         : weightedSample(SHOP_DIE_SIZES, 1, (size) => (luckyRound >= size.from ? size.weight : 0))[0]?.id ?? SHOP_DIE_TIER,
     ]),
   )
-  // In the Firmament an offer now and then comes with Warp (H3).
   const dieWarp = firmament
     ? Object.fromEntries(buyableElements.map((id) => [id, id === 'space' || random() < WARP_OFFER_CHANCE]).filter(([, w]) => w))
     : {}
-
   return { itemOffers, buyableElements, dieSizes, dieWarp }
+}
+
+/**
+ * The Horologist's six offers (I2): Chrono and one of Pulsar, Zenith and
+ * Kairos; three of his six consumables; one of his two relics (none if you
+ * own both). All drawn with the run's seeded generator.
+ */
+function rollHorologistStock(state, ownedRelicIds) {
+  const other = randomOf(HOROLOGIST_STOCK.dice)
+  const consumables = weightedSample(HOROLOGIST_STOCK.consumables, 3, () => 1).map((id) => ({ kind: 'consumable', id }))
+  const relicIds = HOROLOGIST_STOCK.relics.filter((id) => !ownedRelicIds.has(id))
+  const relic = relicIds.length ? [{ kind: 'relic', id: randomOf(relicIds) }] : []
+  return finishStock(state, [...consumables, ...relic], [CHRONO_ID, other], state.round)
 }
 
 // Relics a pact or prize may hand out: never the god relics before the god
 // recipes are known, never the Bazaar's Pantheon.
 function relicGrantable(state, r) {
-  return (!r.needsGods || knowsGods(state)) && !r.bazaarOnly
+  return (!r.needsGods || knowsGods(state)) && !r.bazaarOnly && !r.horologistOnly
 }
 
 function rollDeal(state, id) {
@@ -723,9 +782,17 @@ function availableRerolls(state) {
     (state.difficulty.rerollPenalty || 0) +
     state.permanentRerollBonus +
     state.rerollsBonusThisRound +
-    (fx.overclockRerollBonus || 0)
+    (fx.overclockRerollBonus || 0) +
+    zenithRerolls(state)
   const cap = fx.maxRerollsOverride != null ? Math.min(uncapped, fx.maxRerollsOverride) : uncapped
-  return cap - state.rerollsUsed
+  // The Hourglass's rerolls (I2) come on top of everything.
+  return cap - state.rerollsUsed + (state.freeRerolls || 0)
+}
+
+/** Zenith (I1): +1 reroll every round, +1 more from round 20 and again from 25. */
+function zenithRerolls(state) {
+  const each = 1 + (state.round >= 20 ? 1 : 0) + (state.round >= 25 ? 1 : 0)
+  return actingElementIds(state.dice).filter((id) => id === 'zenith').length * each
 }
 
 // Boss rewards (CHOOSE_BOSS_REWARD) can widen these for the rest of a run.
@@ -800,6 +867,9 @@ function baseTitleState() {
     chronicle: { bosses: [], shops: [] },
     // Extra rerolls granted for the next round only (Lucky Charm).
     nextRoundRerollBonus: 0,
+    // The Horologist's wares (I2): the Metronome's rounds, the Cuckoo Clock's.
+    metronome: null,
+    cuckooRound: null,
     // Highest single cast this run, for Run Info and achievements.
     bestCast: 0,
     // Secret recipes this save file knows (copied from the profile).
@@ -1030,7 +1100,9 @@ function undoReroll(state) {
     ...state,
     dice: before.dice.map((d) => ({ ...d, rollId: random() })),
     shards: before.shards,
-    rerollsUsed: Math.max(0, state.rerollsUsed - 1),
+    rerollsUsed: before.rerollsUsed ?? Math.max(0, state.rerollsUsed - 1),
+    freeRerolls: before.freeRerolls ?? state.freeRerolls ?? 0,
+    rerollsMade: before.rerollsMade ?? Math.max(0, (state.rerollsMade || 0) - 1),
     rerollsBonusThisRound: before.rerollsBonusThisRound,
     explosionsThisRound: before.explosionsThisRound,
     bossModifier: before.bossModifier,
@@ -1087,6 +1159,12 @@ function noteBoss(chronicle, boss) {
 
 function addBoon(state, id, source, detail = null) {
   return [...(state.boons || []), { id, source, round: state.round, detail }]
+}
+
+/** A round's target as it will be when you get there (Almanac, I2). */
+function almanacTarget(state, round, next) {
+  const warden = state.realm === 'firmament' && wardenFor(state.path, state.firmamentSet, round)
+  return Math.round(thresholdForRound(round, state.difficulty) * (next ? state.nextTargetMult || 1 : 1) * (warden ? WARDEN_TARGET[round] ?? 1 : 1))
 }
 
 function nextBossRound(state) {
@@ -1772,12 +1850,17 @@ function reduce(state, action) {
       if (state.phase !== 'rolling') return state
       if (availableRerolls(state) <= 0) return state
       const fx = relicEffects(effectiveRelics(state))
-      const tax = fx.rerollShardCost || 0
+      // An Hourglass reroll (I2) is free: no reroll used, no tax.
+      const free = (state.freeRerolls || 0) > 0
+      const tax = free ? 0 : fx.rerollShardCost || 0
       if (state.shards < tax) return state
       // What Time's Rewind (and the Stopwatch) can undo (H3).
       const lastReroll = {
         dice: state.dice,
         shards: state.shards,
+        rerollsUsed: state.rerollsUsed,
+        freeRerolls: state.freeRerolls || 0,
+        rerollsMade: state.rerollsMade || 0,
         rerollsBonusThisRound: state.rerollsBonusThisRound,
         explosionsThisRound: state.explosionsThisRound,
         bossModifier: state.bossModifier,
@@ -1837,7 +1920,9 @@ function reduce(state, action) {
         dice,
         bossModifier,
         shards: state.shards - tax,
-        rerollsUsed: state.rerollsUsed + 1,
+        rerollsUsed: state.rerollsUsed + (free ? 0 : 1),
+        freeRerolls: free ? state.freeRerolls - 1 : state.freeRerolls || 0,
+        rerollsMade: (state.rerollsMade || 0) + 1,
         rerollsBonusThisRound: state.rerollsBonusThisRound + kindling,
         explosionsThisRound,
         lastReroll,
@@ -1905,7 +1990,11 @@ function reduce(state, action) {
         const fx = relicEffects(effectiveRelics(state))
         const interest = interestFor(state.shards, fx.interestCapBonus || 0, fx.interestDivisor || 3)
         const base = Math.round(5 * state.difficulty.shardMultiplier)
-        const bonus = (fx.shardPerExplosion || 0) * result.explodeCount + result.midasShards + result.bullionShards
+        // Cuckoo Clock (I2): clear with no rerolls left for 5 Shards, and
+        // +1 Mult on the next round's cast.
+        const cuckoo = Boolean(fx.cuckooClock) && availableRerolls(state) <= 0
+        const bonus =
+          (fx.shardPerExplosion || 0) * result.explodeCount + result.midasShards + result.bullionShards + (cuckoo ? 5 : 0)
         // Pacts and blessings waiting on this clear (B3) double or gamble it.
         const cleared = resolveClearEffects(state, earned + interest + bonus)
         let shards = state.shards + cleared.shards
@@ -1930,7 +2019,9 @@ function reduce(state, action) {
         let lives = state.lives
         if (state.round % LIFE_REGEN_EVERY_N_ROUNDS === 0 && lives < state.maxLives) lives += 1
         // Time (H3): unused rerolls carry into the next round, up to +3.
-        const timeCarry = holdsTime(state.dice) ? Math.max(0, Math.min(3, availableRerolls(state))) : 0
+        // The Mainspring (I2) banks them too; the same rerolls never count twice.
+        const left = Math.max(0, availableRerolls(state))
+        const timeCarry = Math.max(holdsTime(state.dice) ? Math.min(3, left) : 0, fx.bankRerolls ? Math.min(fx.bankRerolls, left) : 0)
 
         const beatBoss = Boolean(state.bossModifier)
         // The shop you walk into is the stop you picked on the Road.
@@ -1968,6 +2059,7 @@ function reduce(state, action) {
           permanentRerollBonus,
           lives,
           nextRoundRerollBonus: (state.nextRoundRerollBonus || 0) + timeCarry,
+          cuckooRound: cuckoo ? state.round + 1 : state.cuckooRound ?? null,
           clearEffects: [],
           longNightActive: false,
           plentyLock: false,
@@ -2198,6 +2290,36 @@ function reduce(state, action) {
           if (!rolling || !state.lastReroll) return state
           return { ...undoReroll(state), consumables: spent }
         }
+        // Hourglass (I2): the next 3 rerolls this round are free. Only
+        // useful mid-round.
+        if (item.type === 'sand') {
+          if (!rolling) return state
+          return { ...state, freeRerolls: (state.freeRerolls || 0) + 3, consumables: spent }
+        }
+        // Metronome (I2): +1 Mult on every cast for the next 3 rounds.
+        if (item.type === 'metronome') {
+          return { ...state, metronome: { from: state.round + 1, to: state.round + 3 }, consumables: spent }
+        }
+        // Almanac (I2): the next three targets and the next boss, exactly.
+        // The boss is foretold the way a Shrine's Prophecy is, so it is
+        // really the one that comes.
+        if (item.type === 'almanac') {
+          const bossRound = nextBossRound(state)
+          let map = state.map
+          let boss = null
+          if (bossRound) {
+            const told = map?.prophecy?.round === bossRound ? map.prophecy.boss : null
+            boss = told ?? pickBossModifier(state, bossRound)
+            if (!told) map = { ...map, prophecy: { round: bossRound, boss } }
+          }
+          const targets = [1, 2, 3].map((k) => almanacTarget(state, state.round + k, k === 1))
+          return {
+            ...state,
+            map,
+            boons: addBoon(state, 'almanac', 'almanac', { round: bossRound, bossId: boss?.id ?? null, targets, from: state.round + 1 }),
+            consumables: spent,
+          }
+        }
         // Time Capsule (H6): two rerolls for the next round.
         if (item.type === 'capsule') {
           return { ...state, nextRoundRerollBonus: (state.nextRoundRerollBonus || 0) + 2, consumables: spent }
@@ -2282,6 +2404,9 @@ function reduce(state, action) {
         // Warp Seal (H3).
         if (!consumableTargetOk(state, item, die)) return state
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, edition: 'warp' } : d))
+      } else if (item.type === 'watch') {
+        // Pocket Watch (I2): next round this die starts held, on this face.
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, watch: d.value } : d))
       } else if (item.type === 'hone') {
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, bonus: (d.bonus || 0) + 2 } : d))
       } else if (item.type === 'infuse' || item.type === 'arcanize') {

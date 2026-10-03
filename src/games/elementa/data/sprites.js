@@ -478,4 +478,11 @@ export const ITEM_ART = {
   stopwatch: ['gear', '#c9a46b', '#b9a6ff'],
   time_capsule: ['hourglass', '#b9a6ff', '#ffffff'],
   warp_seal: ['coin', '#a66bff', '#ff4fd8'],
+  // The Horologist's wares (I2).
+  sand_hourglass: ['hourglass', '#d9c27a', '#ffffff'],
+  pocket_watch: ['gear', '#ffd166', '#fff4d6'],
+  metronome: ['block', '#8a5a34', '#ffd166'],
+  almanac: ['book', '#3d5fa5', '#ffd166'],
+  mainspring: ['gear', '#c9a46b', '#ffffff'],
+  cuckoo_clock: ['block', '#8a5a34', '#e5a53d'],
 }
