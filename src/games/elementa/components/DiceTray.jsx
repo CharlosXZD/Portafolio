@@ -5,7 +5,7 @@ import CastLedger from './CastLedger.jsx'
 import { buildCastScript, applyCastStep, finishCastScript } from '../utils/castScript.js'
 import CastStage, { CastCaption, useStepCaption } from './CastStage.jsx'
 import { TRIGGER_EVENT } from '../utils/useTriggerPulses.js'
-import { evaluatePool } from '../engine/scoring.js'
+import { evaluatePool, lightFloor } from '../engine/scoring.js'
 import { selectors } from '../engine/gameReducer.js'
 import { ELEMENTS, inFamily, actingElementIds } from '../data/elements.js'
 import { reactionById } from '../data/reactions.js'
@@ -292,8 +292,11 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     return () => window.removeEventListener('keydown', onKey)
   }, [paused, revealing, state.dice, dispatch, handleReroll, handleSubmit, skipReveal])
 
-  // Eclipse hides every face (and so the score) until you cast.
-  const hidden = Boolean(fx.hideFaces) && !revealing
+  // Eclipse hides every face (and so the score) until you cast. Light keeps
+  // them visible (EXPANSION.md H3).
+  const hidden = Boolean(fx.hideFaces) && !revealing && lightFloor(state.dice) === 0
+  // Time's Rewind (H3), and how often Chrono rewound the last roll (H4).
+  const canRewind = selectors.canRewind(state) && !revealing
   const shown = revealing ? reveal.result : preview
   const currentStep = revealing && !revealDone ? reveal.steps[reveal.index] : null
   // The step that just landed makes its box pulse; a multiplier hits harder.
@@ -669,6 +672,24 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 <span className="el-key">Enter</span>
               </button>
             </div>
+            {(canRewind || (selectors.holdsTime(state.dice) && !revealing)) && (
+              <button
+                type="button"
+                onClick={() => {
+                  playRoll()
+                  dispatch({ type: 'REWIND' })
+                }}
+                disabled={!canRewind}
+                title={t('elementa.diceTray.rewindHint')}
+                className="el-btn el-btn--sm"
+              >
+                <PixelIcon name="time" size={9} color="#b9a6ff" />
+                {t('elementa.diceTray.rewind')}
+              </button>
+            )}
+            {state.chronoLoops > 0 && !revealing && (
+              <span className="text-base text-[#b9a6ff]">{t('elementa.diceTray.chronoLoops').replace('{n}', state.chronoLoops)}</span>
+            )}
             {canGust && (
               <button
                 type="button"

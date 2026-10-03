@@ -255,6 +255,12 @@ export const CONSUMABLES_ES = {
     description: 'Aplícalo a un dado para añadir una copia exacta a tu reserva (necesita un espacio libre).',
   },
   loom_of_fate: { name: 'Telar del Destino', description: 'Renueva las ofertas de la tienda, gratis.' },
+  stopwatch: { name: 'Cronómetro', description: 'Durante una ronda: deshaz tu último reroll y recupéralo.' },
+  time_capsule: { name: 'Cápsula del Tiempo', description: 'Guarda 2 rerolls para la próxima ronda.' },
+  warp_seal: {
+    name: 'Sello Warp',
+    description: 'Aplícalo a un dado para darle Warp: deja de contar para tu límite de dados (como mucho 3 dados Warp).',
+  },
   arcane_seal: {
     name: 'Sello Arcano',
     description: 'Aplícalo a un dado para convertirlo en un dado Arcano raro o épico aleatorio, conservando su nivel.',

@@ -3,7 +3,6 @@ import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { localizeBossModifier } from '../data/i18n.js'
 import { dieDescriptor } from '../data/itemDescriptors.js'
-import { nextTier } from '../data/diceTiers.js'
 import { selectors } from '../engine/gameReducer.js'
 import { playClick, playCoin } from '../utils/sound.js'
 import DieSprite from './DieSprite.jsx'
@@ -23,7 +22,7 @@ export default function BossReward({ state, dispatch }) {
   const boss = localizeBossModifier(state.bossModifier, lang)
   const [dieId, setDieId] = useState(null)
   const [slot, setSlot] = useState(null)
-  const canGrow = state.dice.some((d) => nextTier(d.tierId))
+  const canGrow = state.dice.some((d) => selectors.growTier(state, d))
   const ready = slot && (dieId || !canGrow)
 
   const caps = {
@@ -68,7 +67,7 @@ export default function BossReward({ state, dispatch }) {
         </div>
         <div className="flex flex-wrap justify-center gap-4">
           {state.dice.map((die) => {
-            const next = nextTier(die.tierId)
+            const next = selectors.growTier(state, die)
             const item = dieDescriptor(die.elementId, lang)
             const chosen = dieId === die.id
             return (

@@ -474,4 +474,8 @@ export const ITEM_ART = {
   fusion_spark: ['flame', '#ff7a45', '#ffe27a'],
   mirror_shard: ['gem', '#b8c4d6'],
   loom_of_fate: ['hourglass', '#9a5f34', '#ffd166'],
+  // The Firmament (EXPANSION.md H3, H6).
+  stopwatch: ['gear', '#c9a46b', '#b9a6ff'],
+  time_capsule: ['hourglass', '#b9a6ff', '#ffffff'],
+  warp_seal: ['coin', '#a66bff', '#ff4fd8'],
 }

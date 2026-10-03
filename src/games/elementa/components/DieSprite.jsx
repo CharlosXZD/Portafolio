@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { isBigTier } from '../data/diceTiers.js'
 
 /**
  * Procedural pixel-art die body on a 32x32 grid (the same native size as
@@ -36,6 +37,12 @@ const SHAPES = {
   },
 }
 
+// Sizes past d20 (EXPANSION.md H5) reuse the d20's hexagon; the die prints
+// its size on the body instead.
+function shapeOf(tier) {
+  return SHAPES[tier] ?? (isBigTier(tier) ? SHAPES.d20 : SHAPES.d6)
+}
+
 function inside(poly, x, y) {
   let hit = false
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -67,7 +74,7 @@ const cache = new Map()
 
 function classify(tier) {
   if (cache.has(tier)) return cache.get(tier)
-  const shape = SHAPES[tier] ?? SHAPES.d6
+  const shape = shapeOf(tier)
   const mask = Array.from({ length: G }, (_, y) => Array.from({ length: G }, (_, x) => inside(shape.poly, x + 0.5, y + 0.5)))
   const at = (x, y) => x >= 0 && y >= 0 && x < G && y < G && mask[y][x]
   const grid = Array.from({ length: G }, () => new Array(G).fill(OUT))
@@ -103,7 +110,13 @@ function classify(tier) {
 }
 
 export function dieNumberY(tier) {
-  return (SHAPES[tier] ?? SHAPES.d6).numberY
+  return shapeOf(tier).numberY
+}
+
+/** How big a face number is, as a share of the die: a d3's is smaller, and so is a 3-digit face. */
+export function dieNumberScale(tier, face) {
+  const base = tier === 'd3' ? 0.22 : 0.27
+  return String(face ?? '').length >= 3 ? base * 0.72 : base
 }
 
 // Where a lone element mark goes. A d3's face number sits low, in the wide

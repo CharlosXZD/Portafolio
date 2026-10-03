@@ -684,6 +684,13 @@ const strings = {
   },
   // --- Elementa: the Firmament (EXPANSION.md Part H) ---
   'elementa.gallery.mythic': { en: 'Mythic', es: 'Mítico' },
+  'elementa.die.warpLine': { en: 'It does not count toward your dice cap (at most 3 Warp dice).', es: 'No cuenta para tu límite de dados (como mucho 3 dados Warp).' },
+  'elementa.die.chaosLine': { en: 'This roll it is a {die}.', es: 'En esta tirada es un {die}.' },
+  'elementa.diceTray.rewind': { en: 'Rewind', es: 'Rebobinar' },
+  'elementa.diceTray.rewindHint': { en: 'Time: undo your last reroll and get it back (once per round).', es: 'Tiempo: deshaz tu último reroll y recupéralo (una vez por ronda).' },
+  'elementa.diceTray.chronoLoops': { en: 'Chrono rewound time x{n}', es: 'Crono rebobinó el tiempo x{n}' },
+  'elementa.roundResult.timeCarry': { en: 'Time carries {n} rerolls into the next round.', es: 'El Tiempo lleva {n} rerolls a la próxima ronda.' },
+  'elementa.shop.warpOffer': { en: 'Warp', es: 'Warp' },
 }
 
 export default strings

@@ -1,8 +1,51 @@
 import { ELEMENTS } from '../data/elements.js'
 import { mix } from '../utils/color.js'
 import PixelIcon from './PixelIcon.jsx'
-import DieSprite, { dieNumberY, dieIconY } from './DieSprite.jsx'
+import DieSprite, { dieNumberY, dieIconY, dieNumberScale } from './DieSprite.jsx'
 import ElementFx from './ElementFx.jsx'
+import { isBigTier } from '../data/diceTiers.js'
+
+/** The shape a die is drawn with: its own size, or a Chaos die's current form (H3). */
+export const shapeTier = (die) => die.chaosForm?.tierId ?? die.tierId
+
+/**
+ * The marks a die can carry on its body (EXPANSION.md H3, H5): a violet
+ * "WARP" corner badge, its size printed on it past d20, and the die a Chaos
+ * die is wearing this roll.
+ */
+export function DieMarks({ die, size }) {
+  const small = size < 56
+  return (
+    <>
+      {die.edition === 'warp' && (
+        <span
+          className="el-chip pointer-events-none absolute -right-2 -top-2 z-[2] text-[#f3e8ff]"
+          style={{ fontSize: small ? 6 : 7, background: '#7a3dff', boxShadow: '0 0 6px #a66bff' }}
+        >
+          WARP
+        </span>
+      )}
+      {isBigTier(die.tierId) && (
+        <span
+          className="pixel-score pointer-events-none absolute left-1/2 -translate-x-1/2 leading-none text-[#fffaf0]/80"
+          style={{ bottom: '9%', fontSize: Math.max(5, Math.round(size * 0.1)), textShadow: '1px 1px 0 var(--ink)' }}
+        >
+          {die.tierId.toUpperCase()}
+        </span>
+      )}
+      {die.chaosForm && ELEMENTS[die.chaosForm.elementId] && (
+        <span className="pointer-events-none absolute -bottom-1 -right-1 z-[2] rounded-sm bg-[var(--ink)] p-[2px]" title={die.chaosForm.elementId}>
+          <PixelIcon
+            name={die.chaosForm.elementId}
+            size={small ? 8 : 11}
+            color={ELEMENTS[die.chaosForm.elementId].color}
+            hi="#fffaf0"
+          />
+        </span>
+      )}
+    </>
+  )
+}
 
 // Die body colors come from the element, darkened toward the night palette
 // so pale elements (Air, Steam) still carry a light number. Shared by the
@@ -39,7 +82,7 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
       style={{ width: size, height: size, opacity: dimmed ? 0.45 : 1 }}
     >
       <ElementFx elementId={die.elementId} size={size} behind lite={size < 56} />
-      <DieSprite tier={die.tierId} size={size} {...dieColors(die.elementId)} ringColor={ringColor} />
+      <DieSprite tier={shapeTier(die)} size={size} {...dieColors(die.elementId)} ringColor={ringColor} />
       {!dimmed && <ElementFx elementId={die.elementId} size={size} lite={size < 56} />}
       {face == null ? (
         <span
@@ -59,8 +102,8 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
           <span
             className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2 leading-none"
             style={{
-              top: `${dieNumberY(die.tierId) * 100}%`,
-              fontSize: Math.max(7, Math.round(size * (die.tierId === 'd3' ? 0.22 : 0.27))),
+              top: `${dieNumberY(shapeTier(die)) * 100}%`,
+              fontSize: Math.max(7, Math.round(size * dieNumberScale(shapeTier(die), face))),
               color: '#fffaf0',
               textShadow: '2px 2px 0 var(--ink)',
             }}
@@ -69,6 +112,7 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
           </span>
         </>
       )}
+      <DieMarks die={die} size={size} />
       {extra > 0 && (
         <span className="el-chip pointer-events-none absolute -left-2 -top-2 bg-[#6fbf4a] text-[var(--ink)]" style={{ fontSize: 7 }}>
           +{extra}

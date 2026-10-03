@@ -197,6 +197,46 @@ export const CONSUMABLES = [
     itemConcept: 'a tiny wooden loom threaded with golden string',
     description: 'Restock the shop with new offers, for free.',
   },
+  // --- The Firmament (EXPANSION.md H3, H6): sold only past the door.
+  // `firmament` keeps them out of Elementa's shops; `stockWeight` thins a
+  // very rare one out of the rarity pool.
+  {
+    id: 'stopwatch',
+    name: 'Stopwatch',
+    kind: 'consumable',
+    type: 'rewind',
+    target: 'self',
+    rarity: RARITY.RARE,
+    element: null,
+    firmament: true,
+    itemConcept: 'a brass stopwatch with its hand frozen mid-tick',
+    description: 'During a round: undo your last reroll and get it back.',
+  },
+  {
+    id: 'time_capsule',
+    name: 'Time Capsule',
+    kind: 'consumable',
+    type: 'capsule',
+    target: 'self',
+    rarity: RARITY.UNCOMMON,
+    element: null,
+    firmament: true,
+    itemConcept: 'a sealed glass capsule with two tiny dice inside',
+    description: 'Bank 2 rerolls for the next round.',
+  },
+  {
+    id: 'warp_seal',
+    name: 'Warp Seal',
+    kind: 'consumable',
+    type: 'warp',
+    target: 'die',
+    rarity: RARITY.LEGENDARY,
+    element: null,
+    firmament: true,
+    stockWeight: 0.25,
+    itemConcept: 'a violet wax seal pressed with a folded star',
+    description: 'Apply to a die to give it Warp: it no longer counts toward your dice cap (at most 3 Warp dice).',
+  },
 ]
 
 export function consumableById(id) {

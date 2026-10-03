@@ -41,8 +41,31 @@ function useDieName(elementId) {
   return localize(lang, ELEMENTS[elementId].name, ELEMENTS_ES, elementId, 'name')
 }
 
+/**
+ * A die's own marks, in words (EXPANSION.md H3): its Warp edition, and the
+ * die a Chaos die is wearing this roll.
+ */
+export function DieEditionLines({ edition = null, chaosForm = null }) {
+  const { t } = useLanguage()
+  const formName = useDieName(chaosForm?.elementId ?? 'chaos')
+  if (edition !== 'warp' && !chaosForm) return null
+  return (
+    <div className="flex flex-col gap-1 text-sm leading-snug">
+      {edition === 'warp' && (
+        <span className="text-[#cdb4ff]">
+          <span className="el-chip mr-1.5 bg-[#7a3dff] text-[#f3e8ff]">WARP</span>
+          {t('elementa.die.warpLine')}
+        </span>
+      )}
+      {chaosForm && (
+        <span className="text-[#ff9fd0]">{t('elementa.die.chaosLine').replace('{die}', `${formName} ${chaosForm.tierId}`)}</span>
+      )}
+    </div>
+  )
+}
+
 /** Level 1: hover. `score` is a number, '?' (Eclipse) or null (no roll). */
-export function DieHoverCard({ elementId, sides, bonus = 0, score = null }) {
+export function DieHoverCard({ elementId, sides, bonus = 0, score = null, edition = null, chaosForm = null }) {
   const name = useDieName(elementId)
   const colors = dieColors(elementId)
   return (
@@ -54,6 +77,7 @@ export function DieHoverCard({ elementId, sides, bonus = 0, score = null }) {
         {sides && <span className="el-chip bg-[#2a2338] text-[var(--text)]">{dieTypeLabel(sides, bonus)}</span>}
       </div>
       <FamilyTags elementId={elementId} />
+      <DieEditionLines edition={edition} chaosForm={chaosForm} />
       {score != null && <ScoreBlock value={score} />}
     </div>
   )
@@ -114,7 +138,7 @@ export function DieDetails({ elementId, withFamilies = false }) {
  * shaking table would only cover its own column, and the game's colors and
  * fonts are scoped to `.elementa-root`.
  */
-export function DieFullModal({ elementId, sides, bonus = 0, score = null, onClose }) {
+export function DieFullModal({ elementId, sides, bonus = 0, score = null, edition = null, chaosForm = null, onClose }) {
   const { lang, t } = useLanguage()
   const name = useDieName(elementId)
   const { short } = diceText(elementId, lang)
@@ -145,6 +169,7 @@ export function DieFullModal({ elementId, sides, bonus = 0, score = null, onClos
       <p className="text-base leading-snug text-[var(--text)]">
         <RichText text={short} />
       </p>
+      <DieEditionLines edition={edition} chaosForm={chaosForm} />
       {score != null && <ScoreBlock value={score} />}
       <DieDetails elementId={elementId} />
     </Modal>,

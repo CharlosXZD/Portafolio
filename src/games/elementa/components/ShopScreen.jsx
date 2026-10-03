@@ -26,7 +26,7 @@ import DieToken from './DieToken.jsx'
 import BoonsList from './BoonsList.jsx'
 import { shopTypeById, dealById, blessingById, PROPHECY } from '../data/shops.js'
 import { nextChoices, nodeById } from '../engine/map.js'
-import { nextTier, tierById } from '../data/diceTiers.js'
+import { tierById } from '../data/diceTiers.js'
 import { visitKeeper, lineText } from '../utils/keepers.js'
 import { KEEPERS } from '../data/keepers.js'
 
@@ -78,7 +78,7 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
       {dieId ? (
         <Tooltip
           disabled={isOpen}
-          content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} />}
+          content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} />}
         >
           {/* A press that turned into a hold must not also click. */}
           <span
@@ -118,7 +118,9 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
           />
         )}
       </AnimatePresence>
-      {fullOpen && <DieFullModal elementId={dieId} sides={item.sides} bonus={item.bonus || 0} onClose={() => setFullOpen(false)} />}
+      {fullOpen && (
+        <DieFullModal elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} onClose={() => setFullOpen(false)} />
+      )}
     </div>
   )
 }
@@ -504,7 +506,9 @@ export default function ShopScreen({ state, dispatch }) {
   const relicsFull = state.relics.length >= relicCap
   const consumablesFull = state.consumables.length >= consumableCap
   const diceCap = selectors.maxDiceFor(state)
-  const diceFull = state.dice.length >= diceCap
+  // Warp dice don't count toward the cap (EXPANSION.md H3).
+  const diceCount = selectors.poolSize(state.dice)
+  const diceFull = diceCount >= diceCap
   const forgeable = selectors.forgeableRecipes(state).filter((r) => r.canForge)
 
   function buy(action) {
@@ -519,7 +523,7 @@ export default function ShopScreen({ state, dispatch }) {
       <aside data-tut="inventory" className="el-panel flex flex-col gap-6 p-4">
         <RoundResult state={state} compact />
 
-        <InventorySection label={t('elementa.shop.yourDice')} count={state.dice.length} cap={diceCap}>
+        <InventorySection label={t('elementa.shop.yourDice')} count={diceCount} cap={diceCap}>
           <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.shop.dragToReorder')}</p>
           <DiceGrid
             dice={state.dice}
@@ -536,6 +540,7 @@ export default function ShopScreen({ state, dispatch }) {
                 ...base,
                 sides: die.sides,
                 bonus: die.bonus || 0,
+                edition: die.edition,
                 name: `${elementName} d${die.sides}${die.bonus ? ` +${die.bonus}` : ''}`,
                 description: die.bonus
                   ? `${base.description} ${t('elementa.shop.dieBonus').replace('{n}', die.bonus)}`
@@ -704,14 +709,23 @@ export default function ShopScreen({ state, dispatch }) {
             const sizeId = selectors.shopDieSize(shop, elementId)
             const sides = tierById(sizeId).sides
             const cost = selectors.newDieCost(elementId, state.dice, state.relics, shop, sizeId)
+            // A Warp offer skips the dice cap but not the Warp cap (H3).
+            const edition = shop.dieWarp?.[elementId] ? 'warp' : null
+            const offerDie = { id: `offer-${elementId}`, elementId, tierId: sizeId, sides, edition }
+            const fits = selectors.fitsPool(state, [...state.dice, offerDie]) && !selectors.holdsKind(state.dice, elementId)
             return (
               <IconSlot
                 key={elementId}
                 itemKey={`dieoffer-${elementId}`}
-                item={{ ...dieDescriptor(elementId, lang), name: `${dieDescriptor(elementId, lang).name} ${sizeId}`, sides }}
+                item={{
+                  ...dieDescriptor(elementId, lang),
+                  name: `${dieDescriptor(elementId, lang).name} ${sizeId}${edition ? ' WARP' : ''}`,
+                  sides,
+                  edition,
+                }}
                 renderIcon={(onClick) => (
                   <DieToken
-                    die={{ id: `offer-${elementId}`, elementId, tierId: sizeId, sides }}
+                    die={offerDie}
                     size={sizeId === 'd20' ? 84 : 72}
                     onClick={onClick}
                     title={`${dieDescriptor(elementId, lang).name} ${sizeId}`}
@@ -722,7 +736,7 @@ export default function ShopScreen({ state, dispatch }) {
                 actions={[
                   {
                     label: buyLabel(cost),
-                    disabled: state.shards < cost || diceFull,
+                    disabled: state.shards < cost || !fits,
                     onClick: () => buy({ type: 'BUY_DIE', elementId }),
                   },
                 ]}
@@ -944,12 +958,12 @@ export default function ShopScreen({ state, dispatch }) {
 /** Forge and Bazaar: pay to grow one of your dice a size. */
 function UpgradeShelf({ state, dispatch, openKey, setOpenKey, buy }) {
   const { t, lang } = useLanguage()
-  const growable = state.dice.filter((d) => nextTier(d.tierId))
+  const growable = state.dice.filter((d) => selectors.growTier(state, d))
   return (
     <OfferShelf title={t('elementa.shop.upgrades')} hint={t('elementa.shop.upgradesHint')}>
       {growable.length === 0 && <p className="text-base text-[var(--text-mute)]">{t('elementa.bossReward.diceMaxed')}</p>}
       {growable.map((die) => {
-        const up = selectors.dieUpgradeCost(die, state.relics, state.shop)
+        const up = selectors.dieUpgradeCost(die, state.relics, state.shop, state.realm)
         const item = dieDescriptor(die.elementId, lang)
         return (
           <IconSlot

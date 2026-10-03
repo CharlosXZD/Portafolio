@@ -14,6 +14,11 @@ import {
   PRIMORDIAL_DIE_ID,
   TIERS,
   rarityForElement,
+  MYTHIC_DIE_IDS,
+  ENTROPY_ID,
+  CHRONO_ID,
+  isMythic,
+  canGrowBig,
 } from '../data/elements.js'
 import { nextTier, prevTier, tierById, sellValueForDie } from '../data/diceTiers.js'
 import { RELICS, RARITY, relicById, costForRelic, sellValueForRelic } from '../data/relics.js'
@@ -29,7 +34,16 @@ import {
   bossById,
   isBossRound,
 } from '../data/bossModifiers.js'
-import { rollDie, rerollPool, evaluatePool, thresholdForRound, shardsEarned, interestFor } from './scoring.js'
+import {
+  rollDie,
+  rerollPool,
+  evaluatePool,
+  thresholdForRound,
+  shardsEarned,
+  interestFor,
+  shiftChaos,
+  chronoLoop,
+} from './scoring.js'
 import { random, getRngState, setRngState, seedToState, randomSeed, cleanSeed } from './rng.js'
 import { shopTypeById, DEALS, BLESSINGS, BETRAYALS, isBetrayal } from '../data/shops.js'
 import { newMap, ensureLayers, nodeById, currentNode, nextChoices, retypeAhead } from './map.js'
@@ -55,6 +69,12 @@ const WIN_ROUND = 15
 const LIFE_REGEN_EVERY_N_ROUNDS = 4
 const MAX_DICE = 10
 const MAX_CONSUMABLES = 3
+// Warp (EXPANSION.md H3, Claude's defaults): a Warp die does not count
+// toward the dice cap, at most WARP_CAP of them at once; a Firmament die
+// offer comes with Warp this often, for WARP_PREMIUM more Shards.
+const WARP_CAP = 3
+const WARP_OFFER_CHANCE = 0.02
+const WARP_PREMIUM = 12
 const ALL_FUSION_IDS = [...DOUBLE_FUSION_IDS, ...TRIPLE_FUSION_IDS, QUADRA_FUSION_ID]
 
 // Rarity is round-gated so a run can't snowball into a legendary-item build
@@ -68,6 +88,8 @@ const RARITY_UNLOCK_ROUND = {
   [RARITY.RARE]: 4,
   [RARITY.EPIC]: 7,
   [RARITY.LEGENDARY]: 10,
+  // Mythic dice are sold only in the Firmament (H3), from round 16.
+  [RARITY.MYTHIC]: 16,
 }
 
 const RARITY_WEIGHT = {
@@ -76,6 +98,7 @@ const RARITY_WEIGHT = {
   [RARITY.RARE]: 2,
   [RARITY.EPIC]: 1,
   [RARITY.LEGENDARY]: 1,
+  [RARITY.MYTHIC]: 1,
 }
 
 const FORGE_BASE_COST_BY_TIER = {
@@ -84,12 +107,16 @@ const FORGE_BASE_COST_BY_TIER = {
   quadra: 16,
   // The gods (B4, Claude's default): consume 4 pure dice plus 24 Shards.
   god: 24,
+  // Entropy (H5): every Mythic die and Aether, plus a high Shard cost.
+  mythic: 300,
 }
 
 const DIE_BASE_COST_BY_TIER = {
   double: 12,
   triple: 20,
   quadra: 64,
+  // The Mythic dice (H3).
+  mythic: 45,
 }
 
 // Arcane dice have no fusion tier, so they're priced by rarity instead (a
@@ -194,13 +221,15 @@ function applyBossRoundStart(dice, boss) {
   )
 }
 
-function makeDie(elementId, tierId = STARTING_TIER) {
+function makeDie(elementId, tierId = STARTING_TIER, edition = null) {
   const sides = tierById(tierId).sides
   return {
     id: makeId(),
     elementId,
     tierId,
     sides,
+    // Warp (H3): the Space die always carries it.
+    edition: elementId === 'space' ? 'warp' : edition,
     held: false,
     locked: false,
     lockedVia: null,
@@ -213,10 +242,66 @@ function makeDie(elementId, tierId = STARTING_TIER) {
 
 const countExplosions = (dice) => dice.reduce((sum, d) => sum + (d.explosions || 0), 0)
 
+// --- The Firmament's dice rules (EXPANSION.md H3 to H5). ---
+
+const isWarp = (d) => d.edition === 'warp'
+
+/** Dice that count toward the dice cap: Warp dice do not (H3). */
+function poolSize(dice) {
+  return dice.filter((d) => !isWarp(d)).length
+}
+
+function warpCount(dice) {
+  return dice.filter(isWarp).length
+}
+
+/** Whether a pool fits the dice cap and the Warp cap. */
+function fitsPool(state, dice) {
+  return poolSize(dice) <= maxDiceFor(state) && warpCount(dice) <= WARP_CAP
+}
+
+/** One of each Mythic die (and one Entropy) per run (H3). */
+function holdsKind(dice, elementId) {
+  return isMythic(elementId) && dice.some((d) => d.elementId === elementId)
+}
+
+/** Dice that can't be copied: gods, the lent Primordial die, Mythic dice. */
+function uncopyable(die) {
+  return isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID || isMythic(die.elementId)
+}
+
+/** The size a die grows to next: past d20 only for big dice in the Firmament (H5). */
+function growTier(state, die) {
+  return nextTier(die.tierId, state.realm === 'firmament' && canGrowBig(die.elementId))
+}
+
+/** Free dice, relic and consumable slots, for Void (H3), read at cast time. */
+function emptySlots(state) {
+  return (
+    Math.max(0, maxDiceFor(state) - poolSize(state.dice)) +
+    Math.max(0, relicCapFor(state) - state.relics.length) +
+    Math.max(0, consumableCapFor(state) - state.consumables.length)
+  )
+}
+
+const holdsTime = (dice) => dice.some((d) => d.elementId === 'time')
+
+// The Maelstrom (H2) lends a die a pure element for the round; this gives
+// its own back.
+function unmaelstrom(d) {
+  return d.maelstromFrom ? { elementId: d.maelstromFrom, maelstromFrom: null } : {}
+}
+
+// Chrono's rewinds (H4) after a roll: `rolled` is the ids that rolled.
+function chronoAfterRoll(dice, relics, ctx, rolled) {
+  return chronoLoop(dice, relics, ctx, rolled, settleTide)
+}
+
 // Round-level counters that reset whenever a round (or a retry) starts:
 // the Drift and Gust charges, and the explosions Heat has seen so far.
 function freshRoundCounters(dice) {
-  return { driftUsed: false, gustUsed: false, explosionsThisRound: countExplosions(dice) }
+  // Time (H3): the reroll Rewind can undo, and whether it was used.
+  return { driftUsed: false, gustUsed: false, explosionsThisRound: countExplosions(dice), lastReroll: null, rewindUsed: false }
 }
 
 // What scoring needs to know beyond the dice and relics.
@@ -229,25 +314,28 @@ function scoreContext(state) {
     permanentMult: state.permanentMult || 0,
     reactionMultBonus: buffs.communion ? 0.5 : 0,
     noFizzle: Boolean(buffs.noFizzle),
+    // Void (H3): every empty slot is +1 Mult.
+    emptySlots: emptySlots(state),
   }
 }
 
 function rollFreshRound(dice, relics) {
   const fx = relicEffects(relics)
+  // A fresh round frees every die, so Chaos takes a new form first (H3).
+  const pool = shiftChaos(
+    dice.map((d) => ({ ...d, ...unmaelstrom(d), held: false, locked: false, lockedVia: null, swallowed: false })),
+  )
   // Masquerade and Chameleon roll with the abilities they borrow.
-  const acting = actingElementIds(dice)
-  const rolled = dice.map((d, i) => ({
+  const acting = actingElementIds(pool)
+  const rolled = pool.map((d, i) => ({
     ...d,
     growth: 0,
     patience: 0,
     kindled: false,
-    held: false,
-    locked: false,
-    lockedVia: null,
-    ...rollDie(acting[i], d.sides, relics, rollContext(d, dice, fx, acting[i])),
+    ...rollDie(acting[i], d.sides, relics, rollContext(d, pool, fx, acting[i])),
   }))
-  // Varuna's tide settles every roll (B4).
-  return settleTide(rolled)
+  // Varuna's tide settles every roll (B4), and a Chrono 1 rewinds it (H4).
+  return chronoAfterRoll(settleTide(rolled), relics, {}, null).dice
 }
 
 // `cut` is the current shop type's own price cut (data/shops.js), stacked
@@ -263,8 +351,8 @@ function shopCut(shop, kind) {
   return 1 - (1 - (type.discount || 0)) * (1 - (kind === 'consumable' ? type.consumableDiscount || 0 : 0))
 }
 
-function dieUpgradeCost(die, relics, shop) {
-  const next = nextTier(die.tierId)
+function dieUpgradeCost(die, relics, shop, realm = 'elementa') {
+  const next = nextTier(die.tierId, realm === 'firmament' && canGrowBig(die.elementId))
   if (!next) return null
   return { next, cost: applyDiscount(next.upgradeCost, relics, shopCut(shop, 'upgrade')) }
 }
@@ -282,9 +370,11 @@ function newDieCost(elementId, dice, relics, shop, sizeId = SHOP_DIE_TIER) {
       : tier === 'arcane'
         ? ELEMENTS[elementId].price ?? ARCANE_DIE_COST_BY_RARITY[rarityForElement(elementId)]
         : DIE_BASE_COST_BY_TIER[tier]
-  // Bigger dice cost more: a d3 is the base price.
-  const premium = SHOP_DIE_SIZES.find((x) => x.id === sizeId)?.premium ?? 0
-  return applyDiscount(base + premium, relics, shopCut(shop, 'die'))
+  // Bigger dice cost more: a d3 is the base price. A Mythic die is a d6 at
+  // its own price, and a Warp offer costs more (H3).
+  const premium = isMythic(elementId) ? 0 : SHOP_DIE_SIZES.find((x) => x.id === sizeId)?.premium ?? 0
+  const warp = shop?.dieWarp?.[elementId] && elementId !== 'space' ? WARP_PREMIUM : 0
+  return applyDiscount(base + premium + warp, relics, shopCut(shop, 'die'))
 }
 
 function relicCost(relic, relics, shop) {
@@ -350,10 +440,13 @@ function forgeableRecipes(state) {
   state.dice.forEach((d) => ownedCounts.set(d.elementId, (ownedCounts.get(d.elementId) || 0) + 1))
   const fusions = knowsAether(state) ? ALL_FUSION_IDS : ALL_FUSION_IDS.filter((id) => id !== QUADRA_FUSION_ID)
   const gods = GOD_IDS.filter((id) => state.recipes?.includes(id))
-  return [...fusions, ...gods].map((fusionElementId) => {
+  // Entropy (H5): known once every Warden has fallen on the file.
+  const entropy = state.recipes?.includes(ENTROPY_ID) ? [ENTROPY_ID] : []
+  return [...fusions, ...gods, ...entropy].map((fusionElementId) => {
     const def = ELEMENTS[fusionElementId]
     const needs = recipeNeeds(def)
-    const godFull = def.tier === TIERS.GOD && godCount(state.dice) >= godCapFor(state)
+    const godFull =
+      (def.tier === TIERS.GOD && godCount(state.dice) >= godCapFor(state)) || holdsKind(state.dice, fusionElementId)
     // The Forge is open only in Forge-type shops (or with a Fusion Spark).
     const canForge =
       Boolean(state.shop?.forgeOpen) && !godFull && Object.entries(needs).every(([p, n]) => (ownedCounts.get(p) || 0) >= n)
@@ -418,17 +511,24 @@ const RARITY_ORDER = [RARITY.COMMON, RARITY.UNCOMMON, RARITY.RARE, RARITY.EPIC, 
 // weighted by the same rarity scale/round-gating. What a shop stocks, and
 // how much of it, comes from its type (data/shops.js).
 function rollShopStock(state, type) {
+  const firmament = state.realm === 'firmament'
   const ownedRelicIds = new Set(state.relics.map((r) => r.id))
+  // A keeper with a fixed stock (the Horologist, H6) sells only that.
+  const consumablePool = type.consumableStock
+    ? CONSUMABLES.filter((c) => type.consumableStock.includes(c.id))
+    : CONSUMABLES.filter((c) => !c.firmament || firmament)
   const itemPool = [
     ...(type.itemKinds.includes('relic')
       ? RELICS.filter(
           (r) => !ownedRelicIds.has(r.id) && (!r.needsGods || knowsGods(state)) && (!r.bazaarOnly || type.legendary),
         )
       : []),
-    ...(type.itemKinds.includes('consumable') ? CONSUMABLES : []),
+    ...(type.itemKinds.includes('consumable') ? consumablePool : []),
   ]
   const weight = type.relicLuck ? vaultWeight : rarityWeight
-  const itemOffers = weightedSample(itemPool, type.items, (item) => weight(item, state.round)).map((item) => ({
+  const itemOffers = weightedSample(itemPool, type.items, (item) =>
+    type.consumableStock ? 1 : weight(item, state.round) * (item.stockWeight ?? 1),
+  ).map((item) => ({
     kind: item.kind,
     id: item.id,
   }))
@@ -436,24 +536,34 @@ function rollShopStock(state, type) {
   const unlockedFusions = fusionsUnlockedBy(state.ownedElementsEver).filter(
     (id) => id !== QUADRA_FUSION_ID || knowsAether(state),
   )
-  const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS].map((id) => ({
+  // The Firmament still sells every die from Elementa, plus the Mythic dice
+  // this file has unlocked and the run does not hold yet (H3).
+  const mythics = firmament ? MYTHIC_DIE_IDS.filter((id) => state.mythics?.includes(id) && !holdsKind(state.dice, id)) : []
+  const allBuyable = (type.dieStock ?? [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...mythics]).map((id) => ({
     id,
     rarity: rarityForElement(id),
   }))
   const dieOfferCount = Math.min(type.dice, allBuyable.length)
   const luckyRound = state.round + (type.legendary ? 3 : 0)
-  const buyableElements = weightedSample(allBuyable, dieOfferCount, (item) => rarityWeight(item, luckyRound)).map(
-    (item) => item.id,
-  )
-  // Each die on offer has its own size, most often a d3.
+  const buyableElements = weightedSample(allBuyable, dieOfferCount, (item) =>
+    type.dieStock ? 1 : rarityWeight(item, luckyRound),
+  ).map((item) => item.id)
+  // Each die on offer has its own size, most often a d3; a Mythic die
+  // arrives as a d6.
   const dieSizes = Object.fromEntries(
     buyableElements.map((id) => [
       id,
-      weightedSample(SHOP_DIE_SIZES, 1, (size) => (luckyRound >= size.from ? size.weight : 0))[0]?.id ?? SHOP_DIE_TIER,
+      isMythic(id)
+        ? STARTING_TIER
+        : weightedSample(SHOP_DIE_SIZES, 1, (size) => (luckyRound >= size.from ? size.weight : 0))[0]?.id ?? SHOP_DIE_TIER,
     ]),
   )
+  // In the Firmament an offer now and then comes with Warp (H3).
+  const dieWarp = firmament
+    ? Object.fromEntries(buyableElements.map((id) => [id, id === 'space' || random() < WARP_OFFER_CHANCE]).filter(([, w]) => w))
+    : {}
 
-  return { itemOffers, buyableElements, dieSizes }
+  return { itemOffers, buyableElements, dieSizes, dieWarp }
 }
 
 // Relics a pact or prize may hand out: never the god relics before the god
@@ -774,6 +884,22 @@ function enterRoundBase(state, round) {
   }
 }
 
+// Puts the table back as it was before the last reroll, and refunds it.
+function undoReroll(state) {
+  const before = state.lastReroll
+  return {
+    ...state,
+    dice: before.dice.map((d) => ({ ...d, rollId: random() })),
+    shards: before.shards,
+    rerollsUsed: Math.max(0, state.rerollsUsed - 1),
+    rerollsBonusThisRound: before.rerollsBonusThisRound,
+    explosionsThisRound: before.explosionsThisRound,
+    bossModifier: before.bossModifier,
+    lastReroll: null,
+    chronoLoops: 0,
+  }
+}
+
 // Try the same round again with fresh dice (after a miss, or leaving the
 // camp). A Lucky Charm or Blessing of Tide bought at camp counts here.
 function retryRound(state) {
@@ -838,7 +964,7 @@ export const BOSS_REWARDS = ['dice', 'relics', 'consumables']
 function applyBossReward(state, { dieId, slot }) {
   let dice = state.dice
   const die = state.dice.find((d) => d.id === dieId)
-  const next = die && nextTier(die.tierId)
+  const next = die && growTier(state, die)
   if (next) dice = state.dice.map((d) => (d.id === die.id ? { ...d, tierId: next.id, sides: next.sides } : d))
   return {
     ...state,
@@ -883,16 +1009,19 @@ export function consumableTargetOk(state, item, die) {
   if (!die) return false
   switch (item.type === 'downgrade' ? 'split' : item.type) {
     case 'upgrade':
-      return Boolean(nextTier(die.tierId))
+      return Boolean(growTier(state, die))
     case 'clone':
-      return state.dice.length < maxDiceFor(state) && !isGodDie(die) && die.elementId !== PRIMORDIAL_DIE_ID
+      return fitsPool(state, [...state.dice, die]) && !uncopyable(die)
     case 'infuse':
       return ELEMENTS[die.elementId].tier === 'pure'
     case 'split': {
       const plan = splitPlan(die)
-      if (isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID) return false
-      return Boolean(plan) && (plan.kind === 'chip' || state.dice.length < maxDiceFor(state))
+      if (uncopyable(die)) return false
+      return Boolean(plan) && (plan.kind === 'chip' || fitsPool(state, [...state.dice, die]))
     }
+    // Warp Seal (H3): any die without Warp, under the Warp cap.
+    case 'warp':
+      return !isWarp(die) && warpCount(state.dice) < WARP_CAP
     default:
       return true
   }
@@ -906,9 +1035,12 @@ function brewCost(state) {
 // past a cap).
 function dealAvailable(state, deal) {
   if (deal.id === 'blood_relic') return state.lives >= 2 && state.relics.length < relicCapFor(state)
-  if (deal.id === 'soul_die') return state.maxLives >= 2 && state.dice.length < maxDiceFor(state)
+  if (deal.id === 'soul_die') return state.maxLives >= 2 && poolSize(state.dice) < maxDiceFor(state)
   if (deal.id === 'hollow_pact') return state.relics.length < relicCapFor(state)
-  if (deal.id === 'shadow_twin') return state.dice.length < maxDiceFor(state)
+  if (deal.id === 'shadow_twin') {
+    const best = bestDie(state.dice)
+    return Boolean(best) && fitsPool(state, [...state.dice, best])
+  }
   if (deal.id === 'long_night') return Boolean(nextBossRound(state)) && !state.nextBossEffects?.includes('long_night')
   // Bound Tongue can't replace Primordial, so it needs a lesser boss ahead.
   if (deal.id === 'bound_tongue') {
@@ -924,7 +1056,7 @@ function dealAvailable(state, deal) {
 }
 
 function blessingAvailable(state, id) {
-  if (id === 'kindle') return state.dice.some((d) => nextTier(d.tierId))
+  if (id === 'kindle') return state.dice.some((d) => growTier(state, d))
   // Two Nix pacts: Aeris may take a consumable, freeing the slot it needs.
   if (id === 'aether_gift') {
     const freed = aerisCost(state).kind === 'consumable' ? 1 : 0
@@ -1187,7 +1319,7 @@ function legendaryRelicId(state) {
 // The die Shadow Twin copies: the biggest, then the rarest.
 function bestDie(dice) {
   const rank = (d) => d.sides * 10 + RARITY_ORDER.indexOf(rarityForElement(d.elementId))
-  return [...dice].filter((d) => !isGodDie(d) && d.elementId !== PRIMORDIAL_DIE_ID).sort((a, b) => rank(b) - rank(a))[0]
+  return [...dice].filter((d) => !uncopyable(d)).sort((a, b) => rank(b) - rank(a))[0]
 }
 
 function applyDeal(state, deal) {
@@ -1208,6 +1340,7 @@ function applyDeal(state, deal) {
   if (deal.id === 'shadow_twin') {
     const best = bestDie(state.dice)
     const twin = { ...best, id: makeId(), held: false, locked: false, lockedVia: null, fizzleUpTo: 2, rollId: random() }
+    if (!fitsPool(state, [...state.dice, twin])) return state
     return { ...state, dice: [...state.dice, twin], shop: { ...state.shop, twinOf: best.id } }
   }
   if (deal.id === 'long_night') return { ...state, nextBossEffects: [...(state.nextBossEffects || []), 'long_night'] }
@@ -1241,9 +1374,9 @@ function applyBlessing(state, id) {
     case 'mend':
       return state.lives < state.maxLives ? { ...state, lives: state.lives + 1 } : { ...state, shards: state.shards + 8 }
     case 'kindle': {
-      const growable = state.dice.filter((d) => nextTier(d.tierId))
+      const growable = state.dice.filter((d) => growTier(state, d))
       const die = randomOf(growable)
-      const next = nextTier(die.tierId)
+      const next = growTier(state, die)
       return {
         ...state,
         dice: state.dice.map((d) => (d.id === die.id ? { ...d, tierId: next.id, sides: next.sides } : d)),
@@ -1456,6 +1589,14 @@ function reduce(state, action) {
       const fx = relicEffects(effectiveRelics(state))
       const tax = fx.rerollShardCost || 0
       if (state.shards < tax) return state
+      // What Time's Rewind (and the Stopwatch) can undo (H3).
+      const lastReroll = {
+        dice: state.dice,
+        shards: state.shards,
+        rerollsBonusThisRound: state.rerollsBonusThisRound,
+        explosionsThisRound: state.explosionsThisRound,
+        bossModifier: state.bossModifier,
+      }
       let dice = rerollPool(state.dice, effectiveRelics(state))
       if (fx.overclockZeroChance) {
         dice = dice.map((d) => {
@@ -1467,6 +1608,14 @@ function reduce(state, action) {
         })
       }
       dice = settleTide(dice)
+      // Chrono (H4): a 1 rewinds time, as often as it takes (up to 8).
+      const chrono = chronoAfterRoll(
+        dice,
+        effectiveRelics(state),
+        scoreContext(state),
+        new Set(state.dice.filter((d) => !d.held && !d.locked).map((d) => d.id)),
+      )
+      dice = chrono.dice
       // Kindling (Fire family): a rerolled die that lands on a fizzling 1
       // pays back one reroll this round. It is deliberately uncapped (Carlos):
       // a pool of three or more small Fire dice earns back about a reroll per
@@ -1504,7 +1653,17 @@ function reduce(state, action) {
         rerollsUsed: state.rerollsUsed + 1,
         rerollsBonusThisRound: state.rerollsBonusThisRound + kindling,
         explosionsThisRound,
+        lastReroll,
+        chronoLoops: chrono.loops,
       }
+    }
+
+    // Time's Rewind (H3): once per round, undo the last reroll and get it
+    // back. The Stopwatch (H6) does the same as a consumable.
+    case 'REWIND': {
+      if (state.phase !== 'rolling' || !state.lastReroll) return state
+      if (!holdsTime(state.dice) || state.rewindUsed) return state
+      return { ...undoReroll(state), rewindUsed: true }
     }
 
     // Drift (Air family): once per round, nudge one Air-family die's face
@@ -1581,6 +1740,8 @@ function reduce(state, action) {
         }
         let lives = state.lives
         if (state.round % LIFE_REGEN_EVERY_N_ROUNDS === 0 && lives < state.maxLives) lives += 1
+        // Time (H3): unused rerolls carry into the next round, up to +3.
+        const timeCarry = holdsTime(state.dice) ? Math.max(0, Math.min(3, availableRerolls(state))) : 0
 
         const beatBoss = Boolean(state.bossModifier)
         // The shop you walk into is the stop you picked on the Road.
@@ -1603,11 +1764,12 @@ function reduce(state, action) {
           // Beating a boss first offers a permanent upgrade, then the shop.
           phase: won ? 'victory' : beatBoss ? 'bossReward' : 'shop',
           chronicle: won ? chronicle : { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
-          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic },
+          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic, timeCarry },
           shards,
           relics,
           permanentRerollBonus,
           lives,
+          nextRoundRerollBonus: (state.nextRoundRerollBonus || 0) + timeCarry,
           clearEffects: [],
           longNightActive: false,
           plentyLock: false,
@@ -1656,12 +1818,13 @@ function reduce(state, action) {
     }
 
     case 'BUY_DIE': {
-      if (state.phase !== 'shop') return state
-      if (state.dice.length >= maxDiceFor(state)) return state
+      if (state.phase !== 'shop' || !state.shop.buyableElements.includes(action.elementId)) return state
       const sizeId = state.shop.dieSizes?.[action.elementId] ?? SHOP_DIE_TIER
+      const die = makeDie(action.elementId, sizeId, state.shop.dieWarp?.[action.elementId] ? 'warp' : null)
+      // The dice cap (Warp dice aside), the Warp cap, one of each Mythic (H3).
+      if (!fitsPool(state, [...state.dice, die]) || holdsKind(state.dice, action.elementId)) return state
       const cost = newDieCost(action.elementId, state.dice, state.relics, state.shop, sizeId)
       if (state.shards < cost) return state
-      const die = makeDie(action.elementId, sizeId)
       const ownedElementsEver = state.ownedElementsEver.includes(action.elementId)
         ? state.ownedElementsEver
         : [...state.ownedElementsEver, action.elementId]
@@ -1697,6 +1860,9 @@ function reduce(state, action) {
       const def = ELEMENTS[action.fusionElementId]
       if (!def || def.tier === 'pure' || def.tier === 'arcane' || def.tier === TIERS.PRIMAL) return state
       if (action.fusionElementId === QUADRA_FUSION_ID && !knowsAether(state)) return state
+      // Entropy is the only Mythic die the Forge makes, and only one (H5).
+      if (def.tier === TIERS.MYTHIC && (def.id !== ENTROPY_ID || !state.recipes?.includes(ENTROPY_ID))) return state
+      if (holdsKind(state.dice, def.id)) return state
       if (def.tier === TIERS.GOD && (!state.recipes?.includes(def.id) || godCount(state.dice) >= godCapFor(state))) return state
       const usedIds = new Set()
       const parentDice = []
@@ -1820,6 +1986,8 @@ function reduce(state, action) {
       let item = state.consumables.find((c) => c.instanceId === action.instanceId)
       if (!item) return state
       if (rolling && SHOP_ONLY_CONSUMABLES.includes(item.type)) return state
+      // The Hollow (H2): no consumables this round.
+      if (rolling && relicEffects(effectiveRelics(state)).noConsumables) return state
       // An old save's Chisel (it used to shrink a die) is the new one.
       if (item.type === 'downgrade') item = { ...item, type: 'split' }
 
@@ -1831,6 +1999,15 @@ function reduce(state, action) {
         if (item.type === 'heal') {
           if (state.lives >= state.maxLives) return state
           return { ...state, lives: state.lives + 1, consumables: spent }
+        }
+        // Stopwatch (H6): undo the last reroll, mid-round.
+        if (item.type === 'rewind') {
+          if (!rolling || !state.lastReroll) return state
+          return { ...undoReroll(state), consumables: spent }
+        }
+        // Time Capsule (H6): two rerolls for the next round.
+        if (item.type === 'capsule') {
+          return { ...state, nextRoundRerollBonus: (state.nextRoundRerollBonus || 0) + 2, consumables: spent }
         }
         if (item.type === 'pouch') {
           return { ...state, shards: state.shards + Math.max(4, state.round * 2), consumables: spent }
@@ -1868,7 +2045,7 @@ function reduce(state, action) {
       let ownedElementsEver = state.ownedElementsEver
 
       if (item.type === 'upgrade') {
-        const next = nextTier(die.tierId)
+        const next = growTier(state, die)
         if (!next) return state
         dice = state.dice.map((d) =>
           d.id === die.id ? { ...d, tierId: next.id, sides: next.sides } : d,
@@ -1877,11 +2054,10 @@ function reduce(state, action) {
         // Chisel (P2): a die splits in two, or a d5 chips down to a d3 and
         // leaves a Transmute behind. A d3 is too small to split.
         // Never a god (only one at a time) or the Primordial die (it is lent).
-        if (isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID) return state
+        if (uncopyable(die)) return state
         const plan = splitPlan(die)
         if (!plan) return state
-        const extra = plan.kind === 'two' ? 1 : 0
-        if (state.dice.length + extra > maxDiceFor(state)) return state
+        if (plan.kind === 'two' && !fitsPool(state, [...state.dice, die])) return state
         const smaller = tierById(plan.tierId)
         const pieces = Array.from({ length: plan.kind === 'two' ? 2 : 1 }, (_, i) => ({
           ...die,
@@ -1907,8 +2083,12 @@ function reduce(state, action) {
         }
       } else if (item.type === 'clone') {
         // Gods can't be copied, and the Primordial die is only lent.
-        if (state.dice.length >= maxDiceFor(state) || isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID) return state
+        if (!fitsPool(state, [...state.dice, die]) || uncopyable(die)) return state
         dice = [...state.dice, { ...die, id: makeId(), held: false, locked: false, lockedVia: null, rollId: random() }]
+      } else if (item.type === 'warp') {
+        // Warp Seal (H3).
+        if (!consumableTargetOk(state, item, die)) return state
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, edition: 'warp' } : d))
       } else if (item.type === 'hone') {
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, bonus: (d.bonus || 0) + 2 } : d))
       } else if (item.type === 'infuse' || item.type === 'arcanize') {
@@ -1962,7 +2142,7 @@ function reduce(state, action) {
     case 'UPGRADE_DIE': {
       if (state.phase !== 'shop' || !shopTypeById(state.shop.type).upgrades) return state
       const die = state.dice.find((d) => d.id === action.dieId)
-      const up = die && dieUpgradeCost(die, state.relics, state.shop)
+      const up = die && dieUpgradeCost(die, state.relics, state.shop, state.realm)
       if (!up || state.shards < up.cost) return state
       return {
         ...state,
@@ -2041,9 +2221,9 @@ function reduce(state, action) {
 
     case 'CHOOSE_BOSS_REWARD': {
       if (state.phase !== 'bossReward' || !BOSS_REWARDS.includes(action.slot)) return state
-      const canGrow = state.dice.some((d) => nextTier(d.tierId))
+      const canGrow = state.dice.some((d) => growTier(state, d))
       const die = state.dice.find((d) => d.id === action.dieId)
-      if (canGrow && !(die && nextTier(die.tierId))) return state
+      if (canGrow && !(die && growTier(state, die))) return state
       return { ...applyBossReward(state, action), phase: 'shop' }
     }
 
@@ -2144,4 +2324,14 @@ export const selectors = {
   shopOnlyConsumables: SHOP_ONLY_CONSUMABLES,
   consumableTargetOk,
   shopDieSize: (shop, elementId) => shop?.dieSizes?.[elementId] ?? SHOP_DIE_TIER,
+  // The Firmament (H3 to H5).
+  poolSize,
+  warpCount,
+  warpCap: WARP_CAP,
+  fitsPool,
+  holdsKind,
+  growTier,
+  emptySlots,
+  holdsTime,
+  canRewind: (state) => state.phase === 'rolling' && Boolean(state.lastReroll) && holdsTime(state.dice) && !state.rewindUsed,
 }

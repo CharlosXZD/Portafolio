@@ -15,9 +15,9 @@ import { useLongPress } from '../utils/useLongPress.js'
 import ElementFx from './ElementFx.jsx'
 import { LandBurst, ExplosionFx, DriftFx, LockFx } from './RollFx.jsx'
 import PixelIcon from './PixelIcon.jsx'
-import DieSprite, { dieNumberY } from './DieSprite.jsx'
+import DieSprite, { dieNumberY, dieNumberScale } from './DieSprite.jsx'
 import { mix } from '../utils/color.js'
-import { dieColors } from './DieToken.jsx'
+import { dieColors, DieMarks, shapeTier } from './DieToken.jsx'
 
 // Classic: the face flickers in place. Tumble (EXPANSION.md P3): a toss arc
 // with real 3D rotation, two diminishing bounces, a shadow on the ground and
@@ -293,7 +293,9 @@ export default function Die({
         : isFrozen
           ? '#7dd3fc'
           : null
-  const numberY = dieNumberY(die.tierId)
+  // A Chaos die is drawn in its current form's size (H3).
+  const shape = shapeTier(die)
+  const numberY = dieNumberY(shape)
   const showFace = !hidden || revealing
   // Sapling growth, Patience (Earth family) and permanent bonuses share one chip.
   const extra = (die.growth || 0) + (die.patience || 0) + (die.bonus || 0)
@@ -320,6 +322,8 @@ export default function Die({
             elementId={die.elementId}
             sides={die.sides}
             bonus={die.bonus || 0}
+            edition={die.edition}
+            chaosForm={die.chaosForm}
             score={!showFace ? '?' : typeof contribution === 'number' ? Math.round(contribution * 10) / 10 : null}
           />
         }
@@ -368,8 +372,8 @@ export default function Die({
             style={{ transformPerspective: 520 }}
             className="pointer-events-none absolute inset-0 block"
           >
-          <DieSprite tier={die.tierId} size={size} {...colors} ringColor={ringColor} />
-          <span className="pointer-events-none absolute left-[18%] top-[16%]" style={die.tierId === 'd3' ? { left: '43%', top: '26%' } : undefined}>
+          <DieSprite tier={shape} size={size} {...colors} ringColor={ringColor} />
+          <span className="pointer-events-none absolute left-[18%] top-[16%]" style={shape === 'd3' ? { left: '43%', top: '26%' } : undefined}>
             <PixelIcon name={die.elementId} size={size >= 90 ? 14 : 7} color="#fffaf0" hi={def.color} />
           </span>
           <motion.span
@@ -380,7 +384,7 @@ export default function Die({
             className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2 leading-none"
             style={{
               top: `${numberY * 100}%`,
-              fontSize: Math.round(size * (die.tierId === 'd3' ? 0.22 : 0.27)),
+              fontSize: Math.round(size * dieNumberScale(shape, showFace ? displayValue : '?')),
               color: '#fffaf0',
               textShadow: '3px 3px 0 var(--ink)',
             }}
@@ -389,6 +393,7 @@ export default function Die({
           </motion.span>
           </motion.span>
           {!isFrozen && <ElementFx elementId={die.elementId} size={size} />}
+          <DieMarks die={die} size={size} />
 
           {/* One-shot effects: landing, explosion step, Drift, lock. */}
           {landKey > 0 && <LandBurst key={`land-${landKey}`} elementId={die.elementId} size={size} heavy={clamp01((die.sides - 3) / 17)} />}
@@ -485,10 +490,16 @@ export default function Die({
               item={{
                 ...dieDescriptor(die.elementId, lang),
                 name: `${elementName} d${die.sides}`,
+                // Who it acts as (a copy, or Chaos's form), and Warp (H3).
                 footnote:
-                  acting.id !== die.elementId
-                    ? t('elementa.die.actingAs').replace('{die}', localize(lang, acting.name, ELEMENTS_ES, acting.id, 'name'))
-                    : undefined,
+                  [
+                    acting.id !== die.elementId
+                      ? t('elementa.die.actingAs').replace('{die}', localize(lang, acting.name, ELEMENTS_ES, acting.id, 'name'))
+                      : null,
+                    die.edition === 'warp' ? `WARP: ${t('elementa.die.warpLine')}` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' ') || undefined,
                 onInfo: () => {
                   setInfoOpen(false)
                   setFullOpen(true)
@@ -504,6 +515,8 @@ export default function Die({
           elementId={die.elementId}
           sides={die.sides}
           bonus={die.bonus || 0}
+          edition={die.edition}
+          chaosForm={die.chaosForm}
           score={!showFace ? '?' : typeof contribution === 'number' ? Math.round(contribution * 10) / 10 : null}
           onClose={() => setFullOpen(false)}
         />

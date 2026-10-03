@@ -1,9 +1,22 @@
 import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily, actingElementIds } from '../data/elements.js'
+import { tierById } from '../data/diceTiers.js'
 import { REACTIONS, reactionById } from '../data/reactions.js'
 import { random } from './rng.js'
 import { godPowers, rollContext } from './gods.js'
 
 const DEFAULT_EXPLODE_CAP = 10
+// Darkness (EXPANSION.md H3) adds its neighbors' score to Mult divided by
+// this. Carlos asked for it undivided; one constant so it is easy to tune.
+export const DARKNESS_DIVISOR = 1
+// Chrono (H4): at most this many rewinds per roll, a safety stop.
+export const CHRONO_LOOP_CAP = 8
+// The sizes Chaos can take (H3).
+const CHAOS_SIZES = ['d3', 'd5', 'd6', 'd10', 'd20']
+// Every die Chaos can become: everything but the gods, the Primordial die
+// and the Mythic dice.
+const CHAOS_FORM_IDS = Object.keys(ELEMENTS).filter(
+  (id) => ![TIERS.GOD, TIERS.PRIMAL, TIERS.MYTHIC].includes(ELEMENTS[id].tier),
+)
 
 function randInt(max) {
   return 1 + Math.floor(random() * max)
@@ -75,23 +88,42 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
   return { value, total, explosions, chain, rollId: random() }
 }
 
-/** Rerolls every die in `dice` that is not held/locked, applying reroll-time relics. */
-export function rerollPool(dice, relics = []) {
-  const next = dice.map((d) => ({ ...d }))
+/**
+ * Chaos (H3): every Chaos die about to roll (not held, not locked) takes a
+ * new form, a random die and size from the whole game. It keeps its own
+ * element for saving and display; `actingElementIds` reads the form.
+ */
+export function shiftChaos(dice) {
+  return dice.map((d) => {
+    if (d.elementId !== 'chaos' || d.held || d.locked) return d
+    const elementId = CHAOS_FORM_IDS[Math.floor(random() * CHAOS_FORM_IDS.length)]
+    const tierId = CHAOS_SIZES[Math.floor(random() * CHAOS_SIZES.length)]
+    return { ...d, chaosForm: { elementId, tierId }, sides: tierById(tierId).sides }
+  })
+}
+
+/**
+ * Rerolls every die in `dice` that is not held/locked, applying reroll-time
+ * relics. `opts.noGrowth` skips Sapling and Patience growth, for the extra
+ * rolls of a Chrono rewind (H4), which are not rerolls the dice sit out.
+ */
+export function rerollPool(dice, relics = [], opts = {}) {
+  const next = shiftChaos(dice).map((d) => ({ ...d }))
 
   // A Masquerade or Chameleon rolls with the abilities it borrows (Chrono's
   // rewind, a Fire die's explosions), the same ones its score uses.
-  const acting = actingElementIds(dice)
+  const acting = actingElementIds(next)
   for (let i = 0; i < next.length; i++) {
     const die = next[i]
     if (die.held || die.locked) {
+      if (opts.noGrowth) continue
       // Sapling grows while it sits a reroll out.
       if (hasFlag(acting[i], FLAGS.GROWS)) die.growth = (die.growth || 0) + 2
       // Patience (Earth family): the same, but it keeps it until the round ends.
       if (inFamily(acting[i], 'earth')) die.patience = (die.patience || 0) + 2
       continue
     }
-    const rolled = rollDie(acting[i], die.sides, relics, rollContext(die, dice, relicEffects(relics), acting[i]))
+    const rolled = rollDie(acting[i], die.sides, relics, rollContext(die, next, relicEffects(relics), acting[i]))
     Object.assign(die, rolled, { growth: 0 })
 
     const canDuplicate = hasFlag(acting[i], FLAGS.DUPLICATE_ON_REROLL)
@@ -111,6 +143,35 @@ export function rerollPool(dice, relics = []) {
   }
 
   return next
+}
+
+/**
+ * Chrono (H4): when a Chrono die that just rolled lands on a 1, time
+ * rewinds: every unheld, unlocked die rolls again for free (Chrono too) and
+ * the better pool by round score stays. It repeats while Chrono still shows
+ * a 1, at most CHRONO_LOOP_CAP times. `rolled` is the set of die ids that
+ * rolled this time (held and locked dice never trigger it); `settle` runs
+ * after each extra roll (Varuna's tide). Returns the pool and the count.
+ */
+export function chronoLoop(dice, relics = [], ctx = {}, rolled = null, settle = (x) => x) {
+  const triggered = (pool) => {
+    const acting = actingElementIds(pool)
+    return pool.some((d, i) => hasFlag(acting[i], FLAGS.CHRONO) && d.value === 1 && (!rolled || rolled.has(d.id)))
+  }
+  let current = dice
+  let loops = 0
+  while (loops < CHRONO_LOOP_CAP && triggered(current)) {
+    const candidate = settle(rerollPool(current, relics, { noGrowth: true }))
+    if (evaluatePool(candidate, relics, ctx).roundScore > evaluatePool(current, relics, ctx).roundScore) current = candidate
+    loops += 1
+  }
+  return { dice: current, loops }
+}
+
+/** The face Light lifts every die to (H3), or 0 without Light. */
+export function lightFloor(dice) {
+  const acting = actingElementIds(dice)
+  return dice.reduce((best, d, i) => (hasFlag(acting[i], FLAGS.LIGHT) ? Math.max(best, d.value) : best), 0)
 }
 
 function longestConsecutiveRun(sortedUniqueVals) {
@@ -169,6 +230,13 @@ function adjacencyLinks(perDie, fx) {
     if (hasFlag(perDie[i].actingAs, FLAGS.CONDUIT)) links.push([i - 1, i + 1, 2])
   }
   if (fx.wrapAdjacency && n > 2) links.push([n - 1, 0])
+  // Space (H3): its two neighbors and the two end dice all touch each other.
+  const linked = (a, b) => links.some(([x, y]) => (x === a && y === b) || (x === b && y === a))
+  perDie.forEach((d, i) => {
+    if (!hasFlag(d.actingAs, FLAGS.SPACE)) return
+    const group = [...new Set([i - 1, i + 1, 0, n - 1])].filter((j) => j >= 0 && j < n && j !== i).sort((a, b) => a - b)
+    group.forEach((a, k) => group.slice(k + 1).forEach((b) => !linked(a, b) && links.push([a, b])))
+  })
   return links
 }
 
@@ -248,9 +316,17 @@ function fizzles(d, ctx, fx = {}) {
 export function evaluatePool(dice, relics = [], ctx = {}) {
   const fx = relicEffects(relics)
   // `actingAs`: the element whose abilities a die uses (itself, unless it
-  // is a Masquerade or Chameleon borrowing from its left neighbor).
+  // is a Masquerade or Chameleon borrowing from its left neighbor, or a
+  // Chaos die wearing its form).
   const acting = actingElementIds(dice)
-  const perDie = dice.map((d, i) => ({ ...d, actingAs: acting[i] }))
+  // Light (H3): no face below Light's, and nothing fizzles. A lifted die
+  // keeps its explosions on top. The Dawn (H2) still reads the rolled face.
+  const floor = lightFloor(dice)
+  const perDie = dice.map((d, i) => {
+    const lift = floor > d.value ? floor - d.value : 0
+    return { ...d, actingAs: acting[i], rolledFace: d.value, value: d.value + lift, total: d.total + lift }
+  })
+  if (floor > 0) ctx = { ...ctx, noFizzle: true }
   const n = perDie.length
 
   const explodeCount = perDie.reduce((sum, d) => sum + (d.explosions || 0), 0)
@@ -350,7 +426,14 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     const bullion = hasFlag(d.actingAs, FLAGS.BULLION)
     if (midas) midasShards += d.total
     if (bullion) bullionDice += 1
-    let contribution = fizzled || zeroTargets.has(i) || banned || midas || bullion ? 0 : d.total
+    // Void scores nothing (H3); the Dawn's overexposure zeroes a max face and
+    // the Umbra keeps a swallowed die out (H2).
+    const empty = hasFlag(d.actingAs, FLAGS.VOID)
+    const overexposed = fx.maxFaceZero && d.rolledFace === d.sides
+    const out = midas || bullion || empty || overexposed || d.swallowed
+    let contribution = fizzled || zeroTargets.has(i) || banned || out ? 0 : d.total
+    // Entropy (H5): its face + 104.
+    if (contribution > 0 && hasFlag(d.actingAs, FLAGS.ENTROPY)) contribution += 104
 
     if (contribution > 0) {
       if (fx.highFaceHalf && d.value > 4) contribution /= 2
@@ -415,6 +498,19 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     })
     perDie[best].contribution = 0
   }
+  // Darkness (H3): the dice on either side score 0, and what they scored
+  // goes to Mult (divided by DARKNESS_DIVISOR, 1 for now).
+  const darkLines = []
+  perDie.forEach((d, i) => {
+    if (!hasFlag(d.actingAs, FLAGS.DARKNESS)) return
+    let eaten = 0
+    for (const j of [i - 1, i + 1]) {
+      if (!perDie[j]) continue
+      eaten += perDie[j].contribution
+      perDie[j].contribution = 0
+    }
+    if (eaten > 0) darkLines.push({ kind: 'mythic', id: 'darkness', value: eaten / DARKNESS_DIVISOR, dice: [i] })
+  })
   perDie.forEach((d) => (d.contribution = Math.round(d.contribution * 100) / 100))
 
   // --- Base ---
@@ -480,6 +576,12 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   if (fx.multPerUnusedReroll && ctx.rerollsLeft > 0) {
     addMult({ kind: 'relic', id: sourceOf(relics, 'multPerUnusedReroll'), value: fx.multPerUnusedReroll * ctx.rerollsLeft })
   }
+  // The Firmament's dice (H3, H5): Darkness, Void's empty slots, Entropy.
+  darkLines.forEach((line) => addMult({ ...line, value: Math.round(line.value * 100) / 100 }))
+  perDie.forEach((d, i) => {
+    if (hasFlag(d.actingAs, FLAGS.VOID) && !d.swallowed) addMult({ kind: 'mythic', id: 'void', value: ctx.emptySlots || 0, dice: [i] })
+    if (hasFlag(d.actingAs, FLAGS.ENTROPY) && d.contribution > 0) addMult({ kind: 'mythic', id: 'entropy', value: 10, dice: [i] })
+  })
   // Severed Grace (B3): +1 Mult for the rest of the run.
   if (ctx.permanentMult) addMult({ kind: 'boon', id: 'severed_grace', value: ctx.permanentMult })
   if (fx.finalMultFactor) {
