@@ -508,7 +508,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 | **The Umbra** | Darkness | Faces are hidden until you cast, and every reroll swallows one unheld die for the round. | `boss_umbra` |
 | **The Clockwork** | Time | A 90-second countdown. At 0, whatever is on the table is cast. | `boss_clockwork` |
 | **The Expanse** | Space | The order of your dice shuffles after every reroll. | `boss_expanse` |
-| **The Maelstrom** | Chaos | After every reroll, each unheld die becomes a random pure element for the round. | `boss_maelstrom` |
+| **The Maelstrom** | Chaos | After every reroll, one die that just rolled becomes a random pure element for the round. | `boss_maelstrom` |
 | **The Hollow** | Void | Every relic is sealed and consumables cannot be used this round. | `boss_hollow` |
 
 - **The Clockwork's timer** runs only while the table is live: not paused, no Run Info, tutorial or story scene, not casting, and the tab visible. At 0:00 it casts whatever is on the table.

@@ -484,7 +484,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Built.** |
 | **v0.7** | The Firmament | **Built.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
 | **v0.7.2** | Firmament depth | **Ready.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
-| **v0.7.5** | Constellations | Seren joins; B9 Constellations and Runes; B11 poker and Joker dice. Specified when v0.7 is done. |
+| **v0.7.5** | Constellations | **Ready.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
 | **v0.8** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Needs a workshop first (Carlos 2026-10-03: "we still have to work shop a lot that realm, the boss, the dice, the theme"). |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
@@ -1079,7 +1079,7 @@ Each Warden is a boss entry in `data/bossModifiers.js` (tier 4), with a `BossAva
 | **The Umbra** | Faces hidden until you cast, and every reroll swallows one random unheld die for the rest of the round (it scores 0 and stays out) | Darkness |
 | **The Clockwork** | A real countdown of **90 seconds** (Carlos's number; not optional). It runs only while the table is live and the game is not paused; at 0 the round casts whatever is on the table. Show it prominently | Time |
 | **The Expanse** | The order of the dice shuffles after every reroll | Space |
-| **The Maelstrom** | After every reroll each unheld die becomes a random pure element for the round (size kept); the pool is restored afterwards | Chaos |
+| **The Maelstrom** | After every reroll one die that just rolled becomes a random pure element for the round (size kept; changed in v0.7.1 from every unheld die); the pool is restored afterwards | Chaos |
 | **The Hollow** | Every relic is sealed and consumables cannot be used this round (Claude's default; the opposite of Void) | Void |
 
 - **First time a Warden falls** on a file, its Mythic die joins `profile.mythics` and can be sold in later Firmament shops (H3, H6). Record every Warden beaten in `profile.wardens`. When all six are in, the **Entropy** recipe is learned (H5), with a scene and a toast.
@@ -1218,6 +1218,62 @@ The Celestial dice join the normal die pool in the Firmament: weight 1 each (Qua
 - Kindling note and Kairos check: Kairos must appear in no Elementa shop that Chrono used to be in unless it was before (leave as is); just confirm saves.
 - Patch notes: Alpha 0.7.2 "Firmament depth" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; Gallery totals (`TOTALS`) updated.
 - Tests: Node scripts for each new die's scoring, the Horologist's pool across 40 seeds (never the same six every time, always Chrono), and a browser pass on a Firmament test save.
+
+## Part J: v0.7.5 "Constellations" (spec, 2026-10-03)
+
+**Status: Ready.** Carlos asked for this next because the Firmament is hard without it ("lets get the constellations on"). Claude's spec; tune after playtests. Scope: Seren, Constellations and Runes. Poker and Joker dice (B11) move to a later step (v0.7.6) so this one stays small.
+
+### J1. Constellations
+
+Firmament consumables that **permanently level one thing for the rest of the run**, like Balatro's planet cards. Used from the shop or the Run screen with no target (they apply at once); they are not dice, so no pool limit; they use no consumable slot if used the moment they are bought (the shop offers a "Use now" button), otherwise they sit in a slot like any consumable.
+
+- **What levels:** the seven base reactions and the three set types. Secret reactions do not level.
+- **Level cap 10.** Each level adds the amount below on top of the base effect.
+- **Run state:** `constellations: { [id]: level }`, saved and loaded, shown in Run Info under a "Constellations" heading and in the Cast ledger ("Kindle Lv 3").
+- **Price and rarity:** the ten are Uncommon, price 6; **Black Hole** is Legendary, price 25 (`stockWeight` 0.4): +1 level to every base reaction and set type.
+
+| Constellation | Levels | Per level |
+|---|---|---|
+| The Phoenix | Kindle | +0.5 Mult |
+| The Anvil | Forge | +2 Base |
+| The Geyser | Scald | +2 Base, +0.25 Mult |
+| The Cloud | Mist | +0.5 Mult |
+| The Seedling | Bloom | +2 Base |
+| The Whirl | Dust Devil | +3 Base |
+| The Twins | Resonance | +2 Base |
+| The Pair | Pair sets | +0.5 Mult |
+| The Trio | Three of a kind | +0.75 Mult |
+| The Ladder | Straights | +1 Mult |
+
+Wire the bonuses where `findReactions` and the set-tier bonus are computed in `engine/scoring.js`, so every bonus appears as a ledger line and the cast choreography needs no special case.
+
+### J2. Seren and her Observatory
+
+- **Seren** (the astronomer): a keeper with her own sprite (procedural placeholder), lore lines (EN/ES, 3 per visit pattern like the other keepers), and the `observatory` shop on the Road, **Firmament only**, same weight as the Horologist.
+- **Stock per visit:** four Constellations drawn by weight (Black Hole rare). Duplicates allowed. A reroll button (cost 3).
+- **Everywhere else:** Constellations also appear, at low weight, in Firmament Markets and the Astral Exchange.
+- **Music:** a new theme `shop_observatory` (calm, high, a pad; see MUSIC.md), and a Jukebox entry.
+- **Gallery:** the ten plus Black Hole appear under Consumables (rarity groups). The Keepers tab gains Seren.
+
+### J3. Runes (Part B9 item 3, simplified)
+
+Permanent enchantments socketed into one die, sold at **Forge** shops (Elementa too) and in the Firmament Market. A die holds **one** rune (applying a second replaces the first). A rune is a consumable that targets a die, like Whetstone.
+
+| Rune | Rarity | Effect |
+|---|---|---|
+| Rune of Echo | Epic | The die scores twice |
+| Rune of Glass | Rare | The die's score is doubled, but each cast it has a 20% chance to shatter after scoring (the die is lost) |
+| Rune of Kinship | Rare | The die counts as its left neighbor's element for reactions |
+| Rune of Ember | Uncommon | The die explodes on its top two faces |
+| Rune of Anchor | Uncommon | The die never fizzles |
+
+Show a small rune glyph on the die, a line in its tooltip, and keywords. Runes cannot go on Mythic dice or Entropy. Chisel keeps the rune on both halves; Transmute removes it; Shadow Twin copies it.
+
+### J4. Also in this step
+
+- Patch notes "Alpha 0.7.5 Constellations" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; `TOTALS` and the Gallery; MUSIC.md for the new song.
+- Achievements: "Stargazer" (own a level 5 Constellation), "Cartographer of Skies" (level 10), "Runesmith" (a die with a rune). Secret.
+- Node tests: each Constellation's bonus in the ledger, Black Hole, level cap, save/load, each Rune, Glass shattering with a seeded RNG. Browser pass on a Firmament test save.
 
 ## Decision log
 

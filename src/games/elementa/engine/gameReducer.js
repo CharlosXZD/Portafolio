@@ -1002,12 +1002,16 @@ function wardenAfterReroll(dice, rerolled, fx) {
       out = out.map((d) => (d.id === id ? { ...d, swallowed: true, held: true, locked: true, lockedVia: 'swallow' } : d))
     }
   }
+  // One die per reroll, not all of them (v0.7.1 playtest): a seeded pick among
+  // the dice that just rolled.
   if (fx.maelstrom) {
-    out = out.map((d) =>
-      rerolled.has(d.id) && !d.swallowed
-        ? { ...d, maelstromFrom: d.maelstromFrom ?? d.elementId, elementId: randomOf(PURE_ELEMENT_IDS), chaosForm: null }
-        : d,
-    )
+    const prey = out.filter((d) => rerolled.has(d.id) && !d.swallowed)
+    if (prey.length) {
+      const id = randomOf(prey).id
+      out = out.map((d) =>
+        d.id === id ? { ...d, maelstromFrom: d.maelstromFrom ?? d.elementId, elementId: randomOf(PURE_ELEMENT_IDS), chaosForm: null } : d,
+      )
+    }
   }
   if (fx.shuffleOnReroll) {
     out = [...out]

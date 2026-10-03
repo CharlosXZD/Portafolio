@@ -204,7 +204,7 @@ export const WARDENS = [
     tier: 4,
     guards: 'chaos',
     name: 'The Maelstrom',
-    description: 'After every reroll, each unheld die becomes a random pure element for the round.',
+    description: 'After every reroll, one die that just rolled becomes a random pure element for the round.',
     effects: { maelstrom: true },
   },
   {

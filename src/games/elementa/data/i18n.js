@@ -358,7 +358,7 @@ export const BOSS_MODIFIERS_ES = {
   expanse: { name: 'La Extensión', description: 'El orden de tus dados se baraja después de cada reroll.' },
   maelstrom: {
     name: 'La Vorágine',
-    description: 'Después de cada reroll, cada dado no guardado se vuelve un elemento puro al azar por la ronda.',
+    description: 'Después de cada reroll, un dado que acaba de tirarse se vuelve un elemento puro al azar por la ronda.',
   },
   hollow: { name: 'El Hueco', description: 'Todas las reliquias quedan selladas y no se pueden usar consumibles esta ronda.' },
 }
