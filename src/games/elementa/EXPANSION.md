@@ -60,7 +60,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
   - **The Pleroma:** Primordial path. Decided (Carlos).
   - **The Meridian:** Neutral path, the line between, where things balance. Decided (Carlos, 2026-10-01).
 - **A fourth place where the three paths meet:** Open, still iterating (Carlos isn't sure it should be the final place). Candidate names: the Source, the Origin, the Unwritten.
-- **Open:** the legendary shop, still called "Aether Bazaar" as a placeholder.
+- **The legendary shop is named per realm** (Carlos, 2026-10-03: "I would change it for each realm"). Elementa keeps **Aether Bazaar** (Aether is the quintessence above the four elements). Proposed names for the next realms, Carlos to pick or change: Firmament **Astral Exchange**; Empyrean **The Ledger**; Pleroma **Cornucopia**; Meridian **Equinox Market**. In v0.7 the legendary shop's name comes from the realm (Part H6).
 
 ## A2. Core lore (current draft, see CONTENT.md §9 for the base-game version)
 
@@ -108,7 +108,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
   - Mote is hungry. Every good item you sell it fills its appetite, which persists across runs on the save file.
   - Feed it well and it pays in effects instead of only Shards.
   - After your first generous visit, it opens a secret stock: hollow pacts, Void-touched dice, things found nowhere else.
-  - Open lore hook: what happens when Mote is full? A candidate tie-in to the true ending.
+  - What happens when Mote is full: workshopped in A5 (Proposed: Mote is the key to the fourth place).
 
 **Tobb returns in every realm (Decided, Carlos).** He is the constant friendly face of the shops.
 
@@ -121,6 +121,21 @@ A living design document between Carlos (the designer) and Claude. It collects e
 - **Pip** is the emotional thread to the true ending: its origin as a spark of Aether pays off there.
 - **The First Caster**, who caused the Split, is a candidate final villain.
 - **The gods (B4)** can become characters after the reveal: on the Split path, a god you honor could run a shop.
+
+## A5. Workshop: the fourth place, the true ending, and Mote
+
+**Status: Proposed** (Carlos, 2026-10-03: "these are the things we will be workshopping today"). Not for building yet; this is the current pitch to react to.
+
+- **The idea that ties them together.** The Void is absence: what existed before the First Word. Mote, a speck of Void, is the first "nothing" that wanted to be something. It eats everything you sell it to become a Word. **When Mote is full, it becomes the pen**, and the pen opens the fourth place. So Mote's hunger (A4) is not a side quirk: it is the long-term goal that gates the true ending.
+- **The fourth place, three candidates** (pick one, or keep iterating):
+  1. **The Unwritten** (recommended): the blank page the First Caster wrote the Split on. The interface itself starts to erase: dice faces fade, the ledger goes blank line by line.
+  2. **The Source:** all three paths' rules at once, alternating each round (Empyrean order, Pleroma merging, Meridian balance).
+  3. **The Waking:** the Primordial's dream ends and the world decides what is next.
+- **The true ending** is less a fight and more a choice made with everything you earned, with one hard fight in front of it:
+  - **The fight (proposed): the First Caster fields your own best build** (a snapshot of the dice and relics from your highest-scoring cast on this file) and a target built from your best cast. "You have to beat yourself."
+  - **The choice:** the pen is held out to you: rewrite the world. Three options, one per path, and Pip's quiet choice (Pip is a spark of Aether) decides which one is the true one.
+  - **Gating:** Cataclysm, a full Mote, all six Mythic dice unlocked and Entropy forged, every path's three endings seen.
+- **Open for Carlos:** the place's name, whether the First Caster is the last villain, and what the pen writes.
 
 ---
 
@@ -222,6 +237,8 @@ A living design document between Carlos (the designer) and Claude. It collects e
 - **The Primordial path is impossible without the god recipes** (Carlos).
 - **For v0.6:** the Split and Primordial endings end the run with their own ending cards. The Crossroads door into the Firmament (step 3 above) arrives in v0.7.
 - **Ending card text:** the agent writes short bilingual drafts, clearly marked as drafts for Carlos to rewrite.
+
+**Endings per path (Agreed, Carlos 2026-10-03):** three. The Elementa ending (built in v0.6), then **Firmament I** (beat the path's first set of three Wardens) and **Firmament II** (a later run, the other three Wardens). Three paths, nine endings; the true ending is separate and later (A5). Details in Part H1.
 
 **Agreed (Carlos):**
 - An **Endings** tab in the Gallery, with an ending card (pixel placeholder plus short text) per ending.
@@ -325,47 +342,13 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B5. Mythic dice and the mythical realm
 
-**Status: Proposed**
+**Status: Ready** (v0.7). The full spec, with Carlos's answers of 2026-10-03, is **Part H**.
 
-**Mythic dice** (Carlos's list: Light, Darkness, Time, Space, Chaos, Void; Mythic rarity; price 45; no element):
-- One per run.
-- Unlocked by endings (B1, B2).
-- Once unlocked, sold in the mythical realm's shops (Open: also very rarely in the Aether Bazaar?).
-
-| Die | Ability |
-|---|---|
-| **Light** | No die scores below Light's face (1s become Light's face, fizzles cancelled); faces visible under Eclipse |
-| **Darkness** | The die on its left scores 0; Darkness adds that die's score to Mult (divided by 4) |
-| **Time** | Once per round, Rewind: undo your last reroll and refund it; unused rerolls carry over (up to +3) |
-| **Space** | The dice on both sides of Space, and the two end dice, all count as neighbors of each other |
-| **Chaos** | Every roll it becomes a random die from the whole game in a random size; locking keeps its form |
-| **Void** | Scores nothing; every empty slot you have (dice, relic, consumable) gives +1 Mult |
-
-**Void's ability (Decided, Carlos):** scores nothing; every empty slot (dice, relic, consumable) gives +1 Mult.
-
-**Carlos's additions (moved here from CONTENT.md, not built):**
-- **Entropy (Decided):** a Mythic fusion of all six Mythic dice (Light, Darkness, Time, Space, Chaos, Void) plus Aether.
-  - Price 300. Scores face + 104 and +10 Mult. Only one.
-  - Works like Aether: its recipe is unknown until you beat the Firmament.
-  - Carlos: "even if it doesn't make sense it would be fun to combine all of them." 
-- **Growth to d100:** Aether and Mythic dice can grow past d20, through d30, d40 and so on up to d100.
-  - Proposed: only at a Firmament forge.
-  - Needs new `DieSprite` shapes, or one shared "big die" shape with the size printed on it.
-
-**The mythical realm:**
-- A continuation of 5 rounds (16 to 20) through a path's door.
-- Its own Road weights (more Shrines, Black Markets and Bazaars).
-- Possibly a new keeper, or Pip's origin.
-- **Wardens:** each guards a Mythic die, with a twist opposite to it:
-  - **The Dawn:** max faces score 0.
-  - **The Umbra:** faces hidden, and each reroll swallows a die.
-  - **The Clockwork:** a 30-second cast timer (Open: optional?).
-  - **The Expanse:** the order shuffles each reroll.
-  - **The Maelstrom:** elements scramble each reroll.
-- **True ending boss:** target = your best cast of the run x 1.5.
-- Each Warden gets a music theme, a `BossAvatar`, and a Gallery entry.
+Summary: the Firmament continues the run from round 16 to 30 with a Warden boss at 20, 25 and 30; six Wardens in two sets of three give two more endings per path; each Warden guards a Mythic die (Light, Darkness, Time, Space, Chaos, Void) that unlocks when it falls; the Space die and a rare item carry the new "Warp" tag (an extra slot, like Balatro's Negative); Entropy fuses every Mythic die with Aether; Aether and the Mythic dice can grow past d20 up to d100. The Firmament's final Warden is **not** the true ending (Carlos): the true ending is the fourth place (A5).
 
 ## B9. New kinds of items (the next level)
+
+**Release (Carlos, 2026-10-03): Constellations and Runes ship in v0.7.5; editable faces and Laws in v0.8.5.** Seren (the astronomer) joins the Firmament with the Constellations in v0.7.5.
 
 **Status: Agreed need** (Carlos: "something that truly advances the game to the next level", and the Firmament is where it unlocks); items Proposed
 
@@ -392,7 +375,7 @@ Ranked by how much new depth each adds:
 
 **Status for the v0.5 part: Built** (v0.5; Chrono's repeat-until-not-1 ability shipped too, Carlos 2026-10-02, only its move waits for v0.7). **Timing (Agreed, 2026-10-02):**
 - The balance changes, Bullion, Masquerade and Chameleon ship in **v0.5**.
-- Chrono's move ships with the Firmament (**v0.7**).
+- Chrono's move ships with the Firmament (**v0.7**), together with a new design (Part H4): the pool-rewinding Chrono is a Firmament die, and the old self-rerolling one is renamed Kairos and stays in Elementa.
 - The number dice ship with realm 3 (**v0.8**).
 
 **Balance changes to existing content (Decided):**
@@ -432,6 +415,8 @@ Ranked by how much new depth each adds:
     - **Proposed:** the full-byte version (1 becomes 128) is an upgraded form, such as a relic or a Firmament "Overflow" version.
 
 ## B11. Dice without numbers
+
+**Release (Carlos, 2026-10-03): poker and Joker dice in v0.7.5, sigil dice in v0.8.5.**
 
 **Status: Agreed concept** (Carlos: "dice that don't have numbers, like poker dice, a joker die, or different sigils depending on the path, not just gamble games"); details Proposed
 
@@ -497,9 +482,11 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.6.5** | Polish | Carlos's v0.6 playtest notes, Part F (P1 to P18). Built, except P2, which Carlos answered and v0.6.6 built. Ships before the Firmament. |
 | **v0.6.6** | Loose ends | Part G Q1 to Q3 and Carlos's d5 and Chisel answers: popovers on top, Varuna's 1-bias, the Kindling fix, copy dice rolling with borrowed abilities, the d5, sized shop dice, the new Chisel. **Built.** |
 | **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Built.** |
-| **v0.7** | The Firmament | B5: path doors, the Firmament continuation, Wardens, Mythic dice, the d100 growth path. A4: Firmament keepers and returning characters. Part G Q4a: story beats before every big fight and a better god-vision and recipe scene. B9: the first new item kinds (Constellations and Runes). |
-| **v0.8** | Rewriting reality | A3: realm 3 (Empyrean and Pleroma), formula-rewriting bosses, B10 number dice, editable die faces, Laws. |
-| **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; B10 if not shipped earlier (Carlos decides when). B11 dice without numbers could land in v0.7 (poker, Joker) and v0.8 (sigils). |
+| **v0.7** | The Firmament | **Ready.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
+| **v0.7.5** | Constellations | Seren joins; B9 Constellations and Runes; B11 poker and Joker dice. Specified when v0.7 is done. |
+| **v0.8** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Needs a workshop first (Carlos 2026-10-03: "we still have to work shop a lot that realm, the boss, the dice, the theme"). |
+| **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
+| **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
 | **Beta v0.1** | Cinematics and depth | Part G Q4b: full animated cinematics, 3D-style item sprites like the dice, and more interesting items and synergies. The beta starts after Alpha v1.0. |
 
@@ -510,6 +497,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
 
 ### Alpha v0.6.7 "Showtime" (in development, unreleased)
+- **A Jukebox:** every song in the game, playable and editable (Options, Audio, Open the Jukebox).
 - **Scoring choreography:** the cast follows the Cast ledger step by step. Each step lights its source (a die lifts, a reaction draws a line between its two dice, a set is outlined and named, a relic or pact bounces), pops a number (blue Base, red Mult, a bigger red multiplier) that flies into the Base or Mult box, which pulses and ticks up, and shows a caption saying who is doing what.
 - **Sound:** each step ticks higher than the last, with a heavier hit for multipliers.
 - **Settings:** Instant skips it; Reduced motion keeps the numbers and captions and drops the flying and shaking.
@@ -991,7 +979,7 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
 
 ## Q3. Chrono does not always rewind a 1
 
-**Status: Built as far as it could be found** (Alpha v0.6.6). Real inconsistency found and fixed: Masquerade and Chameleon scored with the borrowed abilities but rolled with their own, so a copied Chrono never rewound and a copied Fire die never exploded. If a Chrono die itself still shows a 1 at the end, **Carlos: tell us which dice were in the pool** (Overclock and Drift can set a die back to a 1 after it rolls, which would look the same).
+**Status: Built as far as it could be found** (Alpha v0.6.6). Real inconsistency found and fixed: Masquerade and Chameleon scored with the borrowed abilities but rolled with their own, so a copied Chrono never rewound and a copied Fire die never exploded. **Carlos's answer (2026-10-03):** the real wish is that Chrono rerolls the whole pool, not only itself (his plan: Chrono plus small Fire dice for a lot of explosions). That is now designed in Part H4: the new Chrono rewinds the pool, and the old one becomes its brother Kairos.
 
 ## Q4a. Story beats before every big fight, and better god visions
 
@@ -1027,6 +1015,122 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
 - **Sound:** a short tick per step whose pitch climbs through the cast, like Balatro, and a heavier hit for multipliers.
 - **Reduced motion:** the number pops and captions stay, the flying and shaking go.
 - **Where:** mostly `components/DiceTray.jsx` (`buildReveal`, the reveal timeline) and `components/Die.jsx`, `CastLedger.jsx`, `RoundHUD.jsx`; the data for each step (which dice, which source) is already in the scoring result's `baseLines` and `multLines`.
+
+---
+
+# Part H: Alpha v0.7 "The Firmament"
+
+**Status: Ready.** Built from Carlos's answers of 2026-10-03 and Claude's specs for the gaps. Items marked **Open** are questions for Carlos: build the default given and list it in your report. Read B2, B4, G Q4a and the v0.6 section of GDD.md (§32) first; the paths, endings and gauntlet code from v0.6 are what this builds on.
+
+**Do NOT build here:** Constellations, Runes, Seren (v0.7.5); poker, Joker or sigil dice (v0.7.5, v0.8.5); number dice; editable faces; Laws; the third realms; the fourth place; the true ending. Do not touch anything in `IDEAS.md`.
+
+**Build order** (commit after each, and keep the game playable throughout): H8 data and profile, H3 and H4 and H5 dice, H1 the Firmament run structure, H2 Wardens, H6 shops and keepers, H7 story scenes, then tests and docs.
+
+## H1. The door, the run, and the endings
+
+- **A door per path.** A path's door opens when that path's Elementa ending has been seen once on the file (`profile.endings` holds `neutral`, `split`, `primordial`). Because the first run is always Neutral, the Neutral door is open from the second run on.
+- **The Crossroads.** After the round-15 final battle is won on a path whose door is open, a new phase `crossroads` replaces the straight jump to the summary: a story scene (H7), then two choices, **Enter the Firmament** or **Rest here** (the run ends with the usual summary and the Elementa ending). Without an open door nothing changes from v0.6.
+- **Continuing the run.** Entering keeps everything: dice, relics, consumables, lives, Shards, seed and path. Set `state.realm = 'firmament'`. Play the existing boss reward and then a first Firmament shop (a Market with Tobb), then round 16. Rounds 16 to 30 use the same target curve (`thresholdForRound`, nothing new). The Road is already generated in blocks of 15 layers (`engine/map.js`, `ensureLayers`), so the second block is the Firmament's: give it its own shop weights (H6).
+- **Bosses at 20, 25 and 30** are Wardens (H2), not the normal boss pool. On Cataclysm every other round is still a boss round drawn from the normal pool (Cataclysm's rule), and 20, 25, 30 are the Wardens.
+- **Two sets of three.** There are six Wardens. A path's first Firmament run faces its **Set I**; a later run faces **Set II**. Proposed assignment (Open: Carlos to confirm the Neutral sets):
+
+| Path | Set I (rounds 20, 25, 30) | Set II |
+|---|---|---|
+| Split | The Dawn, The Clockwork, The Expanse | The Umbra, The Maelstrom, The Hollow |
+| Primordial | The Umbra, The Maelstrom, The Hollow | The Dawn, The Clockwork, The Expanse |
+| Neutral | The Dawn, The Umbra, The Clockwork | The Expanse, The Maelstrom, The Hollow |
+
+  The Crossroads shows which set the door leads to ("Firmament I" or "Firmament II"). If both sets of that path are done, the player chooses.
+- **Endings.** Beating the round-30 Warden wins the run with an ending card: `firmament_<path>_1` or `firmament_<path>_2` (six new cards, drafts in `data/endings.js`, bilingual, for Carlos to rewrite). Add them to `ENDING_IDS`, the Endings tab (nine cards plus hints for the locked ones), completion marks and the completion percentage. No Endless after a Firmament ending.
+- **Run state:** `state.realm` (`'elementa'` or `'firmament'`), `state.firmamentSet` (1 or 2). Old saves default to `'elementa'`.
+
+## H2. The six Wardens
+
+Each Warden is a boss entry in `data/bossModifiers.js` (tier 4), with a `BossAvatar` color, a music theme (`boss_dawn` and so on, in `data/musicThemes.js`), and a Gallery entry (Bosses tab). Targets are the round's normal target times 1.0 for the round-20 Warden, 1.1 for round 25 and 1.25 for round 30 (Claude's default).
+
+| Warden | Twist | Guards |
+|---|---|---|
+| **The Dawn** | Overexposure: dice showing their max face score 0 | Light |
+| **The Umbra** | Faces hidden until you cast, and every reroll swallows one random unheld die for the rest of the round (it scores 0 and stays out) | Darkness |
+| **The Clockwork** | A real countdown of **90 seconds** (Carlos's number; not optional). It runs only while the table is live and the game is not paused; at 0 the round casts whatever is on the table. Show it prominently | Time |
+| **The Expanse** | The order of the dice shuffles after every reroll | Space |
+| **The Maelstrom** | After every reroll each unheld die becomes a random pure element for the round (size kept); the pool is restored afterwards | Chaos |
+| **The Hollow** | Every relic is sealed and consumables cannot be used this round (Claude's default; the opposite of Void) | Void |
+
+- **First time a Warden falls** on a file, its Mythic die joins `profile.mythics` and can be sold in later Firmament shops (H3, H6). Record every Warden beaten in `profile.wardens`. When all six are in, the **Entropy** recipe is learned (H5), with a scene and a toast.
+- Each Warden speaks a few lines before its fight (H7).
+- **The Firmament's last Warden is not the true ending** (Carlos). Do not build the old "your best cast x 1.5" boss here.
+
+## H3. Mythic dice and the Warp tag
+
+**Mythic** is a new rarity after Divine (a glow color distinct from the others; show it in the Gallery legend). The six dice have no element and no reaction elements, cost **45**, and arrive as a d6. **One of each kind per run** (no duplicates; Mirror Shard and Shadow Twin cannot copy them), which is what lets Entropy ask for all six.
+
+| Die | Ability | Status |
+|---|---|---|
+| **Light** | No die can score below Light's face (a 1 becomes Light's face, fizzles are cancelled). Faces stay visible under Eclipse | Agreed |
+| **Darkness** | The die on each side of it scores 0, and Darkness adds the combined score of those dice to your Mult, **undivided** | **Open:** Carlos wrote "the die on its left and right ... Change to which die, and it doesn't get divided". Built as both neighbors, undivided, behind one constant (`DARKNESS_DIVISOR = 1`). Ask Carlos what "change to which die" meant (the player choosing the target?). Balance note: a 20-point neighbor is +20 Mult |
+| **Time** | Once per round, **Rewind**: undo your last reroll and refund it. Unused rerolls carry into the next round, up to +3 | Claude's default (Carlos did not comment) |
+| **Space** | The dice on both sides of it and the two end dice all count as neighbors of each other (a super Conduit). Always carries the **Warp** tag | Agreed, plus Warp |
+| **Chaos** | Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form | Agreed |
+| **Void** | Scores nothing. Every empty slot you have (dice, relic, consumable) gives +1 Mult | Agreed |
+
+- **Chaos implementation hint:** each roll picks a `chaosForm { elementId, tierId }` from every non-god, non-Mythic, non-Primordial die; extend `actingElementIds` so scoring uses it, and set `sides` to match. The die keeps `elementId: 'chaos'` for saving and display.
+- **Darkness hint:** a scoring pass after the per-die pass zeroes the neighbors and adds their contributions to a Mult line named for Darkness (so the ledger and the P14 reactions show it).
+- **Void hint:** "empty slots" = free dice slots (not counting Warp dice) plus free relic slots plus free consumable slots, read at cast time.
+- **The Warp tag** (Carlos: "something like the Negative from Balatro", name to be workshopped; **Claude recommends "Warp"**, short and not confusable with the Space die; alternatives Rift, Infinite Space). An *edition* a die can carry, `die.edition = 'warp'`:
+  - A Warp die does **not** count toward the dice cap (`maxDiceFor` compares against the number of non-Warp dice). At most **3 Warp dice** in the pool at once (Claude's default, one constant, `WARP_CAP`).
+  - Shown as a violet "WARP" corner badge on the die and a line in its hover card and popover; `data/keywords.js` gets a `#Warp` tag.
+  - **The Space die always has it.** A new **Legendary consumable, Warp Seal**, applies Warp to any die (not a Mythic die that already has it). It is very rare: Firmament shops only, weighted like the rarest Legendary.
+  - Any die offer in a Firmament shop can rarely come with Warp (about 2%, Claude's default); a Warp offer costs +12.
+  - **Future (IDEAS.md):** each Mythic die gets its own tag.
+- **Where Mythic dice are sold** (Carlos): **the Firmament and after**, never in Elementa. A Firmament shop's die offers draw from the Elementa pool (every die from the previous realm still shows up, Carlos: "you can find dice from the previous dimension") plus any Mythic dice the file has unlocked (`profile.mythics`) and not yet held, at Mythic weight (about Legendary).
+
+## H4. Chrono, Kairos and Time
+
+- **Kairos** is the current Chrono (a 1 rerolls itself until it is not a 1), renamed. It stays in the Elementa arcane pool at its current rarity and price. **Save migration:** an existing die or shop offer with `elementId: 'chrono'` becomes `'kairos'` on `LOAD_RUN`.
+- **Chrono** is new and lives in the Firmament (sold by the Horologist, Legendary, 30). Carlos: "I want Chrono to reroll the entire pool, not just itself" (his plan: Chrono plus small Fire dice for a lot of explosions; he accepts that it is powerful). Claude's design:
+  - When Chrono lands on a 1 after any roll or reroll, **time rewinds: every unheld, unlocked die rerolls for free, Chrono included**, and **you keep the better of the two pools** (by round score). It repeats while Chrono still shows a 1 (at most 8 times, a safety stop). Held and locked dice stay put, so locks and Chrono work together.
+  - Each extra roll goes through the normal roll rules (explosions, Kindling for fizzles). It never costs a reroll.
+  - Implementation hint: after `rollFreshRound` or the reroll, call a `chronoRewind` that clones the pool, rerolls it with `rerollPool`, compares `evaluatePool(...).roundScore` for both, and keeps the higher.
+- **Time** (Mythic) is different: a player-controlled undo (H3).
+
+## H5. Entropy and the d100 path
+
+- **Entropy:** a Mythic fusion of all six Mythic dice plus Aether (Carlos: "even if it doesn't make sense it would be fun to combine all of them"). Forge-only, price 300 in the Forge sense (a high Shard cost), scores its face + 104 and adds +10 to Mult, one per run. Its recipe is learned when `profile.wardens` holds all six Wardens (H2), like Aether's recipe lock (B6); reuse `recipes`.
+- **Growth past d20:** Aether, the Mythic dice, the Primordial die excluded, and Entropy can grow in steps of 10: d30, d40, ... d100, through Upgrade Stones and the Forge's "grow a die" in Firmament shops. Normal dice still stop at d20. Add the tiers to `DICE_TIERS` flagged `bigOnly`; the upgrade cost of d30 to d100 equals the number of sides. Rendering: reuse the d20 shape with the size printed on the die; 3-digit faces need a smaller number font.
+
+## H6. Firmament shops and keepers
+
+- **Dice and items from earlier realms keep appearing** (H3). The legendary shop is called **Astral Exchange** in the Firmament (A1, Proposed; the shop type's name is per realm). Same stock rules as the Aether Bazaar.
+- **New shop types** (each with a keeper, a `KeeperSprite` placeholder, a music theme, bilingual keeper lines in `data/keepers.js`, and its own entries in `data/shops.js`):
+  - **Atlas's Cartography** (Atlas, cartographer): sells no goods. Three services per visit, each for Shards: *Redraw* the next row of shops, *Add a path* (link your stop to one more shop in the next row), and *Peek* (reveal the next Warden, like a Prophecy).
+  - **The Horologist's Clockwork** (the Horologist): sells the Chrono die and two new consumables: **Stopwatch** (undo your last reroll and refund it) and **Time Capsule** (bank 2 rerolls for the next round).
+  - **Mote's Pantry** (Mote): sells nothing; **buys** any die, relic or consumable at 150% of its sell value. Its appetite (`profile.mote.fed`, summed sell value on this file, across runs) fills in stages: at **40** it opens a secret stock (a Hollow Pact and a random die carrying Warp), at **120** a second tier, at **400** it is full (what that does is workshopped in A5 and **not built in v0.7**: only track the number and show the meter). Mote speaks for the first time in H7.
+  - **Seren is not in v0.7** (Constellations are v0.7.5).
+- **Path followers.** Each path gets one guaranteed shop of its follower per Firmament block, with true-form dialog: *Split*, Aeris's Shrine ("in her true form"); *Primordial*, Nix's Black Market ("the eclipse market"); *Neutral*, an extra Market with Tobb ("I go everywhere"). Tobb's Market still appears normally in every realm (Carlos).
+- **Firmament shop weights** (`data/shops.js`, Claude's default): Market 30, Alchemist 10, Forge 10, Vault 8, Shrine 6, Black Market 6, Cartography 10, Clockwork 8, Pantry 8, Astral Exchange as the Bazaar rule (one per block, guaranteed before the Warden at 30).
+- **Music:** add themes for `shop_cartography`, `shop_clockwork`, `shop_pantry`, the six Wardens, and the Firmament's scenes, in the style of `data/musicThemes.js` (Carlos can tune them in the Jukebox, `MUSIC.md`).
+
+## H7. Story scenes
+
+Build the scenes of Part G Q4a (all of them: before each path's Primordial fight, before each gauntlet stage, the Primordial die's loan, the improved visions, the recipes scene with the "Remembering" achievement), **and these new ones** (all drafts in `data/story.js`, bilingual, Carlos rewrites):
+- **The Crossroads**, as the last Circle cracks and what lies past it ("something older, something that frames everything").
+- **Each Warden's intro** (about 4 lines, spoken by the Warden: who it is and what it guards).
+- **Mote's first words**, the first time its appetite reaches 40.
+- **A path follower's arrival** (Aeris, Nix or Tobb) in the first Firmament shop.
+- **The six Firmament ending cards** (H1).
+
+## H8. Data and profile
+
+- `profile.mythics` (unlocked Mythic dice), `profile.wardens` (Wardens beaten), `profile.mote = { fed }`, and new `recipes` entries (`'entropy'`). Migrate older files with sensible defaults. The doors are derived from `profile.endings`.
+- `RARITY.MYTHIC`; `ELEMENTS` entries for the six Mythic dice, Entropy, Chrono (new), Kairos; `data/diceText.js` short texts and keywords for each; `data/i18n.js` Spanish; Gallery entries; `CONTENT.md` updated.
+- Test saves: write `elementa-files-v2` files that stand at round 15 on each path with an open door so the whole Firmament can be reached without playing it.
+
+## H9. Verify and report
+
+- Node scripts: the Crossroads flow per path; Warden sets by path and by earlier endings; Mythic uniqueness and the one-of-each rule; the Warp cap and a Warp die not counting toward the dice cap; Void's slot counting; Darkness's neighbors; Chrono rewinding the pool (keeps the better pool, stops at 8); Kairos migration; Chaos forms scoring correctly; d100 growth; the Entropy recipe unlock; Mote's meter.
+- Browser: click through a path into the Firmament (use test saves), a Warden of each twist (including the Clockwork's timer and pause behavior), the keepers' shops, the Gallery tabs, and Reduced motion.
+- Report: what you built, how you verified it, every default you chose (list the **Open** items), anything skipped, open questions.
 
 ---
 
@@ -1107,3 +1211,13 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
   - A real d5 tier; shop dice sometimes come as d5, d6, d10, d20, pricier and progressively rarer; Chisel splits dice and does not work on a d3 (P2 built). Grinding a d3 into an item and Flasks stay open in `IDEAS.md`.
   - Story beats before every big fight and a better god-vision and recipes scene (with an achievement): Ready for Alpha v0.7 (Q4a). Full cinematics, 3D item sprites and more interesting items: Beta v0.1 (Q4b).
   - Scoring choreography in ledger order: Ready for Alpha v0.6.7 "Showtime" (Q5).
+- **2026-10-03:**
+  - Kindling stays uncapped (Carlos).
+  - The Firmament continues the run: rounds 16 to 30, a Warden at 20, 25 and 30; six Wardens in two sets of three; per path three endings (Elementa, Firmament I, Firmament II); the Firmament's last Warden is not the true ending. The Clockwork's timer is 90 seconds, not optional.
+  - Mythic dice only in the Firmament and after; dice from earlier realms keep appearing in later realms.
+  - Light and Chaos and Void agreed; Darkness hits both neighbors and its Mult is undivided (the phrase "change to which die" is Open); Space gets a Negative-style tag (name to workshop; Claude recommends "Warp") and a rare Legendary item gives the tag; Mythic dice get their own tags later (`IDEAS.md`).
+  - Chrono must reroll the whole pool: the new Chrono is a Firmament die, the old one becomes Kairos and stays in Elementa.
+  - Keepers and item kinds agreed (14, 15). v0.7.5: Constellations, Runes, poker and Joker dice. v0.8.5: editable faces, Laws, sigil dice. Realm 3 is a later, workshopped version.
+  - The legendary shop is named per realm; names proposed.
+  - Workshop of the fourth place, the true ending and Mote started (A5, Proposed). Lore wording stays drafts until the beta.
+  - Part H written and marked Ready for Alpha v0.7.

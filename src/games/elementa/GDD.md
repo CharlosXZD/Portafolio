@@ -522,3 +522,14 @@ From EXPANSION.md Q5 (Carlos's second v0.6 playtest). Branch `elementa-v0.6.5`.
 - **Unchanged on purpose.** Eclipse still shows "?" until you cast, then plays the whole show; the hidden live total is untouched; the final score and the round result come from the reducer as before.
 - **Verification.** The Node check above, then the browser: a cast with a Three of a kind, several reactions (including a grouped "Mist x2"), explosions, relics, Blessing of Communion, an Eclipse boss round, Fast speed, Instant and Reduced motion (captions and step order logged step by step; the displayed Base and Mult matched the reducer's result).
 - **Version:** Alpha v0.6.7 (patch notes in `data/patchNotes.js` and Part D).
+
+## 36. The Jukebox and MUSIC.md (implemented)
+
+Carlos asked for a list of the songs, a way to play them and a quick guide to edit them (2026-10-03).
+
+- **`JukeboxPage.jsx`** at `/games/elementa/jukebox` (a route in `App.jsx`, linked from Options > Audio, opened in a new tab so a run in progress is untouched). It lists every theme in `MUSIC_THEMES` (grouped Screens, Shops, Bosses, with where it plays, key and scale) with a Play button, a volume slider tied to the game's music volume and a music on/off warning, and an "Auto-play all" mode (25 s each).
+- **Live editor.** Choosing a song loads it into a form (root note with its name, scale, seconds per step with the BPM, swing, loudness, lead octave, the lead, bass and percussion patterns with step and bar counts, the pad chords as JSON, and a wave per part). Any change re-plays after 350 ms through the game's own engine (`setMusicTheme` under a throwaway `__lab0` and `__lab1` id that alternate, so the engine always sees a change and crossfades). Bad steps are reported with their position and do not replace what is playing.
+- **Saving.** `data/musicThemes.js` keeps `BUILTIN_THEMES` (a deep copy taken before any edit) and reads `elementa-music-overrides` from localStorage on load, so **a saved edit is what the game itself plays**. `saveMusicOverrides(id, theme)` writes it (null puts the built-in back). "Copy as code" turns a song into the block to paste into the file; the saved edit should then be reset so the file stays the single source. The key is an `elementa-` key, so backup files carry it.
+- **`MUSIC.md`** lists every song (generated from the data) and explains the notation, timing, percussion letters, voices, the extra knobs, the scales, root notes, a two-minute first tune and how to add a song.
+- **Verification:** a Node check of the music data, then the browser: 29 songs listed, Play starts the engine and schedules notes (oscillators created while playing), an edit re-plays, an invalid step is reported, saving stores the override and the live theme changes while the built-in copy does not, the override survives a reload, Reset restores the original, Copy as code outputs the block.
+- **Version:** shipped with Alpha v0.6.7 (a line in its patch notes).

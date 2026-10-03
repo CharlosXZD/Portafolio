@@ -15,6 +15,12 @@ Carlos's place for ideas that don't have a home yet. Write anything here, half-f
 
 Add new ideas at the top. One heading per idea, with as much or as little detail as you have.
 
+### Every Mythic die gets its own tag
+The Space die carries the Warp tag (EXPANSION.md H3, a Negative-style edition). Carlos: it would be fun if all the Mythic dice had their own tags, each a rule-bending edition (Light, Darkness, Time, Chaos, Void each with a signature effect that other dice can also carry). Needs a lot of workshopping: what each tag does, how other dice get it, and how rare it is.
+
+### The Warp tag on relics and consumables
+Warp (EXPANSION.md H3) starts as an extra *dice* slot. The same tag could give an extra relic or consumable slot (Balatro's Negative works on jokers and consumables too). Decide after Warp dice have been played.
+
 ### Double cast
 Items, dice or pacts that let you cast twice in a round. Natural follow-up to hiding the running total (EXPANSION.md P10): the second cast adds on top of the first, and the reveal becomes a two-act show. Possible forms: a relic ("Twin Cast"), a die that stores a second cast, a Nix pact that doubles your casts but costs a life if either misses.
 

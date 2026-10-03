@@ -40,6 +40,10 @@ export const PATCH_NOTES = [
         'It follows your scoring speed (Instant skips the show) and Reduced motion: numbers and captions stay, flying and shaking go.',
         'Sigue tu velocidad de puntaje (Instantáneo se salta el espectáculo) y Reducir movimiento: los números y letreros se quedan, el vuelo y las sacudidas se van.',
       ),
+      L(
+        'A Jukebox: every song in the game, playable and editable. Open it from Options, Audio.',
+        'Una Rockola: todas las canciones del juego, para escuchar y editar. Ábrela desde Opciones, Audio.',
+      ),
     ],
   },
   {
