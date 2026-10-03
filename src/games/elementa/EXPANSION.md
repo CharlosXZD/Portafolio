@@ -184,7 +184,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 |---|---|---|
 | 1 | **Gaea** | Your Earth-family dice score -5 (-10 on a 1) |
 | 2 | **Ognen** | Your Fire-family dice fizzle on 1, 2 and 3 |
-| 3 | **Varuna** | If any die rolls a 1, every die becomes a 1 (held and locked too) |
+| 3 | **Varuna** | 1s come up 50% more often on every die (changed from "every die becomes a 1" after playtesting, Alpha v0.6.6) |
 | 4 | **Zephyr** | Your Fire-family dice explode 50% less often, and sets need one more matching die |
 
   - **The boss banner** shows the current god (`BossAvatar` placeholders, one color each) and "Stage N of 4". Each god has its own music theme (`boss_gaea`, `boss_ognen`, `boss_varuna`, `boss_zephyr`).
@@ -313,7 +313,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 |---|---|---|
 | **Gaea** | Also scores the face of every other Earth-family die; Earth dice are set wildcards | Earth-family dice score -5 (-10 if their face is a 1) (Carlos: "it just hits earth die"). Gaea draws her power from her own family |
 | **Ognen** | Explodes on any face of 4 or more, not just the max | Fizzles on 1, 2 and 3. If any Water-family die is in the pool, explosions are 50% rarer. Chain cap of 10 explosions per roll (decided) |
-| **Varuna** | Any die can lock for free, and those locks still refund a reroll. Every die showing a 1 takes Varuna's face instead | If Varuna itself rolls a 1, every die (held and locked too) is set to 1 (decided: set, not rerolled) |
+| **Varuna** | Any die can lock for free, and those locks still refund a reroll. Every die showing a 1 takes Varuna's face instead | 1s come up 50% more often, on every die (Carlos, 2026-10-04: the old "every die becomes a 1" was too punishing and bugged Kindling) |
 | **Zephyr** | Sets go up one tier (a pair counts as a three, a three as a straight); Zephyr's face is a wildcard | Fire-family dice explode 50% less often |
 
 **New relic: Chain Break (Decided, Carlos 2026-10-02; rarity is Claude's spec).**
@@ -494,17 +494,27 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.4** | The Road | Already built, not yet released or committed: the Road map, shop types, keepers, music themes, playtest pass (Part D). Add B6 (Aether recipe), B7 (credits), the E1 to E10 playtest polish, and E12 (in-game patch notes), all Ready. E11 moves to v0.5. The version tag becomes "v0.4 alpha" through E12. Then bump the in-game version tag (`ElementaGame.jsx`, currently "v0.3 alpha"). |
 | **v0.5** | Allegiance | **Ready.** E11 (new-run screen). B10 balance changes plus Bullion, Masquerade and Chameleon. B3 (pacts, betrayal pacts, new blessings), plus the B1 Accord meter recording with its dialog hints (paths not yet active). New Nix and Aeris dialog for the pact costs and lockout. No new endings yet. |
 | **v0.6** | Three Paths | **Ready.** B1 (Accord meter goes live, the three final battles, the gauntlet, the Primordial die), B2 (path unlock via god visions, ending cards, Endings tab, completion marks), B4 (gods, Divine rarity, Pantheon, Chain Break). |
-| **v0.6.5** | Polish | Carlos's v0.6 playtest notes, Part F (P1 to P18). Most are **Ready**; P2 (Chisel and Flasks) needs Carlos's answers first. Ships before the Firmament. |
-| **v0.7** | The Firmament | B5: path doors, the Firmament continuation, Wardens, Mythic dice, the d100 growth path. A4: Firmament keepers and returning characters. B9: the first new item kinds (Constellations and Runes). |
+| **v0.6.5** | Polish | Carlos's v0.6 playtest notes, Part F (P1 to P18). Built, except P2, which Carlos answered and v0.6.6 built. Ships before the Firmament. |
+| **v0.6.6** | Loose ends | Part G Q1 to Q3 and Carlos's d5 and Chisel answers: popovers on top, Varuna's 1-bias, the Kindling fix, copy dice rolling with borrowed abilities, the d5, sized shop dice, the new Chisel. **Built.** |
+| **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Ready.** |
+| **v0.7** | The Firmament | B5: path doors, the Firmament continuation, Wardens, Mythic dice, the d100 growth path. A4: Firmament keepers and returning characters. Part G Q4a: story beats before every big fight and a better god-vision and recipe scene. B9: the first new item kinds (Constellations and Runes). |
 | **v0.8** | Rewriting reality | A3: realm 3 (Empyrean and Pleroma), formula-rewriting bosses, B10 number dice, editable die faces, Laws. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; B10 if not shipped earlier (Carlos decides when). B11 dice without numbers could land in v0.7 (poker, Joker) and v0.8 (sigils). |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
+| **Beta v0.1** | Cinematics and depth | Part G Q4b: full animated cinematics, 3D-style item sprites like the dice, and more interesting items and synergies. The beta starts after Alpha v1.0. |
 
 ---
 
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.6.6 "Loose ends" (in development, unreleased)
+- **The d5:** a new die size between d3 and d6. Shop dice now come in d3, d5, d6, d10 and d20, each rarer and pricier than the last, with the bigger sizes showing up later in a run.
+- **New Chisel:** splits a die in two of the next size down; a d5 chips into a d3 and a Transmute; a d3 is too small; 3 Shards.
+- **Varuna is gentler:** 1s come up 50% more often instead of every die becoming a 1, in her drawback and in her trial.
+- **Fixed:** Kindling no longer hands out endless rerolls (capped at 3 per round, and forced 1s do not count). Masquerade and Chameleon roll with the abilities they borrow. Item descriptions and hover cards always appear on top.
+- **Saves** now pick up the latest relics and consumables.
 
 ### Alpha v0.6.5 "Polish" (in development, unreleased)
 - **Shop dice are d3:** dice bought in the shop arrive as d3, and the offers show the d3 shape.
@@ -813,25 +823,14 @@ Carlos's playtest of Alpha v0.6, 2026-10-03. The numbers P1 to P18 match the num
 
 ## P2. Chisel redesign, and a possible Flask consumable
 
-**Status: Proposed. Carlos wants to workshop this: do not build until he answers.**
+**Status: Built** (Alpha v0.6.6, with Carlos's answers). Flasks and grinding a d3 stay parked in `IDEAS.md`.
 
-- **Carlos's note:** Chisel needs to cost less and have a better upside. Ideas: split a d6 into two d3, a d10 into two d5, a d20 into two d10; a d5 splits into a d3 plus a Transmute, or some other consumable. Maybe a new consumable like an "Estus".
-- **Problem to solve:** there is no d5 tier (the sizes are d3, d6, d10, d20), and the dice cap is 10, so splitting needs a free slot.
-- **Claude's recommended spec (nearest existing tier, no new tier):**
-
-| Die | Chisel result |
-|---|---|
-| d20 | two d10 |
-| d10 | two d6 |
-| d6 | two d3 |
-| d3 | cannot split: it is ground into a random Transmute of its own element (the die is removed) |
-
-  - The copies keep the element and any permanent bonus (Whetstone). Needs one free dice slot, except the d3 case.
-  - **Price:** Common, 3 Shards (down from 5).
-  - **Why it works:** with d3 shop dice, Chisel becomes "buy one die, get two", and it rewards Upgrade Stones on the way up.
-- **Alternative (needs Carlos):** add a real d5 tier between d3 and d6 so d10 splits into two d5 as he wrote.
-- **Flasks (the "Estus" idea):** a new consumable family that is refilled instead of used up: it has 1 to 3 charges and refills at every camp or boss. First flask: **Ember Flask**, restores 1 life per charge. This overlaps with Phoenix Feather, so Carlos should decide whether Flasks replace it or sit beside it. Parked in `IDEAS.md` until decided.
-- **Questions for Carlos:** (1) nearest-tier splitting or a new d5? (2) is the d3 grinds-into-a-Transmute rule right? (3) Flasks now, or later?
+- **Carlos's answers (2026-10-04):** add a real **d5**; the shop sometimes offers d5, d6, d10 and d20 dice, which are pricier and progressively rarer; **Chisel does not work on a d3**; grinding a d3 into an item (an Estus-like idea) is not decided, keep thinking.
+- **Built:**
+  - Sizes are now d3, d5, d6, d10, d20.
+  - Chisel is Common, 3 Shards, and splits: d20 into two d10, d10 into two d5, d6 into two d3, and a d5 into a d3 plus a Transmute of its element.
+  - Shop dice come in sizes (weights, unlock rounds and premiums are in `SHOP_DIE_SIZES`).
+- **Still open:** Flasks (refillable consumables), and what a d3 could be ground into. Both live in `IDEAS.md`.
 
 ## P3. A richer rolling animation
 
@@ -971,6 +970,61 @@ Add "Alpha v0.6.5 Polish" to Part D and `data/patchNotes.js`, in plain language:
 
 ---
 
+# Part G: Playtest round 2 (the v0.6.5 playtest, 2026-10-04)
+
+Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
+
+## Q1. Item descriptions appear behind things
+
+**Status: Built** (Alpha v0.6.6). Cause: popovers lived inside their item's cell, so a later sibling with its own layer could cover them. Now every popover and hover tooltip is drawn in a portal on top of the game (`components/useFloating.js`), flips and clamps near screen edges. GDD §34.
+
+## Q2. Varuna is too punishing, and reroll exploits
+
+**Status: Built** (Alpha v0.6.6).
+- **Varuna:** now "1s come up 50% more often" (drawback and gauntlet trial). The old rule (every die becomes 1, held and locked too) made it impossible to roll anything else once a 1 appeared.
+- **The exploit Carlos found:** that same forced-1 rule ran before the Kindling check, so every Fire die counted as a fizzle and paid a reroll, which fed Patience. Fixed at the root, and Kindling is capped at 3 rerolls per round because small dice fizzle so often that an uncapped Fire pool would reroll forever.
+
+## Q3. Chrono does not always rewind a 1
+
+**Status: Built as far as it could be found** (Alpha v0.6.6). Real inconsistency found and fixed: Masquerade and Chameleon scored with the borrowed abilities but rolled with their own, so a copied Chrono never rewound and a copied Fire die never exploded. If a Chrono die itself still shows a 1 at the end, **Carlos: tell us which dice were in the pool** (Overclock and Drift can set a die back to a 1 after it rolls, which would look the same).
+
+## Q4a. Story beats before every big fight, and better god visions
+
+**Status: Ready** for Alpha v0.7 (drafts only; Carlos rewrites the words). Carlos: fighting without understanding why, and being handed a new die without a reason, felt anticlimactic. The visions at the end of a Neutral win need to be more solid and give context. Telling the player they unlocked the Aether and god recipes should be its own scene, with an achievement.
+
+- **A story scene component** (`components/StoryScene.jsx`), full screen: a tinted backdrop, a portrait (a `BossAvatar`, a keeper sprite or a god die token), lines that type in, "Continue" and "Skip" (skipping is remembered per scene, and a scene can be replayed from the Gallery's Endings tab). Bilingual. A music cue per scene using the existing themes. No new art.
+- **Scenes (draft text written by the agent, marked as drafts):**
+  1. **Before Primordial on each path.** *Neutral:* the Primordial wakes and says who it is: the dreamer, what the Split took from it, why it wants the Casters' dice. *Split:* it knows you chose to keep it divided; it fights to take its dice back. *Primordial path:* it does not fight you, it asks you to bring the four back to it; the gods stand in the way.
+  2. **Before each gauntlet stage.** The god speaks for a few lines: who they are, why they split the Primordial, what they want of you.
+  3. **When the Primordial die is lent to you:** a short scene explaining what the die is and that it grows as each god falls.
+  4. **After a Neutral win, the visions:** a longer sequence, one card per god (Gaea, Ognen, Varuna, Zephyr) with their portrait and a lore line each, then the Primordial's last words about "the four who broke me".
+  5. **The recipes scene:** a separate scene right after, explaining that the Aether recipe and the four god recipes are now known and how each is made (forge, 4 pure dice, one god at a time). It ends with a toast and a new achievement, **"Remembering"** (learn the recipes). Add it to `data/achievements.js` and the Gallery's Achievements tab (counts toward completion).
+- **Rules:** a scene never blocks the run for long (every scene is skippable, and none needs more than about 20 seconds read normally); scenes only show the first time unless replayed; all text in `data/story.js`, bilingual, easy to rewrite.
+
+## Q4b. Full cinematics, 3D item sprites, more interesting items
+
+**Status: Agreed for Beta v0.1** (Carlos: not needed now, not a bug, but we definitely need to improve it).
+- **Animated cinematics** for the same moments as Q4a: motion (camera moves, parallax, particles, dice and portraits animating), replacing the text-card scenes.
+- **Item sprites that look "3D" like the dice:** relics and consumables drawn with a shaped body, rim light and shade like `DieSprite`, instead of flat tiles (Carlos draws the art; the placeholder pass can add the shading).
+- **More interesting items:** Carlos likes hunting for synergies. More relics, consumables and dice with unusual effects, built around the existing systems (Part B9, `IDEAS.md`).
+
+## Q5. Scoring choreography, like Balatro
+
+**Status: Ready** for Alpha v0.6.7 "Showtime". Carlos: the explosion animations are nice, but the mult and interactions need clear animations that tell the player who is doing what; order matters, and it should follow the cast ledger, not just show a list.
+
+- **One rule: the order is the ledger's order**, step by step: each die left to right adds to Base, then flat Base bonuses, then reaction Base, then explosions' Mult, the set, reaction Mult, relics, and the final multiplier. Every step does the same four things, together:
+  1. **The source lights up.** A die gets an outline and lifts a little; a relic or pact bounces (already built in P14); a reaction draws a bright line between its two dice; a set outlines every die in it with its name ("Pair", "Straight").
+  2. **A number pops from the source.** Blue "+N" for Base, red "+N" for Mult, a bigger red "xN" for a multiplier. It flies into the Base or Mult box.
+  3. **The destination reacts.** The Base or Mult box pulses and its value ticks up as the number lands. A multiplier shakes the Mult box and flashes it.
+  4. **A caption says who.** One line under the score, for example "Kindle: Fire + Air, +1 Mult" or "Beacon: x1.5 on both neighbors".
+- **The ledger row lights in sync** (already does), grouped rows (P4) pop once per group with the group's total.
+- **Pacing** follows the existing scoring speed option; Instant skips choreography and shows the result.
+- **Sound:** a short tick per step whose pitch climbs through the cast, like Balatro, and a heavier hit for multipliers.
+- **Reduced motion:** the number pops and captions stay, the flying and shaking go.
+- **Where:** mostly `components/DiceTray.jsx` (`buildReveal`, the reveal timeline) and `components/Die.jsx`, `CastLedger.jsx`, `RoundHUD.jsx`; the data for each step (which dice, which source) is already in the scoring result's `baseLines` and `multLines`.
+
+---
+
 ## Decision log
 
 - **2026-09-30:**
@@ -1042,3 +1096,8 @@ Add "Alpha v0.6.5 Polish" to Part D and `data/patchNotes.js`, in plain language:
 - **2026-10-03 (build):**
   - P3, P4, P5 to P9, P10, P11, P12, P14, P15 and P16 built on branch `elementa-v0.6.5` (GDD §33). Defaults chosen by Claude are listed in the end-of-build report: keyword extras (Grows, Payout, Rewind, Boost, Doubles), the full view generated from flags, Info button and right-click as the touch and keyboard route to the full description, and a stake badge size of one flame per difficulty.
   - P2 (Chisel and Flasks) is still Proposed; nothing from `IDEAS.md` was built.
+- **2026-10-04:**
+  - Playtest round 2 (Part G): popovers rendered in a portal (Q1 built); Varuna's drawback is a 50% bias toward 1s and Kindling is fixed and capped (Q2 built); Masquerade and Chameleon roll with borrowed abilities (Q3, Chrono).
+  - A real d5 tier; shop dice sometimes come as d5, d6, d10, d20, pricier and progressively rarer; Chisel splits dice and does not work on a d3 (P2 built). Grinding a d3 into an item and Flasks stay open in `IDEAS.md`.
+  - Story beats before every big fight and a better god-vision and recipes scene (with an achievement): Ready for Alpha v0.7 (Q4a). Full cinematics, 3D item sprites and more interesting items: Beta v0.1 (Q4b).
+  - Scoring choreography in ledger order: Ready for Alpha v0.6.7 "Showtime" (Q5).

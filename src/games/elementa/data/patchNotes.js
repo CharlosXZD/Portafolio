@@ -12,6 +12,42 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.6.6',
+    name: L('Loose ends', 'Cabos sueltos'),
+    date: null,
+    highlights: [
+      L(
+        'A new die size, the d5. Dice in the shop now come in d3, d5, d6, d10 and d20: each size rarer and pricier than the last, and bigger sizes show up later in a run.',
+        'Un nuevo tamaño de dado, el d5. Los dados de la tienda ahora vienen en d3, d5, d6, d10 y d20: cada tamaño más raro y más caro que el anterior, y los grandes aparecen más tarde en la partida.',
+      ),
+      L(
+        'The Chisel splits a die in two of the next size down (d20 into two d10, d10 into two d5, d6 into two d3). A d5 chips into a d3 and leaves a Transmute. A d3 is too small. It costs 3 Shards now.',
+        'El Cincel parte un dado en dos del tamaño anterior (d20 en dos d10, d10 en dos d5, d6 en dos d3). Un d5 se astilla en un d3 y deja una Transmutación. Un d3 es demasiado pequeño. Ahora cuesta 3 Fragmentos.',
+      ),
+      L(
+        'Varuna is gentler: instead of turning your whole pool into 1s, her drawback makes 1s come up 50% more often. Her trial in the gods\' gauntlet works the same way.',
+        'Varuna es más amable: en vez de volver todo tu grupo 1, su desventaja hace que los 1 salgan un 50% más seguido. Su prueba en el desafío de los dioses funciona igual.',
+      ),
+      L(
+        'Fixed Kindling handing out endless rerolls (a forced 1 counted as a fizzle). It is now capped at 3 rerolls per round.',
+        'Arreglado Avivar, que daba relanzamientos sin fin (un 1 forzado contaba como apagado). Ahora tiene un tope de 3 relanzamientos por ronda.',
+      ),
+      L(
+        'Masquerade and Chameleon now roll with the abilities they borrow, so a copied Chrono rewinds its 1s and a copied Fire die explodes.',
+        'Mascarada y Camaleón ahora tiran con las habilidades que copian, así que un Chrono copiado rebobina sus 1 y un dado de Fuego copiado explota.',
+      ),
+      L(
+        'Item descriptions and hover cards no longer hide behind neighboring panels. They always appear on top, and stay on screen.',
+        'Las descripciones de objetos y las tarjetas ya no se esconden detrás de paneles vecinos. Siempre aparecen al frente y se mantienen en pantalla.',
+      ),
+      L(
+        'Saved runs now pick up the latest version of the relics and consumables they hold.',
+        'Las partidas guardadas ahora toman la versión más reciente de las reliquias y consumibles que llevan.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.6.5',
     name: L('Polish', 'Pulido'),
     date: null,

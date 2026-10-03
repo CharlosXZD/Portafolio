@@ -21,8 +21,8 @@ Items, dice or pacts that let you cast twice in a round. Natural follow-up to hi
 ### Flasks (the Estus idea)
 A consumable family that refills instead of being used up: 1 to 3 charges, refilled at every camp or boss. First flask restores a life per charge (overlaps with Phoenix Feather, see EXPANSION.md P2). Other flasks could hold a reroll, a Shard gift, or a nudge. Needs a decision on how it relates to existing consumables.
 
-### Splitting dice leaves something behind
-When a die is split or ground down (EXPANSION.md P2), the leftover could become a consumable, like a Transmute of its element, so shrinking is never a pure loss.
+### Grinding a d3 into something
+Chisel (EXPANSION.md P2, built) splits dice, and a d5 chips into a d3 plus a Transmute. A d3 cannot be chiseled. Carlos is not parked on it, but wants to keep thinking: what could a d3 be ground into? An Estus-style flask, a Transmute, a Shard gift? Needs a decision.
 
 ### Keepers as family
 Every realm has its own shop keepers, but they're all related (cousins, siblings, a great-aunt). Tobb appears in every realm (that part is decided, see EXPANSION.md A4), and he's slightly embarrassed by his relatives. Or the keepers have "echoes" in each realm: a star-alchemist Vessa in the Firmament, a binary-coded Curator in realm 3. Still iterating.

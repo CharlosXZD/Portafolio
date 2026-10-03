@@ -17,7 +17,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 - **Reactions:** two side-by-side dice react if between them they cover a reaction's two elements, and both actually scored (a fizzled die doesn't react). Fusions bring every parent element, so one link can fire several reactions.
 - **Families:** a family is the pure element plus every fusion containing it. Water-family relics look for the free-lock ability; Earth relics currently only count **pure** Earth (see §12).
 - **Family abilities** (v0.4), shared by the whole family; a fusion gets one per family it belongs to (Lightning has Kindling and Drift):
-  - **Fire, Kindling:** a die that fizzles on a 1 after a reroll grants +1 reroll this round (only dice that can fizzle, so not Steel, Obsidian or Magma).
+  - **Fire, Kindling:** a die that fizzles on a 1 after a reroll grants +1 reroll this round, at most 3 a round (only dice that can fizzle, so not Steel, Obsidian or Magma).
   - **Water:** free locks that refund a reroll (unchanged).
   - **Earth, Patience:** +2 for every reroll it sits out (held or locked) this round. Unlike Sapling, it keeps the bonus if it is rerolled later in the round.
   - **Air, Drift:** once per round (one charge total), nudge one Air-family die up or down by 1, free. Landing on the max face doesn't explode; frozen dice can't drift.
@@ -29,7 +29,8 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 - **Economy:** clearing pays 5 Shards, +1 per 25% over target (max +15), plus interest (1 per 3 Shards held, max 5).
 - **Lives:** 3. A miss costs one, then Tobb's **Camp** (see §7) and you retry the round. +1 life back every 4th round cleared.
 - **Caps:** 10 dice, 5 relics, 3 consumables (boss rewards and deals change these).
-- **Die sizes:** d3, d6, d10, d20. Dice bought in the shop arrive as **d3** (v0.6.5); starting dice, forged dice and the Soul Die are d6. Bigger means higher faces but rarer explosions. Growing costs 6 / 12 / 20 Shards (into d6 / d10 / d20). Selling pays 2 / 3 / 6 / 10 (fusions x1.5).
+- **Die sizes:** d3, d5, d6, d10, d20 (v0.6.6 added the d5). Starting dice, forged dice and the Soul Die are d6. Bigger means higher faces but rarer explosions. Growing costs 4 / 6 / 12 / 20 Shards (into d5 / d6 / d10 / d20). Selling pays 2 / 3 / 3 / 6 / 10 (fusions x1.5).
+- **Shop dice come in sizes:** each die on offer has its own size, drawn by weight: d3 (60, from round 1), d5 (22, from round 2), d6 (12, from round 3), d10 (5, from round 5), d20 (1.2, from round 8). The Aether Bazaar counts as three rounds later. A bigger die costs its normal price plus a premium: d5 +3, d6 +6, d10 +14, d20 +28.
 - **Rarity unlocks by round:** Common 1, Uncommon 2, Rare 4, Epic 7, Legendary 10.
 - **Prices by rarity** (relics and consumables): Common 5, Uncommon 8, Rare 12, Epic 18, Legendary 28. Selling pays half.
 
@@ -89,7 +90,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 |---|---|---|---|---|
 | **Gaea** | 4 Earth | 24 | Also scores the face of every other Earth-family die. Earth-family dice are set wildcards. | Every other Earth-family die scores -5 (-10 on a 1). |
 | **Ognen** | 4 Fire | 24 | Explodes on any face of 4 or more (chains of up to 10). | Fizzles on 1, 2 and 3. With a Water-family die in the pool, each explosion is a coin flip. |
-| **Varuna** | 4 Water | 24 | Any die can lock for free, and those locks refund a reroll. After every roll, every die showing a 1 takes her face. | If she rolls a 1, every die (held and locked too) becomes a 1. |
+| **Varuna** | 4 Water | 24 | Any die can lock for free, and those locks refund a reroll. After every roll, every die showing a 1 takes her face. | 1s come up 50% more often, on every die. |
 | **Zephyr** | 4 Air | 24 | Sets go up one tier (pair counts as three, three as a straight). His face is a set wildcard. | Fire-family dice explode half as often. |
 
 - **One god at a time** (Pantheon allows two). Gods can't be cloned or copied by Shadow Twin. They count as their element's family, and holding one at round 15 pushes the Accord -3.
@@ -153,7 +154,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Prism** | It splits one light into four. Reacts as every element at once. | #Reaction |
 | **Gaea** | The Earth god, bound into a die. Adds the faces of her whole family, and weighs them down. | #Divine #Wild #Patience |
 | **Ognen** | The Fire god, bound into a die. Burns on any high face and goes out on a low one. | #Divine #Explodes #Fizzles |
-| **Varuna** | The Water god, bound into a die. Any die can lock for free, but her 1 floods them all. | #Divine #FreeLock #Refund |
+| **Varuna** | The Water god, bound into a die. Any die can lock for free, but the tide pulls every roll toward 1. | #Divine #FreeLock #Refund |
 | **Zephyr** | The Air god, bound into a die. Every set rises a step, but Fire burns less. | #Divine #Wild #Sets #Drift |
 | **Primordial** | The dreamer's own die, lent to you. Every Aether power, and a share of each god's. | #Divine #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience |
 | **Bullion** | A bar of stored Mult. It scores nothing, but pays your final Mult in Shards on a clear. | #Payout |
@@ -220,7 +221,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Transmute: Air** | Common | 5 | A die | Apply to a die to change its element to Air, keeping its tier. |
 | **Transmute: Fire** | Common | 5 | A die | Apply to a die to change its element to Fire, keeping its tier. |
 | **Whetstone** | Common | 5 | A die | Apply to a die: it permanently scores +2 whenever it scores. |
-| **Chisel** | Common | 5 | A die | Apply to a die to shrink it one tier (d6 to d3). Small dice hit their max face, and explode, more often. |
+| **Chisel** | Common | 3 | A die | Splits a die in two of the next size down (d20 into two d10, d10 into two d5, d6 into two d3). A d5 chips into a d3 and leaves a Transmute of its element. A d3 is too small. Needs a free dice slot for the two-way splits. Not for god dice or the Primordial die. |
 | **Phoenix Feather** | Uncommon | 8 | You | Restore 1 life. |
 | **Aether Dust** | Rare | 12 | A die | Apply to a pure die to turn it into a random double fusion that contains its element. |
 | **Arcane Seal** | Epic | 18 | A die | Apply to a die to turn it into a random rare or epic Arcane die, keeping its tier. |
@@ -400,7 +401,7 @@ Boss rounds are 5, 10 and 15 (Cataclysm: every round). Each boss has its own mus
 | **Primordial Unbound** | Round 15 on the Split path | The Primordial's shifting twist, a target x1.5, and after every reroll it fuses two neighboring pure dice of different elements into their double fusion for that attempt (your pool comes back afterwards). | `boss_primordial` |
 | **Gaea** (gauntlet 1 of 4) | Round 15 on the Primordial path | Your Earth-family dice score -5 (-10 on a 1). Target x0.7. | `boss_gaea` |
 | **Ognen** (gauntlet 2 of 4) | | Your Fire-family dice fizzle on 1, 2 and 3. Target x0.9. | `boss_ognen` |
-| **Varuna** (gauntlet 3 of 4) | | If any die rolls a 1, every die becomes a 1, held and locked ones too. Target x1.1. | `boss_varuna` |
+| **Varuna** (gauntlet 3 of 4) | | 1s come up 50% more often on every die. Target x1.1. | `boss_varuna` |
 | **Zephyr** (gauntlet 4 of 4) | | Your Fire-family dice explode half as often, and sets need one more matching die. Target x1.4. | `boss_zephyr` |
 
 Ermal the Unbothered is named after beta tester Ermal and has a sleepy portrait.
@@ -554,7 +555,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 ### Explosions (Fire family: Fire, Lightning, Steel, Steam, Storm, Obsidian, Magma, Aether)
 - **Kindling:** a fizzle after a reroll refunds that reroll, so fizzling Fire dice are less of a dead end.
 - **Payoffs:** Heat (+1 to every Fire-family die per explosion this round, counting rerolls), Molten Core (+2 Base per explosion), Ember Heart (+1 Mult per exploding die), Glass Cannon (explosion rolls count double), Static Charge (no chain cap), Loaded Die (+3 on the max face, which is exactly the explosion face), Lucky Coin (+1 Shard per explosion). Every explosion is also +0.5 Mult on its own.
-- **Enablers:** Chisel (shrink to d3: explodes 1 in 3 rolls instead of 1 in 6). Blessing of Flame and Upgrade Stone pull the other way (bigger faces, fewer explosions), so Fire builds want small dice.
+- **Enablers:** Chisel (split into small dice: a d3 explodes 1 in 3 rolls instead of 1 in 6, and you get two of them). Blessing of Flame and Upgrade Stone pull the other way (bigger faces, fewer explosions), so Fire builds want small dice.
 - **Safe explosions:** Steel, Obsidian and Magma explode without fizzling. They pair with Keystone (+1 Mult if nothing scores 0) and make Glass Cannon's downside disappear, because it only triggers when a die fizzles.
 - **Anti-synergy:** Keystone with Fire, Lightning, Steam, Storm, Aether (any 1 breaks it). Glass Cannon with fizzling dice.
 
