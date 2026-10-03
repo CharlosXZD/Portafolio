@@ -50,7 +50,6 @@ const SHOP_DIE_SIZES = [
   { id: 'd10', weight: 5, from: 5, premium: 14 },
   { id: 'd20', weight: 1.2, from: 8, premium: 28 },
 ]
-const KINDLING_CAP = 3
 const STARTING_REROLLS = 3
 const WIN_ROUND = 15
 const LIFE_REGEN_EVERY_N_ROUNDS = 4
@@ -550,7 +549,6 @@ function baseTitleState() {
     dice: [],
     rerollsUsed: 0,
     rerollsBonusThisRound: 0,
-    kindledThisRound: 0,
     freezeChargesUsed: 0,
     permanentRerollBonus: 0,
     shards: 0,
@@ -725,7 +723,6 @@ function enterRoundBase(state, round) {
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
     rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
-    kindledThisRound: 0,
     nextRoundRerollBonus: 0,
     freezeChargesUsed: 0,
     shop: null,
@@ -747,7 +744,6 @@ function retryRound(state) {
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
     rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
-    kindledThisRound: 0,
     nextRoundRerollBonus: 0,
     freezeChargesUsed: 0,
     shop: null,
@@ -1004,7 +1000,6 @@ function advanceGauntlet(state, result) {
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
     rerollsBonusThisRound: 0,
-    kindledThisRound: 0,
     freezeChargesUsed: 0,
     roundSeq: (state.roundSeq || 0) + 1,
     lastResult: { ...result, stageCleared: fallen },
@@ -1425,25 +1420,20 @@ function reduce(state, action) {
       }
       dice = settleTide(dice)
       // Kindling (Fire family): a rerolled die that lands on a fizzling 1
-      // pays back one reroll this round, up to KINDLING_CAP a round (small
-      // dice fizzle so often that, uncapped, a Fire pool would reroll for
-      // free forever). `kindled` drives the "+1" pop.
+      // pays back one reroll this round. It is deliberately uncapped (Carlos):
+      // a pool of three or more small Fire dice earns back about a reroll per
+      // reroll, which is the point of building one. `kindled` drives the "+1" pop.
       const rerolled = new Set(state.dice.filter((d) => !d.held && !d.locked).map((d) => d.id))
       let kindling = 0
-      let kindledSoFar = state.kindledThisRound || 0
       dice = dice.map((d) => {
         if (!rerolled.has(d.id)) return d
         // No fizzles under Blessing of Ember-ward, so no Kindling either.
         const kindled =
-          kindledSoFar < KINDLING_CAP &&
           !state.roundBuffs?.noFizzle &&
           d.value === 1 &&
           elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) &&
           inFamily(d.elementId, 'fire')
-        if (kindled) {
-          kindling += 1
-          kindledSoFar += 1
-        }
+        if (kindled) kindling += 1
         return { ...d, kindled }
       })
       const explosionsThisRound =
@@ -1465,7 +1455,6 @@ function reduce(state, action) {
         shards: state.shards - tax,
         rerollsUsed: state.rerollsUsed + 1,
         rerollsBonusThisRound: state.rerollsBonusThisRound + kindling,
-        kindledThisRound: kindledSoFar,
         explosionsThisRound,
       }
     }

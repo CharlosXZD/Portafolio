@@ -80,6 +80,24 @@ export function playBoom(step = 1) {
   tone(420 + up * 70, 0.07, { type: 'square', gain: 0.02 })
 }
 
+// The cast's step sound (EXPANSION.md Q5): a short tick whose pitch climbs a
+// pentatonic scale through the cast, like Balatro's, higher for Mult than
+// for Base, and a heavier hit (a low thump under a bright ring) for a
+// multiplier. `n` is the step number, counting from 0.
+const STEP_SCALE = [0, 2, 4, 7, 9]
+export function playScoreStep(n = 0, kind = 'base') {
+  const k = Math.min(n, 19)
+  const semis = STEP_SCALE[k % 5] + 12 * Math.floor(k / 5)
+  const freq = (kind === 'base' ? 330 : 392) * Math.pow(2, semis / 12)
+  if (kind === 'mul') {
+    tone(freq * 0.5, 0.18, { type: 'sawtooth', gain: 0.05, glideTo: freq * 0.25 })
+    tone(freq, 0.14, { type: 'square', gain: 0.035 })
+    tone(freq * 2, 0.1, { type: 'triangle', gain: 0.03, delay: 0.04 })
+    return
+  }
+  tone(freq, 0.07, { type: kind === 'base' ? 'triangle' : 'square', gain: kind === 'base' ? 0.045 : 0.03 })
+}
+
 // A breath of wind for Drift (P12).
 export function playGust() {
   tone(520, 0.14, { type: 'sine', gain: 0.025, glideTo: 880 })

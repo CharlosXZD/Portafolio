@@ -86,7 +86,7 @@ function Line({ label, value, op, state, color, count = 0, toggle = null, nested
  * and Mult for the current roll, in the order they're applied. Repeated
  * lines from one source are grouped ("Kindle x6 +6") with an arrow to show
  * each one (EXPANSION.md P4). Idle, it's a live preview; during the cast
- * reveal, groups light up one at a time and their count ticks up, so the
+ * reveal, groups light up one at a time in step with the table (Q5), so the
  * player watches the math happen.
  */
 export default function CastLedger({
@@ -109,9 +109,7 @@ export default function CastLedger({
   const baseGroups = useMemo(() => groupLines(result.baseLines, 'base'), [result])
   const multGroups = useMemo(() => groupLines(result.multLines, 'mult'), [result])
 
-  const stepIndexOf = (section, lineIndex) =>
-    reveal ? reveal.steps.findIndex((st) => st.section === section && st.index === lineIndex) : -1
-
+  // A group lights as one step and takes its total at once (Q5).
   const groupState = (section, gi) => {
     if (!reveal) return 'idle'
     const step = reveal.steps[reveal.index]
@@ -122,28 +120,10 @@ export default function CastLedger({
     return 'pending'
   }
 
-  // The count and value a group shows while it is being added up: only the
-  // lines applied so far plus the one being added now.
-  const groupProgress = (g, state) => {
-    if (state !== 'active') return { count: g.count, value: g.value }
-    const upto = g.indices.filter((i) => stepIndexOf(g.section, i) <= reveal.index)
-    const lines = upto.map((i) => g.lines[g.indices.indexOf(i)])
-    return {
-      count: lines.length,
-      value: g.op === 'mul' ? lines.reduce((p, l) => p * l.value, 1) : lines.reduce((sum, l) => sum + l.value, 0),
-    }
-  }
-
-  const lineState = (section, lineIndex) => {
-    if (!reveal) return 'idle'
-    const si = stepIndexOf(section, lineIndex)
-    return si < reveal.index ? 'done' : si === reveal.index ? 'active' : 'pending'
-  }
-
   const renderGroups = (groups, section) =>
     groups.flatMap((g, gi) => {
       const state = groupState(section, gi)
-      const { count, value } = groupProgress(g, state)
+      const { count, value } = g
       const isOpen = g.count > 1 && (overrides[g.key] ?? expanded)
       const color = g.kind === 'reaction' ? reactionById(g.id)?.color : null
       const rows = [
@@ -175,7 +155,7 @@ export default function CastLedger({
               label={label(line)}
               value={line.value}
               op={g.op}
-              state={reveal && state === 'active' ? lineState(section, g.indices[k]) : state}
+              state={state}
               color={color}
             />,
           ),

@@ -58,7 +58,7 @@ export default function Die({
   onLock,
   onFreeze,
   canFreeze,
-  scoring = false,
+  lit = false,
   revealing = false,
   contribution = null,
   hotkey = null,
@@ -275,14 +275,16 @@ export default function Die({
   // Every die stays on the same baseline: held/locked/frozen read through
   // the colored ring and the tag underneath, not by moving the die (a lift
   // made mixed rows look misaligned).
-  const pose = { y: 0, scale: 1, rotate: 0 }
+  // During the cast (Q5) a die that is the source of the current step lifts
+  // a little and gets a gold ring; Reduced motion keeps just the ring.
+  const pose = lit && !reducedMotion ? { y: -Math.round(size * 0.1), scale: 1.07, rotate: 0 } : { y: 0, scale: 1, rotate: 0 }
 
   // Die body colors come from the element, darkened toward the night
   // palette so pale elements (Air, Steam) still carry a light number.
   const colors = dieColors(die.elementId, isFrozen)
   const ringColor = targeting
     ? '#b89cff'
-    : scoring
+    : lit
     ? '#ffd166'
     : die.held && !die.locked
       ? '#ffd166'
@@ -476,26 +478,6 @@ export default function Die({
             </motion.span>
           )}
 
-          {/* Floating "+N" that rises off the die as it scores during the
-              reveal; zero-scoring dice (fizzles, banned) pop a dim "+0". */}
-          <AnimatePresence>
-            {scoring && typeof contribution === 'number' && (
-              <motion.span
-                key="score-pop"
-                initial={{ opacity: 0, y: 0, scale: 0.6 }}
-                animate={{ opacity: 1, y: -Math.round(size * 0.75), scale: contribution > 0 ? 1.25 : 1 }}
-                exit={{ opacity: 0, y: -Math.round(size * 1.1), scale: 1 }}
-                transition={{ type: 'spring', bounce: 0.45, duration: 0.35 }}
-                className="pixel-score pointer-events-none absolute left-1/2 top-0 z-20 -translate-x-1/2 whitespace-nowrap text-lg"
-                style={{
-                  color: contribution > 0 ? 'var(--gold-1)' : 'var(--text-mute)',
-                  textShadow: '3px 3px 0 var(--ink), -2px 0 0 var(--ink), 0 -2px 0 var(--ink)',
-                }}
-              >
-                +{Math.round(contribution * 10) / 10}
-              </motion.span>
-            )}
-          </AnimatePresence>
         </motion.button>
         <AnimatePresence>
           {infoOpen && (

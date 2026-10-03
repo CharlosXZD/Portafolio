@@ -128,6 +128,18 @@ function longestConsecutiveRun(sortedUniqueVals) {
   return best
 }
 
+// The faces of the longest run of consecutive values (the dice that make a
+// straight), for the cast choreography to outline. Display only.
+function longestRunValues(sortedUniqueVals) {
+  let best = []
+  let current = []
+  sortedUniqueVals.forEach((v, i) => {
+    current = i > 0 && v === sortedUniqueVals[i - 1] + 1 ? [...current, v] : [v]
+    if (current.length > best.length) best = current
+  })
+  return best
+}
+
 function setBonusTier(maxGroupSize, longestRun, noStraight) {
   if (longestRun >= 4 && !noStraight) return 'straight'
   if (maxGroupSize >= 3) return 'three'
@@ -267,6 +279,8 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   let setTier = null
   let winningValues = new Set()
   let setIsAllWaterFamily = false
+  // The dice that make the set, for the cast choreography (display only).
+  let setDiceIds = []
 
   if (enablesSets) {
     // Wildcards: pure Earth with Fossil, every Earth-family die with Gaea's
@@ -319,6 +333,10 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
         const d = perDie.find((x) => x.id === id)
         return hasFlag(d.actingAs, FLAGS.FREE_LOCK)
       })
+      setDiceIds = [...winningValues]
+    } else if (baseTier === 'straight') {
+      const run = new Set(longestRunValues(uniqueVals))
+      setDiceIds = perDie.filter((d) => !wildcardIds.includes(d.id) && run.has(d.value)).map((d) => d.id)
     }
   }
 
@@ -479,6 +497,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     roundScore,
     explodeCount,
     setTier,
+    setDiceIds,
     reactions,
     baseLines,
     multLines,

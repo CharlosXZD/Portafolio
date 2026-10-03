@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, Reorder, motion, useAnimationControls } from 'framer-motion'
 import Die from './Die.jsx'
 import CastLedger from './CastLedger.jsx'
-import { groupLines } from '../utils/ledgerGroups.js'
+import { buildCastScript, applyCastStep, finishCastScript } from '../utils/castScript.js'
+import CastStage, { CastCaption, useStepCaption } from './CastStage.jsx'
 import { TRIGGER_EVENT } from '../utils/useTriggerPulses.js'
 import { evaluatePool } from '../engine/scoring.js'
 import { selectors } from '../engine/gameReducer.js'
@@ -20,33 +21,83 @@ import BossAvatar from './BossAvatar.jsx'
 import { Pip } from './Tutorial.jsx'
 import { tideLocks } from '../engine/gods.js'
 import { readProfile } from '../utils/profile.js'
-import { playRoll, playClick, playCoin, playBossRound, playFail } from '../utils/sound.js'
+import { playRoll, playClick, playScoreStep, playBossRound, playFail } from '../utils/sound.js'
 
-// Per game-speed timings for the score reveal (Options -> Scoring speed).
+// Per game-speed timings for the score reveal (Options -> Scoring speed), in
+// ms: a die adds to Base, a group of ledger lines adds to Base or Mult.
+// Each is the time its number takes to pop and fly into its box (Q5), and the
+// box takes it when the time is up. Instant skips the choreography.
 const TIMING = {
-  normal: { step: 260, line: 380, tick: 110, pause: 700 },
-  fast: { step: 110, line: 160, tick: 55, pause: 380 },
-  instant: { step: 0, line: 0, tick: 0, pause: 300 },
+  normal: { step: 330, line: 620, pause: 750 },
+  fast: { step: 130, line: 250, pause: 380 },
+  instant: { step: 0, line: 0, pause: 300 },
 }
 
-/** Balatro-style score box: a colored block with a big number inside. */
-function ScoreBox({ label, value, color, pulseKey }) {
+/** A number that counts up to its new value in a blink, like a ticking meter. */
+function TickValue({ value, instant }) {
+  const [shown, setShown] = useState(value)
+  useEffect(() => {
+    if (instant || typeof value !== 'number' || typeof shown !== 'number' || value === shown) {
+      setShown(value)
+      return
+    }
+    const from = shown
+    const start = performance.now()
+    let raf
+    const frame = (now) => {
+      const k = Math.min(1, (now - start) / 220)
+      setShown(k >= 1 ? value : Math.round((from + (value - from) * k) * 100) / 100)
+      if (k < 1) raf = requestAnimationFrame(frame)
+    }
+    raf = requestAnimationFrame(frame)
+    return () => cancelAnimationFrame(raf)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
+  return shown
+}
+
+/**
+ * Balatro-style score box: a colored block with a big number inside. When a
+ * cast step lands (`pulse`, EXPANSION.md Q5) it pulses and ticks up; a
+ * multiplier (`pulse.strong`) also shakes and flashes. Reduced motion keeps
+ * a brief brightening and the ticking number, and drops the movement.
+ */
+function ScoreBox({ label, value, color, pulse, which, reducedMotion }) {
+  const strong = pulse?.strong
   return (
     <div className="flex flex-col items-center gap-2">
       <span className="el-label">{label}</span>
       <motion.div
-        key={pulseKey}
-        initial={pulseKey ? { scale: 1.3, rotate: -4 } : false}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: 'spring', bounce: 0.6, duration: 0.4 }}
-        className="flex h-12 min-w-[64px] items-center justify-center px-3 sm:h-14 sm:min-w-[92px] sm:px-4"
+        key={pulse?.key}
+        data-score-box={which}
+        initial={
+          pulse
+            ? reducedMotion
+              ? { filter: 'brightness(1.6)' }
+              : { scale: strong ? 1.55 : 1.22, rotate: strong ? -5 : -3, filter: 'brightness(1.5)' }
+            : false
+        }
+        animate={{ scale: 1, rotate: 0, x: strong && !reducedMotion ? [0, -7, 7, -5, 5, -2, 0] : 0, filter: 'brightness(1)' }}
+        transition={{ type: 'spring', bounce: 0.6, duration: strong ? 0.55 : 0.35, x: { duration: 0.4 }, filter: { duration: 0.35 } }}
+        className="relative flex h-12 min-w-[64px] items-center justify-center px-3 sm:h-14 sm:min-w-[92px] sm:px-4"
         style={{
           background: color,
           boxShadow:
             '0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink), inset 0 3px 0 0 rgba(255,255,255,0.3), inset 0 -4px 0 0 rgba(0,0,0,0.3)',
         }}
       >
-        <span className="pixel-score text-lg text-white [text-shadow:2px_2px_0_var(--ink)]">{value}</span>
+        <span className="pixel-score text-lg text-white [text-shadow:2px_2px_0_var(--ink)]">
+          <TickValue value={value} instant={reducedMotion && !pulse} />
+        </span>
+        {strong && (
+          <motion.span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-white"
+            initial={{ opacity: reducedMotion ? 0.35 : 0.8 }}
+            animate={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+          />
+        )}
       </motion.div>
     </div>
   )
@@ -65,48 +116,6 @@ function useNarrow() {
 }
 
 const fmt = (n) => Math.round(n * 100) / 100
-
-/**
- * Builds the reveal script from a scoring result: each die adds to Base,
- * then each extra Base line, then each Mult line. `order` lists the ledger
- * groups in the order they light up. Repeated lines from one source form a
- * group (utils/ledgerGroups.js): the group lights once and its count ticks
- * up, one quick tick per line (EXPANSION.md P4).
- */
-function buildReveal(result) {
-  const steps = []
-  const groupsOf = { base: groupLines(result.baseLines, 'base'), mult: groupLines(result.multLines, 'mult') }
-  const groupIndexOf = (section, lineIndex) => groupsOf[section].findIndex((g) => g.indices.includes(lineIndex))
-  result.dice.forEach((d) => steps.push({ section: 'base', index: 0, group: 0, pos: 0, dieId: d.id, value: d.contribution || 0, op: 'add' }))
-  const addLines = (section, lines, from) => {
-    lines.forEach((line, i) => {
-      if (i < from) return
-      const group = groupIndexOf(section, i)
-      steps.push({ section, index: i, group, pos: groupsOf[section][group].indices.indexOf(i), value: line.value, op: line.op, line })
-    })
-  }
-  addLines('base', result.baseLines, 1)
-  addLines('mult', result.multLines, 0)
-  const order = []
-  steps.forEach((s) => {
-    if (!order.some((o) => o.section === s.section && o.group === s.group)) order.push({ section: s.section, group: s.group })
-  })
-  return { result, steps, order, groups: groupsOf, index: 0, base: 0, mult: 1 }
-}
-
-function applyStep(r) {
-  const step = r.steps[r.index]
-  const next = { ...r, index: r.index + 1 }
-  if (step.section === 'base') next.base = step.op === 'mul' ? r.base * step.value : r.base + step.value
-  else next.mult = step.op === 'mul' ? r.mult * step.value : r.mult + step.value
-  return next
-}
-
-function finishReveal(r) {
-  let cur = r
-  while (cur.index < cur.steps.length) cur = applyStep(cur)
-  return cur
-}
 
 export default function DiceTray({ state, dispatch, availableRerolls, paused = false, armedConsumable = null, onArmedDone }) {
   const { t, lang } = useLanguage()
@@ -187,13 +196,15 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
       return () => clearTimeout(id)
     }
     const step = reveal.steps[reveal.index]
-    announceTrigger(reveal, step)
+    announceTrigger(step)
     const id = setTimeout(
       () => {
-        if (step.value) playCoin()
-        setReveal((r) => (r ? applyStep(r) : r))
+        // The number lands: a tick that climbs through the cast, a heavier
+        // hit for a multiplier, then the box takes the step.
+        if (step.total || step.op === 'mul') playScoreStep(reveal.index, step.op === 'mul' ? 'mul' : step.section)
+        setReveal((r) => (r ? applyCastStep(r) : r))
       },
-      step.dieId ? timing.step : step.pos > 0 ? timing.tick : timing.line,
+      step.dieId ? timing.step : timing.line,
     )
     return () => clearTimeout(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -202,20 +213,19 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   // Relics and pacts react while the score is added (P14): when a ledger
   // group from a relic or a boon lights up, its icon in the HUD plays its
   // trigger, once per group, with the group's total.
-  function announceTrigger(r, step) {
-    if (!step || step.pos !== 0 || step.dieId) return
-    const g = r.groups[step.section][step.group]
+  function announceTrigger(step) {
+    if (!step || step.dieId) return
     let target = null
-    let value = g.value
-    if (g.kind === 'relic' && g.id) target = { kind: 'relic', id: g.id }
-    else if (g.kind === 'boon' && g.id) target = { kind: 'boon', id: g.id }
-    else if (g.kind === 'reaction' && step.section === 'mult' && state.roundBuffs?.communion) {
+    let value = step.total
+    if (step.kind === 'relic' && step.id) target = { kind: 'relic', id: step.id }
+    else if (step.kind === 'boon' && step.id) target = { kind: 'boon', id: step.id }
+    else if (step.kind === 'reaction' && step.section === 'mult' && state.roundBuffs?.communion) {
       // Blessing of Communion: +0.5 Mult on every reaction that has a Mult.
       target = { kind: 'boon', id: 'communion' }
-      value = 0.5 * g.count
+      value = 0.5 * step.count
     }
     if (!target) return
-    window.dispatchEvent(new CustomEvent(TRIGGER_EVENT, { detail: { ...target, section: step.section, op: g.op, value } }))
+    window.dispatchEvent(new CustomEvent(TRIGGER_EVENT, { detail: { ...target, section: step.section, op: step.op, value } }))
   }
 
   // Impact when the final score lands: the whole table shakes, harder the
@@ -237,7 +247,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   }
 
   const skipReveal = useCallback(() => {
-    setReveal((r) => (r && r.index < r.steps.length ? finishReveal(r) : r))
+    setReveal((r) => (r && r.index < r.steps.length ? finishCastScript(r) : r))
   }, [])
 
   const handleReroll = useCallback(() => {
@@ -249,8 +259,8 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const handleSubmit = useCallback(() => {
     if (revealing) return
     playClick()
-    const script = buildReveal(preview)
-    setReveal(gameSpeed === 'instant' ? finishReveal(script) : script)
+    const script = buildCastScript(preview)
+    setReveal(gameSpeed === 'instant' ? finishCastScript(script) : script)
   }, [revealing, preview, gameSpeed])
 
   // Keyboard: 1-9 hold/release a die, R rerolls, Enter/Space casts. Any key
@@ -286,6 +296,16 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const hidden = Boolean(fx.hideFaces) && !revealing
   const shown = revealing ? reveal.result : preview
   const currentStep = revealing && !revealDone ? reveal.steps[reveal.index] : null
+  // The step that just landed makes its box pulse; a multiplier hits harder.
+  const landed = revealing && reveal.index > 0 ? reveal.steps[reveal.index - 1] : null
+  const pulseFor = (section) =>
+    landed && landed.section === section && (landed.total || landed.op === 'mul')
+      ? { key: `${section}${reveal.index}`, strong: landed.op === 'mul' }
+      : undefined
+  const stepCaption = useStepCaption(discovered)
+  const caption = currentStep ? stepCaption(currentStep, reveal.result.dice) : null
+  const dwell = currentStep ? (currentStep.dieId ? timing.step : timing.line) : 0
+  const litDice = new Set(currentStep?.lit ?? [])
   const baseShown = hidden ? '?' : fmt(revealing ? reveal.base : preview.baseValue)
   const multShown = hidden ? '?' : fmt(revealing ? reveal.mult : preview.multiplier)
   const liveScore = revealing ? Math.round(reveal.base * reveal.mult) : preview.roundScore
@@ -380,6 +400,14 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
           />
         )}
       </AnimatePresence>
+      {currentStep && (
+        <CastStage
+          key={reveal.index}
+          step={currentStep}
+          dwell={dwell}
+          setLabel={currentStep.kind === 'set' ? caption?.who : null}
+        />
+      )}
       <motion.div
         animate={shake}
         data-casting={revealing ? '' : undefined}
@@ -430,13 +458,22 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
 
             {/* Base x Mult = Score, live while you play and during the cast. */}
             <div data-tut="score" className="flex items-end justify-center gap-2 sm:gap-4">
-              <ScoreBox label={t('elementa.diceTray.base')} value={baseShown} color="#2f6fc4" />
+              <ScoreBox
+                label={t('elementa.diceTray.base')}
+                value={baseShown}
+                color="#2f6fc4"
+                which="base"
+                pulse={pulseFor('base')}
+                reducedMotion={reducedMotion}
+              />
               <span className="pixel-score pb-4 text-sm text-[var(--text-mute)] sm:text-lg">x</span>
               <ScoreBox
                 label={t('elementa.diceTray.mult')}
                 value={multShown}
                 color="#c4412f"
-                pulseKey={currentStep?.section === 'mult' ? `m${reveal.index}` : undefined}
+                which="mult"
+                pulse={pulseFor('mult')}
+                reducedMotion={reducedMotion}
               />
               <span className="pixel-score pb-4 text-sm text-[var(--text-mute)] sm:text-lg">=</span>
               <div className="flex flex-col items-center gap-2">
@@ -454,6 +491,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 </div>
               </div>
             </div>
+
+            {/* Who is doing what, step by step (Q5). */}
+            <CastCaption caption={caption} stepKey={reveal?.index} section={currentStep?.section} />
 
             <div data-tut="target" className="flex w-full justify-center">
               <TargetBar score={scoreHidden ? 0 : liveScore} target={state.threshold} unknown={scoreHidden} />
@@ -513,6 +553,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                   <Reorder.Item
                     key={die.id}
                     value={die.id}
+                    data-die-index={i}
                     as="div"
                     dragListener={!revealing}
                     onDragStart={() => (draggingRef.current = true)}
@@ -557,7 +598,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       canDrift={canDrift && inFamily(die.elementId, 'air') && die.lockedVia !== 'freeze'}
                       onNudge={(id, delta) => dispatch({ type: 'NUDGE_DIE', dieId: id, delta })}
                       revealing={revealing}
-                      scoring={currentStep?.dieId === die.id}
+                      lit={litDice.has(i)}
                       contribution={dieResult?.contribution ?? null}
                     />
                   </Reorder.Item>

@@ -163,6 +163,10 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
           onChange={changeMusicVolume}
           disabled={!musicEnabled}
         />
+        {/* Every song, playable and editable (MUSIC.md). A new tab, so a run in progress stays put. */}
+        <a href="/games/elementa/jukebox" target="_blank" rel="noopener noreferrer" className="el-btn el-btn--sm w-fit">
+          {lang === 'es' ? 'Abrir la Rockola' : 'Open the Jukebox'}
+        </a>
       </Section>
 
       <Section title={t('elementa.options.gameplay')}>
