@@ -1,10 +1,10 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-03 (Alpha v0.6.7 "Showtime" in development), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-03 (Alpha v0.7 "The Firmament" in development), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
-Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reactions · 6. Characters (Pip, keepers, bosses) · 7. Shops and the Road · 8. Loadouts, difficulties, achievements · 9. Lore · 10. Synergy map · 11. Counters: bosses vs builds · 12. Known issues found while compiling this
+Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reactions · 6. Characters (Pip, keepers, bosses, Wardens) · 7a. The three paths and the endings · 7b. The Firmament · 7. Shops and the Road · 8. Loadouts, difficulties, achievements · 9. Lore · 10. Synergy map · 11. Counters: bosses vs builds · 12. Known issues found while compiling this
 
 ---
 
@@ -77,7 +77,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 | **Sapling** | Rare | - | 14 | Grows +2 every reroll it stays held. Rerolling it resets the growth. • Gains +2 for every reroll it sits out. |
 | **Mirror** | Rare | - | 14 | Copies the score of the die to its left. • Copies the score of the die on its left. |
 | **Conduit** | Epic | - | 20 | Its two neighbors react with each other as if they touched, and those reactions count double. • Bridges reactions between its two neighbors, and doubles them. |
-| **Chrono** | Epic | - | 20 | A rolled 1 rewinds and rolls again, until it is no longer a 1. • A 1 rerolls itself for free until it is no longer a 1. |
+| **Kairos** | Epic | - | 20 | A rolled 1 rewinds and rolls again, until it is no longer a 1. • A 1 rerolls itself for free until it is no longer a 1. |
 | **Beacon** | Rare | - | 14 | The dice on either side of it score x1.5. • Both neighbors score x1.5. |
 | **Prism** | Epic | - | 25 | Counts as all four elements for reactions with its neighbors. • Reacts as Fire, Water, Earth, and Air at once. |
 | **Bullion** | Epic | - | 25 | Scores nothing. Pays your final Mult in Shards when you clear the round. • Scores 0, but pays your final Mult (rounded down) in Shards on a clear. |
@@ -100,6 +100,29 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 **The Primordial die** (Divine, d20): lent on the Primordial path for round 15 only, outside the dice cap, never sold. Every Aether mechanic, plus the ability of each god defeated in the gauntlet, without the drawback.
 
 **The Aether recipe is secret.** Until you beat Primordial once on a save file, Aether can't be forged and never appears in a shop; the Gallery reads "Recipe unknown: beat Primordial". The first win teaches it (a "New recipe" toast), and the Curator mentions it on your next Vault visit. The Avatar loadout still starts with Aether.
+
+### The Firmament's dice (v0.7)
+Sold only past the door (see §7b), never in Elementa. Every die from Elementa still shows up in the Firmament's shops too.
+
+**Mythic dice** (a new rarity after Divine): no element, no reactions of their own, 45 Shards, always a d6. One of each per run (a second can't be bought, and Mirror Shard, Shadow Twin and the Chisel can't copy them). Each is unlocked on the file the first time its Warden falls, and from then on it can turn up in Firmament die offers at Legendary weight.
+
+| Die | Guarded by | Abilities |
+|---|---|---|
+| **Light** | The Dawn | No die can score below its face. Fizzles are cancelled, and faces stay visible. • No die can score below its face: lower faces rise to it, and nothing fizzles. Faces stay visible under Eclipse. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
+| **Darkness** | The Umbra | The dice on either side of it score 0. What they would have scored goes to your Mult. • The dice on either side of it score 0, and their combined score is added to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
+| **Time** | The Clockwork | Once per round, undo your last reroll and get it back. Unused rerolls carry over, up to +3. • Once per round, Rewind: undo your last reroll and get it back. Unused rerolls carry into the next round, up to +3. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
+| **Space** | The Expanse | Its two neighbors and the two end dice all count as neighbors of each other. Always Warp. • Its two neighbors and the two end dice all count as neighbors of each other for reactions. • Mythic: one of each kind per run. It cannot be copied. • Always carries Warp: it does not count toward your dice cap. • Can grow past d20 in the Firmament, up to d100. |
+| **Chaos** | The Maelstrom | Every roll it becomes a random die from the whole game, in a random size. • Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
+| **Void** | The Hollow | Scores nothing. Every empty slot you have gives +1 Mult. • Scores 0. Every empty dice, relic and consumable slot gives +1 Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
+
+| Die | Rarity | Where | Price | Abilities |
+|---|---|---|---|---|
+| **Chrono** | Legendary | The Horologist's Clockwork only | 30 | A 1 rewinds time: every unheld die rolls again, and you keep the better pool. • When it lands on a 1, every unheld die rolls again for free (it too), and you keep the better pool. Up to 8 times. • Sold only by the Horologist, in the Firmament. |
+| **Entropy** | Mythic | Forge only, once the file has beaten all six Wardens | 300 to forge (Light, Darkness, Time, Space, Chaos, Void and Aether) | Everything at once. Scores its face + 104, and +10 Mult. • Scores its face + 104, and adds +10 to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
+
+- **Kairos** is the old Chrono under a new name (a save from before v0.7 is renamed on load). It stays in Elementa's arcane pool.
+- **Warp** is an edition a die can carry: a violet WARP badge. A Warp die does not count toward the dice cap; at most 3 Warp dice at once. Space always has it, the Warp Seal gives it, a Firmament die offer has a 2% chance to come with it (+12 Shards), and Mote's secret stock sells Warp dice.
+- **Past d20:** in the Firmament, Aether, the Mythic dice and Entropy grow in steps of 10 up to d100 (the Forge's growth, Upgrade Stones, boss rewards, Blessing of Flame). Growing costs the new size in Shards (d30 costs 30); they sell for half their sides. They are drawn as a d20 with the size printed on it.
 
 ### Keyword tags (v0.6.5)
 Hovering or tapping a tag shows its definition. A die's short description shows the first four; the full description lists them all.
@@ -125,6 +148,14 @@ Hovering or tapping a tag shows its definition. A die's short description shows 
 | #Rewind | A rolled 1 rolls again until it is no longer a 1. |
 | #Boost | Raises the score of the dice beside it. |
 | #Doubles | Counts double when it is part of a matching set. |
+| #Mythic | No element. One of each kind per run, and it cannot be copied. |
+| #Warp | Does not count toward your dice cap. At most 3 Warp dice at once. |
+| #Loop | A 1 rerolls every unheld die for free, and the better pool stays. |
+| #Floor | No die can score below this face. |
+| #Devour | Its neighbors score 0, and their score becomes Mult. |
+| #Undo | Takes back your last reroll, and refunds it. |
+| #Shift | Becomes a different random die on every roll. |
+| #Empty | Feeds on the empty slots you have. |
 
 ### Short descriptions (v0.6.5)
 Shown when you click a die (table, shop, inventory). At most two short sentences with a bit of lore; the flag-by-flag text above is the full description, shown on click and hold and in the Gallery.
@@ -150,7 +181,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Sapling** | A seed the Casters forgot. Held through rerolls, it grows. | #Grows |
 | **Mirror** | It shows what stands beside it. Copies the score of the die to its left. | #Mirror |
 | **Conduit** | A channel between neighbors. Its two neighbors react together, doubled. | #Reaction |
-| **Chrono** | Time stumbles once and tries again. A 1 rolls again until it is not a 1. | #Rewind |
+| **Kairos** | The right moment, caught twice. A 1 rolls again until it is not a 1. | #Rewind |
 | **Beacon** | A light left on for its neighbors. The dice beside it score x1.5. | #Boost |
 | **Prism** | It splits one light into four. Reacts as every element at once. | #Reaction |
 | **Gaea** | The Earth god, bound into a die. Adds the faces of her whole family, and weighs them down. | #Divine #Wild #Patience |
@@ -158,6 +189,14 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Varuna** | The Water god, bound into a die. Any die can lock for free, but the tide pulls every roll toward 1. | #Divine #FreeLock #Refund |
 | **Zephyr** | The Air god, bound into a die. Every set rises a step, but Fire burns less. | #Divine #Wild #Sets #Drift |
 | **Primordial** | The dreamer's own die, lent to you. Every Aether power, and a share of each god's. | #Divine #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience |
+| **Chrono** | Time itself, wound tight. A 1 rewinds the whole table, and you keep the better roll. | #Loop |
+| **Light** | The first dawn, kept in a die. Nothing near it falls below its face. | #Mythic #Floor |
+| **Darkness** | What the light leaves behind. It swallows its neighbors and turns them into Mult. | #Mythic #Devour |
+| **Time** | A moment you can take back. Undo a reroll once a round, and save the rest for later. | #Mythic #Undo |
+| **Space** | The distance between things, folded. Its neighbors and both ends all touch. | #Mythic #Reaction #Warp |
+| **Chaos** | Never the same die twice. Every roll it becomes something else. | #Mythic #Shift |
+| **Void** | Absence with an appetite. It scores nothing, and every empty slot feeds your Mult. | #Mythic #Empty |
+| **Entropy** | Every Mythic die and Aether, forged into the end of all things. | #Mythic |
 | **Bullion** | A bar of stored Mult. It scores nothing, but pays your final Mult in Shards on a clear. | #Payout |
 | **Masquerade** | It wears its neighbor's face. Copies the abilities and score of the die on its left. | #Copy #Mirror |
 | **Chameleon** | Borrows the left die's abilities and the right die's score. | #Copy #Mirror |
@@ -211,7 +250,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 
 ---
 
-## 4. Consumables (16 total)
+## 4. Consumables (19 total)
 
 | Consumable | Rarity | Price | Target | Effect |
 |---|---|---|---|---|
@@ -231,6 +270,11 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Fusion Spark** | Rare | 12 | You | Opens the Fusion Forge in this shop, even without beating a boss. |
 | **Mirror Shard** | Rare | 12 | A die | Apply to a die to add an exact copy of it to your pool (needs a free dice slot). |
 | **Loom of Fate** | Uncommon | 8 | You | Restock the shop with new offers, for free. |
+| **Stopwatch** | Rare | 12 | You | During a round: undo your last reroll and get it back. Firmament only. |
+| **Time Capsule** | Uncommon | 8 | You | Bank 2 rerolls for the next round. Firmament only. |
+| **Warp Seal** | Legendary | 28 | A die | Apply to a die to give it Warp: it no longer counts toward your dice cap (at most 3 Warp dice). Firmament only. |
+
+The Stopwatch and the Time Capsule are sold by the Horologist; the Warp Seal turns up in other Firmament shops, very rarely (a quarter of a Legendary's weight). During the Hollow's round no consumable can be used.
 
 Any consumable can also be **Buy & use**: applied on the spot without taking a slot. Consumables can be used during a round too (from the round HUD), except Fusion Spark and Loom of Fate, which only work in a shop.
 
@@ -380,6 +424,54 @@ Each keeper remembers you per save file. Tiers: stranger (visits 1 to 3), regula
   1. Aeris: "When all the Wanderers meet, the Road remembers it was once one thing too."
   2. The Curator: "We always gather before the last Circle. Even keepers want to see how the story ends."
 
+### The Firmament's keepers (v0.7, drafts)
+### Atlas, cartographer
+- **First meeting:** Mind the ink, it is still wet. I am Atlas. I draw the Roads up here, and sometimes the Roads agree with me.
+- **Stranger:** Every map is a promise. Mine are mostly kept.
+- **Stranger:** Where to next? I can make it somewhere better.
+- **Regular:** You walk my lines well. I drew this one with you in mind.
+- **Regular:** A Warden moved last night. I redrew three rows.
+- **Friend:** I left a corner of every map blank for you. Fill it however you like.
+- **Friend:** Sit. The stars can wait to be charted.
+- **After a boss:** A Warden fell? Then a border just moved. Give me a moment.
+- **On your last life:** You are running out of map, Caster. Let me draw you a shorter way.
+- **Lore** (told on visits 2, 4):
+  1. The Firmament is not a place. It is the frame around every place. The Wardens are its corners.
+  2. There is a spot on every map I draw that will not take ink. A blank. I think something lives there.
+
+### The Horologist, keeper of the hours
+- **First meeting:** You are four seconds late. Not to worry, I wound them back. I am the Horologist. Time is my trade.
+- **Stranger:** Tick. Tock. Buy something before the hour turns.
+- **Stranger:** Every die rolls in time. Mine roll twice.
+- **Regular:** Back again, at exactly the right moment. As usual.
+- **Regular:** I have been expecting you since tomorrow.
+- **Friend:** For you I stopped every clock in the shop. Take your time. Literally.
+- **Friend:** We have met before. You just have not got there yet.
+- **After a boss:** The Clockwork? A crude design. Mine are better. Do not tell it I said so.
+- **On your last life:** Your time is short. I can sell you a little more of it.
+- **Lore** (told on visits 2, 4):
+  1. Kairos is the right moment. Chrono is every moment. The Casters only ever had the first.
+  2. Before the Split there was no time, only the dream. Time is what the pieces do while they wait.
+
+### Mote, a speck of the void
+- **First meeting:** ...
+- **Stranger:** ...
+- **Stranger:** (it stares at your dice)
+- **Regular:** (it opens its mouth, hopefully)
+- **Regular:** more?
+- **Friend:** you came back. you always bring food.
+- **Friend:** i remember you. i remember everything you fed me.
+- **After a boss:** (it licks its lips)
+- **On your last life:** (it looks at you, a little worried)
+- **Lore** (told on visits 5):
+  1. before the first word there was nothing. i was the nothing. now i am a little something.
+- Mote says nothing but "..." until it has eaten 40 Shards of goods; then it speaks (a story scene, see §7b).
+
+**True forms past the door** (shown in place of their usual mood lines in the Firmament):
+- **Tobb:** What, you thought I'd stay behind? I go everywhere, Caster. The prices up here are astronomical. That's a joke. Mostly.
+- **Aeris:** Here the wind is not a messenger. It is me, all of me. Ask, Caster, and the sky will answer.
+- **Nix:** Welcome to the eclipse market. No more hiding in alleys. Up here I sell under a black sun, and everyone pays.
+
 ### Bosses (the Fragments)
 Boss rounds are 5, 10 and 15 (Cataclysm: every round). Each boss has its own music theme.
 
@@ -407,6 +499,29 @@ Boss rounds are 5, 10 and 15 (Cataclysm: every round). Each boss has its own mus
 
 Ermal the Unbothered is named after beta tester Ermal and has a sleepy portrait.
 
+### The Wardens (the Firmament, v0.7)
+Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), x1.1 (25), x1.25 (30). On Cataclysm the other Firmament rounds are bosses from the pool above. No pact can swap a Warden out (Bound Tongue and Unspoken Prayer skip them).
+
+| Warden | Guards | Twist | Music |
+|---|---|---|---|
+| **The Dawn** | Light | Overexposure: dice showing their max face score 0. | `boss_dawn` |
+| **The Umbra** | Darkness | Faces are hidden until you cast, and every reroll swallows one unheld die for the round. | `boss_umbra` |
+| **The Clockwork** | Time | A 90-second countdown. At 0, whatever is on the table is cast. | `boss_clockwork` |
+| **The Expanse** | Space | The order of your dice shuffles after every reroll. | `boss_expanse` |
+| **The Maelstrom** | Chaos | After every reroll, each unheld die becomes a random pure element for the round. | `boss_maelstrom` |
+| **The Hollow** | Void | Every relic is sealed and consumables cannot be used this round. | `boss_hollow` |
+
+- **The Clockwork's timer** runs only while the table is live: not paused, no Run Info, tutorial or story scene, not casting, and the tab visible. At 0:00 it casts whatever is on the table.
+- **The Umbra's swallowed die** is locked, dimmed and tagged, and scores 0 for the round. Light on the table keeps the faces visible.
+- **The Maelstrom** keeps each die's size; your dice get their own elements back after the cast or a miss.
+- **The sets** (Set I on a path's first Firmament run, Set II on a later one):
+
+| Path | Set I | Set II |
+|---|---|---|
+| Split | The Dawn, The Clockwork, The Expanse | The Umbra, The Maelstrom, The Hollow |
+| Primordial | The Umbra, The Maelstrom, The Hollow | The Dawn, The Clockwork, The Expanse |
+| Neutral | The Dawn, The Umbra, The Clockwork | The Expanse, The Maelstrom, The Hollow |
+
 ---
 
 ## 7a. The three paths and the endings
@@ -417,6 +532,35 @@ Ermal the Unbothered is named after beta tester Ermal and has a sleepy portrait.
 - **Split:** Primordial Unbound (see §6). Ending: **The Split Holds Forever**.
 - **Primordial:** the gods' gauntlet, four stages inside round 15, no shop or camp between them (a miss costs a life and retries the stage). The Primordial die joins your pool and absorbs each fallen god. Ending: **Made Whole**.
 - **Endings** are collected in the Gallery's Endings tab, and each loadout shows a completion mark per ending it has reached (on the new-run carousel and in the Gallery). Ending card texts are drafts for Carlos.
+
+---
+
+## 7b. The Firmament (v0.7)
+
+- **The door:** a path's door opens once the file has seen that path's ending (The Circle Holds, The Split Holds Forever, Made Whole). The first run is always Neutral, so the Neutral door is open from the second run on.
+- **The Crossroads:** win round 15 on a path whose door is open and, after a story scene, choose: **Rest here** (the run ends with that path's ending, as before) or **Enter the Firmament**. The round-15 win is recorded on the file either way (loadout, difficulty, stake, ending mark). The screen shows the Warden set the door leads to; with both sets done, you pick one.
+- **Through the door** the same run goes on with everything you carry (dice, relics, consumables, lives, Shards, seed, path). The boss reward comes first, then a Market with Tobb (where the path's follower greets you), then rounds 16 to 30 on the Firmament's stretch of the Road, with the usual target curve. Wardens wait at 20, 25 and 30 (see §6). If the run ends in the Firmament it still counts as a win in the file's stats.
+- **Endings:** beating the round-30 Warden ends the run with the path's Firmament ending. No Endless after it. Nine endings in all, each with a hint on its locked card (drafts for Carlos):
+
+| Ending | Path | How |
+|---|---|---|
+| The Circle Holds | Neutral | Win a run. |
+| The Split Holds Forever | Split | Win on the Split path. |
+| Made Whole | Primordial | Win on the Primordial path. |
+| The Frame Unbroken | Neutral | Beat Firmament I (the Dawn, the Umbra, the Clockwork). |
+| Balance Beyond | Neutral | Beat Firmament II (the Expanse, the Maelstrom, the Hollow). |
+| Order in the Heavens | Split | Beat Firmament I (the Dawn, the Clockwork, the Expanse). |
+| The Long Division | Split | Beat Firmament II (the Umbra, the Maelstrom, the Hollow). |
+| The Eclipse Market Closes | Primordial | Beat Firmament I (the Umbra, the Maelstrom, the Hollow). |
+| Everything, Remembered | Primordial | Beat Firmament II (the Dawn, the Clockwork, the Expanse). |
+
+- **The Mythic dice and Entropy:** each Warden's first defeat on the file unlocks the Mythic die it guards (a toast); all six teach Entropy's recipe (a scene and a toast).
+
+**Story scenes** (text drafts for Carlos, `data/story.js`). Each plays once per file, can be skipped (Esc) and replayed from the Gallery's Endings tab; Reduced motion shows every line at once; the table and the Clockwork's timer wait while one is open.
+- Before round 15: the Primordial speaks on each path (who it is, why it wants your dice; on the Split path it fights to take them back; on the Primordial path it asks you to bring the four back).
+- The Primordial path: the loan of the Primordial die, then each god before their gauntlet stage.
+- After the first Neutral win: the visions (one page per god, then the Primordial's last words about "the four who broke me"), then the recipes scene (Aether and the four gods, how each is made), which ends with the achievement **Remembering**.
+- The Crossroads, each Warden before its fight, the path follower's arrival (Aeris in her true form, Nix's eclipse market, Tobb), Mote's first words, and Entropy.
 
 ---
 
@@ -431,6 +575,10 @@ Ermal the Unbothered is named after beta tester Ermal and has a sleepy portrait.
 | **Black Market** | Nix | Rare. One risky deal, paid in more than Shards. | `shop_blackmarket` |
 | **Shrine** | Aeris | Rare. A free blessing, or a prophecy of the next boss. | `shop_shrine` |
 | **Aether Bazaar** | The Wanderers | Legendary. Every shop in one, 25% off, with rarer stock. | `shop_bazaar` |
+| **Astral Exchange** | The Wanderers | The Firmament's legendary shop: the Aether Bazaar's stock and prices. Always the stop before the round-30 Warden. | `shop_bazaar` |
+| **Atlas's Cartography** | Atlas | The Firmament only. No goods: three services, each once per visit. **Redraw** (6 Shards): the next row of the Road is drawn again (the follower's stop and the legendary shop stay). **Add a path** (5): this stop links to one more shop in the next row. **Peek** (8): learn which Warden waits next; it shows on the Road. | `shop_cartography` |
+| **The Horologist's Clockwork** | The Horologist | The Firmament only. The Chrono die, the Stopwatch and the Time Capsule. No restock. | `shop_clockwork` |
+| **Mote's Pantry** | Mote | The Firmament only. Sells nothing: it buys any die, relic or consumable for 150% of its sell value (rounded up), and eats its sell value. Its appetite (on this file, across runs) fills a meter to 400. At **40** its secret stock opens: a **Hollow Pact** for 15 Shards (Mote's, not a Nix pact: no Accord, no effect on Aeris) and a random die as a d6 with Warp (its price +12). At **120**: a **Warp Seal** and one of the file's Mythic dice the run lacks, with Warp (a Chrono if there is none). At 400 it is full (nothing more yet). | `shop_pantry` |
 | **Camp** | Tobb | Not on the Road. After a missed round (not game over): 3 + half the round number in Shards on arrival (stacks with Steadfast), 2 dice and 2 relics or consumables with rerolls, no Forge. Leaving retries the same round; your next Road stop stays the same. Tobb: "Sit, Caster. Nobody wins every fight. Have some tea, then try again." | `shop_market` |
 
 **How the Road is built:** round 1 is always a Market. The shop right after a boss (rounds 5, 10, 15) is a choice of Relic Vault, Forge, and sometimes Market. The last stop before Primordial always includes the Aether Bazaar. Every other stop is drawn by weight, never two of the same type in one row:
@@ -442,6 +590,10 @@ Ermal the Unbothered is named after beta tester Ermal and has a sleepy portrait.
 - Shrine: weight 6, from round 2
 - Black Market: weight 6, from round 3
 - Aether Bazaar: weight 2, from round 8
+
+**The Firmament's stretch** (rounds 16 to 30): the shop after a Warden is a choice of Relic Vault, Forge and sometimes Market; the stop before the round-30 Warden always includes the Astral Exchange; each stretch has one guaranteed stop of the path's follower (a Shrine with Aeris on the Split path, a Black Market with Nix on the Primordial path, an extra Market with Tobb on the Neutral path), on a seeded row between 17 and 23. The other stops are drawn by weight:
+
+- Market 30, Alchemist 10, Forge 10, Atlas's Cartography 10, Relic Vault 8, the Horologist's Clockwork 8, Mote's Pantry 8, Shrine 6, Black Market 6, Astral Exchange 2.
 
 **Black Market deals** (2 offered, take one; the Bazaar offers 1):
 - **Blood Price**: Take a legendary relic. Costs 1 life.
@@ -529,6 +681,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 - **Thanks, Ermal**: Face Ermal the Unbothered.
 - **Bestiary**: Face every boss.
 - **Archivist**: Discover every die, relic, and consumable.
+- **Remembering**: Learn the recipes of Aether and the four gods (the scene after the visions). Files that knew them before v0.7 have it.
 - **Trinity** (secret): Complete all three save files to 100%.
 
 ---

@@ -342,7 +342,7 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 ## B5. Mythic dice and the mythical realm
 
-**Status: Ready** (v0.7). The full spec, with Carlos's answers of 2026-10-03, is **Part H**.
+**Status: Built** (v0.7, GDD §37). The full spec, with Carlos's answers of 2026-10-03, is **Part H**.
 
 Summary: the Firmament continues the run from round 16 to 30 with a Warden boss at 20, 25 and 30; six Wardens in two sets of three give two more endings per path; each Warden guards a Mythic die (Light, Darkness, Time, Space, Chaos, Void) that unlocks when it falls; the Space die and a rare item carry the new "Warp" tag (an extra slot, like Balatro's Negative); Entropy fuses every Mythic die with Aether; Aether and the Mythic dice can grow past d20 up to d100. The Firmament's final Warden is **not** the true ending (Carlos): the true ending is the fourth place (A5).
 
@@ -482,7 +482,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.6.5** | Polish | Carlos's v0.6 playtest notes, Part F (P1 to P18). Built, except P2, which Carlos answered and v0.6.6 built. Ships before the Firmament. |
 | **v0.6.6** | Loose ends | Part G Q1 to Q3 and Carlos's d5 and Chisel answers: popovers on top, Varuna's 1-bias, the Kindling fix, copy dice rolling with borrowed abilities, the d5, sized shop dice, the new Chisel. **Built.** |
 | **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Built.** |
-| **v0.7** | The Firmament | **Ready.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
+| **v0.7** | The Firmament | **Built.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
 | **v0.7.5** | Constellations | Seren joins; B9 Constellations and Runes; B11 poker and Joker dice. Specified when v0.7 is done. |
 | **v0.8** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Needs a workshop first (Carlos 2026-10-03: "we still have to work shop a lot that realm, the boss, the dice, the theme"). |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
@@ -495,6 +495,18 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.7 "The Firmament" (in development, unreleased)
+- **The door and the Crossroads:** once a path's ending has been seen on the file, winning round 15 on that path again leads to the Crossroads: rest (the run ends with the Elementa ending) or enter the Firmament and keep the same run.
+- **The Firmament:** rounds 16 to 30 on a new stretch of the Road, with a Warden at 20, 25 and 30. Six Wardens in two sets of three: The Dawn, The Umbra, The Clockwork (a 90-second countdown), The Expanse, The Maelstrom and The Hollow.
+- **Six new endings:** Firmament I and II per path. Nine ending cards, hints for the locked ones, completion marks for all nine.
+- **Mythic dice:** Light, Darkness, Time, Space, Chaos and Void, a new rarity. Each Warden's first defeat unlocks its die in Firmament shops; one of each per run.
+- **Warp:** a Warp die does not count toward the dice cap (at most 3). Space always has it; the Warp Seal gives it; Firmament offers sometimes carry it.
+- **Chrono and Kairos:** the old Chrono is Kairos; the new Chrono (the Horologist) rewinds the whole table on a 1 and keeps the better pool.
+- **Entropy and the d100 path:** beating all six Wardens teaches Entropy. Aether, the Mythic dice and Entropy grow past d20 in the Firmament, up to d100.
+- **New keepers:** Atlas's Cartography (Redraw, Add a path, Peek), the Horologist's Clockwork (Chrono, Stopwatch, Time Capsule), Mote's Pantry (buys at 150%, an appetite meter and a secret stock), the Astral Exchange. Tobb, Aeris and Nix follow their paths through the door.
+- **Story scenes:** before every final battle and gauntlet stage, the Primordial die's loan, the visions and the recipes scene (achievement: Remembering), the Crossroads, each Warden, Mote's first words, the follower's arrival, Entropy. Skippable and replayable from the Endings tab.
+- **Music:** themes for the six Wardens, the three new shops and two story scenes.
 
 ### Alpha v0.6.7 "Showtime" (in development, unreleased)
 - **A Jukebox:** every song in the game, playable and editable (Options, Audio, Open the Jukebox).
@@ -983,7 +995,7 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
 
 ## Q4a. Story beats before every big fight, and better god visions
 
-**Status: Ready** for Alpha v0.7 (drafts only; Carlos rewrites the words). Carlos: fighting without understanding why, and being handed a new die without a reason, felt anticlimactic. The visions at the end of a Neutral win need to be more solid and give context. Telling the player they unlocked the Aether and god recipes should be its own scene, with an achievement.
+**Status: Built** (Alpha v0.7, GDD §37; drafts only, Carlos rewrites the words). Carlos: fighting without understanding why, and being handed a new die without a reason, felt anticlimactic. The visions at the end of a Neutral win need to be more solid and give context. Telling the player they unlocked the Aether and god recipes should be its own scene, with an achievement.
 
 - **A story scene component** (`components/StoryScene.jsx`), full screen: a tinted backdrop, a portrait (a `BossAvatar`, a keeper sprite or a god die token), lines that type in, "Continue" and "Skip" (skipping is remembered per scene, and a scene can be replayed from the Gallery's Endings tab). Bilingual. A music cue per scene using the existing themes. No new art.
 - **Scenes (draft text written by the agent, marked as drafts):**
@@ -1020,13 +1032,15 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
 
 # Part H: Alpha v0.7 "The Firmament"
 
-**Status: Ready.** Built from Carlos's answers of 2026-10-03 and Claude's specs for the gaps. Items marked **Open** are questions for Carlos: build the default given and list it in your report. Read B2, B4, G Q4a and the v0.6 section of GDD.md (§32) first; the paths, endings and gauntlet code from v0.6 are what this builds on.
+**Status: Built** (Alpha v0.7, GDD §37, branch `elementa-v0.6.5`). Built from Carlos's answers of 2026-10-03 and Claude's specs for the gaps. Items marked **Open** were built with the default given and are still questions for Carlos (listed in the build report and in GDD §37). Read B2, B4, G Q4a and the v0.6 section of GDD.md (§32) first; the paths, endings and gauntlet code from v0.6 are what this builds on.
 
 **Do NOT build here:** Constellations, Runes, Seren (v0.7.5); poker, Joker or sigil dice (v0.7.5, v0.8.5); number dice; editable faces; Laws; the third realms; the fourth place; the true ending. Do not touch anything in `IDEAS.md`.
 
 **Build order** (commit after each, and keep the game playable throughout): H8 data and profile, H3 and H4 and H5 dice, H1 the Firmament run structure, H2 Wardens, H6 shops and keepers, H7 story scenes, then tests and docs.
 
 ## H1. The door, the run, and the endings
+
+**Status: Built** (Alpha v0.7, GDD §37).
 
 - **A door per path.** A path's door opens when that path's Elementa ending has been seen once on the file (`profile.endings` holds `neutral`, `split`, `primordial`). Because the first run is always Neutral, the Neutral door is open from the second run on.
 - **The Crossroads.** After the round-15 final battle is won on a path whose door is open, a new phase `crossroads` replaces the straight jump to the summary: a story scene (H7), then two choices, **Enter the Firmament** or **Rest here** (the run ends with the usual summary and the Elementa ending). Without an open door nothing changes from v0.6.
@@ -1046,6 +1060,8 @@ Carlos's notes from playing Alpha v0.6.5, numbered Q1 to Q5.
 
 ## H2. The six Wardens
 
+**Status: Built** (Alpha v0.7, GDD §37).
+
 Each Warden is a boss entry in `data/bossModifiers.js` (tier 4), with a `BossAvatar` color, a music theme (`boss_dawn` and so on, in `data/musicThemes.js`), and a Gallery entry (Bosses tab). Targets are the round's normal target times 1.0 for the round-20 Warden, 1.1 for round 25 and 1.25 for round 30 (Claude's default).
 
 | Warden | Twist | Guards |
@@ -1062,6 +1078,8 @@ Each Warden is a boss entry in `data/bossModifiers.js` (tier 4), with a `BossAva
 - **The Firmament's last Warden is not the true ending** (Carlos). Do not build the old "your best cast x 1.5" boss here.
 
 ## H3. Mythic dice and the Warp tag
+
+**Status: Built** (Alpha v0.7, GDD §37).
 
 **Mythic** is a new rarity after Divine (a glow color distinct from the others; show it in the Gallery legend). The six dice have no element and no reaction elements, cost **45**, and arrive as a d6. **One of each kind per run** (no duplicates; Mirror Shard and Shadow Twin cannot copy them), which is what lets Entropy ask for all six.
 
@@ -1087,6 +1105,8 @@ Each Warden is a boss entry in `data/bossModifiers.js` (tier 4), with a `BossAva
 
 ## H4. Chrono, Kairos and Time
 
+**Status: Built** (Alpha v0.7, GDD §37).
+
 - **Kairos** is the current Chrono (a 1 rerolls itself until it is not a 1), renamed. It stays in the Elementa arcane pool at its current rarity and price. **Save migration:** an existing die or shop offer with `elementId: 'chrono'` becomes `'kairos'` on `LOAD_RUN`.
 - **Chrono** is new and lives in the Firmament (sold by the Horologist, Legendary, 30). Carlos: "I want Chrono to reroll the entire pool, not just itself" (his plan: Chrono plus small Fire dice for a lot of explosions; he accepts that it is powerful). Claude's design:
   - When Chrono lands on a 1 after any roll or reroll, **time rewinds: every unheld, unlocked die rerolls for free, Chrono included**, and **you keep the better of the two pools** (by round score). It repeats while Chrono still shows a 1 (at most 8 times, a safety stop). Held and locked dice stay put, so locks and Chrono work together.
@@ -1096,10 +1116,14 @@ Each Warden is a boss entry in `data/bossModifiers.js` (tier 4), with a `BossAva
 
 ## H5. Entropy and the d100 path
 
+**Status: Built** (Alpha v0.7, GDD §37).
+
 - **Entropy:** a Mythic fusion of all six Mythic dice plus Aether (Carlos: "even if it doesn't make sense it would be fun to combine all of them"). Forge-only, price 300 in the Forge sense (a high Shard cost), scores its face + 104 and adds +10 to Mult, one per run. Its recipe is learned when `profile.wardens` holds all six Wardens (H2), like Aether's recipe lock (B6); reuse `recipes`.
 - **Growth past d20:** Aether, the Mythic dice, the Primordial die excluded, and Entropy can grow in steps of 10: d30, d40, ... d100, through Upgrade Stones and the Forge's "grow a die" in Firmament shops. Normal dice still stop at d20. Add the tiers to `DICE_TIERS` flagged `bigOnly`; the upgrade cost of d30 to d100 equals the number of sides. Rendering: reuse the d20 shape with the size printed on the die; 3-digit faces need a smaller number font.
 
 ## H6. Firmament shops and keepers
+
+**Status: Built** (Alpha v0.7, GDD §37).
 
 - **Dice and items from earlier realms keep appearing** (H3). The legendary shop is called **Astral Exchange** in the Firmament (A1, Proposed; the shop type's name is per realm). Same stock rules as the Aether Bazaar.
 - **New shop types** (each with a keeper, a `KeeperSprite` placeholder, a music theme, bilingual keeper lines in `data/keepers.js`, and its own entries in `data/shops.js`):
@@ -1113,6 +1137,8 @@ Each Warden is a boss entry in `data/bossModifiers.js` (tier 4), with a `BossAva
 
 ## H7. Story scenes
 
+**Status: Built** (Alpha v0.7, GDD §37).
+
 Build the scenes of Part G Q4a (all of them: before each path's Primordial fight, before each gauntlet stage, the Primordial die's loan, the improved visions, the recipes scene with the "Remembering" achievement), **and these new ones** (all drafts in `data/story.js`, bilingual, Carlos rewrites):
 - **The Crossroads**, as the last Circle cracks and what lies past it ("something older, something that frames everything").
 - **Each Warden's intro** (about 4 lines, spoken by the Warden: who it is and what it guards).
@@ -1122,11 +1148,15 @@ Build the scenes of Part G Q4a (all of them: before each path's Primordial fight
 
 ## H8. Data and profile
 
+**Status: Built** (Alpha v0.7, GDD §37).
+
 - `profile.mythics` (unlocked Mythic dice), `profile.wardens` (Wardens beaten), `profile.mote = { fed }`, and new `recipes` entries (`'entropy'`). Migrate older files with sensible defaults. The doors are derived from `profile.endings`.
 - `RARITY.MYTHIC`; `ELEMENTS` entries for the six Mythic dice, Entropy, Chrono (new), Kairos; `data/diceText.js` short texts and keywords for each; `data/i18n.js` Spanish; Gallery entries; `CONTENT.md` updated.
 - Test saves: write `elementa-files-v2` files that stand at round 15 on each path with an open door so the whole Firmament can be reached without playing it.
 
 ## H9. Verify and report
+
+**Status: Built** (Alpha v0.7, GDD §37).
 
 - Node scripts: the Crossroads flow per path; Warden sets by path and by earlier endings; Mythic uniqueness and the one-of-each rule; the Warp cap and a Warp die not counting toward the dice cap; Void's slot counting; Darkness's neighbors; Chrono rewinding the pool (keeps the better pool, stops at 8); Kairos migration; Chaos forms scoring correctly; d100 growth; the Entropy recipe unlock; Mote's meter.
 - Browser: click through a path into the Firmament (use test saves), a Warden of each twist (including the Clockwork's timer and pause behavior), the keepers' shops, the Gallery tabs, and Reduced motion.
@@ -1221,3 +1251,7 @@ Build the scenes of Part G Q4a (all of them: before each path's Primordial fight
   - The legendary shop is named per realm; names proposed.
   - Workshop of the fourth place, the true ending and Mote started (A5, Proposed). Lore wording stays drafts until the beta.
   - Part H written and marked Ready for Alpha v0.7.
+- **2026-10-03 (v0.7 build):**
+  - Part H built on branch `elementa-v0.6.5` (GDD §37), with the story scenes of Part G Q4a. Nothing from `IDEAS.md`; no Constellations, Runes, Seren, poker, Joker, sigil or number dice, editable faces, Laws, third realms, fourth place or true ending.
+  - Open items built with their defaults: the Neutral Warden sets; Darkness as both neighbors, undivided (`DARKNESS_DIVISOR = 1`); the name "Warp". Claude's defaults are listed in GDD §37 for Carlos to tune.
+  - Test saves: `tools/firmamentTestSaves.mjs` writes a backup file (Options > Backup) with three files at round 15, one per path, door open.

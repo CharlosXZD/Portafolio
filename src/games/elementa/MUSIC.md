@@ -33,6 +33,8 @@ Where each plays, its key, scale, tempo and length (a bar is 16 steps). "pad" me
 | `table` | A normal round (the dice table) | G2 minor | 133 | 4 | drums |
 | `gameover` | Game over | A2 minor | 60 | 2 | - |
 | `victory` | Boss reward and victory | C3 major | 125 | 2 | pad, drums |
+| `scene_crossroads` | Story scene: the Crossroads | A2 lydian | 83 | 2 | pad, drums |
+| `scene_firmament` | Story scenes: the visions, Entropy | A3 pentMajor | 100 | 2 | pad, drums |
 | `shop_market` | Market shop (Tobb) | C3 major | 115 | 4 | drums |
 | `shop_alchemist` | Alchemist (Vessa) | D3 wholeTone | 125 | 2 | drums |
 | `shop_vault` | Relic Vault (the Curator) | A2 harmonicMinor | 75 | 4 | pad, drums |
@@ -40,6 +42,9 @@ Where each plays, its key, scale, tempo and length (a bar is 16 steps). "pad" me
 | `shop_blackmarket` | Black Market (Nix) | D3 dorian | 100 | 2 | swing, drums |
 | `shop_shrine` | Shrine (Aeris) | F3 pentMajor | 68 | 2 | pad, drums |
 | `shop_bazaar` | Aether Bazaar (every keeper) | C3 lydian | 125 | 2 | pad, drums |
+| `shop_cartography` | Atlas's Cartography (the Firmament) | D3 major | 115 | 2 | drums |
+| `shop_clockwork` | The Horologist's Clockwork (the Firmament) | G3 dorian | 125 | 2 | drums |
+| `shop_pantry` | Mote's Pantry (the Firmament) | F2 pentMinor | 107 | 2 | drums |
 | `boss_calm_winds` | Boss: Calm Winds | D3 lydian | 75 | 2 | drums |
 | `boss_grounded` | Boss: Grounded | E2 minor | 94 | 2 | drums |
 | `boss_iron_grip` | Boss: Iron Grip | C3 harmonicMinor | 115 | 2 | drums |
@@ -58,8 +63,14 @@ Where each plays, its key, scale, tempo and length (a bar is 16 steps). "pad" me
 | `boss_ognen` | Gauntlet stage 2: Ognen | E3 phrygian | 167 | 1 | drums |
 | `boss_varuna` | Gauntlet stage 3: Varuna | C3 lydian | 125 | 1 | drums |
 | `boss_zephyr` | Gauntlet stage 4: Zephyr | C4 wholeTone | 150 | 1 | drums |
+| `boss_dawn` | Warden: The Dawn (the Firmament) | E3 lydian | 136 | 2 | pad, drums |
+| `boss_umbra` | Warden: The Umbra (the Firmament) | D2 phrygian | 88 | 2 | drums |
+| `boss_clockwork` | Warden: The Clockwork (the Firmament) | D3 dorian | 150 | 2 | drums |
+| `boss_expanse` | Warden: The Expanse (the Firmament) | A2 pentMajor | 107 | 2 | pad, drums |
+| `boss_maelstrom` | Warden: The Maelstrom (the Firmament) | B2 harmonicMinor | 176 | 2 | drums |
+| `boss_hollow` | Warden: The Hollow (the Firmament) | G2 wholeTone | 75 | 2 | drums |
 
-The game picks a song for every screen with `themeForState` at the bottom of `data/musicThemes.js`. Names follow a pattern: `shop_<shop type>` for shops, `boss_<boss id>` for bosses. A song that does not exist falls back to the menu theme.
+The game picks a song for every screen with `themeForState` at the bottom of `data/musicThemes.js`. Names follow a pattern: `shop_<shop type>` for shops, `boss_<boss id>` for bosses (the Wardens too), `scene_<name>` for story scenes. A story scene picks its song in `data/story.js` (its `music`), often an existing theme; while it is open it replaces the screen's song. A song that does not exist falls back to the menu theme.
 
 ## 4. How a song is written
 

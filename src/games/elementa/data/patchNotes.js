@@ -12,6 +12,54 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.7',
+    name: L('The Firmament', 'El Firmamento'),
+    date: null,
+    highlights: [
+      L(
+        'A door past the last Circle. Once you have seen a path\'s ending, winning round 15 on that path again leads to the Crossroads: rest there, or walk into the Firmament and keep the same run going, everything you carry included.',
+        'Una puerta más allá del último Círculo. Cuando ya viste el final de un camino, volver a ganar la ronda 15 en ese camino te lleva a la Encrucijada: descansa ahí, o entra al Firmamento y sigue la misma partida, con todo lo que llevas.',
+      ),
+      L(
+        'Rounds 16 to 30, with a Warden at 20, 25 and 30. Six Wardens in two sets of three, each with its own twist: The Dawn, The Umbra, The Clockwork (a real 90-second countdown), The Expanse, The Maelstrom and The Hollow.',
+        'Rondas 16 a 30, con un Custodio en la 20, la 25 y la 30. Seis Custodios en dos grupos de tres, cada uno con su giro: El Alba, La Umbra, El Mecanismo (una cuenta regresiva real de 90 segundos), La Extensión, La Vorágine y El Hueco.',
+      ),
+      L(
+        'Six new endings: Firmament I and Firmament II for each path. The Endings tab now has nine cards, with hints for the ones you have not reached.',
+        'Seis finales nuevos: Firmamento I y Firmamento II para cada camino. La pestaña de Finales ahora tiene nueve cartas, con pistas para las que aún no alcanzas.',
+      ),
+      L(
+        'Mythic dice, a new rarity: Light, Darkness, Time, Space, Chaos and Void. Each Warden guards one, and beating it for the first time puts that die in the Firmament\'s shops. One of each per run.',
+        'Dados Míticos, una nueva rareza: Luz, Oscuridad, Tiempo, Espacio, Caos y Vacío. Cada Custodio guarda uno, y vencerlo por primera vez pone ese dado en las tiendas del Firmamento. Uno de cada tipo por partida.',
+      ),
+      L(
+        'Warp: a die with Warp does not count toward your dice cap (up to 3). The Space die always has it, the Warp Seal gives it, and Firmament offers sometimes come with it.',
+        'Warp: un dado con Warp no cuenta para tu límite de dados (hasta 3). El dado Espacio siempre lo tiene, el Sello Warp lo da, y a veces las ofertas del Firmamento vienen con él.',
+      ),
+      L(
+        'Chrono is now Kairos. The new Chrono lives in the Firmament: a 1 rewinds time and rerolls your whole table, keeping the better roll.',
+        'Crono ahora es Kairós. El nuevo Crono vive en el Firmamento: un 1 rebobina el tiempo y vuelve a tirar toda tu mesa, quedándose con la mejor tirada.',
+      ),
+      L(
+        'Beat all six Wardens to learn Entropy: every Mythic die and Aether, forged into one. Aether, the Mythic dice and Entropy can grow past d20, all the way to d100.',
+        'Vence a los seis Custodios para aprender la Entropía: todos los dados Míticos y el Éter, forjados en uno. El Éter, los dados Míticos y la Entropía pueden crecer más allá de d20, hasta d100.',
+      ),
+      L(
+        'New keepers: Atlas redraws the Road, the Horologist sells time, and Mote buys anything you will sell it. It is very hungry. Tobb, Aeris and Nix follow you through the door.',
+        'Nuevos guardianes: Atlas redibuja el Camino, el Relojero vende tiempo, y Mote compra todo lo que le vendas. Tiene mucha hambre. Tobb, Aeris y Nix te siguen al cruzar la puerta.',
+      ),
+      L(
+        'Story scenes before every big fight, a longer vision of the four gods, and a scene for learning the recipes, with a new achievement, Remembering. Skip any of them, and replay them from the Endings tab.',
+        'Escenas de historia antes de cada pelea grande, una visión más larga de los cuatro dioses, y una escena al aprender las recetas, con un logro nuevo, Recordar. Puedes saltar cualquiera, y repetirlas desde la pestaña de Finales.',
+      ),
+      L(
+        'New music for the Wardens, the new shops and the scenes.',
+        'Música nueva para los Custodios, las tiendas nuevas y las escenas.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.6.7',
     name: L('Showtime', 'Función'),
     date: null,

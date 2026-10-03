@@ -108,7 +108,7 @@ export default function EndingCards({ ending, visions = false, onDone, onScene }
           transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
           className="flex w-full justify-center"
         >
-          <EndingCard {...card} />
+          <EndingCard label={card.label} title={card.title} text={card.text} color={card.color} art={card.art} />
         </motion.div>
       </AnimatePresence>
       <div className="flex items-center gap-3">
