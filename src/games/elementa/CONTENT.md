@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-03 (Alpha v0.7 "The Firmament" in development), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-03 (Alpha v0.7.2 "Firmament depth" in development), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -120,6 +120,17 @@ Sold only past the door (see §7b), never in Elementa. Every die from Elementa s
 | **Chrono** | Legendary | The Horologist's Clockwork only | 30 | A 1 rewinds time: every unheld die rolls again, and you keep the better pool. • When it lands on a 1, every unheld die rolls again for free (it too), and you keep the better pool. Up to 8 times. • Sold only by the Horologist, in the Firmament. |
 | **Entropy** | Mythic | Forge only, once the file has beaten all six Wardens | 300 to forge (Light, Darkness, Time, Space, Chaos, Void and Aether) | Everything at once. Scores its face + 104, and +10 Mult. • Scores its face + 104, and adds +10 to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
 
+### Celestial dice (Alpha v0.7.2; Firmament only)
+Five arcane dice (no element, family "Arcane") sold only past the door: in Firmament Markets and the Astral Exchange, weight 1 each (Quasar 0.4), arriving in the usual sizes. The Astral Exchange always has one Celestial on its shelf. No unlock needed. They work through Masquerade and Chameleon like all arcane dice.
+
+| Die | Rarity | Price | Abilities |
+|---|---|---|---|
+| **Comet** | Epic | 16 | Explodes on its two highest faces, and when it explodes it scores its whole total twice. |
+| **Pulsar** | Epic | 16 | Every reroll made this round adds +1 to its Base, up to +10 (it starts over next round). The Hourglass's free rerolls count. The Horologist sells it too. |
+| **Satellite** | Epic | 16 | Scores nothing. The dice on both sides count their face +1 (an explosion chain is unchanged; a fizzled die stays 0). Two Satellites on one die stack. |
+| **Quasar** | Legendary | 30 | Scores 0 Base; its whole total goes to Mult, flat (a "Quasar" line on the ledger). One per run, cannot be copied. |
+| **Zenith** | Epic | 16 | While it is in your pool: +1 reroll every round, +1 more from round 20 and again from round 25 (so +2, then +3). Each Zenith adds its own. The Horologist sells it too. |
+
 - **Kairos** is the old Chrono under a new name (a save from before v0.7 is renamed on load). It stays in Elementa's arcane pool.
 - **Warp** is an edition a die can carry: a violet WARP badge. A Warp die does not count toward the dice cap; at most 3 Warp dice at once. Space always has it, the Warp Seal gives it, a Firmament die offer has a 2% chance to come with it (+12 Shards), and Mote's secret stock sells Warp dice.
 - **Past d20:** in the Firmament, Aether, the Mythic dice and Entropy grow in steps of 10 up to d100 (the Forge's growth, Upgrade Stones, boss rewards, Blessing of Flame). Growing costs the new size in Shards (d30 costs 30); they sell for half their sides. They are drawn as a d20 with the size printed on it.
@@ -147,6 +158,10 @@ Hovering or tapping a tag shows its definition. A die's short description shows 
 | #Payout | Scores nothing, but pays Shards when you clear the round. |
 | #Rewind | A rolled 1 rolls again until it is no longer a 1. |
 | #Boost | Raises the score of the dice beside it. |
+| #Burst | Scores its whole total twice when it explodes. |
+| #Pulse | Gains Base for every reroll made this round. |
+| #Flare | Its face goes to Mult instead of Base. |
+| #Rerolls | Gives you extra rerolls while it is in your pool. |
 | #Doubles | Counts double when it is part of a matching set. |
 | #Mythic | No element. One of each kind per run, and it cannot be copied. |
 | #Warp | Does not count toward your dice cap. At most 3 Warp dice at once. |
@@ -190,6 +205,11 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Zephyr** | The Air god, bound into a die. Every set rises a step, but Fire burns less. | #Divine #Wild #Sets #Drift |
 | **Primordial** | The dreamer's own die, lent to you. Every Aether power, and a share of each god's. | #Divine #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience |
 | **Chrono** | Time itself, wound tight. A 1 rewinds the whole table, and you keep the better roll. | #Loop |
+| **Comet** | A star that burned out long ago and is still falling. Its biggest rolls blaze, and count twice. | #Explodes #Burst |
+| **Pulsar** | A dead star that ticks like a clock. Every reroll makes it hit harder. | #Pulse |
+| **Satellite** | It scores nothing and lifts everyone near it. | #Boost |
+| **Quasar** | The brightest thing in the sky, and all of it goes to Mult. Only one can shine. | #Flare |
+| **Zenith** | The highest point the Casters ever reached. Holding it buys you more time. | #Rerolls |
 | **Light** | The first dawn, kept in a die. Nothing near it falls below its face. | #Mythic #Floor |
 | **Darkness** | What the light leaves behind. It swallows its neighbors and turns them into Mult. | #Mythic #Devour |
 | **Time** | A moment you can take back. Undo a reroll once a round, and save the rest for later. | #Mythic #Undo |
@@ -203,7 +223,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 
 ---
 
-## 3. Relics (43 total)
+## 3. Relics (45 total)
 
 ### Fire family
 | Relic | Rarity | Price | Effect |
@@ -245,12 +265,14 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | Relic | Rarity | Price | Effect |
 |
 | **Pantheon** | Legendary | 28 | You can hold a second god die. Sold only in the Aether Bazaar, once the god recipes are known. |
+| **Mainspring** | Epic | 18 | Rerolls you do not use are banked for the next round, up to 3 (the same rerolls never count twice with Time). Sold only by the Horologist, in the Firmament. |
+| **Cuckoo Clock** | Epic | 18 | Clear a round with 0 rerolls left: +5 Shards and +1 Mult on the next round's cast. Sold only by the Horologist, in the Firmament. |
 
 ---|---|---|---|
 
 ---
 
-## 4. Consumables (19 total)
+## 4. Consumables (23 total)
 
 | Consumable | Rarity | Price | Target | Effect |
 |---|---|---|---|---|
@@ -272,9 +294,13 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Loom of Fate** | Uncommon | 8 | You | Restock the shop with new offers, for free. |
 | **Stopwatch** | Rare | 12 | You | During a round: undo your last reroll and get it back. Firmament only. |
 | **Time Capsule** | Uncommon | 8 | You | Bank 2 rerolls for the next round. Firmament only. |
+| **Hourglass** | Uncommon | 8 | You | During a round: your next 3 rerolls this round do not use up a reroll (no Shard tax either; Pulsar still counts them). Firmament only. |
+| **Pocket Watch** | Rare | 12 | A die | Next round that die starts held, on the face it shows now. Firmament only. |
+| **Metronome** | Uncommon | 8 | You | +1 Mult on every cast for the next 3 rounds. Firmament only. |
+| **Almanac** | Rare | 12 | You | Adds an Almanac page to your pacts and boons with the next three targets and the next boss, exactly (it foretells the boss like a Prophecy). Firmament only. |
 | **Warp Seal** | Legendary | 28 | A die | Apply to a die to give it Warp: it no longer counts toward your dice cap (at most 3 Warp dice). Firmament only. |
 
-The Stopwatch and the Time Capsule are sold by the Horologist; the Warp Seal turns up in other Firmament shops, very rarely (a quarter of a Legendary's weight). During the Hollow's round no consumable can be used.
+The Stopwatch, the Time Capsule, the Hourglass, the Pocket Watch, the Metronome and the Almanac are all in the Horologist's pool (and turn up in other Firmament shops); the Warp Seal turns up in other Firmament shops, very rarely (a quarter of a Legendary's weight). During the Hollow's round no consumable can be used.
 
 Any consumable can also be **Buy & use**: applied on the spot without taking a slot. Consumables can be used during a round too (from the round HUD), except Fusion Spark and Loom of Fate, which only work in a shop.
 
@@ -452,6 +478,9 @@ Each keeper remembers you per save file. Tiers: stranger (visits 1 to 3), regula
 - **Lore** (told on visits 2, 4):
   1. Kairos is the right moment. Chrono is every moment. The Casters only ever had the first.
   2. Before the Split there was no time, only the dream. Time is what the pieces do while they wait.
+  3. I keep six things on the shelf and sell three of them. Which three depends on the minute you arrive. Do not ask me which minute.
+  4. A Pulsar is a star that learned to count. Everything in this shop is just another way of counting.
+  5. The Mainspring is the oldest thing I own. It was in the first clock, the one that wound the dream.
 
 ### Mote, a speck of the void
 - **First meeting:** ...
@@ -575,9 +604,9 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 | **Black Market** | Nix | Rare. One risky deal, paid in more than Shards. | `shop_blackmarket` |
 | **Shrine** | Aeris | Rare. A free blessing, or a prophecy of the next boss. | `shop_shrine` |
 | **Aether Bazaar** | The Wanderers | Legendary. Every shop in one, 25% off, with rarer stock. | `shop_bazaar` |
-| **Astral Exchange** | The Wanderers | The Firmament's legendary shop: the Aether Bazaar's stock and prices. Always the stop before the round-30 Warden. | `shop_bazaar` |
+| **Astral Exchange** | The Wanderers | The Firmament's legendary shop: the Aether Bazaar's stock and prices, with one Celestial die always on the shelf. Always the stop before the round-30 Warden. | `shop_bazaar` |
 | **Atlas's Cartography** | Atlas | The Firmament only. No goods: three services, each once per visit. **Redraw** (6 Shards): the next row of the Road is drawn again (the follower's stop and the legendary shop stay). **Add a path** (5): this stop links to one more shop in the next row. **Peek** (8): learn which Warden waits next; it shows on the Road. | `shop_cartography` |
-| **The Horologist's Clockwork** | The Horologist | The Firmament only. The Chrono die, the Stopwatch and the Time Capsule. No restock. | `shop_clockwork` |
+| **The Horologist's Clockwork** | The Horologist | The Firmament only. **Six offers a visit, drawn from a pool**: Chrono always, plus one of Pulsar, Zenith and Kairos; three of his six consumables (Stopwatch, Time Capsule, Hourglass, Pocket Watch, Metronome, Almanac); and one of his two relics (Mainspring, Cuckoo Clock). No restock button. | `shop_clockwork` |
 | **Mote's Pantry** | Mote | The Firmament only. Sells nothing: it buys any die, relic or consumable for 150% of its sell value (rounded up), and eats its sell value. Its appetite (on this file, across runs) fills a meter to 400. At **40** its secret stock opens: a **Hollow Pact** for 15 Shards (Mote's, not a Nix pact: no Accord, no effect on Aeris) and a random die as a d6 with Warp (its price +12). At **120**: a **Warp Seal** and one of the file's Mythic dice the run lacks, with Warp (a Chrono if there is none). At 400 it is full (nothing more yet). | `shop_pantry` |
 | **Camp** | Tobb | Not on the Road. After a missed round (not game over): 3 + half the round number in Shards on arrival (stacks with Steadfast), 2 dice and 2 relics or consumables with rerolls, no Forge. Leaving retries the same round; your next Road stop stays the same. Tobb: "Sit, Caster. Nobody wins every fight. Have some tea, then try again." | `shop_market` |
 

@@ -483,7 +483,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.6.6** | Loose ends | Part G Q1 to Q3 and Carlos's d5 and Chisel answers: popovers on top, Varuna's 1-bias, the Kindling fix, copy dice rolling with borrowed abilities, the d5, sized shop dice, the new Chisel. **Built.** |
 | **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Built.** |
 | **v0.7** | The Firmament | **Built.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
-| **v0.7.2** | Firmament depth | **Ready.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
+| **v0.7.2** | Firmament depth | **Built.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
 | **v0.7.5** | Constellations | **Ready.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
 | **v0.8** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Needs a workshop first (Carlos 2026-10-03: "we still have to work shop a lot that realm, the boss, the dice, the theme"). |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
@@ -496,6 +496,13 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.7.2 "Firmament depth" (in development, unreleased)
+- **Celestial dice, Firmament only:** Comet, Pulsar, Satellite, Quasar and Zenith, in Firmament Markets (weight 1 each, Quasar 0.4) and always one on the Astral Exchange's shelf.
+- **The Horologist's rotating pool:** six offers a visit. Chrono always, plus one of Pulsar, Zenith and Kairos; three of Stopwatch, Time Capsule, Hourglass, Pocket Watch, Metronome and Almanac; one of Mainspring and Cuckoo Clock.
+- **New items:** Hourglass, Pocket Watch, Metronome, Almanac (consumables) and Mainspring, Cuckoo Clock (relics).
+- **Showtime follow-up:** a die changed by a Beacon, Satellite or Mirror names its helper in the cast caption and lights it.
+- **Horologist:** three more lore lines.
 
 ### Alpha v0.7.1 "Settling in" (in development, unreleased)
 - **Paths:** the Primordial path now needs +8 (was +6); a pool of 4 or more dice that all share one element family counts -3 toward the Split (which stays hard, -6). Neutral is the wide middle.
@@ -1175,7 +1182,7 @@ Build the scenes of Part G Q4a (all of them: before each path's Primordial fight
 
 ## Part I: v0.7.2 "Firmament depth" (spec, 2026-10-03)
 
-**Status: Ready.** From Carlos's v0.7 playtest notes 4 ("add more dice to the Firmament") and his Horologist question ("so it doesn't feel empty on a second visit"). Everything here is Claude's spec; tune after playtests. Do not build anything outside this part.
+**Status: Built (GDD §38).** From Carlos's v0.7 playtest notes 4 ("add more dice to the Firmament") and his Horologist question ("so it doesn't feel empty on a second visit"). Everything here is Claude's spec; tune after playtests. Do not build anything outside this part.
 
 ### I1. Celestial dice (new, Firmament only)
 

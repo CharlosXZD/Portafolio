@@ -12,6 +12,39 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.7.2',
+    name: L('Firmament depth', 'Profundidad del Firmamento'),
+    date: null,
+    highlights: [
+      L(
+        'Five Celestial dice, sold only past the door: Comet (explodes on its top two faces and scores twice when it does), Pulsar (+1 Base per reroll this round), Satellite (lifts the dice beside it), Quasar (its face goes to Mult; one per run) and Zenith (extra rerolls every round).',
+        'Cinco dados Celestiales, solo a la venta más allá de la puerta: Cometa (explota con sus dos caras más altas y anota doble cuando lo hace), Púlsar (+1 Base por reroll de la ronda), Satélite (levanta a los dados de al lado), Cuásar (su cara va al Mult; uno por partida) y Cénit (rerolls extra cada ronda).',
+      ),
+      L(
+        'The Horologist never sells the same shop twice: six offers a visit, drawn from a pool. Chrono is always there.',
+        'El Relojero nunca vende la misma tienda dos veces: seis ofertas por visita, sacadas de un grupo. Crono siempre está.',
+      ),
+      L(
+        'New time items: the Hourglass (3 free rerolls), Pocket Watch (a die starts next round held), Metronome (+1 Mult for 3 rounds) and Almanac (the next three targets and the next boss, exactly).',
+        'Objetos de tiempo nuevos: el Reloj de Arena (3 rerolls gratis), el Reloj de Bolsillo (un dado empieza guardado la próxima ronda), el Metrónomo (+1 Mult por 3 rondas) y el Almanaque (los próximos tres objetivos y el próximo jefe, con exactitud).',
+      ),
+      L(
+        'Two time relics: the Mainspring (banks unused rerolls) and the Cuckoo Clock (clear with no rerolls left for Shards and a Mult).',
+        'Dos reliquias de tiempo: el Resorte Maestro (guarda los rerolls sin usar) y el Reloj de Cuco (supera una ronda sin rerolls para ganar Fragmentos y un Mult).',
+      ),
+      L(
+        'The Astral Exchange always has a Celestial die on its shelf, and Firmament Markets offer them now and then.',
+        'El Intercambio Astral siempre tiene un dado Celestial en su estante, y los Mercados del Firmamento los ofrecen de vez en cuando.',
+      ),
+      L(
+        'The cast now names the helper when a Beacon, Satellite or Mirror changes a die, and lights it up.',
+        'El lanzamiento ahora nombra al ayudante cuando un Faro, Satélite o Espejo cambia un dado, y lo ilumina.',
+      ),
+      L('The Horologist has a few more things to say.', 'El Relojero tiene algunas cosas más que decir.'),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.7.1',
     name: L('Settling in', 'Asentándose'),
     date: null,
