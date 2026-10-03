@@ -1917,7 +1917,7 @@ function reduce(state, action) {
         })
       }
       dice = settleTide(dice)
-      // Chrono (H4): a 1 rewinds time, as often as it takes (up to 8).
+      // Chrono (H4): any 1 rewinds time, as often as it takes (no limit).
       const chrono = chronoAfterRoll(
         dice,
         effectiveRelics(state),

@@ -9,8 +9,9 @@ const DEFAULT_EXPLODE_CAP = 10
 // Darkness (EXPANSION.md H3) adds its neighbors' score to Mult divided by
 // this. Carlos asked for it undivided; one constant so it is easy to tune.
 export const DARKNESS_DIVISOR = 1
-// Chrono (H4): at most this many rewinds per roll, a safety stop.
-export const CHRONO_LOOP_CAP = 8
+// Chrono (H4) has no gameplay limit; this only stops a pool that can never
+// leave 1 from looping forever.
+export const CHRONO_SAFETY_STOP = 2000
 // Pulsar (I1): at most this much Base from rerolls.
 export const PULSAR_CAP = 10
 // The sizes Chaos can take (H3).
@@ -159,7 +160,7 @@ export function rerollPool(dice, relics = [], opts = {}) {
  * Chrono (H4): when a Chrono is in the pool and any die that just rolled lands on a 1, time
  * rewinds: every unheld, unlocked die rolls again for free (Chrono too) and
  * the better pool by round score stays. It repeats while any die still shows
- * a 1, at most CHRONO_LOOP_CAP times. `rolled` is the set of die ids that
+ * a 1 (no limit). `rolled` is the set of die ids that
  * rolled this time (held and locked dice never trigger it); `settle` runs
  * after each extra roll (Varuna's tide). Returns the pool and the count.
  */
@@ -171,14 +172,25 @@ export function chronoLoop(dice, relics = [], ctx = {}, rolled = null, settle = 
     if (!pool.some((d, i) => hasFlag(acting[i], FLAGS.CHRONO))) return false
     return pool.some((d) => d.value === 1 && !d.held && !d.locked && (!rolled || rolled.has(d.id)))
   }
-  let current = dice
+  // No limit by design (Carlos): it keeps rewinding until a roll comes up
+  // with no 1 on a rolled die. `best` is the better pool seen so far; each
+  // rewind rolls from the latest roll. CHRONO_SAFETY_STOP only guards against
+  // a pool that can never leave 1 (it is never reached in normal play).
+  let best = dice
+  let bestScore = null
+  let latest = dice
   let loops = 0
-  while (loops < CHRONO_LOOP_CAP && triggered(current)) {
-    const candidate = settle(rerollPool(current, relics, { noGrowth: true }))
-    if (evaluatePool(candidate, relics, ctx).roundScore > evaluatePool(current, relics, ctx).roundScore) current = candidate
+  while (loops < CHRONO_SAFETY_STOP && triggered(latest)) {
+    if (bestScore === null) bestScore = evaluatePool(best, relics, ctx).roundScore
+    latest = settle(rerollPool(latest, relics, { noGrowth: true }))
+    const score = evaluatePool(latest, relics, ctx).roundScore
+    if (score > bestScore) {
+      best = latest
+      bestScore = score
+    }
     loops += 1
   }
-  return { dice: current, loops }
+  return { dice: best, loops }
 }
 
 /** The face Light lifts every die to (H3), or 0 without Light. */

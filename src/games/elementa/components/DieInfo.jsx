@@ -66,7 +66,8 @@ export function DieEditionLines({ edition = null, chaosForm = null }) {
 }
 
 /** Level 1: hover. `score` is a number, '?' (Eclipse) or null (no roll). */
-export function DieHoverCard({ elementId, sides, bonus = 0, score = null, edition = null, chaosForm = null }) {
+export function DieHoverCard({ elementId, sides, bonus = 0, score = null, edition = null, chaosForm = null, rune = null }) {
+  const { lang } = useLanguage()
   const name = useDieName(elementId)
   const colors = dieColors(elementId)
   return (

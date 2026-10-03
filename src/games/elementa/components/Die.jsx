@@ -331,6 +331,7 @@ export default function Die({
             bonus={die.bonus || 0}
             edition={die.edition}
             chaosForm={die.chaosForm}
+            rune={die.rune}
             score={!showFace ? '?' : typeof contribution === 'number' ? Math.round(contribution * 10) / 10 : null}
           />
         }

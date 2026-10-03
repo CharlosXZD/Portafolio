@@ -80,7 +80,7 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
       {dieId ? (
         <Tooltip
           disabled={isOpen}
-          content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} />}
+          content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} rune={item.rune} />}
         >
           {/* A press that turned into a hold must not also click. */}
           <span

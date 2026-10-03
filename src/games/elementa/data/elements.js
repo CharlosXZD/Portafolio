@@ -418,7 +418,7 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#8f7bff',
-    tagline: 'Any die that rolls a 1 rewinds time: every unheld die rolls again, and you keep the better pool. Repeats until no 1 is left (up to 8 times).',
+    tagline: 'Any die that rolls a 1 rewinds time: every unheld die rolls again, and you keep the better pool. Repeats until a roll comes up with no 1.',
     flags: flagSet(FLAGS.CHRONO),
   },
   // --- The Celestial dice (EXPANSION.md I1): arcane dice sold only past the

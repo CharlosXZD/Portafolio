@@ -1,3 +1,4 @@
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { gameReducer, initialState, selectors } from './engine/gameReducer.js'
 import RoundHUD from './components/RoundHUD.jsx'
@@ -453,7 +454,9 @@ function ElementaGameInner() {
 export default function ElementaGame() {
   return (
     <GameSettingsProvider>
-      <ElementaGameInner />
+      <ErrorBoundary>
+        <ElementaGameInner />
+      </ErrorBoundary>
     </GameSettingsProvider>
   )
 }
