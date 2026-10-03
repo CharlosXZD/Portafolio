@@ -484,7 +484,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Built.** |
 | **v0.7** | The Firmament | **Built.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
 | **v0.7.2** | Firmament depth | **Built.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
-| **v0.7.5** | Constellations | **Ready.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
+| **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
 | **v0.8** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Needs a workshop first (Carlos 2026-10-03: "we still have to work shop a lot that realm, the boss, the dice, the theme"). |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
@@ -496,6 +496,12 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.7.5 "Constellations" (in development, unreleased)
+- **Seren and her Observatory:** a new Firmament keeper and shop with four Constellations a visit.
+- **Constellations:** ten permanent levels (to 10) for the seven base reactions and the three set types, shown in the Cast ledger and Run Info, plus the rare Black Hole that levels all ten.
+- **Runes:** Echo, Glass, Kinship, Ember and Anchor, sold at Forge shops and in the Firmament Market, socketed one to a die.
+- **A new song** (`shop_observatory`), and three secret achievements.
 
 ### Alpha v0.7.2 "Firmament depth" (in development, unreleased)
 - **Celestial dice, Firmament only:** Comet, Pulsar, Satellite, Quasar and Zenith, in Firmament Markets (weight 1 each, Quasar 0.4) and always one on the Astral Exchange's shelf.
@@ -1228,7 +1234,7 @@ The Celestial dice join the normal die pool in the Firmament: weight 1 each (Qua
 
 ## Part J: v0.7.5 "Constellations" (spec, 2026-10-03)
 
-**Status: Ready.** Carlos asked for this next because the Firmament is hard without it ("lets get the constellations on"). Claude's spec; tune after playtests. Scope: Seren, Constellations and Runes. Poker and Joker dice (B11) move to a later step (v0.7.6) so this one stays small.
+**Status: Built (GDD §39).** Carlos asked for this next because the Firmament is hard without it ("lets get the constellations on"). Claude's spec; tune after playtests. Scope: Seren, Constellations and Runes. Poker and Joker dice (B11) move to a later step (v0.7.6) so this one stays small.
 
 ### J1. Constellations
 

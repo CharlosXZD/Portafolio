@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-03 (Alpha v0.7.2 "Firmament depth" in development), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-03 (Alpha v0.7.5 "Constellations" in development), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -272,7 +272,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 
 ---
 
-## 4. Consumables (23 total)
+## 4. Consumables (39 total)
 
 | Consumable | Rarity | Price | Target | Effect |
 |---|---|---|---|---|
@@ -299,6 +299,26 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Metronome** | Uncommon | 8 | You | +1 Mult on every cast for the next 3 rounds. Firmament only. |
 | **Almanac** | Rare | 12 | You | Adds an Almanac page to your pacts and boons with the next three targets and the next boss, exactly (it foretells the boss like a Prophecy). Firmament only. |
 | **Warp Seal** | Legendary | 28 | A die | Apply to a die to give it Warp: it no longer counts toward your dice cap (at most 3 Warp dice). Firmament only. |
+| **The Phoenix** | Uncommon | 6 | You | Levels Kindle: +0.5 Mult per level. Firmament only. |
+| **The Anvil** | Uncommon | 6 | You | Levels Forge: +2 Base per level. Firmament only. |
+| **The Geyser** | Uncommon | 6 | You | Levels Scald: +2 Base and +0.25 Mult per level. Firmament only. |
+| **The Cloud** | Uncommon | 6 | You | Levels Mist: +0.5 Mult per level. Firmament only. |
+| **The Seedling** | Uncommon | 6 | You | Levels Bloom: +2 Base per level. Firmament only. |
+| **The Whirl** | Uncommon | 6 | You | Levels Dust Devil: +3 Base per level. Firmament only. |
+| **The Twins** | Uncommon | 6 | You | Levels Resonance: +2 Base per level. Firmament only. |
+| **The Pair** | Uncommon | 6 | You | Levels Pair sets: +0.5 Mult per level. Firmament only. |
+| **The Trio** | Uncommon | 6 | You | Levels Three of a kind: +0.75 Mult per level. Firmament only. |
+| **The Ladder** | Uncommon | 6 | You | Levels Straights: +1 Mult per level. Firmament only. |
+| **Black Hole** | Legendary | 25 | You | One level on all ten at once. Firmament only; weight 0.4. |
+| **Rune of Echo** | Epic | 18 | A die | The die scores twice (after Beacon's boost). |
+| **Rune of Glass** | Rare | 12 | A die | The die's score is doubled, but after every cast it has a 20% chance to shatter and leave your pool (the pool never loses its last die). |
+| **Rune of Kinship** | Rare | 12 | A die | For reactions the die counts as its left neighbor's element (nothing at the left end). |
+| **Rune of Ember** | Uncommon | 8 | A die | The die explodes on its top two faces. |
+| **Rune of Anchor** | Uncommon | 8 | A die | The die never fizzles (and so pays no Kindling). |
+
+**Constellations (v0.7.5).** Used from a shop or mid-round, they apply at once and need no target; "Buy & use" in a shop spends no slot. Each levels one thing for the rest of the run, up to **level 10**: the seven base reactions (Kindle, Forge, Scald, Mist, Bloom, Dust Devil, Resonance) and the three set types (Pair, Three of a kind, Straight). The bonus is added inside the thing's own ledger line, which reads "Kindle Lv 3". Secret reactions do not level. Levels are saved with the run and listed in Run Info. Black Hole gives every one a level (those at 10 stay). Seren's Observatory sells them (four a visit, duplicates allowed, Black Hole about 2% of offers); other Firmament shops stock them at low weight (a tenth to a twentieth of their items). Using one at level 10 does nothing and keeps it.
+
+**Runes (v0.7.5).** A die holds one rune; applying another replaces it. Not on Mythic dice or Entropy. A small tag on the die shows it, and its popover and full description say what it does. Chisel keeps the rune on both halves, Transmute removes it, Shadow Twin and Mirror Shard copy it. Sold at every Forge (two on its shelf), the Aether Bazaar, the Astral Exchange and in the Firmament Market; nowhere else.
 
 The Stopwatch, the Time Capsule, the Hourglass, the Pocket Watch, the Metronome and the Almanac are all in the Horologist's pool; the last four are his alone (the Stopwatch and Time Capsule also turn up in other Firmament shops); the Warp Seal turns up in other Firmament shops, very rarely (a quarter of a Legendary's weight). During the Hollow's round no consumable can be used.
 
@@ -482,6 +502,21 @@ Each keeper remembers you per save file. Tiers: stranger (visits 1 to 3), regula
   4. A Pulsar is a star that learned to count. Everything in this shop is just another way of counting.
   5. The Mainspring is the oldest thing I own. It was in the first clock, the one that wound the dream.
 
+### Seren, the astronomer
+- **First meeting:** Quiet, please, the sky is thinking. I am Seren. I chart the shapes the stars make when nobody is rolling anything.
+- **Stranger:** Every reaction is a star you have not drawn yet. Buy one.
+- **Stranger:** Look up. No, further. There.
+- **Regular:** Your stars are coming along nicely. Mind the glare.
+- **Regular:** I saved you a good one. It fell this morning.
+- **Friend:** For you I leave the lens uncovered. Do not tell the Wardens.
+- **Friend:** You and I have charted half this sky. The other half is shy.
+- **After a boss:** A Warden down. The sky is a little wider tonight.
+- **On your last life:** You are burning low. Take a star, it keeps longer than a heart.
+- **Lore** (told on visits 2, 4, 6):
+  1. A Constellation is just a habit the stars picked up. Feed a habit often enough and it becomes a law.
+  2. The Black Hole is not a star. It is where the sky keeps what it has not decided about yet.
+  3. Atlas draws where the Roads go. I draw why. We do not speak much, the maps get crowded.
+
 ### Mote, a speck of the void
 - **First meeting:** ...
 - **Stranger:** ...
@@ -600,11 +635,12 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 | **Market** | Tobb | Dice, relics and consumables. The classic shop. | `shop_market` |
 | **Alchemist** | Vessa | Consumables only, 20% off. Brew two into a stronger one. | `shop_alchemist` |
 | **Relic Vault** | The Curator | Three rarer relics. Shows up after bosses. | `shop_vault` |
-| **Forge** | Brasa | The Fusion Forge and die size upgrades. | `shop_forge` |
+| **Forge** | Brasa | The Fusion Forge and die size upgrades, plus two Runes on the shelf. | `shop_forge` |
 | **Black Market** | Nix | Rare. One risky deal, paid in more than Shards. | `shop_blackmarket` |
 | **Shrine** | Aeris | Rare. A free blessing, or a prophecy of the next boss. | `shop_shrine` |
 | **Aether Bazaar** | The Wanderers | Legendary. Every shop in one, 25% off, with rarer stock. | `shop_bazaar` |
 | **Astral Exchange** | The Wanderers | The Firmament's legendary shop: the Aether Bazaar's stock and prices, with one Celestial die always on the shelf. Always the stop before the round-30 Warden. | `shop_bazaar` |
+| **Seren's Observatory** | Seren | The Firmament only. Four Constellations a visit, duplicates allowed (Black Hole rarely). Reroll for 3 and up. | `shop_observatory` |
 | **Atlas's Cartography** | Atlas | The Firmament only. No goods: three services, each once per visit. **Redraw** (6 Shards): the next row of the Road is drawn again (the follower's stop and the legendary shop stay). **Add a path** (5): this stop links to one more shop in the next row. **Peek** (8): learn which Warden waits next; it shows on the Road. | `shop_cartography` |
 | **The Horologist's Clockwork** | The Horologist | The Firmament only. **Six offers a visit, drawn from a pool**: Chrono always, plus one of Pulsar, Zenith and Kairos; three of his six consumables (Stopwatch, Time Capsule, Hourglass, Pocket Watch, Metronome, Almanac); and one of his two relics (Mainspring, Cuckoo Clock). No restock button. | `shop_clockwork` |
 | **Mote's Pantry** | Mote | The Firmament only. Sells nothing: it buys any die, relic or consumable for 150% of its sell value (rounded up), and eats its sell value. Its appetite (on this file, across runs) fills a meter to 400. At **40** its secret stock opens: a **Hollow Pact** for 15 Shards (Mote's, not a Nix pact: no Accord, no effect on Aeris) and a random die as a d6 with Warp (its price +12). At **120**: a **Warp Seal** and one of the file's Mythic dice the run lacks, with Warp (a Chrono if there is none). At 400 it is full (nothing more yet). | `shop_pantry` |
@@ -622,7 +658,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 
 **The Firmament's stretch** (rounds 16 to 30): the shop after a Warden is a choice of Relic Vault, Forge and sometimes Market; the stop before the round-30 Warden always includes the Astral Exchange; each stretch has one guaranteed stop of the path's follower (a Shrine with Aeris on the Split path, a Black Market with Nix on the Primordial path, an extra Market with Tobb on the Neutral path), on a seeded row between 17 and 23. The other stops are drawn by weight:
 
-- Market 30, Alchemist 10, Forge 10, Atlas's Cartography 10, Relic Vault 8, the Horologist's Clockwork 8, Mote's Pantry 8, Shrine 6, Black Market 6, Astral Exchange 2.
+- Market 30, Alchemist 10, Forge 10, Atlas's Cartography 10, Relic Vault 8, the Horologist's Clockwork 8, Mote's Pantry 8, Seren's Observatory 8, Shrine 6, Black Market 6, Astral Exchange 2.
 
 **Black Market deals** (2 offered, take one; the Bazaar offers 1):
 - **Blood Price**: Take a legendary relic. Costs 1 life.
@@ -692,6 +728,9 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 | **Cataclysm** | 3 | 3 | 2 | 4 | Yes |
 
 ### Achievements
+- **Stargazer** (secret): Own a Constellation at level 5.
+- **Cartographer of Skies** (secret): Take a Constellation to level 10.
+- **Runesmith** (secret): Own a die with a rune.
 - **First Spark**: Clear your first round.
 - **Keeper of the Circle**: Win a run.
 - **Every Path**: Win with all 8 loadouts.

@@ -12,6 +12,35 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.7.5',
+    name: L('Constellations', 'Constelaciones'),
+    date: null,
+    highlights: [
+      L(
+        'Seren the astronomer opens her Observatory in the Firmament: four Constellations a visit.',
+        'Seren, la astrónoma, abre su Observatorio en el Firmamento: cuatro Constelaciones por visita.',
+      ),
+      L(
+        'Ten Constellations level a reaction or a set type for the rest of the run, up to level 10: Kindle, Forge, Scald, Mist, Bloom, Dust Devil, Resonance, Pairs, Three of a kind and Straights. The Cast ledger shows it ("Kindle Lv 3").',
+        'Diez Constelaciones suben de nivel una reacción o un tipo de set por el resto de la partida, hasta el nivel 10: Avivar, Forja, Escaldar, Neblina, Florecer, Remolino, Resonancia, Pares, Tríos y Escaleras. La cuenta del hechizo lo muestra ("Avivar Nv 3").',
+      ),
+      L(
+        'The Black Hole levels all ten at once. It is rare.',
+        'El Agujero Negro sube las diez a la vez. Es raro.',
+      ),
+      L(
+        'Constellations also turn up, rarely, in other Firmament shops, and Run Info lists your levels.',
+        'Las Constelaciones también aparecen, pocas veces, en otras tiendas del Firmamento, y la Info de la partida muestra tus niveles.',
+      ),
+      L(
+        'Five Runes for your dice, sold at the Forge and in the Firmament Market: Echo (scores twice), Glass (doubled, but may shatter), Kinship (counts as its left neighbor for reactions), Ember (explodes on its top two faces) and Anchor (never fizzles).',
+        'Cinco Runas para tus dados, a la venta en la Forja y en el Mercado del Firmamento: Eco (anota dos veces), Cristal (doble, pero puede romperse), Parentesco (cuenta como su vecino izquierdo en las reacciones), Brasa (explota con sus dos caras más altas) y Ancla (nunca se apaga).',
+      ),
+      L('A new song for the Observatory, and three secret achievements.', 'Una canción nueva para el Observatorio, y tres logros secretos.'),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.7.2',
     name: L('Firmament depth', 'Profundidad del Firmamento'),
     date: null,
