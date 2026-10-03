@@ -39,7 +39,7 @@ export const DICE_TEXT = {
 
   gaea: T('The Earth god, bound into a die. Adds the faces of her whole family, and weighs them down.', 'La diosa de la Tierra, atada a un dado. Suma las caras de toda su familia, y las hunde.', ['divine', 'wild', 'patience']),
   ognen: T('The Fire god, bound into a die. Burns on any high face and goes out on a low one.', 'El dios del Fuego, atado a un dado. Arde con cualquier cara alta y se apaga con una baja.', ['divine', 'explodes', 'fizzles']),
-  varuna: T('The Water god, bound into a die. Any die can lock for free, but her 1 floods them all.', 'La diosa del Agua, atada a un dado. Todo dado se bloquea gratis, pero su 1 los inunda a todos.', ['divine', 'freelock', 'refund']),
+  varuna: T('The Water god, bound into a die. Any die can lock for free, but the tide pulls every roll toward 1.', 'La diosa del Agua, atada a un dado. Todo dado se bloquea gratis, pero la marea empuja cada tirada hacia el 1.', ['divine', 'freelock', 'refund']),
   zephyr: T('The Air god, bound into a die. Every set rises a step, but Fire burns less.', 'El dios del Aire, atado a un dado. Cada set sube un escalón, pero el Fuego arde menos.', ['divine', 'wild', 'sets', 'drift']),
   primordial_die: T("The dreamer's own die, lent to you. Every Aether power, and a share of each god's.", 'El dado del soñador, prestado. Todo el poder del Éter y una parte del de cada dios.', ['divine', 'explodes', 'freelock', 'chain', 'copy', 'sets', 'doubles', 'fizzles', 'refund', 'kindling', 'drift', 'patience']),
 }

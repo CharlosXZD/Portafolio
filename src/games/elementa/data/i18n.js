@@ -220,7 +220,7 @@ export const CONSUMABLES_ES = {
   whetstone: { name: 'Piedra de Afilar', description: 'Aplícala a un dado: anota +2 permanente cada vez que anote.' },
   chisel: {
     name: 'Cincel',
-    description: 'Aplícalo a un dado para bajarlo un nivel (d6 a d3). Los dados pequeños sacan su cara máxima, y explotan, más seguido.',
+    description: 'Parte un dado en dos del tamaño anterior (d20 en dos d10, d10 en dos d5, d6 en dos d3). Un d5 se astilla en un d3 y deja una Transmutación. Un d3 es demasiado pequeño.',
   },
   phoenix_feather: { name: 'Pluma de Fénix', description: 'Recupera 1 vida.' },
   aether_dust: {
@@ -320,7 +320,7 @@ export const BOSS_MODIFIERS_ES = {
   // The gauntlet of the Primordial path (B1).
   gaea: { name: 'Gaea', description: 'Tus dados de la familia Tierra anotan -5 (-10 con un 1).' },
   ognen: { name: 'Ognen', description: 'Tus dados de la familia Fuego se apagan con 1, 2 y 3.' },
-  varuna: { name: 'Varuna', description: 'Si algún dado saca un 1, todos los dados se vuelven 1, también los guardados y bloqueados.' },
+  varuna: { name: 'Varuna', description: 'Los 1 salen un 50% más seguido en todos los dados.' },
   zephyr: {
     name: 'Zephyr',
     description: 'Tus dados de la familia Fuego explotan la mitad de las veces, y los sets necesitan un dado más.',

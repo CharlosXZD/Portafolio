@@ -13,6 +13,12 @@ const G = 32
 
 const SHAPES = {
   d3: { poly: [[16, 1.5], [30.5, 28.5], [1.5, 28.5]], facets: [], numberY: 0.72 },
+  // d5: a pentagon, a shade rounder than the d6's chamfered square.
+  d5: {
+    poly: [[16, 1.5], [29.5, 11.5], [24.5, 29], [7.5, 29], [2.5, 11.5]],
+    facets: [],
+    numberY: 0.55,
+  },
   d6: {
     poly: [[6, 3], [26, 3], [29, 6], [29, 26], [26, 29], [6, 29], [3, 26], [3, 6]],
     facets: [],

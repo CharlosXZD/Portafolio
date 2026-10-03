@@ -36,9 +36,21 @@ import { newMap, ensureLayers, nodeById, currentNode, nextChoices, retypeAhead }
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
 
 const STARTING_TIER = 'd6'
-// Dice bought in a shop arrive small; Upgrade Stones, the Forge and boss
-// rewards are how they grow. Forged and starting dice stay d6.
+// Dice bought in a shop usually arrive small (d3); Upgrade Stones, the Forge
+// and boss rewards are how they grow. Bigger ones turn up now and then, each
+// size rarer and pricier than the last. Forged and starting dice stay d6.
 const SHOP_DIE_TIER = 'd3'
+// Weight of each size in a shop's die offers, the first round (shop luck
+// included) it can show up in, and the flat premium over the die's usual
+// price: a d20 Fire die costs its 4 Shards plus 28.
+const SHOP_DIE_SIZES = [
+  { id: 'd3', weight: 60, from: 1, premium: 0 },
+  { id: 'd5', weight: 22, from: 2, premium: 3 },
+  { id: 'd6', weight: 12, from: 3, premium: 6 },
+  { id: 'd10', weight: 5, from: 5, premium: 14 },
+  { id: 'd20', weight: 1.2, from: 8, premium: 28 },
+]
+const KINDLING_CAP = 3
 const STARTING_REROLLS = 3
 const WIN_ROUND = 15
 const LIFE_REGEN_EVERY_N_ROUNDS = 4
@@ -223,7 +235,9 @@ function scoreContext(state) {
 
 function rollFreshRound(dice, relics) {
   const fx = relicEffects(relics)
-  const rolled = dice.map((d) => ({
+  // Masquerade and Chameleon roll with the abilities they borrow.
+  const acting = actingElementIds(dice)
+  const rolled = dice.map((d, i) => ({
     ...d,
     growth: 0,
     patience: 0,
@@ -231,10 +245,10 @@ function rollFreshRound(dice, relics) {
     held: false,
     locked: false,
     lockedVia: null,
-    ...rollDie(d.elementId, d.sides, relics, rollContext(d, dice, fx)),
+    ...rollDie(acting[i], d.sides, relics, rollContext(d, dice, fx, acting[i])),
   }))
   // Varuna's tide settles every roll (B4).
-  return settleTide(rolled, fx)
+  return settleTide(rolled)
 }
 
 // `cut` is the current shop type's own price cut (data/shops.js), stacked
@@ -260,7 +274,7 @@ function isFusionElement(elementId) {
   return ELEMENTS[elementId].tier !== 'pure'
 }
 
-function newDieCost(elementId, dice, relics, shop) {
+function newDieCost(elementId, dice, relics, shop, sizeId = SHOP_DIE_TIER) {
   const tier = ELEMENTS[elementId].tier
   const owned = dice.filter((d) => d.elementId === elementId).length
   const base =
@@ -269,7 +283,9 @@ function newDieCost(elementId, dice, relics, shop) {
       : tier === 'arcane'
         ? ELEMENTS[elementId].price ?? ARCANE_DIE_COST_BY_RARITY[rarityForElement(elementId)]
         : DIE_BASE_COST_BY_TIER[tier]
-  return applyDiscount(base, relics, shopCut(shop, 'die'))
+  // Bigger dice cost more: a d3 is the base price.
+  const premium = SHOP_DIE_SIZES.find((x) => x.id === sizeId)?.premium ?? 0
+  return applyDiscount(base + premium, relics, shopCut(shop, 'die'))
 }
 
 function relicCost(relic, relics, shop) {
@@ -426,11 +442,19 @@ function rollShopStock(state, type) {
     rarity: rarityForElement(id),
   }))
   const dieOfferCount = Math.min(type.dice, allBuyable.length)
-  const buyableElements = weightedSample(allBuyable, dieOfferCount, (item) =>
-    rarityWeight(item, state.round + (type.legendary ? 3 : 0)),
-  ).map((item) => item.id)
+  const luckyRound = state.round + (type.legendary ? 3 : 0)
+  const buyableElements = weightedSample(allBuyable, dieOfferCount, (item) => rarityWeight(item, luckyRound)).map(
+    (item) => item.id,
+  )
+  // Each die on offer has its own size, most often a d3.
+  const dieSizes = Object.fromEntries(
+    buyableElements.map((id) => [
+      id,
+      weightedSample(SHOP_DIE_SIZES, 1, (size) => (luckyRound >= size.from ? size.weight : 0))[0]?.id ?? SHOP_DIE_TIER,
+    ]),
+  )
 
-  return { itemOffers, buyableElements }
+  return { itemOffers, buyableElements, dieSizes }
 }
 
 // Relics a pact or prize may hand out: never the god relics before the god
@@ -526,6 +550,7 @@ function baseTitleState() {
     dice: [],
     rerollsUsed: 0,
     rerollsBonusThisRound: 0,
+    kindledThisRound: 0,
     freezeChargesUsed: 0,
     permanentRerollBonus: 0,
     shards: 0,
@@ -700,6 +725,7 @@ function enterRoundBase(state, round) {
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
     rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
+    kindledThisRound: 0,
     nextRoundRerollBonus: 0,
     freezeChargesUsed: 0,
     shop: null,
@@ -721,6 +747,7 @@ function retryRound(state) {
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
     rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
+    kindledThisRound: 0,
     nextRoundRerollBonus: 0,
     freezeChargesUsed: 0,
     shop: null,
@@ -787,6 +814,49 @@ function giveConsumable(state, def) {
 }
 
 const SHOP_ONLY_CONSUMABLES = ['spark', 'loom']
+
+// What Chisel does to a die (EXPANSION.md P2), or null when it can't: each
+// size splits into two of the next size down (d20 into two d10, d10 into two
+// d5, d6 into two d3), a d5 chips into a d3 and a Transmute, and a d3 is
+// left alone.
+const SPLITS = { d20: 'd10', d10: 'd5', d6: 'd3' }
+export function splitPlan(die) {
+  if (SPLITS[die.tierId]) return { kind: 'two', tierId: SPLITS[die.tierId] }
+  if (die.tierId === 'd5') return { kind: 'chip', tierId: 'd3' }
+  return null
+}
+
+// The pure element a chipped die leaves a Transmute of: its own, or one of
+// its parents, or any pure element for dice with none.
+function transmuteTargetFor(elementId) {
+  const def = ELEMENTS[elementId]
+  if (def.tier === 'pure') return elementId
+  return randomOf(def.parents.length ? def.parents : PURE_ELEMENT_IDS)
+}
+
+/**
+ * Whether a die-targeting consumable can be applied to this die right now.
+ * The reducer ignores an impossible one; the UI asks first, so it can say no
+ * instead of silently spending the click.
+ */
+export function consumableTargetOk(state, item, die) {
+  if (!die) return false
+  switch (item.type === 'downgrade' ? 'split' : item.type) {
+    case 'upgrade':
+      return Boolean(nextTier(die.tierId))
+    case 'clone':
+      return state.dice.length < maxDiceFor(state) && !isGodDie(die) && die.elementId !== PRIMORDIAL_DIE_ID
+    case 'infuse':
+      return ELEMENTS[die.elementId].tier === 'pure'
+    case 'split': {
+      const plan = splitPlan(die)
+      if (isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID) return false
+      return Boolean(plan) && (plan.kind === 'chip' || state.dice.length < maxDiceFor(state))
+    }
+    default:
+      return true
+  }
+}
 
 function brewCost(state) {
   return applyDiscount(4, state.relics, shopCut(state.shop, 'brew'))
@@ -934,6 +1004,7 @@ function advanceGauntlet(state, result) {
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
     rerollsBonusThisRound: 0,
+    kindledThisRound: 0,
     freezeChargesUsed: 0,
     roundSeq: (state.roundSeq || 0) + 1,
     lastResult: { ...result, stageCleared: fallen },
@@ -1243,6 +1314,14 @@ function reduce(state, action) {
         map: action.save.map ?? legacyMap(action.save),
         // The file's recipes win over the snapshot's (it may predate them).
         recipes: action.recipes ?? action.save.recipes ?? [],
+        // Held relics and consumables are copies of their definitions: take
+        // the current ones, so a balance or text change reaches saved runs
+        // (and an old Chisel becomes the new one).
+        relics: (action.save.relics || []).map((r) => relicById(r.id) ?? r),
+        consumables: (action.save.consumables || []).map((c) => ({
+          ...(consumableById(c.id) ?? c),
+          instanceId: c.instanceId,
+        })),
         phase: 'runPreview',
         resumePhase: action.save.phase,
       }
@@ -1303,7 +1382,9 @@ function reduce(state, action) {
         if (targets.length > 0) {
           const target = targets[Math.floor(random() * targets.length)]
           const relics = effectiveRelics(state)
-          const rolled = rollDie(target.elementId, target.sides, relics, rollContext(target, dice, relicEffects(relics)))
+          const actingIds = actingElementIds(dice)
+          const actor = actingIds[dice.findIndex((d) => d.id === target.id)]
+          const rolled = rollDie(actor, target.sides, relics, rollContext(target, dice, relicEffects(relics), actor))
           dice = dice.map((d) => (d.id === target.id ? { ...d, ...rolled } : d))
           explosionsThisRound += rolled.explosions
         }
@@ -1342,17 +1423,27 @@ function reduce(state, action) {
           return d
         })
       }
-      dice = settleTide(dice, fx)
+      dice = settleTide(dice)
       // Kindling (Fire family): a rerolled die that lands on a fizzling 1
-      // pays back one reroll this round. `kindled` drives the "+1" pop.
+      // pays back one reroll this round, up to KINDLING_CAP a round (small
+      // dice fizzle so often that, uncapped, a Fire pool would reroll for
+      // free forever). `kindled` drives the "+1" pop.
       const rerolled = new Set(state.dice.filter((d) => !d.held && !d.locked).map((d) => d.id))
       let kindling = 0
+      let kindledSoFar = state.kindledThisRound || 0
       dice = dice.map((d) => {
         if (!rerolled.has(d.id)) return d
         // No fizzles under Blessing of Ember-ward, so no Kindling either.
         const kindled =
-          !state.roundBuffs?.noFizzle && d.value === 1 && elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) && inFamily(d.elementId, 'fire')
-        if (kindled) kindling += 1
+          kindledSoFar < KINDLING_CAP &&
+          !state.roundBuffs?.noFizzle &&
+          d.value === 1 &&
+          elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) &&
+          inFamily(d.elementId, 'fire')
+        if (kindled) {
+          kindling += 1
+          kindledSoFar += 1
+        }
         return { ...d, kindled }
       })
       const explosionsThisRound =
@@ -1374,6 +1465,7 @@ function reduce(state, action) {
         shards: state.shards - tax,
         rerollsUsed: state.rerollsUsed + 1,
         rerollsBonusThisRound: state.rerollsBonusThisRound + kindling,
+        kindledThisRound: kindledSoFar,
         explosionsThisRound,
       }
     }
@@ -1402,7 +1494,8 @@ function reduce(state, action) {
       if (!relicEffects(relics).freeSingleReroll) return state
       const die = state.dice.find((d) => d.id === action.dieId)
       if (!die || die.locked) return state
-      const rolled = rollDie(die.elementId, die.sides, relics, rollContext(die, state.dice, relicEffects(relics)))
+      const actor = actingElementIds(state.dice)[state.dice.findIndex((d) => d.id === die.id)]
+      const rolled = rollDie(actor, die.sides, relics, rollContext(die, state.dice, relicEffects(relics), actor))
       return {
         ...state,
         gustUsed: true,
@@ -1528,9 +1621,10 @@ function reduce(state, action) {
     case 'BUY_DIE': {
       if (state.phase !== 'shop') return state
       if (state.dice.length >= maxDiceFor(state)) return state
-      const cost = newDieCost(action.elementId, state.dice, state.relics, state.shop)
+      const sizeId = state.shop.dieSizes?.[action.elementId] ?? SHOP_DIE_TIER
+      const cost = newDieCost(action.elementId, state.dice, state.relics, state.shop, sizeId)
       if (state.shards < cost) return state
-      const die = makeDie(action.elementId, SHOP_DIE_TIER)
+      const die = makeDie(action.elementId, sizeId)
       const ownedElementsEver = state.ownedElementsEver.includes(action.elementId)
         ? state.ownedElementsEver
         : [...state.ownedElementsEver, action.elementId]
@@ -1686,9 +1780,11 @@ function reduce(state, action) {
     case 'APPLY_CONSUMABLE': {
       const rolling = state.phase === 'rolling'
       if (state.phase !== 'shop' && !rolling) return state
-      const item = state.consumables.find((c) => c.instanceId === action.instanceId)
+      let item = state.consumables.find((c) => c.instanceId === action.instanceId)
       if (!item) return state
       if (rolling && SHOP_ONLY_CONSUMABLES.includes(item.type)) return state
+      // An old save's Chisel (it used to shrink a die) is the new one.
+      if (item.type === 'downgrade') item = { ...item, type: 'split' }
 
       const spent = state.consumables.filter((c) => c.instanceId !== action.instanceId)
       if (item.target === 'self') {
@@ -1719,6 +1815,7 @@ function reduce(state, action) {
               ...state.shop,
               itemOffers: fresh.itemOffers,
               buyableElements: fresh.buyableElements,
+              dieSizes: fresh.dieSizes,
               restocks: (state.shop.restocks || 0) + 1,
             },
             consumables: spent,
@@ -1739,10 +1836,38 @@ function reduce(state, action) {
         dice = state.dice.map((d) =>
           d.id === die.id ? { ...d, tierId: next.id, sides: next.sides } : d,
         )
-      } else if (item.type === 'downgrade') {
-        const prev = prevTier(die.tierId)
-        if (!prev) return state
-        dice = state.dice.map((d) => (d.id === die.id ? { ...d, tierId: prev.id, sides: prev.sides } : d))
+      } else if (item.type === 'split') {
+        // Chisel (P2): a die splits in two, or a d5 chips down to a d3 and
+        // leaves a Transmute behind. A d3 is too small to split.
+        // Never a god (only one at a time) or the Primordial die (it is lent).
+        if (isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID) return state
+        const plan = splitPlan(die)
+        if (!plan) return state
+        const extra = plan.kind === 'two' ? 1 : 0
+        if (state.dice.length + extra > maxDiceFor(state)) return state
+        const smaller = tierById(plan.tierId)
+        const pieces = Array.from({ length: plan.kind === 'two' ? 2 : 1 }, (_, i) => ({
+          ...die,
+          id: i === 0 ? die.id : makeId(),
+          tierId: smaller.id,
+          sides: smaller.sides,
+          held: false,
+          locked: false,
+          lockedVia: null,
+          ...rollDie(die.elementId, smaller.sides, state.relics),
+        }))
+        dice = state.dice.flatMap((d) => (d.id === die.id ? pieces : [d]))
+        if (plan.kind === 'chip') {
+          const target = transmuteTargetFor(die.elementId)
+          const def = consumableById(`transmute_${target}`)
+          return {
+            ...state,
+            dice: dice.map((d) =>
+              d.value > d.sides ? { ...d, value: d.sides, total: d.sides, explosions: 0, rollId: random() } : d,
+            ),
+            consumables: [...spent, { ...def, instanceId: makeId() }],
+          }
+        }
       } else if (item.type === 'clone') {
         // Gods can't be copied, and the Primordial die is only lent.
         if (state.dice.length >= maxDiceFor(state) || isGodDie(die) || die.elementId === PRIMORDIAL_DIE_ID) return state
@@ -1980,4 +2105,6 @@ export const selectors = {
   blessingAvailable,
   nextBossRound,
   shopOnlyConsumables: SHOP_ONLY_CONSUMABLES,
+  consumableTargetOk,
+  shopDieSize: (shop, elementId) => shop?.dieSizes?.[elementId] ?? SHOP_DIE_TIER,
 }

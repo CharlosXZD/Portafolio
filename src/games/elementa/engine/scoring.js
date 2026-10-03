@@ -27,11 +27,22 @@ function relicEffects(relics) {
  * `rollId` changes on every roll (even if the face repeats) so the UI can
  * key a roll animation off it instead of off the value.
  */
+// A face with an optional lean toward 1 (Varuna's drawback): a bias of 1.5
+// makes a 1 half again as likely, the other faces share the rest evenly.
+function rollFace(sides, oneBias = 1) {
+  if (oneBias !== 1 && sides > 1) {
+    if (random() < Math.min(1, oneBias / sides)) return 1
+    return 2 + Math.floor(random() * (sides - 1))
+  }
+  return randInt(sides)
+}
+
 export function rollDie(elementId, sides, relics = [], ctx = {}) {
   const fx = relicEffects(relics)
-  let value = randInt(sides)
+  const bias = ctx.oneBias ?? 1
+  let value = rollFace(sides, bias)
   // Chrono: a 1 rewinds and rolls again until it isn't a 1 (B10).
-  if (hasFlag(elementId, FLAGS.CHRONO)) while (value === 1) value = randInt(sides)
+  if (hasFlag(elementId, FLAGS.CHRONO)) while (value === 1) value = rollFace(sides, bias)
   // Steady: Earth-family faces never land below its floor.
   if (fx.earthFamilyMinFace && inFamily(elementId, 'earth')) value = Math.max(value, Math.min(fx.earthFamilyMinFace, sides))
   let total = value
@@ -52,7 +63,7 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
     let current = value
     while (current >= from && explosions < cap) {
       if (chance < 1 && random() >= chance) break
-      const next = randInt(sides)
+      const next = rollFace(sides, bias)
       const addValue = fx.fireExplodeDouble ? next * 2 : next
       total += addValue
       explosions += 1
@@ -68,19 +79,22 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
 export function rerollPool(dice, relics = []) {
   const next = dice.map((d) => ({ ...d }))
 
+  // A Masquerade or Chameleon rolls with the abilities it borrows (Chrono's
+  // rewind, a Fire die's explosions), the same ones its score uses.
+  const acting = actingElementIds(dice)
   for (let i = 0; i < next.length; i++) {
     const die = next[i]
     if (die.held || die.locked) {
       // Sapling grows while it sits a reroll out.
-      if (hasFlag(die.elementId, FLAGS.GROWS)) die.growth = (die.growth || 0) + 2
+      if (hasFlag(acting[i], FLAGS.GROWS)) die.growth = (die.growth || 0) + 2
       // Patience (Earth family): the same, but it keeps it until the round ends.
-      if (inFamily(die.elementId, 'earth')) die.patience = (die.patience || 0) + 2
+      if (inFamily(acting[i], 'earth')) die.patience = (die.patience || 0) + 2
       continue
     }
-    const rolled = rollDie(die.elementId, die.sides, relics, rollContext(die, dice, relicEffects(relics)))
+    const rolled = rollDie(acting[i], die.sides, relics, rollContext(die, dice, relicEffects(relics), acting[i]))
     Object.assign(die, rolled, { growth: 0 })
 
-    const canDuplicate = hasFlag(die.elementId, FLAGS.DUPLICATE_ON_REROLL)
+    const canDuplicate = hasFlag(acting[i], FLAGS.DUPLICATE_ON_REROLL)
     if (canDuplicate && random() < 0.33) {
       const targets = next.filter((d, j) => j !== i && !d.held && !d.locked)
       if (targets.length > 0) {

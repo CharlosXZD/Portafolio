@@ -101,12 +101,13 @@ export const CONSUMABLES = [
     id: 'chisel',
     name: 'Chisel',
     kind: 'consumable',
-    type: 'downgrade',
+    type: 'split',
     target: 'die',
     rarity: RARITY.COMMON,
+    cost: 3,
     element: null,
     itemConcept: 'a small iron chisel with a wooden grip',
-    description: 'Apply to a die to shrink it one tier (d6 to d3). Small dice hit their max face, and explode, more often.',
+    description: 'Splits a die in two of the next size down (d20 into two d10, d10 into two d5, d6 into two d3). A d5 chips into a d3 and leaves a Transmute. A d3 is too small.',
   },
   {
     id: 'phoenix_feather',
@@ -203,10 +204,10 @@ export function consumableById(id) {
 }
 
 export function costForConsumable(def, discountPct = 0) {
-  const base = RARITY_COST[def.rarity]
+  const base = def.cost ?? RARITY_COST[def.rarity]
   return Math.max(1, Math.round(base * (1 - discountPct)))
 }
 
 export function sellValueForConsumable(def) {
-  return Math.max(1, Math.round(RARITY_COST[def.rarity] / 2))
+  return Math.max(1, Math.round((def.cost ?? RARITY_COST[def.rarity]) / 2))
 }

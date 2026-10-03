@@ -19,14 +19,14 @@ import PixelIcon from './PixelIcon.jsx'
 import { Hearts, ShardCount, Stat } from './RoundHUD.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
 import RoadMap from './RoadMap.jsx'
-import { playCoin, playClick, playSuccess } from '../utils/sound.js'
+import { playCoin, playClick, playSuccess, playFail } from '../utils/sound.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { juicyHover } from '../utils/motionPresets.js'
 import DieToken from './DieToken.jsx'
 import BoonsList from './BoonsList.jsx'
 import { shopTypeById, dealById, blessingById, PROPHECY } from '../data/shops.js'
 import { nextChoices, nodeById } from '../engine/map.js'
-import { nextTier } from '../data/diceTiers.js'
+import { nextTier, tierById } from '../data/diceTiers.js'
 import { visitKeeper, lineText } from '../utils/keepers.js'
 import { KEEPERS } from '../data/keepers.js'
 
@@ -570,12 +570,18 @@ export default function ShopScreen({ state, dispatch }) {
                   onIconClick={
                     armedConsumable
                       ? () => {
+                          // An impossible target (a d3 under a Chisel, a full pool
+                          // for a split) says no and stays armed.
+                          const held = state.consumables.find((c) => c.instanceId === armedConsumable)
+                          if (held && !selectors.consumableTargetOk(state, held, die)) return playFail()
                           playClick()
                           dispatch({ type: 'APPLY_CONSUMABLE', instanceId: armedConsumable, dieId: die.id })
                           setArmedConsumable(null)
                         }
                       : armedPurchase
                         ? () => {
+                            const bought = consumableById(armedPurchase)
+                            if (bought && !selectors.consumableTargetOk(state, bought, die)) return playFail()
                             playCoin()
                             dispatch({ type: 'BUY_AND_APPLY_CONSUMABLE', consumableId: armedPurchase, dieId: die.id })
                             setArmedPurchase(null)
@@ -694,18 +700,21 @@ export default function ShopScreen({ state, dispatch }) {
           warning={diceFull ? t('elementa.shop.dicePoolFull') : null}
         >
           {shop.buyableElements.map((elementId) => {
-            const cost = selectors.newDieCost(elementId, state.dice, state.relics, shop)
+            // Every offer has its own size: mostly d3, sometimes bigger and pricier.
+            const sizeId = selectors.shopDieSize(shop, elementId)
+            const sides = tierById(sizeId).sides
+            const cost = selectors.newDieCost(elementId, state.dice, state.relics, shop, sizeId)
             return (
               <IconSlot
                 key={elementId}
                 itemKey={`dieoffer-${elementId}`}
-                item={{ ...dieDescriptor(elementId, lang), name: `${dieDescriptor(elementId, lang).name} d3`, sides: 3 }}
+                item={{ ...dieDescriptor(elementId, lang), name: `${dieDescriptor(elementId, lang).name} ${sizeId}`, sides }}
                 renderIcon={(onClick) => (
                   <DieToken
-                    die={{ id: `offer-${elementId}`, elementId, tierId: 'd3', sides: 3 }}
-                    size={72}
+                    die={{ id: `offer-${elementId}`, elementId, tierId: sizeId, sides }}
+                    size={sizeId === 'd20' ? 84 : 72}
                     onClick={onClick}
-                    title={`${dieDescriptor(elementId, lang).name} d3`}
+                    title={`${dieDescriptor(elementId, lang).name} ${sizeId}`}
                   />
                 )}
                 cost={cost}

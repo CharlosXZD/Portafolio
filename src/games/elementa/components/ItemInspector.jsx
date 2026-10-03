@@ -1,10 +1,12 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { RARITY_GLOW } from '../data/relics.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import FamilyTags from './FamilyTag.jsx'
 import KeywordTags from './KeywordTag.jsx'
 import RichText from './RichText.jsx'
+import { useFloating, arrowStyle } from './useFloating.js'
 
 export const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine' },
@@ -12,31 +14,19 @@ export const RARITY_LABEL = {
 }
 
 /**
- * A small popover anchored directly above the item that opened it (not a
- * centered full-screen modal): name + description + rarity pill + a row of
+ * A small popover anchored to the item that opened it (not a centered
+ * full-screen modal): name + description + rarity pill + a row of
  * contextual actions (Buy / Sell / Apply / Close), with a pointer triangle
  * so it's visibly attached to its trigger, matching how Balatro's own card
  * tooltip is anchored to the card rather than taking over the screen.
- * The caller is responsible for wrapping its trigger in a `relative`
- * container and conditionally rendering this inside it.
+ * The caller conditionally renders this inside its trigger's container;
+ * the popover itself is drawn in a portal on top of the game (see
+ * useFloating.js), so no neighbor can ever cover it.
  */
-const PLACEMENT = {
-  top: {
-    box: 'bottom-full left-1/2 mb-4 -translate-x-1/2',
-    arrow: 'left-1/2 top-full -translate-x-1/2 border-l-[7px] border-r-[7px] border-t-[7px] border-l-transparent border-r-transparent',
-    arrowSide: 'borderTopColor',
-    from: { y: 8 },
-  },
-  right: {
-    box: 'left-full top-1/2 ml-4 -translate-y-1/2',
-    arrow: 'right-full top-1/2 -translate-y-1/2 border-b-[7px] border-r-[7px] border-t-[7px] border-b-transparent border-t-transparent',
-    arrowSide: 'borderRightColor',
-    from: { x: -8 },
-  },
-}
+const FROM = { top: { y: 8 }, bottom: { y: -8 }, right: { x: -8 }, left: { x: 8 } }
 
 export default function ItemInspector({ item, onClose, actions = [], placement = 'top' }) {
-  const ref = useRef(null)
+  const { markerRef, panelRef: ref, pos, root } = useFloating(placement)
   const { lang, t } = useLanguage()
 
   useEffect(() => {
@@ -60,22 +50,33 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
   if (!item) return null
   // A boon has no rarity: it brings its own badge (status) and color.
   const glow = item.badge?.color ?? (RARITY_GLOW[item.rarity] || RARITY_GLOW.common)
-  const p = PLACEMENT[placement] ?? PLACEMENT.top
+  const from = FROM[pos?.place ?? placement] ?? FROM.top
 
   return (
+    <>
+    <span ref={markerRef} className="hidden" aria-hidden="true" />
+    {createPortal(
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, scale: 0.94, ...p.from }}
+      initial={{ opacity: 0, scale: 0.94, ...from }}
       animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-      exit={{ opacity: 0, scale: 0.94, ...p.from }}
+      exit={{ opacity: 0, scale: 0.94, ...from }}
       transition={{ type: 'spring', bounce: 0.25, duration: 0.22 }}
       onClick={(e) => e.stopPropagation()}
       // On the table the popover sits inside a draggable die: pressing it
       // must not start a drag.
       onPointerDown={(e) => e.stopPropagation()}
       data-tut-inspector=""
-      className={`el-panel--dark el-panel absolute z-50 w-60 text-left ${p.box}`}
-      style={{ '--edge': glow }}
+      className="el-panel--dark el-panel w-60 text-left"
+      style={{
+        '--edge': glow,
+        position: 'absolute',
+        left: pos?.left ?? 0,
+        top: pos?.top ?? 0,
+        zIndex: 90,
+        // Hidden for the one frame before it has been measured.
+        visibility: pos ? 'visible' : 'hidden',
+      }}
     >
       <div className="flex items-start justify-between gap-2 px-3 pb-2 pt-3">
         <h4 className="pixel-heading text-[10px] leading-relaxed text-[var(--text)]">{item.name}</h4>
@@ -123,7 +124,10 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
           ))}
         </div>
       )}
-      <span aria-hidden="true" className={`absolute h-0 w-0 ${p.arrow}`} style={{ [p.arrowSide]: glow }} />
-    </motion.div>
+      <span aria-hidden="true" style={arrowStyle(pos ?? { place: placement }, glow)} />
+    </motion.div>,
+    root,
+    )}
+    </>
   )
 }

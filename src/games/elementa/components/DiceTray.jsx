@@ -20,7 +20,7 @@ import BossAvatar from './BossAvatar.jsx'
 import { Pip } from './Tutorial.jsx'
 import { tideLocks } from '../engine/gods.js'
 import { readProfile } from '../utils/profile.js'
-import { playRoll, playClick, playCoin, playBossRound } from '../utils/sound.js'
+import { playRoll, playClick, playCoin, playBossRound, playFail } from '../utils/sound.js'
 
 // Per game-speed timings for the score reveal (Options -> Scoring speed).
 const TIMING = {
@@ -539,6 +539,10 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                           return
                         }
                         if (armedConsumable) {
+                          // An impossible target says no and stays armed.
+                          const held = state.consumables.find((c) => c.instanceId === armedConsumable)
+                          const target = state.dice.find((d) => d.id === id)
+                          if (held && !selectors.consumableTargetOk(state, held, target)) return playFail()
                           dispatch({ type: 'APPLY_CONSUMABLE', instanceId: armedConsumable, dieId: id })
                           onArmedDone?.()
                           return

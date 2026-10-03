@@ -525,7 +525,7 @@ const GOD_TEXT = {
   en: {
     gaea: ['Also scores the face of every other Earth-family die. Earth dice are set wildcards.', 'Drawback: Earth-family dice score -5 (-10 on a 1).'],
     ognen: ['Explodes on any face of 4 or more (chains of up to 10).', 'Drawback: fizzles on 1, 2 and 3. With a Water-family die in the pool, it explodes half as often.'],
-    varuna: ['Any die can lock for free, and those locks refund a reroll. Every die showing a 1 takes her face.', 'Drawback: if she rolls a 1, every die becomes a 1.'],
+    varuna: ['Any die can lock for free, and those locks refund a reroll. Every die showing a 1 takes her face.', 'Drawback: 1s come up 50% more often, on every die.'],
     zephyr: ["Sets go up one tier (a pair counts as three, three as a straight). Zephyr's face is a wildcard.", 'Drawback: Fire-family dice explode half as often.'],
     primordial_die: ['Gains each defeated god\'s ability, without the drawback.'],
     oneGod: 'Only one god die at a time.',
@@ -533,7 +533,7 @@ const GOD_TEXT = {
   es: {
     gaea: ['También anota la cara de cada otro dado de la familia Tierra. Los dados de Tierra son comodines de set.', 'Desventaja: los dados de la familia Tierra anotan -5 (-10 con un 1).'],
     ognen: ['Explota con cualquier cara de 4 o más (cadenas de hasta 10).', 'Desventaja: se apaga con 1, 2 y 3. Con un dado de la familia Agua en la reserva, explota la mitad de las veces.'],
-    varuna: ['Cualquier dado se puede bloquear gratis, y esos bloqueos devuelven un reroll. Cada dado que muestra un 1 toma su cara.', 'Desventaja: si ella saca un 1, todos los dados se vuelven 1.'],
+    varuna: ['Cualquier dado se puede bloquear gratis, y esos bloqueos devuelven un reroll. Cada dado que muestra un 1 toma su cara.', 'Desventaja: los 1 salen un 50% más seguido, en todos los dados.'],
     zephyr: ['Los sets suben un nivel (un par cuenta como trío, un trío como escalera). La cara de Zephyr es comodín.', 'Desventaja: los dados de la familia Fuego explotan la mitad de las veces.'],
     primordial_die: ['Gana la habilidad de cada dios derrotado, sin la desventaja.'],
     oneGod: 'Solo un dado dios a la vez.',

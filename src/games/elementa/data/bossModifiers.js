@@ -144,7 +144,7 @@ export const GOD_TRIALS = [
     stage: 3,
     target: 1.1,
     name: 'Varuna',
-    description: 'If any die rolls a 1, every die becomes a 1, held and locked ones too.',
+    description: '1s come up 50% more often on every die.',
     effects: { varunaCurse: true },
   },
   {

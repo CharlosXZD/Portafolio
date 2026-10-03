@@ -1,6 +1,7 @@
 // Die *size* is orthogonal to element (see GDD.md §4).
 export const DICE_TIERS = [
   { id: 'd3', sides: 3, label: 'D3', upgradeCost: null, sellValue: 2 },
+  { id: 'd5', sides: 5, label: 'D5', upgradeCost: 4, sellValue: 3 },
   { id: 'd6', sides: 6, label: 'D6', upgradeCost: 6, sellValue: 3 },
   { id: 'd10', sides: 10, label: 'D10', upgradeCost: 12, sellValue: 6 },
   { id: 'd20', sides: 20, label: 'D20', upgradeCost: 20, sellValue: 10 },

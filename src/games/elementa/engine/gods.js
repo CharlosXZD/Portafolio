@@ -25,11 +25,13 @@ export const isGodDie = (die) => Boolean(ELEMENTS[die?.elementId]?.god)
  * (`explodeChance`), and its chain cap (`chainCap`, or undefined for the
  * usual rules).
  */
-export function rollContext(die, dice, fx) {
+export function rollContext(die, dice, fx, acting = die.elementId) {
   const index = dice.findIndex((d) => d.id === die.id)
   const powers = godPowers(dice)
   const own = powers.filter((p) => p.index === index)
-  const fire = inFamily(die.elementId, 'fire')
+  // `acting` is the element whose abilities the die rolls with: itself,
+  // unless it is a Masquerade or Chameleon borrowing from its left neighbor.
+  const fire = inFamily(acting, 'fire')
   let explodeFrom = die.sides
   // Chain Break: Fire-family dice explode on their top two faces.
   if (fx.fireTopTwoExplode && fire) explodeFrom = die.sides - 1
@@ -44,22 +46,22 @@ export function rollContext(die, dice, fx) {
   if (fire && fx.fireExplodeHalf) explodeChance *= 0.5
   // Ognen chains up to 10, or without a cap under Chain Break.
   const chainCap = ognen ? (fx.ognenUncapped ? Infinity : 10) : undefined
-  return { explodeFrom, explodeChance, chainCap }
+  // Varuna's drawback, and her trial: 1s come up 50% more often.
+  const oneBias = fx.varunaCurse || powers.some((p) => p.god === 'varuna' && p.drawback) ? 1.5 : 1
+  return { explodeFrom, explodeChance, chainCap, oneBias }
 }
 
 const toFace = (d, value) => ({ ...d, value, total: value, explosions: 0 })
 
 /**
- * Varuna's tide, applied after every roll. Her trial (and her drawback,
- * when she shows a 1): every die becomes a 1, held and locked ones too.
- * Her power: every die showing a 1 takes her face instead.
+ * Varuna's tide, applied after every roll. Her power: every die showing a
+ * 1 takes her face instead. (Her drawback is that 1s are more likely to
+ * come up at all, see `oneBias` in rollContext; if she shows a 1 herself
+ * there is nothing to share.)
  */
-export function settleTide(dice, fx = {}) {
-  if (fx.varunaCurse && dice.some((d) => d.value === 1)) return dice.map((d) => toFace(d, 1))
+export function settleTide(dice) {
   const tides = godPowers(dice).filter((p) => p.god === 'varuna')
   if (tides.length === 0) return dice
-  const cursed = tides.find((p) => p.drawback && dice[p.index].value === 1)
-  if (cursed) return dice.map((d) => toFace(d, 1))
   const source = dice[tides[0].index]
   if (source.value === 1) return dice
   return dice.map((d) => (d.value === 1 && d.id !== source.id ? toFace(d, source.value) : d))
