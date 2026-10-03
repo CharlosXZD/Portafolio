@@ -6,13 +6,13 @@ import { RELICS } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
 import { DIFFICULTIES } from '../data/difficulty.js'
-import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS } from '../data/bossModifiers.js'
+import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS, WARDENS } from '../data/bossModifiers.js'
 import { ENDING_IDS } from '../data/endings.js'
 import { SECRET_REACTION_IDS } from '../data/reactions.js'
 import { ACHIEVEMENTS } from '../data/achievements.js'
 import { readFile, updateProfile, listFiles, emptyProfile } from './saveManager.js'
 
-export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id, ...GOD_TRIALS.map((b) => b.id)]
+export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id, ...GOD_TRIALS.map((b) => b.id), ...WARDENS.map((b) => b.id)]
 
 export function readProfile(slot) {
   if (slot == null) return emptyProfile()

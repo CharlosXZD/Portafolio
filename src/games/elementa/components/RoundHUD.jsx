@@ -99,6 +99,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
   const [openKey, setOpenKey] = useState(null)
   const pulses = useTriggerPulses()
   const difficulty = state.difficulty ? localizeDifficulty(state.difficulty, lang) : null
+  const hollow = Boolean(state.phase === 'rolling' && state.bossModifier?.effects?.sealAllRelics)
   const relicCap = selectors.relicCapFor(state)
   const consumableCap = selectors.consumableCapFor(state)
   const boss = Boolean(state.bossModifier)
@@ -174,7 +175,14 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
 
       <BoonsList state={state} icons />
 
-      <section className="flex flex-col gap-3">
+      {/* The Hollow (EXPANSION.md H2) seals every relic and consumable. */}
+      {hollow && (
+        <p className="el-panel px-3 py-2 text-sm text-[#cdb4ff]" style={{ '--edge': '#6b5a8a' }}>
+          {t('elementa.hud.sealedAll')}
+        </p>
+      )}
+
+      <section className="flex flex-col gap-3" style={hollow ? { opacity: 0.4, filter: 'grayscale(0.7)' } : undefined}>
         <h3 className="el-label">
           {t('elementa.shop.relics')} {state.relics.length}/{relicCap}
         </h3>
@@ -202,7 +210,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
         <div className="flex flex-wrap gap-3 p-1">
           {state.consumables.map((c) => {
             const shopOnly = selectors.shopOnlyConsumables.includes(c.type)
-            const usable = dispatch && state.phase === 'rolling' && !shopOnly
+            const usable = dispatch && state.phase === 'rolling' && !shopOnly && !hollow
             return (
               <MiniIcon
                 key={c.instanceId}

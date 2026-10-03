@@ -28,6 +28,13 @@ const COLORS = {
   ognen: '#ff5a1a',
   varuna: '#2f7fe0',
   zephyr: '#dff3ff',
+  // The Wardens of the Firmament (EXPANSION.md H2).
+  dawn: '#ffe27a',
+  umbra: '#4a3a78',
+  clockwork: '#c9a46b',
+  expanse: '#5a7cff',
+  maelstrom: '#ff3fa4',
+  hollow: '#6b5a8a',
 }
 
 function rng(seedStr) {

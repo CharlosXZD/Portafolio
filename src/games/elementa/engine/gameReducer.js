@@ -149,10 +149,11 @@ function relicEffects(relics) {
 // itself, so it can't be sold or shown as an owned relic.
 function effectiveRelics(state) {
   if (!state.bossModifier) return state.relics
-  // Silence seals one owned relic for the round.
+  // Silence seals one owned relic for the round; the Hollow seals them all (H2).
   const twists = [state.bossModifier, state.extraTwist].filter(Boolean)
   const sealed = twists.map((t) => t.effects?.sealedRelicId).filter(Boolean)
-  const relics = sealed.length ? state.relics.filter((r) => !sealed.includes(r.id)) : state.relics
+  const sealAll = twists.some((t) => t.effects?.sealAllRelics)
+  const relics = sealAll ? [] : sealed.length ? state.relics.filter((r) => !sealed.includes(r.id)) : state.relics
   return [...relics, ...twists]
 }
 
@@ -905,6 +906,40 @@ function enterRoundBase(state, round) {
     shop: null,
     lastResult: null,
   }
+}
+
+/**
+ * The Wardens' twists after every reroll (EXPANSION.md H2), from the boss
+ * effects `fx`. `rerolled` is the ids of the dice that just rolled.
+ *   The Umbra swallows one of them for the round: it scores 0 and stays out.
+ *   The Maelstrom turns each of them into a random pure element for the
+ *   round, keeping its size (restored after the cast).
+ *   The Expanse shuffles the order of the whole row.
+ */
+function wardenAfterReroll(dice, rerolled, fx) {
+  let out = dice
+  if (fx.swallowOnReroll) {
+    const prey = out.filter((d) => rerolled.has(d.id) && !d.swallowed)
+    if (prey.length) {
+      const id = randomOf(prey).id
+      out = out.map((d) => (d.id === id ? { ...d, swallowed: true, held: true, locked: true, lockedVia: 'swallow' } : d))
+    }
+  }
+  if (fx.maelstrom) {
+    out = out.map((d) =>
+      rerolled.has(d.id) && !d.swallowed
+        ? { ...d, maelstromFrom: d.maelstromFrom ?? d.elementId, elementId: randomOf(PURE_ELEMENT_IDS), chaosForm: null }
+        : d,
+    )
+  }
+  if (fx.shuffleOnReroll) {
+    out = [...out]
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(random() * (i + 1))
+      ;[out[i], out[j]] = [out[j], out[i]]
+    }
+  }
+  return out
 }
 
 // Puts the table back as it was before the last reroll, and refunds it.
@@ -1702,6 +1737,8 @@ function reduce(state, action) {
           : state.bossModifier
       // Primordial Unbound (the Split path) fuses two of your pure dice.
       if (bossModifier?.variant === 'unbound') dice = unboundFuse(dice, effectiveRelics({ ...state, bossModifier }))
+      // The Wardens' twists after a reroll (H2).
+      dice = wardenAfterReroll(dice, rerolled, relicEffects(effectiveRelics({ ...state, bossModifier })))
       return {
         ...state,
         dice,
@@ -1761,6 +1798,8 @@ function reduce(state, action) {
       if (state.phase !== 'rolling') return state
       const result = evaluatePool(state.dice, effectiveRelics(state), scoreContext(state))
       const passed = result.roundScore >= state.threshold
+      // The Maelstrom only lent your dice their elements (H2): give them back.
+      if (state.dice.some((d) => d.maelstromFrom)) state = { ...state, dice: state.dice.map((d) => ({ ...d, ...unmaelstrom(d) })) }
       // A god of the gauntlet falls; three more stages before the ending.
       if (passed && state.gauntlet && state.gauntlet.stage < GOD_TRIALS.length - 1) {
         return advanceGauntlet(state, { ...result, passed, threshold: state.threshold })

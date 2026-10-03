@@ -117,6 +117,39 @@ function useNarrow() {
 
 const fmt = (n) => Math.round(n * 100) / 100
 
+/** The Clockwork's countdown (H2): big, hard to miss, red near the end. */
+function ClockworkTimer({ left, total, paused, reducedMotion }) {
+  const { t } = useLanguage()
+  const secs = Math.ceil(left)
+  const urgent = secs <= 15
+  const color = urgent ? '#ff5a5a' : '#c9a46b'
+  return (
+    <div className="el-panel flex w-full items-center gap-4 px-4 py-2" style={{ '--edge': color }} role="timer" aria-live="off">
+      <PixelIcon name="time" size={22} color={color} hi="#fffaf0" />
+      <div className="flex flex-1 flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <span className="el-label" style={{ color }}>
+            {t('elementa.clockwork.label')}
+            {paused ? ` (${t('elementa.clockwork.paused')})` : ''}
+          </span>
+          <motion.span
+            key={urgent && !reducedMotion ? secs : 'steady'}
+            initial={urgent && !reducedMotion ? { scale: 1.25 } : false}
+            animate={{ scale: 1 }}
+            className="pixel-score text-xl [text-shadow:2px_2px_0_var(--ink)]"
+            style={{ color }}
+          >
+            {Math.floor(secs / 60)}:{String(secs % 60).padStart(2, '0')}
+          </motion.span>
+        </div>
+        <div className="h-2 w-full bg-[var(--stone-0)]" style={{ boxShadow: '0 0 0 2px var(--ink)' }}>
+          <div className="h-full" style={{ width: `${(left / total) * 100}%`, background: color, transition: reducedMotion ? 'none' : 'width 0.2s linear' }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function DiceTray({ state, dispatch, availableRerolls, paused = false, armedConsumable = null, onArmedDone }) {
   const { t, lang } = useLanguage()
   const { gameSpeed, screenShake, reducedMotion, display, updateDisplay } = useGameSettings()
@@ -262,6 +295,30 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     const script = buildCastScript(preview)
     setReveal(gameSpeed === 'instant' ? finishCastScript(script) : script)
   }, [revealing, preview, gameSpeed])
+
+  // The Clockwork (EXPANSION.md H2): a real countdown, running only while
+  // the table is live (not paused, not casting, the tab visible). At 0 the
+  // table is cast as it stands.
+  const countdown = fx.countdown || 0
+  const [timeLeft, setTimeLeft] = useState(countdown)
+  const submitRef = useRef(handleSubmit)
+  submitRef.current = handleSubmit
+  const timerLive = countdown > 0 && !paused && !revealing && timeLeft > 0
+  useEffect(() => {
+    if (!timerLive) return
+    let last = performance.now()
+    const id = setInterval(() => {
+      const now = performance.now()
+      const dt = (now - last) / 1000
+      last = now
+      if (document.hidden) return
+      setTimeLeft((v) => Math.max(0, v - dt))
+    }, 200)
+    return () => clearInterval(id)
+  }, [timerLive])
+  useEffect(() => {
+    if (countdown > 0 && timeLeft <= 0 && !revealing) submitRef.current()
+  }, [countdown, timeLeft, revealing])
 
   // Keyboard: 1-9 hold/release a die, R rerolls, Enter/Space casts. Any key
   // during the reveal skips to the result.
@@ -445,6 +502,10 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                   {primordialSays && <div className="mt-1 text-base italic text-[#ffe0e0]">{primordialSays}</div>}
                 </div>
               </motion.div>
+            )}
+
+            {countdown > 0 && (
+              <ClockworkTimer left={timeLeft} total={countdown} paused={!timerLive && timeLeft > 0 && !revealing} reducedMotion={reducedMotion} />
             )}
 
             {fallen && (

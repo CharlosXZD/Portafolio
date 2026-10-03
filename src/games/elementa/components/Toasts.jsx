@@ -31,7 +31,12 @@ function Toast({ item, onDone }) {
   } else if (item.kind === 'ending') {
     title = t('elementa.toast.ending')
     name = endingById(item.id)?.name[lang] ?? item.id
-    icon = item.id === 'split' ? 'air' : item.id === 'primordial' ? 'primordial_die' : 'aether'
+    icon = item.id.includes('split') ? 'air' : item.id.includes('primordial') ? 'primordial_die' : item.id.startsWith('firmament') ? 'light' : 'aether'
+  } else if (item.kind === 'mythic') {
+    // A Warden fell for the first time (EXPANSION.md H2).
+    title = t('elementa.toast.mythic')
+    name = dieDescriptor(item.id, lang).name
+    icon = item.id
   } else if (item.kind === 'recipe') {
     const die = dieDescriptor(item.id, lang)
     title = t('elementa.toast.recipe')

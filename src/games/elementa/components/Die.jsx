@@ -87,6 +87,8 @@ export default function Die({
   const canFreeLock = (acting.flags[FLAGS.FREE_LOCK] || tideLock) && !die.locked && !lockBlocked
   const isLocked = die.locked && die.lockedVia === 'lock'
   const isFrozen = die.locked && die.lockedVia === 'freeze'
+  // The Umbra swallowed it for the round (EXPANSION.md H2).
+  const isSwallowed = Boolean(die.swallowed)
   const rarity = rarityForElement(die.elementId)
   const rarityGlow = rarity !== RARITY.COMMON ? RARITY_GLOW[rarity] : null
 
@@ -311,6 +313,10 @@ export default function Die({
           </span>
         )}
         {!revealing && isFrozen && <span className="el-chip bg-[#7dd3fc] text-[var(--ink)]">{t('elementa.die.frozen')}</span>}
+        {isSwallowed && <span className="el-chip bg-[#2a1f40] text-[#cdb4ff]">{t('elementa.die.swallowed')}</span>}
+        {die.maelstromFrom && !revealing && (
+          <span className="el-chip bg-[#ff3fa4] text-[var(--ink)]">{t('elementa.die.maelstrom')}</span>
+        )}
         {!revealing && die.held && !die.locked && (
           <span className="el-chip bg-[var(--gold-1)] text-[var(--ink)]">{t('elementa.die.held')}</span>
         )}
@@ -354,7 +360,11 @@ export default function Die({
           style={{
             width: size,
             height: size,
-            filter: rarityGlow && !die.held && !die.locked ? `drop-shadow(0 0 10px ${rarityGlow}66)` : undefined,
+            filter: isSwallowed
+              ? 'grayscale(0.8) brightness(0.45)'
+              : rarityGlow && !die.held && !die.locked
+                ? `drop-shadow(0 0 10px ${rarityGlow}66)`
+                : undefined,
           }}
         >
           <ElementFx elementId={die.elementId} size={size} behind />

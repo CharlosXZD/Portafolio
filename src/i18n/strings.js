@@ -704,6 +704,15 @@ const strings = {
   'elementa.firmament.realm': { en: 'The Firmament', es: 'El Firmamento' },
   'elementa.diceTray.warden': { en: 'Warden', es: 'Custodio' },
   'elementa.gallery.endingLocked': { en: 'Locked', es: 'Bloqueado' },
+  'elementa.die.swallowed': { en: 'Swallowed', es: 'Tragado' },
+  'elementa.die.maelstrom': { en: 'Maelstrom', es: 'Vorágine' },
+  'elementa.clockwork.label': { en: 'Time left', es: 'Tiempo restante' },
+  'elementa.clockwork.paused': { en: 'paused', es: 'en pausa' },
+  'elementa.clockwork.cast': { en: 'Time is up: the table is cast.', es: 'Se acabó el tiempo: se lanza la mesa.' },
+  'elementa.hud.sealedAll': { en: 'The Hollow seals every relic and consumable this round.', es: 'El Hueco sella todas las reliquias y consumibles esta ronda.' },
+  'elementa.toast.mythic': { en: 'Mythic die unlocked', es: 'Dado Mítico desbloqueado' },
+  'elementa.toast.warden': { en: 'Warden defeated', es: 'Custodio derrotado' },
+  'elementa.gallery.bossWarden': { en: 'A Warden of the Firmament. Guards {die}.', es: 'Un Custodio del Firmamento. Guarda {die}.' },
 }
 
 export default strings

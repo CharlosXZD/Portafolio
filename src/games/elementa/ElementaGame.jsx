@@ -33,6 +33,9 @@ import {
   unlockAchievements,
   updateStats,
   allFilesComplete,
+  markWardens,
+  unlockMythics,
+  setMoteFed,
 } from './utils/profile.js'
 import {
   seenInState,
@@ -149,6 +152,17 @@ function ElementaGameInner() {
     Object.entries(seen).forEach(([kind, ids]) => markSeen(slot, kind, ids))
     award([...achievementsFromState(state), ...achievementsFromProfile(readProfile(slot))])
   }, [state, slot, award])
+
+  // The Firmament's progress lives in the run and is mirrored to the file
+  // (EXPANSION.md H2, H5, H6): Wardens beaten, their Mythic dice, Entropy's
+  // recipe, and how much Mote has eaten.
+  useEffect(() => {
+    if (slot == null || !(AUTOSAVE_PHASES.has(state.phase) || state.phase === 'victory')) return
+    markWardens(slot, state.wardens || [])
+    notify(unlockMythics(slot, state.mythics || []).map((id) => ({ kind: 'mythic', id })))
+    if (state.recipes?.includes('entropy') && learnRecipe(slot, 'entropy')) notify([{ kind: 'recipe', id: 'entropy' }])
+    setMoteFed(slot, state.moteFed || 0)
+  }, [state.phase, state.wardens, state.mythics, state.recipes, state.moteFed, slot, notify])
 
   // Each new cast result: discover secret reactions, record bests, and
   // check cast achievements.

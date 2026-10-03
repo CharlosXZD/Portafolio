@@ -329,6 +329,75 @@ export const MUSIC_THEMES = {
     perc: 't . h t . h t . t . h t . h t h',
     voices: { lead: 'sine', bass: 'triangle' },
   },
+  // The Wardens of the Firmament (EXPANSION.md H2), one theme each.
+  // The Dawn: a bright lydian sunrise that keeps climbing, bells on top.
+  boss_dawn: {
+    root: 52,
+    scale: 'lydian',
+    step: 0.11,
+    lead: '0 2 4 6 7 - 6 4 2 4 6 7 9 - 11 - 7 6 4 2 4 6 7 9 11 - 9 - 7 - - -',
+    bass: '0 . . 0 . . 4 . 0 . . 0 . . 5 .',
+    pad: [
+      [0, 2, 4],
+      [1, 3, 5],
+    ],
+    perc: 'k . b . h . b . k . b . s . b b',
+    voices: { lead: 'triangle', bass: 'triangle', pad: 'sine' },
+  },
+  // The Umbra: slow, low phrygian steps that hide between long rests.
+  boss_umbra: {
+    root: 38,
+    scale: 'phrygian',
+    step: 0.17,
+    lead: '0 - - 1 - - . . 3 - 1 - 0 - . . -2 - - . . 1 - 0 - - - . . . . .',
+    bass: '0 - - - - - - - -1 - - - - - - - 0 - - - - - - - -2 - - - - - - -',
+    perc: 'k . . . . . z . k . . . . . . .',
+    voices: { lead: 'sine', bass: 'sawtooth' },
+  },
+  // The Clockwork: ticks on every step, a dorian line that moves like gears.
+  boss_clockwork: {
+    root: 50,
+    scale: 'dorian',
+    step: 0.1,
+    lead: '0 . 2 . 4 . 2 . 0 . 2 . 4 . 5 . 4 . 2 . 0 . 2 . 4 . 7 . 4 . 2 .',
+    bass: '0 . 0 . 4 . 4 . 3 . 3 . 4 . 4 .',
+    perc: 't t k t t t s t t t k t t t s t',
+    voices: { lead: 'square', bass: 'triangle' },
+  },
+  // The Expanse: wide pentatonic leaps over a slow pad, lots of air.
+  boss_expanse: {
+    root: 45,
+    scale: 'pentMajor',
+    step: 0.14,
+    lead: '0 - - 4 - - 7 - - - 9 - - - . . 5 - - 2 - - 4 - - - 0 - - - . .',
+    bass: '0 - - - - - - - 3 - - - - - - -',
+    pad: [
+      [0, 2, 4],
+      [3, 5, 7],
+    ],
+    perc: 'k . . . h . . . . . h . . . h .',
+    voices: { lead: 'sine', bass: 'triangle', pad: 'triangle' },
+  },
+  // The Maelstrom: fast harmonic-minor runs that change direction, snares.
+  boss_maelstrom: {
+    root: 47,
+    scale: 'harmonicMinor',
+    step: 0.085,
+    lead: '0 2 4 6 4 2 7 6 4 2 0 -1 0 4 7 9 7 4 2 0 6 4 2 1 0 2 4 7 6 4 2 1',
+    bass: '0 0 . 0 -3 . 0 . 0 0 . -2 . -2 -1 .',
+    perc: 'k s h k s h k s k s h s s h s s',
+    voices: { lead: 'sawtooth', bass: 'sawtooth' },
+  },
+  // The Hollow: almost nothing. A whole-tone sine and a lot of silence.
+  boss_hollow: {
+    root: 43,
+    scale: 'wholeTone',
+    step: 0.2,
+    lead: '0 - - - . . . . 3 - - - . . . . . . . . 5 - - - . . . . . . . .',
+    bass: '0 - - - - - - - - - - - - - - - . . . . . . . . . . . . . . . .',
+    perc: '. . . . . . . . . . . . z . . .',
+    voices: { lead: 'sine', bass: 'sine' },
+  },
 }
 
 /** Which theme fits the current game state. */

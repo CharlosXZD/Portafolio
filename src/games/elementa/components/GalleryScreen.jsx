@@ -7,7 +7,7 @@ import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
 import { REACTIONS } from '../data/reactions.js'
-import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS } from '../data/bossModifiers.js'
+import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS, WARDENS } from '../data/bossModifiers.js'
 import { ENDINGS } from '../data/endings.js'
 import CompletionMarks from './CompletionMarks.jsx'
 import { EndingCard, EndingArt } from './EndingCards.jsx'
@@ -212,12 +212,16 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       return CONSUMABLES.map((c) => ({ key: c.id, seen: seen.consumables.has(c.id), families: [c.element ?? 'neutral'], item: consumableDescriptor(c, lang) }))
     }
     if (tab === 'bosses') {
-      return [...BOSS_MODIFIERS, PRIMORDIAL, ...GOD_TRIALS].map((raw) => {
+      return [...BOSS_MODIFIERS, PRIMORDIAL, ...GOD_TRIALS, ...WARDENS].map((raw) => {
         const b = localizeBossModifier(raw, lang)
         const isSeen = seen.bosses.has(b.id)
+        // A Warden guards a Mythic die (EXPANSION.md H2).
+        const guards = raw.guards ? localize(lang, ELEMENTS[raw.guards].name, ELEMENTS_ES, raw.guards, 'name') : null
         const when = raw.stage
           ? t('elementa.gallery.bossGauntlet').replace('{n}', raw.stage)
-          : b.tier === 3
+          : guards
+            ? t('elementa.gallery.bossWarden').replace('{die}', guards)
+            : b.tier === 3
             ? t('elementa.gallery.bossFinal')
             : b.tier === 2
               ? t('elementa.gallery.bossTier2')
