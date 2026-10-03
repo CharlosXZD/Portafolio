@@ -36,7 +36,7 @@ function Section({ title, children, delay = 0 }) {
  * goes): the dice as they looked on the table, every item, who you met on
  * the Road, and every pact with Nix and blessing from Aeris.
  */
-export default function GameOverScreen({ state, dispatch, victory = false, ending = null, visions = false }) {
+export default function GameOverScreen({ state, dispatch, victory = false, ending = null, visions = false, onScene }) {
   const { t, lang } = useLanguage()
   // A win first plays its ending (B2), then the summary.
   const [showCards, setShowCards] = useState(victory)
@@ -55,7 +55,7 @@ export default function GameOverScreen({ state, dispatch, victory = false, endin
     .map((b) => localizeBossModifier(b, lang))
 
   if (showCards) {
-    return <EndingCards ending={endingDef?.id ?? 'neutral'} visions={visions} onDone={() => setShowCards(false)} />
+    return <EndingCards ending={endingDef?.id ?? 'neutral'} visions={visions} onScene={onScene} onDone={() => setShowCards(false)} />
   }
 
   return (

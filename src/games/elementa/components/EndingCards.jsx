@@ -3,10 +3,11 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { playClick } from '../utils/sound.js'
-import { ENDINGS, VISIONS, endingById } from '../data/endings.js'
+import { ENDINGS, endingById } from '../data/endings.js'
 import { ELEMENTS } from '../data/elements.js'
 import BossAvatar from './BossAvatar.jsx'
 import PixelIcon from './PixelIcon.jsx'
+import StoryScene from './StoryScene.jsx'
 
 /** One card: a pixel placeholder portrait, a title, a few lines. */
 export function EndingCard({ art, title, text, color, label, small = false }) {
@@ -44,24 +45,17 @@ export function EndingArt({ ending, size = 96 }) {
 }
 
 /**
- * The end of a winning run (EXPANSION.md B2): after the first Neutral win,
- * the four gods appear one by one (their recipes are now yours), then the
- * path's ending card. Click or Enter moves on; `onDone` opens the summary.
+ * The end of a winning run (EXPANSION.md B2, Q4a): after the first Neutral
+ * win, the visions of the four gods and the recipes scene play first (story
+ * scenes, `onScene` records each and awards "Remembering"), then the path's
+ * ending card. Click or Enter moves on; `onDone` opens the summary.
  */
-export default function EndingCards({ ending, visions = false, onDone }) {
+export default function EndingCards({ ending, visions = false, onDone, onScene }) {
   const { t, lang } = useLanguage()
   const { reducedMotion } = useGameSettings()
+  // The story scenes still to play before the card.
+  const [scenes, setScenes] = useState(visions ? ['visions', 'recipes'] : [])
   const cards = [
-    ...(visions
-      ? VISIONS.map((v) => ({
-          key: v.id,
-          label: t('elementa.ending.vision'),
-          title: v.name[lang],
-          text: v.text[lang],
-          color: ELEMENTS[v.id].color,
-          art: <PixelIcon name={v.id} size={88} color={ELEMENTS[v.id].color} hi="#fffaf0" />,
-        }))
-      : []),
     ...[endingById(ending) ?? ENDINGS[0]].map((e) => ({
       key: e.id,
       label: t('elementa.ending.label'),
@@ -82,7 +76,7 @@ export default function EndingCards({ ending, visions = false, onDone }) {
 
   useEffect(() => {
     function onKey(e) {
-      if (e.key !== 'Enter' && e.key !== ' ') return
+      if (scenes.length > 0 || (e.key !== 'Enter' && e.key !== ' ')) return
       e.preventDefault()
       next()
     }
@@ -91,9 +85,20 @@ export default function EndingCards({ ending, visions = false, onDone }) {
   })
 
   const card = cards[index]
+  if (scenes.length > 0) {
+    return (
+      <StoryScene
+        key={scenes[0]}
+        id={scenes[0]}
+        onDone={() => {
+          onScene?.(scenes[0])
+          setScenes((list) => list.slice(1))
+        }}
+      />
+    )
+  }
   return (
     <div className="flex w-full flex-col items-center gap-8">
-      {visions && index < VISIONS.length && <p className="el-label text-[var(--gold-2)]">{t('elementa.ending.visionsIntro')}</p>}
       <AnimatePresence mode="wait">
         <motion.div
           key={card.key}

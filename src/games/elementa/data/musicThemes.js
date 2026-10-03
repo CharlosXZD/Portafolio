@@ -68,6 +68,35 @@ export const MUSIC_THEMES = {
     voices: { lead: 'square', bass: 'triangle', pad: 'sine' },
   },
 
+  // Story scenes (EXPANSION.md H7). The Crossroads: a slow, wide lydian
+  // swell. The Firmament: a high, glassy pentatonic shimmer.
+  scene_crossroads: {
+    root: 45,
+    scale: 'lydian',
+    step: 0.18,
+    lead: '4 - - - 6 - - - 7 - - - 11 - - - 9 - - - 7 - - - 6 - - - 4 - - -',
+    bass: '0 - - - - - - - - - - - - - - - 1 - - - - - - - - - - - - - - -',
+    pad: [
+      [0, 2, 4],
+      [1, 3, 5],
+    ],
+    perc: 'b . . . . . . . . . . . . . . .',
+    voices: { lead: 'triangle', bass: 'sine', pad: 'sine' },
+  },
+  scene_firmament: {
+    root: 57,
+    scale: 'pentMajor',
+    step: 0.15,
+    lead: '0 . 2 . 4 . 7 . 9 - - - 7 . 4 . 2 . 4 . 7 . 9 . 12 - - - - - - -',
+    bass: '0 - - - - - - - 3 - - - - - - -',
+    pad: [
+      [0, 2, 4],
+      [2, 4, 6],
+    ],
+    perc: 'b . . . t . . . b . . . t . . .',
+    voices: { lead: 'sine', bass: 'triangle', pad: 'triangle' },
+  },
+
   // --- Shops ---
   shop_market: {
     root: 48,

@@ -68,7 +68,18 @@ function normalizeProfile(p = {}) {
     mote: { fed: p.mote?.fed || 0 },
     scenes: p.scenes || [],
     ...kairosRename(p),
+    ...oldVisions(p),
   }
+}
+
+// A file that learned the god recipes before the story scenes existed
+// already saw the old visions: count the visions and recipes scenes as seen
+// (EXPANSION.md G Q4a), so it is not shown them again and earns Remembering.
+function oldVisions(p) {
+  const scenes = p.scenes || []
+  const knows = ['gaea', 'ognen', 'varuna', 'zephyr'].every((id) => (p.recipes || []).includes(id))
+  if (!knows || scenes.includes('recipes') || p.scenes) return {}
+  return { scenes: [...scenes, 'visions', 'recipes'] }
 }
 
 // Chrono became Kairos when the new Chrono arrived (EXPANSION.md H4): a file

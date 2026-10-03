@@ -20,6 +20,8 @@ export const ACHIEVEMENTS = [
   { id: 'ermal', name: 'Thanks, Ermal', description: 'Face Ermal the Unbothered.', sprite: ['clover', '#5fd38a'] },
   { id: 'bestiary', name: 'Bestiary', description: 'Face every boss.', sprite: ['scroll', '#ff5a5a', '#8a2a32'] },
   { id: 'archivist', name: 'Archivist', description: 'Discover every die, relic, and consumable.', sprite: ['book', '#3d8fe5', '#ffd166'] },
+  // EXPANSION.md G Q4a: learn the secret recipes (the scene after the visions).
+  { id: 'remembering', name: 'Remembering', description: 'Learn the recipes of Aether and the four gods.', sprite: ['book', '#c8b6ff', '#ffd166'] },
   {
     id: 'trinity',
     name: 'Trinity',
@@ -48,6 +50,7 @@ export const ACHIEVEMENTS_ES = {
   ermal: { name: 'Gracias, Ermal', description: 'Enfrenta a Ermal el Imperturbable.' },
   bestiary: { name: 'Bestiario', description: 'Enfrenta a todos los jefes.' },
   archivist: { name: 'Archivista', description: 'Descubre todos los dados, reliquias y consumibles.' },
+  remembering: { name: 'Recordar', description: 'Aprende las recetas del Éter y de los cuatro dioses.' },
   trinity: { name: 'Trinidad', description: 'Completa los tres archivos de guardado al 100%.' },
 }
 

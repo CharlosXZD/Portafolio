@@ -727,6 +727,12 @@ const strings = {
   'elementa.pantry.secretHint': { en: 'What Mote keeps for those who feed it.', es: 'Lo que Mote guarda para quien lo alimenta.' },
   'elementa.pantry.warpDie': { en: 'A d6 with Warp: it does not count toward your dice cap.', es: 'Un d6 con Warp: no cuenta para tu límite de dados.' },
   'elementa.pantry.sold': { en: 'Sold', es: 'Vendido' },
+  'elementa.story.skip': { en: 'Skip', es: 'Saltar' },
+  'elementa.story.more': { en: 'Show all', es: 'Mostrar todo' },
+  'elementa.story.next': { en: 'Next', es: 'Siguiente' },
+  'elementa.story.continue': { en: 'Continue', es: 'Continuar' },
+  'elementa.gallery.story': { en: 'Story scenes', es: 'Escenas de la historia' },
+  'elementa.gallery.storyNone': { en: 'Scenes you have seen on this file can be replayed here.', es: 'Las escenas que hayas visto en este archivo se pueden repetir aquí.' },
 }
 
 export default strings

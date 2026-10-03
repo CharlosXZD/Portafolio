@@ -1646,6 +1646,8 @@ function reduce(state, action) {
       const save = renameChrono(action.save)
       return {
         ...save,
+        // Past the door the gods' gauntlet is long over (H1).
+        ...(save.realm === 'firmament' ? { gauntlet: null } : {}),
         // The file's progress wins over the snapshot's (H8).
         ...(action.file ? fileFields(action.file) : {}),
         activeSlot: action.slot ?? action.save.activeSlot,
@@ -2527,6 +2529,10 @@ function reduce(state, action) {
         realm: 'firmament',
         firmamentSet: action.set,
         ending: null,
+        // The final battle is over: no gauntlet stage or borrowed pool past
+        // the door (the camp must open again after a miss).
+        gauntlet: null,
+        roundPool: null,
         map: enterFirmament(state.map, FOLLOWER_SHOP[path]),
         chronicle: { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: 'market' }] },
       }

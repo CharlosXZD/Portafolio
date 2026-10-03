@@ -1,7 +1,6 @@
 // Endings (EXPANSION.md B2, H1). Three per path: the Elementa ending, then
-// Firmament I and Firmament II past the door. Plus the visions of the four
-// gods that follow the first Neutral win and grant their recipes. All text
-// here is a DRAFT for Carlos to rewrite. `hint` is what a locked card says.
+// Firmament I and Firmament II past the door. All text here is a DRAFT for
+// Carlos to rewrite. `hint` is what a locked card says.
 
 const L = (en, es) => ({ en, es })
 
@@ -126,29 +125,8 @@ export const ENDINGS = [
 /** The Firmament ending for a path and set (H1). */
 export const firmamentEnding = (path, set) => `firmament_${path}_${set}`
 
-// The visions after the first Neutral win, one god at a time.
-export const VISIONS = [
-  {
-    id: 'gaea',
-    name: L('Gaea', 'Gaea'),
-    text: L('A mountain opens its eyes. "I held the ground still while they cut it apart."', 'Una montaña abre los ojos. "Yo sostuve el suelo quieto mientras lo partían."'),
-  },
-  {
-    id: 'ognen',
-    name: L('Ognen', 'Ognen'),
-    text: L('A flame laughs. "I burned the first seam. It was the best thing I ever did."', 'Una llama ríe. "Yo quemé la primera costura. Fue lo mejor que he hecho."'),
-  },
-  {
-    id: 'varuna',
-    name: L('Varuna', 'Varuna'),
-    text: L('A tide pulls at your dice. "I carried the pieces away so they could never touch."', 'Una marea tira de tus dados. "Yo me llevé los pedazos para que nunca se tocaran."'),
-  },
-  {
-    id: 'zephyr',
-    name: L('Zephyr', 'Zephyr'),
-    text: L('A wind whispers your name. "We were four. We broke it. Now you know how."', 'Un viento susurra tu nombre. "Éramos cuatro. Lo rompimos. Ahora sabes cómo."'),
-  },
-]
+// The visions after the first Neutral win are a story scene now (data/story.js,
+// EXPANSION.md G Q4a).
 
 export const ENDING_IDS = ENDINGS.map((e) => e.id)
 

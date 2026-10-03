@@ -63,6 +63,9 @@ export function achievementsFromProfile(profile) {
   if (secrets.length >= 1) ids.push('secret_one')
   if (secrets.length >= SECRET_REACTION_IDS.length) ids.push('secret_all')
   if (ALL_BOSS_IDS.every((id) => (profile.seen.bosses || []).includes(id))) ids.push('bestiary')
+  // Remembering (G Q4a): the recipes scene has played (files that learned
+  // the recipes before the scene existed count it as seen, utils/saveManager.js).
+  if ((profile.scenes || []).includes('recipes')) ids.push('remembering')
   if (
     new Set(profile.seen.dice).size >= TOTALS.dice &&
     new Set(profile.seen.relics).size >= TOTALS.relics &&

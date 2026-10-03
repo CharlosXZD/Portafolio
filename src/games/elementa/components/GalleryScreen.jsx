@@ -25,6 +25,8 @@ import StarSticker from './StarSticker.jsx'
 import { DieDetails } from './DieInfo.jsx'
 import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
 import { keeperMemory } from '../utils/keepers.js'
+import { SCENES, SCENE_IDS } from '../data/story.js'
+import StoryScene from './StoryScene.jsx'
 
 const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic' },
@@ -159,6 +161,8 @@ function Group({ title, color, note, entries, selectedKey, onSelect }) {
 export default function GalleryScreen({ slot, onBack, embedded = false }) {
   const { t, lang } = useLanguage()
   const [profile] = useState(() => readProfile(slot))
+  // A story scene being replayed from the Endings tab (G Q4a).
+  const [replay, setReplay] = useState(null)
   const [tab, setTab] = useState('dice')
   const [sort, setSort] = useState('rarity')
   const [selectedKey, setSelectedKey] = useState(null)
@@ -443,6 +447,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       ) : tab === 'achievements' ? (
         <AchievementsList profile={profile} />
       ) : tab === 'endings' ? (
+        <div className="flex flex-col gap-6">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {ENDINGS.map((e) =>
             (profile.endings || []).includes(e.id) ? (
@@ -451,6 +456,30 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
               <EndingCard key={e.id} small color="#6e6480" title="???" text={e.hint?.[lang] ?? t('elementa.gallery.endingHint')} art={<span className="pixel-heading text-3xl text-[var(--text-mute)]">?</span>} />
             ),
           )}
+        </div>
+        {/* Story scenes already seen on this file can be replayed (G Q4a). */}
+        <section className="flex flex-col gap-3">
+          <h3 className="el-label text-center">{t('elementa.gallery.story')}</h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            {SCENE_IDS.filter((id) => (profile.scenes || []).includes(id)).map((id) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  playClick()
+                  setReplay(id)
+                }}
+                className="el-btn el-btn--sm"
+                style={{ '--edge': SCENES[id].color }}
+              >
+                <span style={{ color: SCENES[id].color }}>{SCENES[id].pages[0].speaker[lang]}</span>
+                <span className="text-[var(--text-mute)]">{SCENES[id].title[lang]}</span>
+              </button>
+            ))}
+            {!(profile.scenes || []).length && <p className="text-base text-[var(--text-mute)]">{t('elementa.gallery.storyNone')}</p>}
+          </div>
+        </section>
+        {replay && <StoryScene id={replay} onDone={() => setReplay(null)} />}
         </div>
       ) : tab === 'loadouts' ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

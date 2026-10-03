@@ -36,6 +36,7 @@ import {
   markWardens,
   unlockMythics,
   setMoteFed,
+  markScenes,
 } from './utils/profile.js'
 import {
   seenInState,
@@ -51,6 +52,9 @@ import BossReward from './components/BossReward.jsx'
 import RunInfo from './components/RunInfo.jsx'
 import Toasts from './components/Toasts.jsx'
 import Crossroads from './components/Crossroads.jsx'
+import StoryScene from './components/StoryScene.jsx'
+import { sceneById } from './data/story.js'
+import { GOD_TRIALS } from './data/bossModifiers.js'
 import { LATEST_VERSION } from './data/patchNotes.js'
 import { GOD_IDS } from './data/elements.js'
 import './elementa.css'
@@ -59,6 +63,27 @@ import './elementa.css'
 // phases and terminal phases (gameover/victory, handled separately below)
 // are excluded.
 const AUTOSAVE_PHASES = new Set(['rolling', 'missed', 'shop', 'bossReward', 'crossroads'])
+/**
+ * The story scene this moment calls for (EXPANSION.md G Q4a, H7), in the
+ * order they should play, or null. Each plays once per file (`seen`).
+ * The visions and the recipes scene play inside the ending (EndingCards).
+ */
+function sceneFor(state, seen) {
+  const ids = []
+  const live = state.phase === 'rolling'
+  // Round 15: the Primordial speaks, then lends its die and the gods step up.
+  if (live && state.round === 15 && state.realm !== 'firmament' && !state.endless && state.path) {
+    ids.push(`final_${state.path}`)
+    if (state.gauntlet) ids.push('loan', `trial_${GOD_TRIALS[state.gauntlet.stage].id}`)
+  }
+  if (live && state.bossModifier?.tier === 4) ids.push(`warden_${state.bossModifier.id}`)
+  if (state.phase === 'crossroads') ids.push('crossroads')
+  if (state.phase === 'shop' && state.shop?.firstFirmament) ids.push(`follower_${state.path ?? 'neutral'}`)
+  if (state.phase === 'shop' && state.shop?.type === 'pantry' && (state.moteFed || 0) >= 40) ids.push('mote_first')
+  if (state.recipes?.includes('entropy') && ['shop', 'bossReward', 'victory', 'rolling'].includes(state.phase)) ids.push('entropy')
+  return ids.find((id) => sceneById(id) && !seen.includes(id)) ?? null
+}
+
 // Escape only opens the pause menu while an actual run is live: the meta
 // screens already have their own nav (Back/Options buttons), and there's
 // nothing to pause on gameover/victory.
@@ -74,6 +99,21 @@ function ElementaGameInner() {
   const [armedConsumable, setArmedConsumable] = useState(null)
   const [toasts, setToasts] = useState([])
   const slot = state.activeSlot
+  // Story scenes this file has already seen (H7), read once per file.
+  const [seenScenes, setSeenScenes] = useState([])
+  useEffect(() => {
+    setSeenScenes(slot == null ? [] : readProfile(slot).scenes || [])
+  }, [slot])
+  const story = slot == null ? null : sceneFor(state, seenScenes)
+  const storyRef = useRef(null)
+  storyRef.current = story
+  const finishScene = useCallback(
+    (id) => {
+      markScenes(slot, [id])
+      setSeenScenes((list) => (list.includes(id) ? list : [...list, id]))
+    },
+    [slot],
+  )
 
   const notify = useCallback((items) => {
     if (items.length === 0) return
@@ -117,8 +157,9 @@ function ElementaGameInner() {
     return () => document.removeEventListener('visibilitychange', onChange)
   }, [])
 
-  // Each screen, shop type and boss has its own theme (data/musicThemes.js).
-  const musicTheme = themeForState(state)
+  // Each screen, shop type and boss has its own theme (data/musicThemes.js);
+  // a story scene brings its own cue.
+  const musicTheme = story ? sceneById(story).music : themeForState(state)
   useEffect(() => {
     setMusicTheme(musicTheme)
   }, [musicTheme])
@@ -128,7 +169,8 @@ function ElementaGameInner() {
   // don't already have one on screen.
   useEffect(() => {
     function handleKeyDown(e) {
-      if (e.key !== 'Escape') return
+      // A story scene takes Escape for itself (Skip).
+      if (e.key !== 'Escape' || e.defaultPrevented || storyRef.current) return
       setPaused((p) => (p ? false : PAUSABLE_PHASES.has(state.phase)))
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -314,7 +356,7 @@ function ElementaGameInner() {
               state={state}
               dispatch={dispatch}
               availableRerolls={selectors.availableRerolls(state)}
-              paused={paused || tutorialActive || showRunInfo || state.phase === 'missed'}
+              paused={paused || tutorialActive || showRunInfo || state.phase === 'missed' || Boolean(story)}
               armedConsumable={armedConsumable}
               onArmedDone={() => setArmedConsumable(null)}
             />
@@ -329,7 +371,18 @@ function ElementaGameInner() {
 
         {/* Waits one frame for the ending view, so the cards start right. */}
         {state.phase === 'victory' && endingView && (
-          <GameOverScreen state={state} dispatch={dispatch} victory ending={endingView?.ending} visions={endingView?.visions} />
+          <GameOverScreen
+            state={state}
+            dispatch={dispatch}
+            victory
+            ending={endingView?.ending}
+            visions={endingView?.visions}
+            onScene={(id) => {
+              finishScene(id)
+              // The recipes scene ends with "Remembering" (Q4a).
+              if (id === 'recipes') award(['remembering'])
+            }}
+          />
         )}
       </main>
 
@@ -384,7 +437,9 @@ function ElementaGameInner() {
 
       {paused && inRun && <PauseMenu slot={slot} dispatch={dispatch} onResume={() => setPaused(false)} />}
 
-      {inRun && <Tutorial state={state} paused={paused || showRunInfo} onActiveChange={setTutorialActive} />}
+      {inRun && <Tutorial state={state} paused={paused || showRunInfo || Boolean(story)} onActiveChange={setTutorialActive} />}
+
+      {story && <StoryScene key={story} id={story} onDone={() => finishScene(story)} />}
 
       {showRunInfo && inRun && <RunInfo state={state} initialTab={showRunInfo} onClose={() => setShowRunInfo(false)} />}
 

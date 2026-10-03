@@ -29,6 +29,8 @@ const WHERE = {
   shop_blackmarket: L('Black Market (Nix)', 'Mercado Negro (Nix)'),
   shop_shrine: L('Shrine (Aeris)', 'Santuario (Aeris)'),
   shop_bazaar: L('Aether Bazaar (every keeper)', 'Bazar del Éter (todos los guardianes)'),
+  scene_crossroads: L('Story: the Crossroads', 'Historia: la Encrucijada'),
+  scene_firmament: L('Story: the visions and the Firmament', 'Historia: las visiones y el Firmamento'),
   shop_cartography: L("Atlas's Cartography (the Firmament)", 'Cartografía de Atlas (el Firmamento)'),
   shop_clockwork: L("The Horologist's Clockwork (the Firmament)", 'El Mecanismo del Relojero (el Firmamento)'),
   shop_pantry: L("Mote's Pantry (the Firmament)", 'La Despensa de Mote (el Firmamento)'),
