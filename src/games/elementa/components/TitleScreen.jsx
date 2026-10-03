@@ -196,7 +196,7 @@ export default function TitleScreen({ slot, dispatch }) {
   const start = useCallback(() => {
     if (!canStart) return
     playClick()
-    dispatch({ type: 'START_RUN', deckId: deck.id, difficultyId: difficulty.id, seed, recipes: profile.recipes })
+    dispatch({ type: 'START_RUN', deckId: deck.id, difficultyId: difficulty.id, seed, recipes: profile.recipes, file: profile })
   }, [canStart, dispatch, deck.id, difficulty.id, seed, profile.recipes])
 
   // Left/Right change the loadout, Up/Down the difficulty, Enter starts.

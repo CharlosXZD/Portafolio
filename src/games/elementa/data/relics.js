@@ -20,6 +20,8 @@ export const RARITY = {
   LEGENDARY: 'legendary',
   // The god dice (EXPANSION.md B4): forge-only, between Legendary and Mythic.
   DIVINE: 'divine',
+  // The Mythic dice of the Firmament (EXPANSION.md H3): one of each per run.
+  MYTHIC: 'mythic',
 }
 
 // Order matters: used for round-gating (index into RARITY_UNLOCK_ROUND) and
@@ -31,6 +33,7 @@ export const RARITY_ORDER = [
   RARITY.EPIC,
   RARITY.LEGENDARY,
   RARITY.DIVINE,
+  RARITY.MYTHIC,
 ]
 
 export const RARITY_COST = {
@@ -40,6 +43,7 @@ export const RARITY_COST = {
   [RARITY.EPIC]: 18,
   [RARITY.LEGENDARY]: 28,
   [RARITY.DIVINE]: 40,
+  [RARITY.MYTHIC]: 45,
 }
 
 // The glow color behind an item's icon, in the shop row and in the
@@ -52,6 +56,7 @@ export const RARITY_GLOW = {
   [RARITY.EPIC]: '#8b5cf6',
   [RARITY.LEGENDARY]: '#eab308',
   [RARITY.DIVINE]: '#fff1c1',
+  [RARITY.MYTHIC]: '#ff4fd8',
 }
 
 export const RELICS = [

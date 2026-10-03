@@ -21,13 +21,23 @@ export const FLAGS = {
   GROWS: 'grows',
   MIRROR_LEFT: 'mirrorLeft',
   CONDUIT: 'conduit',
-  CHRONO: 'chrono',
+  // Kairos (the old Chrono, H4): a 1 rolls again until it is not a 1.
+  KAIROS: 'kairos',
   BEACON: 'beacon',
   ALL_ELEMENTS: 'allElements',
   // EXPANSION.md B10.
   BULLION: 'bullion',
   MIMIC_LEFT: 'mimicLeft', // Masquerade: abilities and score of the left die
   MIMIC_SPLIT: 'mimicSplit', // Chameleon: abilities of the left, score of the right
+  // EXPANSION.md H3 to H5: the Firmament's dice.
+  CHRONO: 'chronoLoop', // Chrono: a 1 rewinds time and rerolls the whole pool
+  LIGHT: 'lightFloor', // Light: no die scores below its face
+  DARKNESS: 'darkness', // Darkness: eats its neighbors into Mult
+  TIME: 'timeRewind', // Time: undo a reroll once per round
+  SPACE: 'spaceLink', // Space: neighbors and the two ends all touch
+  CHAOS: 'chaos', // Chaos: becomes a random die every roll
+  VOID: 'void', // Void: +1 Mult per empty slot
+  ENTROPY: 'entropy', // Entropy: face + 104, +10 Mult
 }
 
 const flagSet = (...flags) => Object.fromEntries(flags.map((f) => [f, true]))
@@ -42,6 +52,8 @@ export const TIERS = {
   // die, lent for the Primordial path's last battle.
   GOD: 'god',
   PRIMAL: 'primal',
+  // H3: the Mythic dice of the Firmament (no element), and Entropy (H5).
+  MYTHIC: 'mythic',
 }
 
 export const ELEMENTS = {
@@ -192,6 +204,8 @@ export const ELEMENTS = {
     id: 'aether',
     name: 'Aether',
     tier: TIERS.QUADRA,
+    // Can grow past d20 in the Firmament (H5).
+    bigGrowth: true,
     parents: ['fire', 'water', 'air', 'earth'],
     color: '#f2f2f2',
     tagline: 'Every mechanic, on one die. Capped at one per run.',
@@ -250,15 +264,16 @@ export const ELEMENTS = {
     tagline: 'Its two neighbors react with each other as if they touched, and those reactions count double.',
     flags: flagSet(FLAGS.CONDUIT),
   },
-  chrono: {
-    id: 'chrono',
-    name: 'Chrono',
+  // Kairos was called Chrono until the Firmament (H4).
+  kairos: {
+    id: 'kairos',
+    name: 'Kairos',
     tier: TIERS.ARCANE,
     rarity: RARITY.EPIC,
     parents: [],
     color: '#c9a0ff',
     tagline: 'A rolled 1 rewinds and rolls again, until it is no longer a 1.',
-    flags: flagSet(FLAGS.CHRONO),
+    flags: flagSet(FLAGS.KAIROS),
   },
   beacon: {
     id: 'beacon',
@@ -385,6 +400,108 @@ export const ELEMENTS = {
     tagline: 'Copies the abilities of the die to its left and the score of the die to its right.',
     flags: flagSet(FLAGS.MIMIC_SPLIT),
   },
+
+  // --- The Firmament (EXPANSION.md H3 to H5). ---
+  // Chrono (H4): sold only by the Horologist, in the Firmament.
+  chrono: {
+    id: 'chrono',
+    name: 'Chrono',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.LEGENDARY,
+    price: 30,
+    firmament: true,
+    parents: [],
+    color: '#8f7bff',
+    tagline: 'A 1 rewinds time: every unheld die rolls again, and you keep the better pool.',
+    flags: flagSet(FLAGS.CHRONO),
+  },
+  // The six Mythic dice (H3): no element, one of each per run, each the
+  // prize of the Warden that guards it. Sold only in the Firmament.
+  light: {
+    id: 'light',
+    name: 'Light',
+    tier: TIERS.MYTHIC,
+    rarity: RARITY.MYTHIC,
+    warden: 'dawn',
+    bigGrowth: true,
+    parents: [],
+    color: '#fff2a8',
+    tagline: 'No die can score below its face. Fizzles are cancelled, and faces stay visible.',
+    flags: flagSet(FLAGS.LIGHT),
+  },
+  darkness: {
+    id: 'darkness',
+    name: 'Darkness',
+    tier: TIERS.MYTHIC,
+    rarity: RARITY.MYTHIC,
+    warden: 'umbra',
+    bigGrowth: true,
+    parents: [],
+    color: '#6a4fb8',
+    tagline: 'The dice on either side of it score 0. What they would have scored goes to your Mult.',
+    flags: flagSet(FLAGS.DARKNESS),
+  },
+  time: {
+    id: 'time',
+    name: 'Time',
+    tier: TIERS.MYTHIC,
+    rarity: RARITY.MYTHIC,
+    warden: 'clockwork',
+    bigGrowth: true,
+    parents: [],
+    color: '#b9a6ff',
+    tagline: 'Once per round, undo your last reroll and get it back. Unused rerolls carry over, up to +3.',
+    flags: flagSet(FLAGS.TIME),
+  },
+  space: {
+    id: 'space',
+    name: 'Space',
+    tier: TIERS.MYTHIC,
+    rarity: RARITY.MYTHIC,
+    warden: 'expanse',
+    bigGrowth: true,
+    parents: [],
+    color: '#5a7cff',
+    tagline: 'Its two neighbors and the two end dice all count as neighbors of each other. Always Warp.',
+    flags: flagSet(FLAGS.SPACE),
+  },
+  chaos: {
+    id: 'chaos',
+    name: 'Chaos',
+    tier: TIERS.MYTHIC,
+    rarity: RARITY.MYTHIC,
+    warden: 'maelstrom',
+    bigGrowth: true,
+    parents: [],
+    color: '#ff3fa4',
+    tagline: 'Every roll it becomes a random die from the whole game, in a random size.',
+    flags: flagSet(FLAGS.CHAOS),
+  },
+  void: {
+    id: 'void',
+    name: 'Void',
+    tier: TIERS.MYTHIC,
+    rarity: RARITY.MYTHIC,
+    warden: 'hollow',
+    bigGrowth: true,
+    parents: [],
+    color: '#8a7aa8',
+    tagline: 'Scores nothing. Every empty slot you have gives +1 Mult.',
+    flags: flagSet(FLAGS.VOID),
+  },
+  // Entropy (H5): all six Mythic dice and Aether, forged into one.
+  entropy: {
+    id: 'entropy',
+    name: 'Entropy',
+    tier: TIERS.MYTHIC,
+    rarity: RARITY.MYTHIC,
+    bigGrowth: true,
+    parents: [],
+    recipe: { light: 1, darkness: 1, time: 1, space: 1, chaos: 1, void: 1, aether: 1 },
+    color: '#f0e8ff',
+    tagline: 'Everything at once. Scores its face + 104, and +10 Mult.',
+    flags: flagSet(FLAGS.ENTROPY),
+  },
 }
 
 export const PURE_ELEMENT_IDS = ['earth', 'fire', 'water', 'air']
@@ -394,7 +511,17 @@ export const QUADRA_FUSION_ID = 'aether'
 export const GOD_IDS = ['gaea', 'ognen', 'varuna', 'zephyr']
 export const PRIMORDIAL_DIE_ID = 'primordial_die'
 
-export const ARCANE_DIE_IDS = ['midas', 'sapling', 'mirror', 'conduit', 'chrono', 'beacon', 'prism', 'bullion', 'masquerade', 'chameleon']
+export const ARCANE_DIE_IDS = ['midas', 'sapling', 'mirror', 'conduit', 'kairos', 'beacon', 'prism', 'bullion', 'masquerade', 'chameleon']
+// The Firmament (H3, H4, H5).
+export const CHRONO_ID = 'chrono'
+export const MYTHIC_DIE_IDS = ['light', 'darkness', 'time', 'space', 'chaos', 'void']
+export const ENTROPY_ID = 'entropy'
+
+/** A Mythic die or Entropy: one of each kind per run (H3). */
+export const isMythic = (elementId) => ELEMENTS[elementId]?.tier === TIERS.MYTHIC
+
+/** Dice that can grow past d20 in the Firmament (H5): Aether, the Mythic dice, Entropy. */
+export const canGrowBig = (elementId) => Boolean(ELEMENTS[elementId]?.bigGrowth)
 
 const isMimic = (id) => Boolean(ELEMENTS[id]?.flags[FLAGS.MIMIC_LEFT] || ELEMENTS[id]?.flags[FLAGS.MIMIC_SPLIT])
 
@@ -407,7 +534,9 @@ const isMimic = (id) => Boolean(ELEMENTS[id]?.flags[FLAGS.MIMIC_LEFT] || ELEMENT
 export function actingElementIds(dice) {
   const out = []
   dice.forEach((d, i) => {
-    out.push(isMimic(d.elementId) && i > 0 ? out[i - 1] : d.elementId)
+    // Chaos (H3) acts as the die it became on its last roll.
+    const own = d.chaosForm?.elementId ?? d.elementId
+    out.push(isMimic(d.elementId) && i > 0 ? out[i - 1] : own)
   })
   return out
 }
@@ -441,6 +570,7 @@ export function familiesOf(elementId) {
   const def = ELEMENTS[elementId]
   if (!def) return []
   if (def.tier === TIERS.ARCANE) return ['arcane']
+  if (def.tier === TIERS.MYTHIC) return ['mythic']
   if (def.tier === TIERS.PURE) return [elementId]
   return def.parents
 }
@@ -501,7 +631,15 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.GROWS]: 'Gains +2 for every reroll it sits out.',
   [FLAGS.MIRROR_LEFT]: 'Copies the score of the die on its left.',
   [FLAGS.CONDUIT]: 'Bridges reactions between its two neighbors, and doubles them.',
-  [FLAGS.CHRONO]: 'A 1 rerolls itself for free until it is no longer a 1.',
+  [FLAGS.KAIROS]: 'A 1 rerolls itself for free until it is no longer a 1.',
+  [FLAGS.CHRONO]: 'When it lands on a 1, every unheld die rolls again for free (it too), and you keep the better pool. Up to 8 times.',
+  [FLAGS.LIGHT]: "No die can score below its face: lower faces rise to it, and nothing fizzles. Faces stay visible under Eclipse.",
+  [FLAGS.DARKNESS]: 'The dice on either side of it score 0, and their combined score is added to your Mult.',
+  [FLAGS.TIME]: 'Once per round, Rewind: undo your last reroll and get it back. Unused rerolls carry into the next round, up to +3.',
+  [FLAGS.SPACE]: 'Its two neighbors and the two end dice all count as neighbors of each other for reactions.',
+  [FLAGS.CHAOS]: 'Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form.',
+  [FLAGS.VOID]: 'Scores 0. Every empty dice, relic and consumable slot gives +1 Mult.',
+  [FLAGS.ENTROPY]: 'Scores its face + 104, and adds +10 to your Mult.',
   [FLAGS.BEACON]: 'Both neighbors score x1.5.',
   [FLAGS.ALL_ELEMENTS]: 'Reacts as Fire, Water, Earth, and Air at once.',
   [FLAGS.BULLION]: 'Scores 0, but pays your final Mult (rounded down) in Shards on a clear.',
@@ -516,7 +654,34 @@ export function describeElement(elementId, lang = 'en') {
     .filter(Boolean)
   flagLines.push(...familyAbilitiesOf(elementId).map((id) => familyAbilityText(id, lang)))
   flagLines.push(...godTextLines(elementId, lang))
+  flagLines.push(...mythicTextLines(elementId, lang))
   return { tagline: localize(lang, def.tagline, ELEMENTS_ES, elementId, 'tagline'), flagLines }
+}
+
+// The Mythic rules (H3, H5), for tooltips and the Gallery.
+const MYTHIC_TEXT = {
+  en: {
+    one: 'Mythic: one of each kind per run. It cannot be copied.',
+    space: 'Always carries Warp: it does not count toward your dice cap.',
+    big: 'Can grow past d20 in the Firmament, up to d100.',
+    chronoShop: 'Sold only by the Horologist, in the Firmament.',
+  },
+  es: {
+    one: 'Mítico: uno de cada tipo por partida. No se puede copiar.',
+    space: 'Siempre lleva Warp: no cuenta para tu límite de dados.',
+    big: 'Puede crecer más allá de d20 en el Firmamento, hasta d100.',
+    chronoShop: 'Solo lo vende el Relojero, en el Firmamento.',
+  },
+}
+
+export function mythicTextLines(elementId, lang = 'en') {
+  const text = MYTHIC_TEXT[lang] ?? MYTHIC_TEXT.en
+  const out = []
+  if (isMythic(elementId)) out.push(text.one)
+  if (elementId === 'space') out.push(text.space)
+  if (canGrowBig(elementId)) out.push(text.big)
+  if (elementId === CHRONO_ID) out.push(text.chronoShop)
+  return out
 }
 
 // What each god does, for tooltips and the Gallery (B4). The engine side
@@ -556,6 +721,7 @@ const TIER_RARITY = {
   [TIERS.DOUBLE]: RARITY.RARE,
   [TIERS.TRIPLE]: RARITY.EPIC,
   [TIERS.QUADRA]: RARITY.LEGENDARY,
+  [TIERS.MYTHIC]: RARITY.MYTHIC,
 }
 
 export function rarityForElement(elementId) {

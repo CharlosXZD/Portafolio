@@ -41,8 +41,8 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
   const fx = relicEffects(relics)
   const bias = ctx.oneBias ?? 1
   let value = rollFace(sides, bias)
-  // Chrono: a 1 rewinds and rolls again until it isn't a 1 (B10).
-  if (hasFlag(elementId, FLAGS.CHRONO)) while (value === 1) value = rollFace(sides, bias)
+  // Kairos (the old Chrono): a 1 rolls again until it isn't a 1 (B10, H4).
+  if (hasFlag(elementId, FLAGS.KAIROS)) while (value === 1) value = rollFace(sides, bias)
   // Steady: Earth-family faces never land below its floor.
   if (fx.earthFamilyMinFace && inFamily(elementId, 'earth')) value = Math.max(value, Math.min(fx.earthFamilyMinFace, sides))
   let total = value

@@ -30,7 +30,7 @@ export const DICE_TEXT = {
   sapling: T('A seed the Casters forgot. Held through rerolls, it grows.', 'Una semilla que los Lanzadores olvidaron. Guardado entre rerolls, crece.', ['grows']),
   mirror: T('It shows what stands beside it. Copies the score of the die to its left.', 'Muestra lo que tiene al lado. Copia el puntaje del dado a su izquierda.', ['mirror']),
   conduit: T('A channel between neighbors. Its two neighbors react together, doubled.', 'Un canal entre vecinos. Sus dos vecinos reaccionan entre sí, al doble.', ['reaction']),
-  chrono: T('Time stumbles once and tries again. A 1 rolls again until it is not a 1.', 'El tiempo tropieza y lo intenta otra vez. Un 1 se vuelve a tirar hasta que deja de serlo.', ['rewind']),
+  kairos: T('The right moment, caught twice. A 1 rolls again until it is not a 1.', 'El momento justo, atrapado dos veces. Un 1 se vuelve a tirar hasta que deja de serlo.', ['rewind']),
   beacon: T('A light left on for its neighbors. The dice beside it score x1.5.', 'Una luz encendida para sus vecinos. Los dados a su lado anotan x1.5.', ['boost']),
   prism: T('It splits one light into four. Reacts as every element at once.', 'Parte una luz en cuatro. Reacciona como todos los elementos a la vez.', ['reaction']),
   bullion: T('A bar of stored Mult. It scores nothing, but pays your final Mult in Shards on a clear.', 'Una barra de Mult guardado. No anota, pero paga tu Mult final en Fragmentos al superar la ronda.', ['payout']),
@@ -42,6 +42,16 @@ export const DICE_TEXT = {
   varuna: T('The Water god, bound into a die. Any die can lock for free, but the tide pulls every roll toward 1.', 'La diosa del Agua, atada a un dado. Todo dado se bloquea gratis, pero la marea empuja cada tirada hacia el 1.', ['divine', 'freelock', 'refund']),
   zephyr: T('The Air god, bound into a die. Every set rises a step, but Fire burns less.', 'El dios del Aire, atado a un dado. Cada set sube un escalón, pero el Fuego arde menos.', ['divine', 'wild', 'sets', 'drift']),
   primordial_die: T("The dreamer's own die, lent to you. Every Aether power, and a share of each god's.", 'El dado del soñador, prestado. Todo el poder del Éter y una parte del de cada dios.', ['divine', 'explodes', 'freelock', 'chain', 'copy', 'sets', 'doubles', 'fizzles', 'refund', 'kindling', 'drift', 'patience']),
+
+  // The Firmament (EXPANSION.md H3 to H5).
+  chrono: T('Time itself, wound tight. A 1 rewinds the whole table, and you keep the better roll.', 'El tiempo mismo, bien tenso. Un 1 rebobina toda la mesa, y te quedas con la mejor tirada.', ['loop']),
+  light: T('The first dawn, kept in a die. Nothing near it falls below its face.', 'El primer amanecer, guardado en un dado. Nada a su alrededor cae por debajo de su cara.', ['mythic', 'floor']),
+  darkness: T('What the light leaves behind. It swallows its neighbors and turns them into Mult.', 'Lo que la luz deja atrás. Se traga a sus vecinos y los vuelve Multiplicador.', ['mythic', 'devour']),
+  time: T('A moment you can take back. Undo a reroll once a round, and save the rest for later.', 'Un momento que puedes recuperar. Deshaz un reroll una vez por ronda, y guarda el resto para después.', ['mythic', 'undo']),
+  space: T('The distance between things, folded. Its neighbors and both ends all touch.', 'La distancia entre las cosas, doblada. Sus vecinos y ambos extremos se tocan.', ['mythic', 'reaction', 'warp']),
+  chaos: T('Never the same die twice. Every roll it becomes something else.', 'Nunca el mismo dado dos veces. En cada tirada se vuelve otra cosa.', ['mythic', 'shift']),
+  void: T('Absence with an appetite. It scores nothing, and every empty slot feeds your Mult.', 'Una ausencia con hambre. No anota nada, y cada espacio vacío alimenta tu Multiplicador.', ['mythic', 'empty']),
+  entropy: T('Every Mythic die and Aether, forged into the end of all things.', 'Todos los dados Míticos y el Éter, forjados en el fin de todas las cosas.', ['mythic']),
 }
 
 export function diceText(elementId, lang = 'en') {

@@ -27,8 +27,8 @@ import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
 import { keeperMemory } from '../utils/keepers.js'
 
 const RARITY_LABEL = {
-  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine' },
-  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino' },
+  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic' },
+  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino', mythic: 'Mítico' },
 }
 
 // An element "family" is the pure element plus every fusion made from it.
@@ -41,6 +41,7 @@ const FAMILY_TEXT = {
     air: 'Air and every fusion made with Air. They switch on set bonuses, and once per round you can nudge one up or down by 1 (Drift).',
     arcane: 'No element and no family. Arcane dice care about where they sit in your row.',
     neutral: 'Not tied to any element.',
+    mythic: 'The Firmament\'s dice: no element, one of each per run, each the prize of a Warden.',
   },
   es: {
     fire: 'Fuego y toda fusión hecha con Fuego. Explotan en su cara máxima; los que se apagan con un 1 devuelven un reroll al hacerlo (Yesca).',
@@ -49,6 +50,7 @@ const FAMILY_TEXT = {
     air: 'Aire y toda fusión hecha con Aire. Activan los bonos de set, y una vez por ronda puedes mover uno 1 arriba o abajo (Deriva).',
     arcane: 'Sin elemento ni familia. A los dados Arcanos les importa dónde están en tu fila.',
     neutral: 'No está ligado a ningún elemento.',
+    mythic: 'Los dados del Firmamento: sin elemento, uno de cada tipo por partida, cada uno el premio de un Custodio.',
   },
 }
 
@@ -282,14 +284,16 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       return [{ key: 'all', entries: named }]
     }
     if (sort === 'family') {
-      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, 'arcane'] : [...PURE_ELEMENT_IDS, 'neutral']
+      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, 'arcane', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral']
       return order
         .map((f) => ({
           key: f,
           title:
             f === 'arcane'
               ? t('elementa.gallery.arcane')
-              : f === 'neutral'
+              : f === 'mythic'
+                ? t('elementa.gallery.mythic')
+                : f === 'neutral'
                 ? t('elementa.gallery.neutral')
                 : `${localize(lang, ELEMENTS[f].name, ELEMENTS_ES, f, 'name')} ${t('elementa.gallery.family')}`,
           color: ELEMENTS[f]?.color === '#8a6a3d' ? '#c89a5c' : ELEMENTS[f]?.color,

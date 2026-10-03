@@ -32,6 +32,15 @@ export function emptyProfile() {
     // Every die element in the final pool of a Cataclysm win: they wear a
     // gold sticker in the Gallery.
     cataclysmDice: [],
+    // The Firmament (EXPANSION.md H8): Mythic dice unlocked on this file
+    // (each Warden's prize), Wardens beaten, and how much Mote has eaten.
+    mythics: [],
+    wardens: [],
+    mote: { fed: 0 },
+    // Story scenes already shown (H7); they play once unless replayed.
+    scenes: [],
+    // One-time data fixes already applied to this file (a new file needs none).
+    migrations: ['kairos'],
   }
 }
 
@@ -54,6 +63,25 @@ function normalizeProfile(p = {}) {
     deckEndings: p.deckEndings || {},
     wins: p.wins || winsFromLists(p.decksBeaten || [], p.difficultiesBeaten || []),
     cataclysmDice: p.cataclysmDice || [],
+    mythics: p.mythics || [],
+    wardens: p.wardens || [],
+    mote: { fed: p.mote?.fed || 0 },
+    scenes: p.scenes || [],
+    ...kairosRename(p),
+  }
+}
+
+// Chrono became Kairos when the new Chrono arrived (EXPANSION.md H4): a file
+// that saw or won with the old one keeps it, under its new name. Applied
+// once, so the new Chrono can be discovered later.
+function kairosRename(p) {
+  const migrations = p.migrations || []
+  if (migrations.includes('kairos')) return { migrations }
+  const swap = (list) => (list || []).map((id) => (id === 'chrono' ? 'kairos' : id))
+  return {
+    seen: { ...emptyProfile().seen, ...(p.seen || {}), dice: swap(p.seen?.dice) },
+    cataclysmDice: swap(p.cataclysmDice),
+    migrations: [...migrations, 'kairos'],
   }
 }
 

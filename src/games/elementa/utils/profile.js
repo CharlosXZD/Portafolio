@@ -97,6 +97,32 @@ export function markEnding(slot, ending, deckId) {
   return fresh
 }
 
+/** Adds ids to one of the profile's lists (H8). Returns the ids that were new. */
+function addToList(slot, key, ids) {
+  if (slot == null) return []
+  let fresh = []
+  updateProfile(slot, (p) => {
+    fresh = [...new Set(ids)].filter((id) => id && !(p[key] || []).includes(id))
+    return fresh.length ? { ...p, [key]: [...(p[key] || []), ...fresh] } : p
+  })
+  return fresh
+}
+
+/** Wardens beaten on this file (H2). Returns the ones that are new. */
+export const markWardens = (slot, ids) => addToList(slot, 'wardens', ids)
+
+/** Mythic dice unlocked on this file (H2, H3). Returns the ones that are new. */
+export const unlockMythics = (slot, ids) => addToList(slot, 'mythics', ids)
+
+/** Story scenes already shown on this file (H7). */
+export const markScenes = (slot, ids) => addToList(slot, 'scenes', ids)
+
+/** Mote's appetite only ever grows (H6). */
+export function setMoteFed(slot, fed) {
+  if (slot == null) return
+  updateProfile(slot, (p) => (fed > (p.mote?.fed || 0) ? { ...p, mote: { ...p.mote, fed } } : p))
+}
+
 /** Unlocks achievements; returns the ids that were newly unlocked. */
 export function unlockAchievements(slot, ids) {
   if (slot == null) return []

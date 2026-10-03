@@ -636,10 +636,53 @@ function baseTitleState() {
     // Bumped whenever a fresh roll of a round starts (a new round, a retry,
     // a gauntlet stage), so the table can start clean.
     roundSeq: 0,
+    // The Firmament (EXPANSION.md H1): which realm the run is in, and which
+    // set of three Wardens it faces (1 or 2).
+    realm: 'elementa',
+    firmamentSet: null,
+    // Copied from the save file (H8) when a run starts or loads: endings
+    // seen (the doors), Mythic dice unlocked, Wardens beaten, Mote's meal.
+    endingsSeen: [],
+    mythics: [],
+    wardens: [],
+    moteFed: 0,
   }
 }
 
-function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', recipes = []) {
+// What a run needs to know about its save file (H8). `file` is the
+// profile, or an object with the same fields.
+function fileFields(file = {}) {
+  return {
+    endingsSeen: [...(file.endings || [])],
+    mythics: [...(file.mythics || [])],
+    wardens: [...(file.wardens || [])],
+    moteFed: file.mote?.fed || 0,
+  }
+}
+
+// Chrono became Kairos (EXPANSION.md H4). A save from before the Firmament
+// (it has no realm) can only hold the old one.
+function renameChrono(save) {
+  if (save.realm) return save
+  const id = (x) => (x === 'chrono' ? 'kairos' : x)
+  const shop = save.shop
+    ? {
+        ...save.shop,
+        buyableElements: (save.shop.buyableElements || []).map(id),
+        dieSizes: Object.fromEntries(Object.entries(save.shop.dieSizes || {}).map(([k, v]) => [id(k), v])),
+      }
+    : save.shop
+  return {
+    ...save,
+    realm: 'elementa',
+    dice: (save.dice || []).map((d) => ({ ...d, elementId: id(d.elementId) })),
+    roundPool: save.roundPool ? save.roundPool.map((d) => ({ ...d, elementId: id(d.elementId) })) : save.roundPool,
+    ownedElementsEver: (save.ownedElementsEver || []).map(id),
+    shop,
+  }
+}
+
+function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', recipes = [], file = {}) {
   // Seed first, so every roll below is reproducible from it.
   const seed = cleanSeed(seedInput) || randomSeed()
   setRngState(seedToState(seed))
@@ -673,6 +716,7 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', re
     map,
     seed,
     recipes: [...recipes],
+    ...fileFields(file),
     rngState: getRngState(),
   }
 }
@@ -1292,17 +1336,20 @@ function reduce(state, action) {
       return { ...baseTitleState(), phase: 'title', activeSlot: action.slot ?? state.activeSlot }
 
     case 'START_RUN':
-      return startNewRun(action.deckId, action.difficultyId, state.activeSlot, action.seed, action.recipes)
+      return startNewRun(action.deckId, action.difficultyId, state.activeSlot, action.seed, action.recipes, action.file)
 
     // Chosen a filled slot: hydrate its full snapshot, but land on a
     // preview screen (dice loadout, difficulty, round) rather than
     // dropping straight back into whatever mid-round state it was saved
     // at. The saved phase is stashed in resumePhase for RESUME_RUN.
-    case 'LOAD_RUN':
+    case 'LOAD_RUN': {
       // Older saves predate seeds: give them a generator state so the rest
       // of the run is still saved and reproducible from here on.
+      const save = renameChrono(action.save)
       return {
-        ...action.save,
+        ...save,
+        // The file's progress wins over the snapshot's (H8).
+        ...(action.file ? fileFields(action.file) : {}),
         activeSlot: action.slot ?? action.save.activeSlot,
         rngState: action.save.rngState ?? Math.floor(Math.random() * 4294967296),
         // Saves from before the Road: lay one out from here.
@@ -1320,6 +1367,7 @@ function reduce(state, action) {
         phase: 'runPreview',
         resumePhase: action.save.phase,
       }
+    }
 
     case 'RESUME_RUN': {
       if (state.phase !== 'runPreview' || !state.resumePhase) return state

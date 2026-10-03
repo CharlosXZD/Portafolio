@@ -5,6 +5,7 @@ import { mix } from '../utils/color.js'
 import PixelIcon from './PixelIcon.jsx'
 
 const ARCANE_COLOR = '#8f6bff'
+const MYTHIC_COLOR = '#ff4fd8'
 
 /**
  * One family chip: the element's color, pixel mark and name, or "Arcane".
@@ -13,9 +14,9 @@ const ARCANE_COLOR = '#8f6bff'
  */
 export function FamilyTag({ family }) {
   const { t, lang } = useLanguage()
-  const arcane = family === 'arcane'
-  const color = arcane ? ARCANE_COLOR : ELEMENTS[family].color
-  const name = arcane ? t('elementa.gallery.arcane') : localize(lang, ELEMENTS[family].name, ELEMENTS_ES, family, 'name')
+  const arcane = family === 'arcane' || family === 'mythic'
+  const color = family === 'mythic' ? MYTHIC_COLOR : arcane ? ARCANE_COLOR : ELEMENTS[family].color
+  const name = arcane ? t(`elementa.gallery.${family}`) : localize(lang, ELEMENTS[family].name, ELEMENTS_ES, family, 'name')
   return (
     <span
       className="el-chip inline-flex items-center gap-1.5"

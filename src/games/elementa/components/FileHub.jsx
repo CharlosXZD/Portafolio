@@ -91,7 +91,7 @@ export default function FileHub({ slot, dispatch }) {
               })}
             </div>
           </div>
-          <button type="button" className="el-btn el-btn--gold el-btn--lg" onClick={go({ type: 'LOAD_RUN', save: run, slot, recipes: file.profile.recipes })}>
+          <button type="button" className="el-btn el-btn--gold el-btn--lg" onClick={go({ type: 'LOAD_RUN', save: run, slot, recipes: file.profile.recipes, file: file.profile })}>
             {t('elementa.files.continueRun')}
           </button>
           <ConfirmButton

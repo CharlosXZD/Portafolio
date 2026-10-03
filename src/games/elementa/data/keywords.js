@@ -27,6 +27,15 @@ export const KEYWORDS = Object.fromEntries(
     K('rewind', '#c9a0ff', L('Rewind', 'Rebobina'), L('A rolled 1 rolls again until it is no longer a 1.', 'Un 1 se vuelve a tirar hasta que deja de ser 1.')),
     K('boost', '#ffb347', L('Boost', 'Impulso'), L('Raises the score of the dice beside it.', 'Sube el puntaje de los dados a su lado.')),
     K('doubles', '#b28df2', L('Doubles', 'Doble'), L('Counts double when it is part of a matching set.', 'Cuenta doble cuando forma parte de un set igual.')),
+    // The Firmament (EXPANSION.md H3 to H5).
+    K('mythic', '#ff4fd8', L('Mythic', 'Mítico'), L('No element. One of each kind per run, and it cannot be copied.', 'Sin elemento. Uno de cada tipo por partida, y no se puede copiar.')),
+    K('warp', '#a66bff', L('Warp', 'Warp'), L('Does not count toward your dice cap. At most 3 Warp dice at once.', 'No cuenta para tu límite de dados. Como mucho 3 dados Warp a la vez.')),
+    K('loop', '#8f7bff', L('Loop', 'Bucle'), L('A 1 rerolls every unheld die for free, and the better pool stays.', 'Un 1 vuelve a tirar gratis todo dado no guardado, y se queda la mejor reserva.')),
+    K('floor', '#fff2a8', L('Floor', 'Piso'), L('No die can score below this face.', 'Ningún dado puede anotar menos que esta cara.')),
+    K('devour', '#6a4fb8', L('Devour', 'Devora'), L('Its neighbors score 0, and their score becomes Mult.', 'Sus vecinos anotan 0, y su puntaje se vuelve Multiplicador.')),
+    K('undo', '#b9a6ff', L('Undo', 'Deshacer'), L('Takes back your last reroll, and refunds it.', 'Deshace tu último reroll, y lo devuelve.')),
+    K('shift', '#ff3fa4', L('Shift', 'Cambia'), L('Becomes a different random die on every roll.', 'Se vuelve otro dado al azar en cada tirada.')),
+    K('empty', '#8a7aa8', L('Empty', 'Vacío'), L('Feeds on the empty slots you have.', 'Se alimenta de los espacios vacíos que tienes.')),
   ].map((k) => [k.id, k]),
 )
 

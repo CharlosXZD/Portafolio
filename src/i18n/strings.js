@@ -682,6 +682,8 @@ const strings = {
     en: 'Permanent rerolls bought:',
     es: 'Rerolls permanentes comprados:',
   },
+  // --- Elementa: the Firmament (EXPANSION.md Part H) ---
+  'elementa.gallery.mythic': { en: 'Mythic', es: 'Mítico' },
 }
 
 export default strings

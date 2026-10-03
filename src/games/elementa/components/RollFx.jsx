@@ -95,6 +95,13 @@ const LAND = {
   varuna: ['splash', '#2f7fe0', '#9fd4ff'],
   zephyr: ['swirl', '#ffffff', '#dff3ff'],
   primordial_die: ['ring', '#ff4d6d', '#ffffff'],
+  light: ['ring', '#fff2a8', '#ffffff'],
+  darkness: ['dust', '#6a4fb8', '#2a1f40'],
+  time: ['ring', '#b9a6ff', '#ffffff'],
+  space: ['swirl', '#5a7cff', '#c9d4ff'],
+  chaos: ['sparks', '#ff3fa4', '#ffd166'],
+  void: ['puff', '#8a7aa8', '#3a3048'],
+  entropy: ['ring', '#f0e8ff', '#ff4fd8'],
 }
 
 function LandBurstImpl({ elementId, size, heavy = 0 }) {

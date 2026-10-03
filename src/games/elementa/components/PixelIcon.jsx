@@ -107,7 +107,7 @@ const ICONS = {
     rows: ['cc.....', 'c.c....', '.cc....', '..hhh..', '....cc.', '....c.c', '.....cc'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
-  chrono: {
+  kairos: {
     rows: ['ccccccc', '.chhhc.', '..chc..', '...c...', '..c.c..', '.chhhc.', 'ccccccc'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
@@ -150,6 +150,39 @@ const ICONS = {
   },
   primordial_die: {
     rows: ['c..c..c', '.chhhc.', '.hcccc.', 'chcccch', '.cccch.', '.chhhc.', 'c..c..c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  // The Firmament (EXPANSION.md H3 to H5): Chrono, the Mythic dice, Entropy.
+  chrono: {
+    rows: ['..ccc..', '.c.h.c.', 'c..h..c', 'c..hhhc', 'c.....c', '.c...c.', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  light: {
+    rows: ['c..c..c', '.c.c.c.', '..hhh..', 'cchhhcc', '..hhh..', '.c.c.c.', 'c..c..c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  darkness: {
+    rows: ['..ccc..', '.cc....', 'cc.....', 'cc...h.', 'cc.....', '.cc....', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  time: {
+    rows: ['ccccccc', '.hhhhh.', '..hhh..', '...c...', '..c.c..', '.c...c.', 'ccccccc'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  space: {
+    rows: ['c.....c', '.c...c.', '..ccc..', '..chc..', '..ccc..', '.c...c.', 'c.....c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  chaos: {
+    rows: ['c..c..c', '.c.c.c.', '..chc..', 'cchhhcc', '..chc..', '.c.c.c.', 'c..c..c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  void: {
+    rows: ['..ccc..', '.c...c.', 'c.....c', 'c..h..c', 'c.....c', '.c...c.', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  entropy: {
+    rows: ['c.c.c.c', '.chhhc.', 'chcccch', '.hc.ch.', 'chcccch', '.chhhc.', 'c.c.c.c'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
   spark: {
