@@ -483,6 +483,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.6.6** | Loose ends | Part G Q1 to Q3 and Carlos's d5 and Chisel answers: popovers on top, Varuna's 1-bias, the Kindling fix, copy dice rolling with borrowed abilities, the d5, sized shop dice, the new Chisel. **Built.** |
 | **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Built.** |
 | **v0.7** | The Firmament | **Built.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
+| **v0.7.2** | Firmament depth | **Ready.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
 | **v0.7.5** | Constellations | Seren joins; B9 Constellations and Runes; B11 poker and Joker dice. Specified when v0.7 is done. |
 | **v0.8** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Needs a workshop first (Carlos 2026-10-03: "we still have to work shop a lot that realm, the boss, the dice, the theme"). |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
@@ -1171,6 +1172,52 @@ Build the scenes of Part G Q4a (all of them: before each path's Primordial fight
 - Report: what you built, how you verified it, every default you chose (list the **Open** items), anything skipped, open questions.
 
 ---
+
+## Part I: v0.7.2 "Firmament depth" (spec, 2026-10-03)
+
+**Status: Ready.** From Carlos's v0.7 playtest notes 4 ("add more dice to the Firmament") and his Horologist question ("so it doesn't feel empty on a second visit"). Everything here is Claude's spec; tune after playtests. Do not build anything outside this part.
+
+### I1. Celestial dice (new, Firmament only)
+
+Five new dice, **sold only past the door** (Firmament Markets, the Astral Exchange, and the Horologist where noted), never in Elementa. They need no unlock. Tier: Arcane (no element, family tag "Arcane"), rarity Epic unless noted, base price 16 (Legendary 30). Not Mythic (Mythic stays "one of each, unlocked by Wardens"). Procedural placeholder art like every other die; each gets a keyword tag and a Gallery entry (they belong in the normal rarity groups, not the Unlocks box).
+
+| Die | Rule | Notes |
+|---|---|---|
+| **Comet** | Explodes on its two highest faces. When it explodes it scores its total twice. | A burst die. Fire-family dice reward it; Varuna's 1-bias hurts it. |
+| **Pulsar** | Every reroll this round adds +1 to its Base, up to +10. Resets next round. | Rerolls become a resource. Sold by the Horologist too. |
+| **Satellite** | The dice on both sides count their face +1 (explosion chains unchanged). Does not score itself. | A support die, like Beacon but for faces. |
+| **Quasar** | Its face goes to Mult instead of Base (flat, not multiplied). Max 1 per run. | Legendary. Pairs with high dice sizes. |
+| **Zenith** | Held in the pool: +1 reroll every round and +1 more at round 20 and again at round 25. Scores its face normally. | Utility. Sold by the Horologist too. |
+
+Rules: Pulsar and Satellite interact with Masquerade/Chameleon through `actingElementIds` like all arcane dice. They can grow past d20 only if they already can (they cannot; only Aether, Mythic and Entropy grow big).
+
+### I2. The Horologist's pool
+
+Today it always sells the same three things (Chrono, Stopwatch, Time Capsule). New rule: **each visit offers six things, drawn from a pool**, so it changes every time.
+
+- **Dice (2):** Chrono is always one. The other is drawn from Pulsar, Zenith and Kairos (the old Chrono, never otherwise sold in the Firmament).
+- **Consumables (3):** drawn from six (all `firmament: true`):
+  - Stopwatch (exists)
+  - Time Capsule (exists)
+  - **Hourglass** (Uncommon): your next 3 rerolls this round do not use up a reroll.
+  - **Pocket Watch** (Rare): pick a die; it starts next round held, on the face it shows now.
+  - **Metronome** (Uncommon): for the next 3 rounds, +1 Mult on every cast.
+  - **Almanac** (Rare): shows the next three targets and the next boss modifier (Pip's hint, exact).
+- **Relic (1):** drawn from two time relics (Firmament only, Epic):
+  - **Mainspring:** rerolls you do not use are banked for the next round, up to 3.
+  - **Cuckoo Clock:** clear a round with 0 rerolls left to gain 5 Shards and +1 Mult for the next round.
+- Prices as normal (rarity table; he gives no discount). No reroll of his stock (it stays `reroll: false`).
+- Keeper lines: add three new Horologist lines for the second and third visits (EN and ES), drawn from his lore in the Keepers table.
+
+### I3. Firmament Market and Exchange
+
+The Celestial dice join the normal die pool in the Firmament: weight 1 each (Quasar 0.4), same size-by-round rules as other dice (they roll as d3/d5/d6... like the rest). The Astral Exchange offers one Celestial die guaranteed.
+
+### I4. Also in this step
+
+- Kindling note and Kairos check: Kairos must appear in no Elementa shop that Chrono used to be in unless it was before (leave as is); just confirm saves.
+- Patch notes: Alpha 0.7.2 "Firmament depth" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; Gallery totals (`TOTALS`) updated.
+- Tests: Node scripts for each new die's scoring, the Horologist's pool across 40 seeds (never the same six every time, always Chrono), and a browser pass on a Firmament test save.
 
 ## Decision log
 
