@@ -47,6 +47,7 @@ import FileHub from './components/FileHub.jsx'
 import BossReward from './components/BossReward.jsx'
 import RunInfo from './components/RunInfo.jsx'
 import Toasts from './components/Toasts.jsx'
+import Crossroads from './components/Crossroads.jsx'
 import { LATEST_VERSION } from './data/patchNotes.js'
 import { GOD_IDS } from './data/elements.js'
 import './elementa.css'
@@ -54,7 +55,7 @@ import './elementa.css'
 // Phases where a run is actually in progress and worth persisting. Meta
 // phases and terminal phases (gameover/victory, handled separately below)
 // are excluded.
-const AUTOSAVE_PHASES = new Set(['rolling', 'missed', 'shop', 'bossReward'])
+const AUTOSAVE_PHASES = new Set(['rolling', 'missed', 'shop', 'bossReward', 'crossroads'])
 // Escape only opens the pause menu while an actual run is live: the meta
 // screens already have their own nav (Back/Options buttons), and there's
 // nothing to pause on gameover/victory.
@@ -184,6 +185,41 @@ function ElementaGameInner() {
     setEndingView((view) => view ?? { ending, visions })
   }, [state.phase, state.ending, slot])
 
+  // Records a win on the file: loadout, difficulty, stake, stickers, the
+  // Aether recipe, the ending and its completion mark. Shared by the end of a
+  // run and the Crossroads (EXPANSION.md H1), where the round-15 win counts
+  // even if the run goes on through the door.
+  const recordWin = useCallback(
+    (ending) => {
+      const before = readProfile(slot)
+      markDeckBeaten(slot, state.deckId)
+      markDifficultyBeaten(slot, state.difficulty?.id)
+      markWin(slot, state.deckId, state.difficulty?.id)
+      // A Cataclysm win stamps every die in the final pool (P16).
+      if (state.difficulty?.id === 'cataclysm') markCataclysmDice(slot, state.dice.map((d) => d.elementId))
+      // Beating Primordial hands over the Aether recipe (EXPANSION.md B6).
+      if (learnRecipe(slot, 'aether')) notify([{ kind: 'recipe', id: 'aether' }])
+      // A Neutral win shows the gods' visions and teaches their recipes,
+      // opening the Split and Primordial paths (B2). Every win records its
+      // ending, for the file and as a completion mark on the loadout.
+      if (ending === 'neutral') notify(GOD_IDS.filter((id) => learnRecipe(slot, id)).map((id) => ({ kind: 'recipe', id })))
+      if (markEnding(slot, ending, state.deckId)) notify([{ kind: 'ending', id: ending }])
+      award([...achievementsFromVictory(state, before), ...achievementsFromProfile(readProfile(slot))])
+    },
+    [slot, state, notify, award],
+  )
+
+  // The Crossroads (H1): the Elementa ending is reached now, whether the
+  // player rests or walks through the door.
+  const crossedRef = useRef(null)
+  useEffect(() => {
+    if (slot == null || state.phase !== 'crossroads') return
+    const key = `${state.seed}-${state.path}`
+    if (crossedRef.current === key) return
+    crossedRef.current = key
+    recordWin(state.path || 'neutral')
+  }, [state.phase, state.seed, state.path, slot, recordWin])
+
   const endedRef = useRef(null)
   useEffect(() => {
     if (slot == null || (state.phase !== 'gameover' && state.phase !== 'victory')) {
@@ -194,25 +230,15 @@ function ElementaGameInner() {
     endedRef.current = state.phase
     clearRun(slot)
     if (state.phase === 'gameover') {
-      updateStats(slot, (st) => ({ ...st, runs: st.runs + 1 }))
+      // A run that fell in the Firmament had already won Elementa (H1).
+      const won = state.realm === 'firmament' ? 1 : 0
+      updateStats(slot, (st) => ({ ...st, runs: st.runs + 1, wins: st.wins + won }))
       return
     }
-    const before = readProfile(slot)
-    markDeckBeaten(slot, state.deckId)
-    markDifficultyBeaten(slot, state.difficulty?.id)
-    markWin(slot, state.deckId, state.difficulty?.id)
-    // A Cataclysm win stamps every die in the final pool (P16).
-    if (state.difficulty?.id === 'cataclysm') markCataclysmDice(slot, state.dice.map((d) => d.elementId))
-    // Beating Primordial hands over the Aether recipe (EXPANSION.md B6).
-    if (learnRecipe(slot, 'aether')) notify([{ kind: 'recipe', id: 'aether' }])
-    // A Neutral win shows the gods' visions and teaches their recipes,
-    // opening the Split and Primordial paths (B2). Every win records its
-    // ending, for the file and as a completion mark on the loadout.
-    const ending = state.ending || 'neutral'
-    if (ending === 'neutral') notify(GOD_IDS.filter((id) => learnRecipe(slot, id)).map((id) => ({ kind: 'recipe', id })))
-    if (markEnding(slot, ending, state.deckId)) notify([{ kind: 'ending', id: ending }])
+    // Past the door, the round-15 win was recorded at the Crossroads; this
+    // records the Firmament ending (H1). recordWin is safe to repeat.
+    recordWin(state.ending || 'neutral')
     updateStats(slot, (st) => ({ ...st, runs: st.runs + 1, wins: st.wins + 1 }))
-    award([...achievementsFromVictory(state, before), ...achievementsFromProfile(readProfile(slot))])
     // Trinity: all three files at 100% unlocks it on every file.
     if (allFilesComplete()) {
       listFiles().forEach((_, i) => {
@@ -220,7 +246,7 @@ function ElementaGameInner() {
         if (i === slot) notify(fresh.map((id) => ({ kind: 'achievement', id })))
       })
     }
-  }, [state, slot, award, notify])
+  }, [state, slot, award, notify, recordWin])
 
   const scene =
     state.phase === 'shop' || state.phase === 'bossReward'
@@ -282,6 +308,8 @@ function ElementaGameInner() {
         )}
 
         {state.phase === 'shop' && <ShopScreen state={state} dispatch={dispatch} />}
+
+        {state.phase === 'crossroads' && <Crossroads state={state} dispatch={dispatch} />}
 
         {state.phase === 'gameover' && <GameOverScreen state={state} dispatch={dispatch} />}
 

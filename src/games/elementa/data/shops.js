@@ -119,6 +119,31 @@ export const SHOP_TYPES = {
     reroll: true,
     legendary: true,
   },
+  // The Firmament's legendary shop (EXPANSION.md H6): the Aether Bazaar's
+  // stock rules under the realm's own name. One per stretch, always the
+  // stop before the round-30 Warden.
+  astral: {
+    id: 'astral',
+    keeper: 'conclave',
+    name: L('Astral Exchange', 'Intercambio Astral'),
+    blurb: L(
+      'Legendary. Every shop in one, 25% off, with rarer stock, past the door.',
+      'Legendaria. Todas las tiendas en una, 25% menos, con mercancía más rara, más allá de la puerta.',
+    ),
+    color: '#d9b8ff',
+    music: 'shop_bazaar',
+    dice: 3,
+    items: 5,
+    itemKinds: ['relic', 'consumable'],
+    relicLuck: true,
+    forge: true,
+    upgrades: true,
+    brew: true,
+    deals: 1,
+    discount: 0.25,
+    reroll: true,
+    legendary: true,
+  },
   // Not a Road stop: after a missed round, Tobb sets up camp (EXPANSION.md
   // E10). A few Shards on arrival, a small Market, then retry the round.
   camp: {
@@ -161,6 +186,25 @@ export const SHOP_WEIGHTS = [
   { id: 'blackmarket', weight: 6, from: 3 },
   { id: 'bazaar', weight: 2, from: 8 },
 ]
+
+// The Firmament's stretch of the Road (H6, Claude's default). The Astral
+// Exchange follows the Bazaar's rule: one per stretch, guaranteed before
+// the Warden at 30.
+export const FIRMAMENT_SHOP_WEIGHTS = [
+  { id: 'market', weight: 30, from: 1 },
+  { id: 'alchemist', weight: 10, from: 1 },
+  { id: 'forge', weight: 10, from: 1 },
+  { id: 'vault', weight: 8, from: 1 },
+  { id: 'shrine', weight: 6, from: 1 },
+  { id: 'blackmarket', weight: 6, from: 1 },
+  { id: 'astral', weight: 2, from: 1 },
+]
+
+// Each path's follower (H6): one of their shops is guaranteed in every
+// Firmament stretch. Aeris's Shrine for the Split, Nix's eclipse market for
+// the Primordial, and one more Market with Tobb for the Neutral path.
+export const FOLLOWER_SHOP = { split: 'shrine', primordial: 'blackmarket', neutral: 'market' }
+export const FOLLOWER_KEEPER = { split: 'aeris', primordial: 'nix', neutral: 'tobb' }
 
 // --- Black Market deals: pay with lives, slots, or future pain. ---
 export const DEALS = [

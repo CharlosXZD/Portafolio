@@ -4,7 +4,7 @@
 // stop ahead from inside the current shop. Drawn from the run's seeded RNG,
 // so the same seed always lays out the same Road.
 import { random } from './rng.js'
-import { SHOP_WEIGHTS } from '../data/shops.js'
+import { SHOP_WEIGHTS, FIRMAMENT_SHOP_WEIGHTS } from '../data/shops.js'
 
 const COLS = 3
 const BLOCK = 15
@@ -39,20 +39,26 @@ function layerColumns(round) {
 }
 
 // Which shop types fill a layer. Distinct within a layer, so every fork is
-// a real choice.
-function layerTypes(round, count, bazaarUsed) {
+// a real choice. `firm` lays a Firmament stretch (EXPANSION.md H1, H6): its
+// own weights, the Astral Exchange in the Bazaar's place, and the path
+// follower's shop (`follower`) at its seeded row.
+function layerTypes(round, count, bazaarUsed, firm = null) {
   const inBlock = ((round - 1) % BLOCK) + 1
   if (round === 1) return ['market']
   // Right after a boss: the Vault (the boss's treasures) or the Forge.
   if (round % 5 === 0) return shuffle(['vault', 'forge', 'market'].slice(0, count))
+  const legendary = firm ? 'astral' : 'bazaar'
+  const weights = firm ? FIRMAMENT_SHOP_WEIGHTS : SHOP_WEIGHTS
   const types = []
-  // The last stop before Primordial is always the Aether Bazaar.
-  if (inBlock === BLOCK - 1) types.push('bazaar')
+  // The last stop before Primordial (or the last Warden) is always the
+  // stretch's legendary shop.
+  if (inBlock === BLOCK - 1) types.push(legendary)
+  if (firm?.followerRound === round && !types.includes(firm.follower)) types.push(firm.follower)
   // Endless blocks keep every shop unlocked.
   const gate = round > BLOCK ? BLOCK : inBlock
   while (types.length < count) {
-    const options = SHOP_WEIGHTS.filter(
-      (w) => gate >= w.from && !types.includes(w.id) && !(w.id === 'bazaar' && (bazaarUsed || inBlock === BLOCK - 1)),
+    const options = weights.filter(
+      (w) => gate >= w.from && !types.includes(w.id) && !(w.id === legendary && (bazaarUsed || inBlock === BLOCK - 1)),
     )
     if (options.length === 0) break
     types.push(pickWeighted(options))
@@ -89,21 +95,32 @@ function link(prev, next) {
 
 /**
  * Appends `count` layers after the map's last layer (or builds a fresh map
- * when `map` is null). Returns a new map object.
+ * when `map` is null). Returns a new map object. A map with `firmament`
+ * set lays rounds past 15 as the Firmament (H1).
  */
 export function extendMap(map, count) {
   const layers = map ? [...map.layers] : []
   let startRound = layers.length + 1
+  const isLegendary = (n) => n.type === 'bazaar' || n.type === 'astral'
   let bazaarUsed = layers
     .slice(Math.floor((startRound - 1) / BLOCK) * BLOCK)
-    .some((layer) => layer.some((n) => n.type === 'bazaar'))
+    .some((layer) => layer.some(isLegendary))
   for (let round = startRound; round < startRound + count; round++) {
     if ((round - 1) % BLOCK === 0) bazaarUsed = false
+    const firm = map?.firmament && round > BLOCK ? map.firmament : null
     let cols = layerColumns(round)
-    const types = layerTypes(round, cols.length, bazaarUsed)
+    const types = layerTypes(round, cols.length, bazaarUsed, firm)
     cols = cols.slice(0, types.length)
-    if (types.includes('bazaar') && ((round - 1) % BLOCK) + 1 !== BLOCK - 1) bazaarUsed = true
-    const layer = cols.map((col, k) => ({ id: `${round}-${col}`, round, col, type: types[k], next: [] }))
+    if (types.some((t) => t === 'bazaar' || t === 'astral') && ((round - 1) % BLOCK) + 1 !== BLOCK - 1) bazaarUsed = true
+    const layer = cols.map((col, k) => ({
+      id: `${round}-${col}`,
+      round,
+      col,
+      type: types[k],
+      next: [],
+      // The path follower's guaranteed shop (H6) keeps its type.
+      ...(firm?.followerRound === round && types[k] === firm.follower ? { follower: true } : {}),
+    }))
     if (layers.length > 0) layers[layers.length - 1] = link(layers[layers.length - 1], layer)
     layers.push(layer)
   }
@@ -113,8 +130,23 @@ export function extendMap(map, count) {
     pendingId: map?.pendingId ?? null,
     path: map?.path ?? [first.id],
     prophecy: map?.prophecy ?? null,
+    ...(map?.firmament ? { firmament: map.firmament } : {}),
     layers,
   }
+}
+
+/**
+ * Lays the Firmament's stretch of the Road (H1): drops any layer past
+ * round 15 (laid as Elementa when the run reached its last round) and lays
+ * rounds 16 to 30 again with the Firmament's shops and the path follower's
+ * guaranteed stop, on a seeded row between 17 and 23 that is not right
+ * after a Warden.
+ */
+export function enterFirmament(map, follower) {
+  const rows = [17, 18, 19, 21, 22, 23]
+  const followerRound = rows[Math.floor(random() * rows.length)]
+  const base = { ...map, pendingId: null, layers: map.layers.slice(0, BLOCK), firmament: { follower, followerRound } }
+  return extendMap(base, BLOCK)
 }
 
 export function newMap() {

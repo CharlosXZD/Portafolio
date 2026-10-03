@@ -691,6 +691,19 @@ const strings = {
   'elementa.diceTray.chronoLoops': { en: 'Chrono rewound time x{n}', es: 'Crono rebobinó el tiempo x{n}' },
   'elementa.roundResult.timeCarry': { en: 'Time carries {n} rerolls into the next round.', es: 'El Tiempo lleva {n} rerolls a la próxima ronda.' },
   'elementa.shop.warpOffer': { en: 'Warp', es: 'Warp' },
+  'elementa.crossroads.label': { en: 'The last Circle', es: 'El último Círculo' },
+  'elementa.crossroads.title': { en: 'The Crossroads', es: 'La Encrucijada' },
+  'elementa.crossroads.door.neutral': { en: 'The Circle cracks, and behind it a door you have opened before. Something older waits past it, something that frames everything.', es: 'El Círculo se agrieta, y detrás hay una puerta que ya abriste. Algo más antiguo espera al otro lado, algo que enmarca todo.' },
+  'elementa.crossroads.door.split': { en: 'The pieces hold, and the sky above them opens. Past the door, the Firmament keeps order over everything you kept apart.', es: 'Los pedazos resisten, y el cielo sobre ellos se abre. Más allá de la puerta, el Firmamento guarda el orden de todo lo que mantuviste separado.' },
+  'elementa.crossroads.door.primordial': { en: 'The dreamer is whole, for a moment, and through it you see a door. Past it, the walls that keep everything apart.', es: 'El soñador está entero, por un momento, y a través de él ves una puerta. Más allá, los muros que mantienen todo separado.' },
+  'elementa.crossroads.firmament': { en: 'Firmament {n}', es: 'Firmamento {n}' },
+  'elementa.crossroads.enter': { en: 'Enter the Firmament', es: 'Entrar al Firmamento' },
+  'elementa.crossroads.rest': { en: 'Rest here', es: 'Descansar aquí' },
+  'elementa.crossroads.restHint': { en: 'The run ends here, with this ending.', es: 'La partida termina aquí, con este final.' },
+  'elementa.crossroads.keep': { en: 'Through the door you keep everything: dice, relics, consumables, lives and Shards. Rounds 16 to 30, with a Warden at 20, 25 and 30.', es: 'Al cruzar la puerta conservas todo: dados, reliquias, consumibles, vidas y Fragmentos. Rondas 16 a 30, con un Custodio en la 20, la 25 y la 30.' },
+  'elementa.firmament.realm': { en: 'The Firmament', es: 'El Firmamento' },
+  'elementa.diceTray.warden': { en: 'Warden', es: 'Custodio' },
+  'elementa.gallery.endingLocked': { en: 'Locked', es: 'Bloqueado' },
 }
 
 export default strings

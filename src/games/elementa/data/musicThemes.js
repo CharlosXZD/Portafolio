@@ -338,7 +338,7 @@ export function themeForState(state) {
     const boss = state.bossModifier?.id
     return boss && MUSIC_THEMES[`boss_${boss}`] ? `boss_${boss}` : 'table'
   }
-  if (p === 'bossReward' || p === 'victory') return 'victory'
+  if (p === 'bossReward' || p === 'victory' || p === 'crossroads') return 'victory'
   if (p === 'shop') return `shop_${state.shop?.type ?? 'market'}`
   if (p === 'gameover') return 'gameover'
   return 'menu'

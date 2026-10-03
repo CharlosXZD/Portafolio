@@ -86,7 +86,7 @@ export default function RunInfo({ state, onClose, initialTab = 'run' }) {
             </Row>
             <Row label={t('elementa.hud.round')}>
               {state.round}
-              {state.endless ? ` · ${t('elementa.runInfo.endless')}` : ` / ${selectors.winRound}`}
+              {state.endless ? ` · ${t('elementa.runInfo.endless')}` : ` / ${selectors.finalRound(state)}`}
             </Row>
             <Row label={t('elementa.runInfo.bestCast')}>{(state.bestCast || 0).toLocaleString()}</Row>
             <Row label={t('elementa.runInfo.rerolls')}>{selectors.availableRerolls({ ...state, rerollsUsed: 0 })}</Row>

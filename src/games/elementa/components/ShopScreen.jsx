@@ -487,7 +487,7 @@ export default function ShopScreen({ state, dispatch }) {
   const type = shopTypeById(shop.type)
   const choices = state.map ? nextChoices(state.map) : []
   const pending = state.map ? nodeById(state.map, state.map.pendingId) : null
-  const finalShop = state.round >= selectors.winRound && !state.endless
+  const finalShop = state.round >= selectors.finalRound(state) && !state.endless
   // The camp sits off the Road: no stop to pick, leaving retries the round.
   const camp = Boolean(type.camp)
   const needsPick = !camp && !finalShop && choices.length > 1 && !pending

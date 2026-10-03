@@ -31,8 +31,10 @@ import {
   PRIMORDIAL_POOL,
   GOD_TRIALS,
   UNBOUND_TARGET,
+  WARDEN_TARGET,
   bossById,
   isBossRound,
+  wardenFor,
 } from '../data/bossModifiers.js'
 import {
   rollDie,
@@ -45,8 +47,9 @@ import {
   chronoLoop,
 } from './scoring.js'
 import { random, getRngState, setRngState, seedToState, randomSeed, cleanSeed } from './rng.js'
-import { shopTypeById, DEALS, BLESSINGS, BETRAYALS, isBetrayal } from '../data/shops.js'
-import { newMap, ensureLayers, nodeById, currentNode, nextChoices, retypeAhead } from './map.js'
+import { shopTypeById, DEALS, BLESSINGS, BETRAYALS, isBetrayal, FOLLOWER_SHOP } from '../data/shops.js'
+import { newMap, ensureLayers, nodeById, currentNode, nextChoices, retypeAhead, enterFirmament } from './map.js'
+import { firmamentEnding } from '../data/endings.js'
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
 
 const STARTING_TIER = 'd6'
@@ -66,6 +69,9 @@ const SHOP_DIE_SIZES = [
 ]
 const STARTING_REROLLS = 3
 const WIN_ROUND = 15
+// The Firmament (EXPANSION.md H1): rounds 16 to 30, past the door.
+const FIRMAMENT_END = 30
+const WARDEN_COUNT = 6
 const LIFE_REGEN_EVERY_N_ROUNDS = 4
 const MAX_DICE = 10
 const MAX_CONSUMABLES = 3
@@ -161,8 +167,22 @@ function primordialWith(twistId) {
   return { ...PRIMORDIAL, twistId, effects: { ...twist.effects } }
 }
 
+// The run's last round: 15, or 30 past the door (H1).
+function finalRound(state) {
+  return state.realm === 'firmament' ? FIRMAMENT_END : WIN_ROUND
+}
+
+// A boss no pact can swap out: the Primordial, or a Warden (H1, H2).
+function isFixedBoss(state, round) {
+  if (state.realm === 'firmament') return Boolean(wardenFor(state.path, state.firmamentSet, round))
+  return round % WIN_ROUND === 0
+}
+
 function pickBossModifier(state, round) {
-  if (round % WIN_ROUND === 0) return primordialWith(randomOf(PRIMORDIAL_POOL))
+  // Past the door, rounds 20, 25 and 30 are the path's Wardens (H1, H2).
+  const warden = state.realm === 'firmament' ? wardenFor(state.path, state.firmamentSet, round) : null
+  if (warden) return warden
+  if (round % WIN_ROUND === 0 && state.realm !== 'firmament') return primordialWith(randomOf(PRIMORDIAL_POOL))
   const ownedIds = [...new Set(state.dice.map((d) => d.elementId))]
   const maxTier = round >= 10 ? 2 : 1
   const pool = BOSS_MODIFIERS.filter((m) => {
@@ -846,7 +866,7 @@ function enterRoundBase(state, round) {
   let nextBossEffects = state.nextBossEffects || []
   let extraTwist = null
   if (bossModifier) {
-    if (nextBossEffects.includes('bound_tongue') && round % WIN_ROUND !== 0) {
+    if (nextBossEffects.includes('bound_tongue') && !isFixedBoss(state, round)) {
       bossModifier = bossById('ermal')
       nextBossEffects = nextBossEffects.filter((e) => e !== 'bound_tongue')
     }
@@ -871,7 +891,10 @@ function enterRoundBase(state, round) {
     roundSeq: (state.roundSeq || 0) + 1,
     map: prophecy?.round === round ? { ...state.map, prophecy: null } : state.map,
     chronicle: noteBoss(state.chronicle, bossModifier),
-    threshold: Math.round(thresholdForRound(round, state.difficulty) * (state.nextTargetMult || 1)),
+    // A Warden's target is the round's own times 1, 1.1 or 1.25 (H2).
+    threshold: Math.round(
+      thresholdForRound(round, state.difficulty) * (state.nextTargetMult || 1) * (bossModifier?.tier === 4 ? WARDEN_TARGET[round] ?? 1 : 1),
+    ),
     nextTargetMult: 1,
     dice,
     ...freshRoundCounters(dice),
@@ -1045,7 +1068,7 @@ function dealAvailable(state, deal) {
   // Bound Tongue can't replace Primordial, so it needs a lesser boss ahead.
   if (deal.id === 'bound_tongue') {
     const r = nextBossRound(state)
-    return Boolean(r) && r % WIN_ROUND !== 0 && !state.nextBossEffects?.includes('bound_tongue')
+    return Boolean(r) && !isFixedBoss(state, r) && !state.nextBossEffects?.includes('bound_tongue')
   }
   if (deal.id === 'gamble') return !state.clearEffects?.includes('gamble')
   if (isBetrayal(deal.id)) {
@@ -1228,7 +1251,11 @@ function breakBoon(state, id) {
 
 function betrayalEligible(state, id) {
   if (id === 'broken_vow') return Boolean(liveBoon(state, 'gale'))
-  if (id === 'unspoken_prayer') return Boolean(state.map?.prophecy && !state.map.prophecy.broken && liveBoon(state, 'prophecy'))
+  // A foretold Primordial or Warden can't be broken (H1).
+  if (id === 'unspoken_prayer') {
+    const prophecy = state.map?.prophecy
+    return Boolean(prophecy && !prophecy.broken && liveBoon(state, 'prophecy') && !isFixedBoss(state, prophecy.round))
+  }
   // Tide pays out next round: it's still pending in the shop it was taken in.
   if (id === 'stolen_breath') return liveBoon(state, 'tide')?.round === state.round
   if (id === 'severed_grace') return (state.boons || []).some((b) => b.source === 'aeris') && !state.aerisBanned
@@ -1425,6 +1452,36 @@ function resolveClearEffects(state, total) {
     }
   }
   return { shards, notes }
+}
+
+// --- The Firmament (EXPANSION.md H1, H2). ---
+
+/** A path's door opens once the file has seen that path's Elementa ending. */
+function doorOpen(state) {
+  return (state.endingsSeen || []).includes(state.path ?? 'neutral')
+}
+
+/**
+ * Which set of Wardens the door can lead to: Set I until the path's first
+ * Firmament ending, then Set II; with both done, the player chooses.
+ */
+function firmamentSets(state) {
+  const path = state.path ?? 'neutral'
+  const seen = state.endingsSeen || []
+  const one = seen.includes(firmamentEnding(path, 1))
+  const two = seen.includes(firmamentEnding(path, 2))
+  if (!one) return [1]
+  if (!two) return [2]
+  return [1, 2]
+}
+
+/** A Warden falls (H2): its Mythic die joins the file; all six teach Entropy (H5). */
+function beatWarden(state, id) {
+  const guards = bossById(id)?.guards
+  const wardens = (state.wardens || []).includes(id) ? state.wardens : [...(state.wardens || []), id]
+  const mythics = guards && !(state.mythics || []).includes(guards) ? [...(state.mythics || []), guards] : state.mythics || []
+  const next = { ...state, wardens, mythics }
+  return WARDEN_COUNT <= wardens.length ? withRecipe(next, ENTROPY_ID) : next
 }
 
 export function initialState() {
@@ -1749,22 +1806,31 @@ function reduce(state, action) {
         const chronicle = state.chronicle ?? { bosses: [], shops: [] }
         // Beating the final boss ends the run on the spot (Endless picks up
         // from the reward and shop, see CONTINUE_ENDLESS).
-        const won = state.round >= WIN_ROUND && !state.endless
+        const won = state.round >= finalRound(state) && !state.endless
         // Beating Primordial teaches the Aether recipe (EXPANSION.md B6),
-        // reaches the path's ending (B2), and takes back the lent die.
+        // reaches the path's ending (B2), and takes back the lent die. Past
+        // the door, the last Warden reaches a Firmament ending (H1).
+        let crossroads = false
         if (won) {
+          const firmament = state.realm === 'firmament'
           state = {
             ...withRecipe(state, QUADRA_FUSION_ID),
-            ending: state.path ?? 'neutral',
+            ending: firmament ? firmamentEnding(state.path ?? 'neutral', state.firmamentSet) : state.path ?? 'neutral',
             dice: state.dice.filter((d) => d.elementId !== PRIMORDIAL_DIE_ID),
           }
+          // A path whose door is open stops at the Crossroads first (H1).
+          crossroads = !firmament && doorOpen(state)
         }
+        // A Warden that falls gives the file its Mythic die; all six teach
+        // Entropy's recipe (H2, H5).
+        const wardenBeaten = state.bossModifier?.tier === 4 ? state.bossModifier.id : null
+        if (wardenBeaten) state = beatWarden(state, wardenBeaten)
         return {
           ...state,
           // Beating a boss first offers a permanent upgrade, then the shop.
-          phase: won ? 'victory' : beatBoss ? 'bossReward' : 'shop',
+          phase: crossroads ? 'crossroads' : won ? 'victory' : beatBoss ? 'bossReward' : 'shop',
           chronicle: won ? chronicle : { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
-          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic, timeCarry },
+          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic, timeCarry, wardenBeaten },
           shards,
           relics,
           permanentRerollBonus,
@@ -2238,7 +2304,7 @@ function reduce(state, action) {
       if (state.phase !== 'shop') return state
       if (state.shop?.type === 'camp') return retryRound(state)
       const round = state.round + 1
-      if (round > WIN_ROUND && !state.endless) {
+      if (round > finalRound(state) && !state.endless) {
         return { ...withRecipe(state, QUADRA_FUSION_ID), phase: 'victory', ending: state.ending ?? state.path ?? 'neutral' }
       }
       let map = travel(state.map, round)
@@ -2276,6 +2342,36 @@ function reduce(state, action) {
         phase: 'bossReward',
         chronicle: { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
         shop: { ...buildShopOffers(state, shopType), afterBoss: true },
+      }
+    }
+
+    // The Crossroads (EXPANSION.md H1): rest here and end the run with the
+    // Elementa ending, or walk through the door.
+    case 'REST_HERE': {
+      if (state.phase !== 'crossroads') return state
+      return { ...state, phase: 'victory' }
+    }
+
+    // Through the door: the same run goes on into the Firmament. Everything
+    // is kept; the boss reward and a first Market with Tobb come first,
+    // then round 16.
+    case 'ENTER_FIRMAMENT': {
+      if (state.phase !== 'crossroads' || !firmamentSets(state).includes(action.set)) return state
+      const path = state.path ?? 'neutral'
+      const chronicle = state.chronicle ?? { bosses: [], shops: [] }
+      const next = {
+        ...state,
+        realm: 'firmament',
+        firmamentSet: action.set,
+        ending: null,
+        map: enterFirmament(state.map, FOLLOWER_SHOP[path]),
+        chronicle: { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: 'market' }] },
+      }
+      return {
+        ...next,
+        phase: 'bossReward',
+        // The path follower greets you in this first shop (H7).
+        shop: { ...buildShopOffers(next, 'market'), afterBoss: true, firstFirmament: true },
       }
     }
 
@@ -2333,5 +2429,9 @@ export const selectors = {
   growTier,
   emptySlots,
   holdsTime,
+  finalRound,
+  doorOpen,
+  firmamentSets,
+  isFixedBoss,
   canRewind: (state) => state.phase === 'rolling' && Boolean(state.lastReroll) && holdsTime(state.dice) && !state.rewindUsed,
 }

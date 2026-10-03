@@ -348,6 +348,19 @@ export const BOSS_MODIFIERS_ES = {
     name: 'Zephyr',
     description: 'Tus dados de la familia Fuego explotan la mitad de las veces, y los sets necesitan un dado más.',
   },
+  // The Wardens of the Firmament (EXPANSION.md H2).
+  dawn: { name: 'El Alba', description: 'Sobreexposición: los dados que muestran su cara máxima anotan 0.' },
+  umbra: {
+    name: 'La Umbra',
+    description: 'Las caras están ocultas hasta que lances, y cada reroll se traga un dado no guardado por la ronda.',
+  },
+  clockwork: { name: 'El Mecanismo', description: 'Una cuenta regresiva de 90 segundos. En 0, se lanza lo que haya en la mesa.' },
+  expanse: { name: 'La Extensión', description: 'El orden de tus dados se baraja después de cada reroll.' },
+  maelstrom: {
+    name: 'La Vorágine',
+    description: 'Después de cada reroll, cada dado no guardado se vuelve un elemento puro al azar por la ronda.',
+  },
+  hollow: { name: 'El Hueco', description: 'Todas las reliquias quedan selladas y no se pueden usar consumibles esta ronda.' },
 }
 
 export const REACTIONS_ES = {

@@ -432,7 +432,12 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
               >
                 <BossAvatar id={boss.id} size={48} />
                 <span className="el-chip shrink-0 bg-[#ff5a5a] text-[var(--ink)]">
-                  {stageLabel ?? (boss.tier >= 3 ? t('elementa.diceTray.finalBoss') : t('elementa.diceTray.bossRound'))}
+                  {stageLabel ??
+                    (boss.tier === 4
+                      ? t('elementa.diceTray.warden')
+                      : boss.tier >= 3
+                        ? t('elementa.diceTray.finalBoss')
+                        : t('elementa.diceTray.bossRound'))}
                 </span>
                 <div className="text-left">
                   <div className="pixel-heading text-[10px] text-[#ffb0b0]">{bossTitle}</div>

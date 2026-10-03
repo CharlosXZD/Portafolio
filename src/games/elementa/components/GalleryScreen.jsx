@@ -444,7 +444,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
             (profile.endings || []).includes(e.id) ? (
               <EndingCard key={e.id} small color={e.color} title={e.name[lang]} text={e.text[lang]} art={<EndingArt ending={e.id} size={64} />} />
             ) : (
-              <EndingCard key={e.id} small color="#6e6480" title="???" text={t('elementa.gallery.endingHint')} art={<span className="pixel-heading text-3xl text-[var(--text-mute)]">?</span>} />
+              <EndingCard key={e.id} small color="#6e6480" title="???" text={e.hint?.[lang] ?? t('elementa.gallery.endingHint')} art={<span className="pixel-heading text-3xl text-[var(--text-mute)]">?</span>} />
             ),
           )}
         </div>
