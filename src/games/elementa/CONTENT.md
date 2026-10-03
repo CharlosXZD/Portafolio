@@ -300,7 +300,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Almanac** | Rare | 12 | You | Adds an Almanac page to your pacts and boons with the next three targets and the next boss, exactly (it foretells the boss like a Prophecy). Firmament only. |
 | **Warp Seal** | Legendary | 28 | A die | Apply to a die to give it Warp: it no longer counts toward your dice cap (at most 3 Warp dice). Firmament only. |
 
-The Stopwatch, the Time Capsule, the Hourglass, the Pocket Watch, the Metronome and the Almanac are all in the Horologist's pool (and turn up in other Firmament shops); the Warp Seal turns up in other Firmament shops, very rarely (a quarter of a Legendary's weight). During the Hollow's round no consumable can be used.
+The Stopwatch, the Time Capsule, the Hourglass, the Pocket Watch, the Metronome and the Almanac are all in the Horologist's pool; the last four are his alone (the Stopwatch and Time Capsule also turn up in other Firmament shops); the Warp Seal turns up in other Firmament shops, very rarely (a quarter of a Legendary's weight). During the Hollow's round no consumable can be used.
 
 Any consumable can also be **Buy & use**: applied on the spot without taking a slot. Consumables can be used during a round too (from the round HUD), except Fusion Spark and Loom of Fate, which only work in a shop.
 

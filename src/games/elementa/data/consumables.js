@@ -240,6 +240,7 @@ export const CONSUMABLES = [
   // --- The Horologist's wares (EXPANSION.md I2): Firmament only. ---
   {
     id: 'sand_hourglass',
+    horologistOnly: true,
     name: 'Hourglass',
     kind: 'consumable',
     type: 'sand',
@@ -252,6 +253,7 @@ export const CONSUMABLES = [
   },
   {
     id: 'pocket_watch',
+    horologistOnly: true,
     name: 'Pocket Watch',
     kind: 'consumable',
     type: 'watch',
@@ -264,6 +266,7 @@ export const CONSUMABLES = [
   },
   {
     id: 'metronome',
+    horologistOnly: true,
     name: 'Metronome',
     kind: 'consumable',
     type: 'metronome',
@@ -276,6 +279,7 @@ export const CONSUMABLES = [
   },
   {
     id: 'almanac',
+    horologistOnly: true,
     name: 'Almanac',
     kind: 'consumable',
     type: 'almanac',

@@ -54,6 +54,124 @@ Carlos: use the systems we already have to make Time, Space, Void, Chaos, Dark a
 ### The Umbra, readable on the lowest difficulty (Carlos, 2026-10-03)
 The Umbra (a swallowed die scores 0 and Darkness-like) was fun and hard to beat, and Carlos likes that it took a few tries, but wants a way to play around it on the lowest difficulty: show the cast's score and Mult before casting, or show a die's score when you lock it. Needs more playtests before deciding. Related: the Maelstrom was changed in v0.7.1 to turn only one die per reroll.
 
+### Elemental Die from the Firmament (Carlos, 2026-10-03)
+
+#### 1 configration of Die 
+**Note** We have 6, that combine into base 3, from those we have the extended futions, 
+
+|Name|Element|Ability|Recipe|Unlock|
+|----|-------|-------|------|------|
+|/////|Dark|-----|------||
+|/////|Light|-----|------||
+|/////|Time|-----|------||
+|/////|Space|-----|------||
+|/////|Chaos|-----|------||
+|/////|Void|-----|------||
+|Shadow|Dark + Light|-----|------||
+|Continuum|Time + Space|-----|------||
+|Oblivion|Chaos + Void|-----|------||
+|/////|Shadow + Continuum|-----|------||
+|/////|Shadow + Oblivion|-----|------||
+|/////|Continuum + Oblivion|-----|------||
+|/////|Shadow + Continuum + Oblivion|-----|------||
+
+#### Second configuration
+
+**Note** We do all of the posible configutations. 
+
+
+##### Base Elements
+|Name|Element|Ability|
+|----|-------|-------|
+|Dark|Dark|-----||
+|Light|Light|-----||
+|Time|Time|-----||
+|Space|Space|-----||
+|Chaos|Chaos|-----||
+|Void|Void|-----||
+
+##### Combinations for 2 elements
+| Name | Combination |Ability|
+|------|-------------|-------|
+| Shadow|Dark + Light||
+| Continuum|Time + Space||
+| Oblivion|Chaos + Void||
+| Corruption | Chaos + Dark ||
+| Flare | Chaos + Light ||
+| Paradox | Chaos + Time ||
+| Rift | Chaos + Space ||
+| Dusk | Dark + Time ||
+| Penumbra | Dark + Space ||
+| Abyss | Dark + Void ||
+| Dawn | Light + Time ||
+| Aurora | Light + Space ||
+| Singularity | Light + Void ||
+| Stasis | Time + Void ||
+| Cosmos | Space + Void ||
+
+
+##### Combinations for 3 elements
+
+| Name | Combination |Ability|
+|------|-------------|-------|
+| Twilight | Dark + Light + Time ||
+| Horizon | Dark + Light + Space ||
+| Discord | Dark + Light + Chaos ||
+| Annihilation | Dark + Light + Void ||
+| Aeon | Dark + Time + Space ||
+| Decay | Dark + Time + Chaos ||
+| Nether | Dark + Time + Void ||
+| Fracture | Dark + Space + Chaos ||
+| Abyssal | Dark + Space + Void ||
+| Perdition | Dark + Chaos + Void ||
+| Aeternum | Light + Time + Space ||
+| Conflagration | Light + Time + Chaos ||
+| Aftermath | Light + Time + Void ||
+| Supernova | Light + Space + Chaos ||
+| Nebula | Light + Space + Void ||
+| Cataclysm | Light + Chaos + Void ||
+| Singularity | Time + Space + Chaos ||
+| Infinity | Time + Space + Void ||
+| Event Horizon | Time + Chaos + Void ||
+| Vortex | Space + Chaos + Void ||
+
+
+##### Combinations for 4 elements
+| Name | Combination | Ability |
+|------|-------------|---------|
+| **Creation** | Dark + Light + Time + Space ||
+| **Tempest** | Dark + Light + Time + Chaos ||
+| **Apocalypse** | Dark + Light + Time + Void ||
+| **Maelstrom** | Dark + Light + Space + Chaos ||
+| **Eventide** | Dark + Light + Space + Void ||
+| **Ruin** | Dark + Light + Chaos + Void ||
+| **Erosion** | Dark + Time + Space + Chaos ||
+| **Desolation** | Dark + Time + Space + Void ||
+| **Damnation** | Dark + Time + Chaos + Void ||
+| **Tartarus** | Dark + Space + Chaos + Void ||
+| **Zenith** | Light + Time + Space + Chaos ||
+| **Transcendence** | Light + Time + Space + Void ||
+| **Genesis** | Light + Time + Chaos + Void ||
+| **Primordium** | Light + Space + Chaos + Void ||
+| **Terminus** | Time + Space + Chaos + Void ||
+
+##### Combinations for 5 elements
+| Name | Combination | Ability |
+|------|-------------|---------|
+| **Absolute** | Dark + Light + Time + Space + Chaos | |
+| **Obliteration** | Dark + Light + Time + Space + Void | |
+| **Collapse** | Dark + Light + Time + Chaos + Void | |
+| **Permanence** | Dark + Light + Space + Chaos + Void | |
+| **Nightfall** | Dark + Time + Space + Chaos + Void | |
+| **Illumination** | Light + Time + Space + Chaos + Void | |
+
+##### Combination for 6 elements
+| Name | Combination |Ability|
+|------|-------------|-------|
+|/////|Dark + Light + Time + Space + Chaos + Void||
+
+
+
 ---
 
 ## Template

@@ -591,7 +591,7 @@ function rollShopStock(state, type) {
   const firmament = state.realm === 'firmament'
   const ownedRelicIds = new Set(state.relics.map((r) => r.id))
   if (type.horologist) return rollHorologistStock(state, ownedRelicIds)
-  const consumablePool = CONSUMABLES.filter((c) => !c.firmament || firmament)
+  const consumablePool = CONSUMABLES.filter((c) => (!c.firmament || firmament) && !c.horologistOnly)
   const itemPool = [
     ...(type.itemKinds.includes('relic')
       ? RELICS.filter(
