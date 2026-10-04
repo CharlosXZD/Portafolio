@@ -23,9 +23,12 @@ export function useLineLabel(discovered) {
   const { t, lang } = useLanguage()
   return (line) => {
     if (line.kind === 'dice') return t('elementa.cast.dice')
-    if (line.kind === 'explosions') return `${t('elementa.cast.explosions')} x${line.count}`
-    // A levelled reaction or set says so ("Kindle Lv 3", EXPANSION.md J1).
+    // A levelled reaction, set, Totem or family ability says so ("Kindle Lv
+    // 3", EXPANSION.md J1, L4).
     const lv = line.level > 0 ? ` ${t('elementa.cast.level').replace('{n}', line.level)}` : ''
+    if (line.kind === 'explosions') return `${t('elementa.cast.explosions')} x${line.count}${lv}`
+    // A family's own ability, Tide (L1).
+    if (line.kind === 'family') return t(`elementa.cast.${line.id}`) + lv
     if (line.kind === 'set') return (SET_TIER_LABEL[lang][line.tier] ?? line.tier) + lv
     if (line.kind === 'reaction') {
       const r = reactionById(line.id)
@@ -136,7 +139,7 @@ export default function CastLedger({
       const state = groupState(section, gi)
       const { count, value } = g
       const isOpen = g.count > 1 && (overrides[g.key] ?? expanded)
-      const color = g.kind === 'reaction' ? reactionById(g.id)?.color : g.kind === 'mythic' || g.kind === 'celestial' ? ELEMENTS[g.id]?.color : null
+      const color = g.kind === 'reaction' ? reactionById(g.id)?.color : g.kind === 'mythic' || g.kind === 'celestial' ? ELEMENTS[g.id]?.color : g.kind === 'family' ? ELEMENTS.water.color : null
       const rows = [
         <Line
           key={g.key}

@@ -14,6 +14,7 @@ import KeeperSprite from './KeeperSprite.jsx'
 import PixelSprite from './PixelSprite.jsx'
 import { SHOP_TYPES } from '../data/shops.js'
 import { CONSTELLATIONS, LEVEL_CAP } from '../data/constellations.js'
+import { TOTEMS, TOTEM_CAP } from '../data/totems.js'
 
 function Row({ label, children }) {
   return (
@@ -131,6 +132,33 @@ export default function RunInfo({ state, onClose, initialTab = 'run' }) {
                       <span className="flex gap-[2px]">
                         {Array.from({ length: LEVEL_CAP }, (_, i) => (
                           <span key={i} className="h-2 w-1.5" style={{ background: i < level ? 'var(--gold-1)' : '#2a2338' }} />
+                        ))}
+                      </span>
+                      <span className="pixel-score w-12 text-right text-[9px] text-[var(--gold-1)]">
+                        {t('elementa.cast.level').replace('{n}', level)}
+                      </span>
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
+
+        {/* Totems (EXPANSION.md L4): the family abilities levelled this run. */}
+        {tab === 'run' && (
+          <div className="el-panel w-full max-w-md p-5">
+            <h3 className="el-label mb-3">{t('elementa.runInfo.totems')}</h3>
+            <ul className="flex flex-col gap-2">
+              {TOTEMS.map((totem) => {
+                const level = Math.min(TOTEM_CAP, state.totems?.[totem.id] || 0)
+                return (
+                  <li key={totem.id} className="flex items-center justify-between gap-3 text-base" style={{ opacity: level ? 1 : 0.5 }}>
+                    <span style={{ color: totem.color }}>{lang === 'es' ? totem.es : totem.en}</span>
+                    <span className="flex items-center gap-2">
+                      <span className="flex gap-[2px]">
+                        {Array.from({ length: TOTEM_CAP }, (_, i) => (
+                          <span key={i} className="h-2 w-2" style={{ background: i < level ? totem.color : '#2a2338' }} />
                         ))}
                       </span>
                       <span className="pixel-score w-12 text-right text-[9px] text-[var(--gold-1)]">

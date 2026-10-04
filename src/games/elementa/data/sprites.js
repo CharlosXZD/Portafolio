@@ -502,6 +502,16 @@ export const ITEM_ART = {
   rune_kinship: ['stone', '#ffb8e8', '#ffffff'],
   rune_ember: ['stone', '#ff8a4d', '#ffffff'],
   rune_anchor: ['stone', '#9fb4c8', '#ffffff'],
+  // Family growth (L3, L4).
+  deep_current: ['wave', '#1f5fb0', '#9fe8e0'],
+  spring_tide: ['shell', '#9fc8ff', '#ffffff'],
+  gale_seal: ['ring', '#cfe8f2', '#7ad1ff'],
+  second_wind: ['feather', '#cfe8f2', '#ffffff'],
+  standing_stones: ['mountain', '#a88a5c', '#ffffff'],
+  totem_fire: ['block', '#e5533d', '#ffd166'],
+  totem_water: ['block', '#3d8fe5', '#9fe8e0'],
+  totem_earth: ['block', '#8a6a3d', '#c89a5c'],
+  totem_air: ['block', '#cfe8f2', '#ffffff'],
   // The Horologist's wares (I2).
   sand_hourglass: ['hourglass', '#d9c27a', '#ffffff'],
   pocket_watch: ['gear', '#ffd166', '#fff4d6'],

@@ -8,7 +8,7 @@ import { DECKS } from '../data/decks.js'
 import { DIFFICULTIES } from '../data/difficulty.js'
 import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS, WARDENS } from '../data/bossModifiers.js'
 import { ENDING_IDS } from '../data/endings.js'
-import { SECRET_REACTION_IDS } from '../data/reactions.js'
+import { SECRET_REACTION_IDS, FIRMAMENT_REACTION_IDS } from '../data/reactions.js'
 import { ACHIEVEMENTS } from '../data/achievements.js'
 import { readFile, updateProfile, listFiles, emptyProfile } from './saveManager.js'
 
@@ -152,6 +152,16 @@ export function isDeckUnlocked(deckId, profile) {
 }
 
 const PUBLIC_ACHIEVEMENTS = ACHIEVEMENTS.filter((a) => !a.secret)
+
+/** Whether this file has stepped through the Firmament's door (EXPANSION.md L5). */
+export function crossedDoor(profile) {
+  return (
+    (profile.achievements || []).includes('through_door') ||
+    (profile.wardens || []).length > 0 ||
+    (profile.endings || []).some((id) => id.startsWith('firmament_')) ||
+    (profile.seen?.reactions || []).some((id) => FIRMAMENT_REACTION_IDS.includes(id))
+  )
+}
 
 export const TOTALS = {
   dice: Object.keys(ELEMENTS).length,

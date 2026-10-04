@@ -5,6 +5,7 @@ import { random } from './rng.js'
 import { godPowers, rollContext } from './gods.js'
 import { levelBonus } from '../data/constellations.js'
 import { hasActiveRune } from '../data/runes.js'
+import { totemLevel, tideShare, FIRE_TOTEM_MULT } from '../data/totems.js'
 
 const DEFAULT_EXPLODE_CAP = 10
 // Darkness (EXPANSION.md H3) adds its neighbors' score to Mult divided by
@@ -129,6 +130,7 @@ export function shiftChaos(dice) {
  */
 export function rerollPool(dice, relics = [], opts = {}) {
   const next = shiftChaos(dice).map((d) => ({ ...d }))
+  const fx = relicEffects(relics)
 
   // A Masquerade or Chameleon rolls with the abilities it borrows (Chrono's
   // rewind, a Fire die's explosions), the same ones its score uses.
@@ -139,12 +141,13 @@ export function rerollPool(dice, relics = [], opts = {}) {
       if (opts.noGrowth) continue
       // Sapling grows while it sits a reroll out.
       if (hasFlag(acting[i], FLAGS.GROWS)) die.growth = (die.growth || 0) + 2
-      // Patience (Earth family): the same, but it keeps it until the round ends.
-      if (inFamily(acting[i], 'earth')) die.patience = (die.patience || 0) + 2
+      // Patience (Earth family): the same, but it keeps it until the round
+      // ends. Standing Stones and the Earth Totem make it grow faster (L3, L4).
+      if (inFamily(acting[i], 'earth')) die.patience = (die.patience || 0) + 2 + (fx.patienceBonus || 0) + (opts.patienceBonus || 0)
       continue
     }
-    const rolled = rollDie(acting[i], die.sides, relics, rollContext(die, next, relicEffects(relics), acting[i]))
-    Object.assign(die, rolled, { growth: 0 })
+    const rolled = rollDie(acting[i], die.sides, relics, rollContext(die, next, fx, acting[i]))
+    Object.assign(die, rolled, { growth: 0, drifted: false })
 
     const canDuplicate = hasFlag(acting[i], FLAGS.DUPLICATE_ON_REROLL)
     if (canDuplicate && random() < 0.33) {
@@ -308,9 +311,9 @@ function findReactions(perDie, fx, extraMult = 0, constellations = null) {
     const b = perDie[j]
     // The Void and a die the Darkness swallowed score 0 but are still there:
     // only the Mythic reactions (v0.7) may use them.
-    const live = (x) => x.contribution > 0 || x.swallowed || x.darkened || hasFlag(x.actingAs, FLAGS.VOID)
+    const live = (x) => x.contribution > 0 || x.reactsAtZero || x.swallowed || x.darkened || hasFlag(x.actingAs, FLAGS.VOID)
     if (!(live(a) && live(b))) continue
-    const strict = a.contribution > 0 && b.contribution > 0
+    const strict = (a.contribution > 0 || a.reactsAtZero) && (b.contribution > 0 || b.reactsAtZero)
     const ra = reactAs[i]
     const rb = reactAs[j]
     const ea = reactionElementsOf(ra)
@@ -319,11 +322,12 @@ function findReactions(perDie, fx, extraMult = 0, constellations = null) {
     // Mythic dice have no element: only the secret reactions that name them
     // can fire (v0.7).
     if (ea.length === 0 || eb.length === 0) {
-      for (const r of REACTIONS) if (r.secret && secretPairMatches(r.pair, ra, rb)) ids.add(r.id)
+      for (const r of REACTIONS) if (r.secret && r.pair && secretPairMatches(r.pair, ra, rb)) ids.add(r.id)
     } else {
     if (ra === rb) ids.add('resonance')
     for (const r of REACTIONS) {
-      if (r.secret) {
+      // The Firmament's reactions (L5) are secret but name plain elements.
+      if (r.secret && r.pair) {
         if (secretPairMatches(r.pair, ra, rb)) ids.add(r.id)
         continue
       }
@@ -516,6 +520,9 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     // Null, Singularity and the Dead Star score nothing either (K1, K4).
     const cosmicOut = [FLAGS.NIL, FLAGS.SINGULARITY, FLAGS.DEAD_STAR].some((f) => hasFlag(d.actingAs, f))
     const out = midas || bullion || empty || overexposed || d.swallowed || celestialOut || cosmicOut
+    // Null and Singularity score nothing by design, but they still react (L5):
+    // seven of the new reactions name the Void.
+    d.reactsAtZero = cosmicOut && !d.swallowed
     // A Comet that exploded scores its whole total twice (I1).
     const cometFactor = hasFlag(d.actingAs, FLAGS.COMET) && (d.explosions || 0) > 0 ? 2 : 1
     let contribution = fizzled || zeroTargets.has(i) || banned || out ? 0 : d.total * cometFactor
@@ -711,7 +718,9 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     multiplier += line.value
     multLines.push({ op: 'add', ...line })
   }
-  addMult({ kind: 'explosions', value: 0.5 * explodeCount, count: explodeCount })
+  // The Fire Totem (L4) makes every explosion worth a little more.
+  const fireLevel = totemLevel(ctx.totems, 'fire')
+  addMult({ kind: 'explosions', value: (0.5 + FIRE_TOTEM_MULT * fireLevel) * explodeCount, count: explodeCount, level: fireLevel })
   if (setTier) {
     const relicBonus = fx.setBonusMultBonus?.[setTier] || 0
     const lv = levelBonus(ctx.constellations, setTier)
@@ -747,6 +756,26 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   }
   if (fx.multPerUnusedReroll && ctx.rerollsLeft > 0) {
     addMult({ kind: 'relic', id: sourceOf(relics, 'multPerUnusedReroll'), value: fx.multPerUnusedReroll * ctx.rerollsLeft })
+  }
+  // Water's family ability, Tide (L1): a locked Water-family die sends part of
+  // its final score to Mult too (half, more with the Water Totem). Held dice
+  // that were not locked do not count.
+  const waterLevel = totemLevel(ctx.totems, 'water')
+  perDie.forEach((d, i) => {
+    if (!d.locked || !(d.contribution > 0) || !inFamily(d.actingAs, 'water')) return
+    addMult({ kind: 'family', id: 'tide', value: Math.round(d.contribution * tideShare(waterLevel) * 100) / 100, dice: [i], level: waterLevel })
+  })
+  // Deep Current and Spring Tide (L3): locks pay Mult.
+  if (fx.firstLockMult && ctx.lockedThisRound) addMult({ kind: 'relic', id: sourceOf(relics, 'firstLockMult'), value: fx.firstLockMult })
+  if (fx.lockedWaterMult) {
+    const lockedWater = perDie.flatMap((d, i) => (d.locked && inFamily(d.actingAs, 'water') ? [i] : []))
+    if (lockedWater.length) addMult({ kind: 'relic', id: sourceOf(relics, 'lockedWaterMult'), value: fx.lockedWaterMult * lockedWater.length, dice: lockedWater })
+  }
+  // Gale Seal (L3): a die Drift just moved also sends its whole score to Mult.
+  if (fx.driftScoreToMult) {
+    perDie.forEach((d, i) => {
+      if (d.drifted && d.contribution > 0) addMult({ kind: 'relic', id: sourceOf(relics, 'driftScoreToMult'), value: d.contribution, dice: [i] })
+    })
   }
   // The Firmament's dice (H3, H5): Darkness, Void's empty slots, Entropy.
   darkLines.forEach((line) => addMult({ ...line, value: Math.round(line.value * 100) / 100 }))

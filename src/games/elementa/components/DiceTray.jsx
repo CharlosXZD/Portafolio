@@ -163,7 +163,8 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const freezeCharges = fx.freezeChargePerRound || 0
   const canFreeze = state.freezeChargesUsed < freezeCharges
   // Drift (Air family) and Gust (relic): one free move each per round.
-  const canDrift = !state.driftUsed
+  const driftLeft = selectors.driftChargesLeft(state)
+  const canDrift = driftLeft > 0
   const canGust = Boolean(fx.freeSingleReroll) && !state.gustUsed
   // Gust arms like a consumable: press it, then click the die to reroll.
   const [gustArmed, setGustArmed] = useState(false)
@@ -681,7 +682,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       canFreeze={canFreeze}
                       actingAs={actingAs}
                       tideLock={tide}
-                      canDrift={canDrift && inFamily(die.elementId, 'air') && die.lockedVia !== 'freeze'}
+                      canDrift={canDrift && inFamily(actingIds[i], 'air') && die.lockedVia !== 'freeze'}
                       onNudge={(id, delta) => dispatch({ type: 'NUDGE_DIE', dieId: id, delta })}
                       revealing={revealing}
                       lit={litDice.has(i)}

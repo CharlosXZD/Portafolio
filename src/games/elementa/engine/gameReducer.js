@@ -80,6 +80,7 @@ import {
 } from './map.js'
 import { firmamentEnding } from '../data/endings.js'
 import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
+import { TOTEM_CAP, totemLevel, kindlingReroll } from '../data/totems.js'
 import { GLASS_BREAK_CHANCE, RUNE_CLASH_FEE, runesOf, hasActiveRune, migrateDieRunes, fitRunes, faceCap } from '../data/runes.js'
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
 
@@ -362,7 +363,8 @@ function freshRoundCounters(dice) {
   // last the round. Alba (K4) makes the round's first reroll free.
   const alba = actingElementIds(dice).some((id) => elementHasFlag(id, FLAGS.ALBA))
   return {
-    driftUsed: false,
+    driftsUsed: 0,
+    lockedThisRound: false,
     gustUsed: false,
     explosionsThisRound: countExplosions(dice),
     lastReroll: null,
@@ -391,9 +393,24 @@ function scoreContext(state) {
     // Mult that comes from items rather than dice (I2): the Metronome, the
     // Cuckoo Clock.
     bonusMult: itemMult(state),
-    // Levelled reactions and sets (J1).
+    // Levelled reactions and sets (J1), Totems (L4).
     constellations: state.constellations || {},
+    totems: state.totems || {},
+    // Deep Current (L3): whether a lock has happened this round.
+    lockedThisRound: Boolean(state.lockedThisRound),
   }
+}
+
+/**
+ * Drift charges a round (L2, L3, L4): one, +1 with Second Wind, +1 for every
+ * Air Totem level. Each charge nudges one die. A save from before charges
+ * existed carries a boolean `driftUsed`.
+ */
+function driftChargesLeft(state) {
+  const fx = relicEffects(effectiveRelics(state))
+  const total = 1 + (fx.driftCharges || 0) + totemLevel(state.totems, 'air')
+  const used = state.driftsUsed ?? (state.driftUsed ? 1 : 0)
+  return Math.max(0, total - used)
 }
 
 /**
@@ -436,6 +453,7 @@ function rollFreshRound(dice, relics) {
     growth: 0,
     patience: 0,
     kindled: false,
+    drifted: false,
     ...rollDie(acting[i], d.sides, relics, rollContext(d, pool, fx, acting[i])),
   }))
   // Varuna's tide settles every roll (B4), and a Chrono 1 rewinds it (H4).
@@ -825,8 +843,9 @@ function rollShopStock(state, type) {
   if (type.horologist) return rollHorologistStock(state, ownedRelicIds)
   // Seren's Observatory: four Constellations, duplicates allowed (J2).
   if (type.observatory) {
-    const stars = CONSUMABLES.filter((c) => c.constellation)
-    const offers = Array.from({ length: type.items }, () => weightedSample(stars, 1, (c) => (c.id === 'const_black_hole' ? 0.2 : 1))[0])
+    // The Totems (L4) are on the shelf too, a little less often.
+    const stars = CONSUMABLES.filter((c) => c.constellation || c.totem)
+    const offers = Array.from({ length: type.items }, () => weightedSample(stars, 1, (c) => (c.id === 'const_black_hole' ? 0.2 : c.totem ? 0.6 : 1))[0])
     return finishStock(state, offers.map((c) => ({ kind: 'consumable', id: c.id })), [], state.round)
   }
   // Runes (J3): the Forge's whole shelf, the Bazaar and Exchange's pool, and
@@ -837,6 +856,8 @@ function rollShopStock(state, type) {
     : CONSUMABLES.filter(
         (c) =>
           (!c.firmament || firmament) &&
+          // Totems (L4): every Firmament shop, and Elementa's Market.
+          (!c.totem || firmament || type.id === 'market') &&
           !c.horologistOnly &&
           (!c.runeItem || runesIn) &&
           // The Catalyst: Vesper's, and the Astral Exchange's (K6).
@@ -1136,7 +1157,10 @@ function baseTitleState() {
     // Secret recipes this save file knows (copied from the profile).
     recipes: [],
     // Family abilities and relics with a per-round charge (E8).
-    driftUsed: false,
+    driftsUsed: 0,
+    lockedThisRound: false,
+    // Totems (L4): { fire, water, earth, air } levels for the run.
+    totems: { fire: 0, water: 0, earth: 0, air: 0 },
     gustUsed: false,
     explosionsThisRound: 0,
     // The Accord (B1): a hidden lean, + toward the Primordial, - toward
@@ -2140,7 +2164,7 @@ function reduce(state, action) {
         }
       }
 
-      return { ...state, dice, rerollsBonusThisRound, explosionsThisRound }
+      return { ...state, dice, rerollsBonusThisRound, explosionsThisRound, lockedThisRound: true }
     }
 
     case 'FREEZE_DIE': {
@@ -2176,7 +2200,7 @@ function reduce(state, action) {
         explosionsThisRound: state.explosionsThisRound,
         bossModifier: state.bossModifier,
       }
-      let dice = rerollPool(state.dice, effectiveRelics(state))
+      let dice = rerollPool(state.dice, effectiveRelics(state), { patienceBonus: totemLevel(state.totems, 'earth') })
       if (fx.overclockZeroChance) {
         dice = dice.map((d) => {
           if (d.held || d.locked) return d
@@ -2222,7 +2246,8 @@ function reduce(state, action) {
           !hasActiveRune(d, 'anchor', d.value) &&
           elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) &&
           inFamily(d.elementId, 'fire')
-        if (kindled) kindling += 1
+        // The Fire Totem (L4) makes each fizzle pay more.
+        if (kindled) kindling += kindlingReroll(totemLevel(state.totems, 'fire'))
         return { ...d, kindled }
       })
       const explosionsThisRound =
@@ -2262,20 +2287,24 @@ function reduce(state, action) {
       return { ...undoReroll(state), rewindUsed: true }
     }
 
-    // Drift (Air family): once per round, nudge one Air-family die's face
-    // up or down by 1. Landing on the max face doesn't explode, and a
-    // boss-frozen or frozen die stays put.
+    // Drift (Air family): spend a charge to nudge one Air-family die's face up
+    // or down by 1, or (L2) all the way to its top face. The die then scores
+    // that face. Landing on the max face doesn't explode, and a boss-frozen or
+    // frozen die stays put.
     case 'NUDGE_DIE': {
-      if (state.phase !== 'rolling' || state.driftUsed) return state
-      if (action.delta !== 1 && action.delta !== -1) return state
+      if (state.phase !== 'rolling' || driftChargesLeft(state) <= 0) return state
+      const toTop = action.delta === 'top'
+      if (!toTop && action.delta !== 1 && action.delta !== -1) return state
       const die = state.dice.find((d) => d.id === action.dieId)
-      if (!die || !inFamily(die.elementId, 'air') || die.lockedVia === 'freeze') return state
-      const value = die.value + action.delta
-      if (value < 1 || value > die.sides) return state
+      if (!die || !inFamily(actingElementIds(state.dice)[state.dice.indexOf(die)], 'air') || die.lockedVia === 'freeze') return state
+      const value = toTop ? die.sides : die.value + action.delta
+      if (value < 1 || value > die.sides || value === die.value) return state
       return {
         ...state,
-        driftUsed: true,
-        dice: state.dice.map((d) => (d.id === die.id ? { ...d, value, total: value, explosions: 0, kindled: false } : d)),
+        driftsUsed: (state.driftsUsed ?? (state.driftUsed ? 1 : 0)) + 1,
+        dice: state.dice.map((d) =>
+          d.id === die.id ? { ...d, value, total: value, explosions: 0, chain: [value], kindled: false, drifted: true } : d,
+        ),
       }
     }
 
@@ -2292,7 +2321,7 @@ function reduce(state, action) {
         ...state,
         gustUsed: true,
         explosionsThisRound: (state.explosionsThisRound || 0) + rolled.explosions,
-        dice: state.dice.map((d) => (d.id === die.id ? { ...d, ...rolled, held: false, growth: 0, kindled: false } : d)),
+        dice: state.dice.map((d) => (d.id === die.id ? { ...d, ...rolled, held: false, growth: 0, kindled: false, drifted: false } : d)),
       }
     }
 
@@ -2643,6 +2672,12 @@ function reduce(state, action) {
           const level = state.constellations?.[item.levels] || 0
           if (level >= LEVEL_CAP) return state
           return { ...state, constellations: { ...state.constellations, [item.levels]: level + 1 }, consumables: spent }
+        }
+        // A Totem (L4) levels a family's ability, up to the cap.
+        if (item.type === 'totem') {
+          const level = totemLevel(state.totems, item.totem)
+          if (level >= TOTEM_CAP) return state
+          return { ...state, totems: { fire: 0, water: 0, earth: 0, air: 0, ...state.totems, [item.totem]: level + 1 }, consumables: spent }
         }
         // Black Hole (J1): one level to every reaction and set type.
         if (item.type === 'blackhole') {
@@ -3103,6 +3138,7 @@ export const selectors = {
   knowsGods,
   godCapFor,
   scoreContext,
+  driftChargesLeft,
   aerisCost,
   canPayAeris,
   aerisGone,

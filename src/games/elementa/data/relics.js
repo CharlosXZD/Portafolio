@@ -502,6 +502,59 @@ export const RELICS = [
     description: 'Every god die you hold gives +2 Mult.',
     effects: { godMult: 2 },
   },
+  // --- Family growth (EXPANSION.md L3): Water, Air and Earth catch up with
+  // Fire. Spring Tide is the spec's "Undertow", renamed because Undertow
+  // already exists. ---
+  {
+    id: 'deep_current',
+    name: 'Deep Current',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: 'water',
+    itemConcept: 'a bottle of dark seawater with a slow spiral turning inside',
+    description: 'The first lock each round gives +10 Mult.',
+    effects: { firstLockMult: 10 },
+  },
+  {
+    id: 'spring_tide',
+    name: 'Spring Tide',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: 'water',
+    itemConcept: 'a pale moon-shell resting on a wet stone',
+    description: 'Each locked Water-family die gives +2 Mult.',
+    effects: { lockedWaterMult: 2 },
+  },
+  {
+    id: 'gale_seal',
+    name: 'Gale Seal',
+    kind: 'relic',
+    rarity: RARITY.EPIC,
+    element: 'air',
+    itemConcept: 'a wax seal pressed with a spiral wind, still warm',
+    description: 'When you use Drift, the nudged die\'s whole score also goes to Mult.',
+    effects: { driftScoreToMult: true },
+  },
+  {
+    id: 'second_wind',
+    name: 'Second Wind',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: 'air',
+    itemConcept: 'a grey feather tied with a loop of thread',
+    description: '+1 Drift charge every round.',
+    effects: { driftCharges: 1 },
+  },
+  {
+    id: 'standing_stones',
+    name: 'Standing Stones',
+    kind: 'relic',
+    rarity: RARITY.RARE,
+    element: 'earth',
+    itemConcept: 'three tall stones in a ring, lichen on their north faces',
+    description: 'Patience gives +3 for every reroll a die sits out, instead of +2.',
+    effects: { patienceBonus: 1 },
+  },
   // --- The Horologist's relics (EXPANSION.md I2): sold only by him, in the
   // Firmament (`horologistOnly`). ---
   {

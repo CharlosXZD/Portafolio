@@ -891,6 +891,7 @@ export function familyAbilitiesOf(elementId) {
   const out = []
   if (inFamily(elementId, 'fire') && elementHasFlag(elementId, FLAGS.ZERO_ON_MIN)) out.push('kindling')
   if (inFamily(elementId, 'earth')) out.push('patience')
+  if (inFamily(elementId, 'water')) out.push('tide')
   if (inFamily(elementId, 'air')) out.push('drift')
   return out
 }
@@ -899,12 +900,14 @@ const FAMILY_ABILITY_TEXT = {
   en: {
     kindling: 'Kindling: fizzling on a 1 after a reroll grants +1 reroll this round.',
     patience: 'Patience: +2 for every reroll it sits out this round.',
-    drift: 'Drift: once per round, nudge an Air-family die up or down by 1, for free.',
+    drift: 'Drift: once per round, nudge an Air-family die up or down by 1, or to its top face, for free.',
+    tide: 'Tide: a locked Water-family die also sends half its score to Mult.',
   },
   es: {
     kindling: 'Yesca: apagarse con un 1 tras un reroll otorga +1 reroll esta ronda.',
     patience: 'Paciencia: +2 por cada reroll que se queda fuera esta ronda.',
-    drift: 'Deriva: una vez por ronda, mueve un dado de la familia Aire 1 arriba o abajo, gratis.',
+    drift: 'Deriva: una vez por ronda, mueve un dado de la familia Aire 1 arriba o abajo, o hasta su cara máxima, gratis.',
+    tide: 'Marea: un dado de la familia Agua bloqueado también manda la mitad de su puntaje al Mult.',
   },
 }
 

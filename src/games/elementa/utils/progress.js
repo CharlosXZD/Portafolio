@@ -6,7 +6,7 @@ import { DECKS } from '../data/decks.js'
 import { runesOf } from '../data/runes.js'
 import { ELEMENTS, TIERS, MYTHIC_DIE_IDS } from '../data/elements.js'
 import { ENDING_IDS } from '../data/endings.js'
-import { SECRET_REACTION_IDS, REACTIONS } from '../data/reactions.js'
+import { SECRET_REACTION_IDS, REACTIONS, FIRMAMENT_REACTION_IDS, CLASSIC_SECRET_IDS } from '../data/reactions.js'
 
 const MYTHIC_REACTION_IDS = REACTIONS.filter((r) => r.mythic).map((r) => r.id)
 import { selectors } from '../engine/gameReducer.js'
@@ -83,7 +83,10 @@ export function achievementsFromProfile(profile) {
   const ids = []
   const secrets = (profile.seen.reactions || []).filter((id) => SECRET_REACTION_IDS.includes(id))
   if (secrets.length >= 1) ids.push('secret_one')
-  if (secrets.length >= SECRET_REACTION_IDS.length) ids.push('secret_all')
+  // Master Alchemist stays for the classic secrets; Cosmic Alchemist (L5)
+  // needs every Firmament reaction.
+  if (CLASSIC_SECRET_IDS.every((id) => secrets.includes(id))) ids.push('secret_all')
+  if (FIRMAMENT_REACTION_IDS.every((id) => secrets.includes(id))) ids.push('cosmic_alchemist')
   // The Firmament (v0.7).
   // A Mythic die counts once its recipe is known (K1; old files' `mythics`
   // were folded into `recipes`).

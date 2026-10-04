@@ -15,6 +15,7 @@
 // luck-gated consumable now, like everything else purchasable.
 import { RARITY, RARITY_COST } from './relics.js'
 import { CONSTELLATIONS, BLACK_HOLE_TEXT, constellationText } from './constellations.js'
+import { TOTEMS, totemText } from './totems.js'
 import { RUNES } from './runes.js'
 
 export const CONSUMABLES = [
@@ -326,6 +327,22 @@ export const CONSUMABLES = [
     itemConcept: 'a black glass sphere ringed in a thin bright halo',
     description: BLACK_HOLE_TEXT.en,
   },
+  // --- Totems (EXPANSION.md L4): level a family's ability for the run. Not
+  // Firmament-only: the Elementa Market sells them too, at low weight. ---
+  ...TOTEMS.map((t) => ({
+    id: `totem_${t.id}`,
+    name: t.en,
+    kind: 'consumable',
+    type: 'totem',
+    totem: t.id,
+    target: 'self',
+    rarity: RARITY.UNCOMMON,
+    cost: 8,
+    element: t.family,
+    stockWeight: 0.3,
+    itemConcept: `a small carved totem pole, painted in the colors of ${t.family}`,
+    description: totemText(t, 'en'),
+  })),
   // --- Runes (J3): socketed into one die. Forge-type shops and the
   // Firmament Market. ---
   ...RUNES.map((r) => ({
@@ -438,6 +455,7 @@ export const CONSUMABLE_FAMILIES = [
   { id: 'change', name: L2('Transmutation', 'Transmutación'), note: L2('Turn one die into another.', 'Convierten un dado en otro.'), color: '#7ad1ff' },
   { id: 'rune', name: L2('Runes', 'Runas'), note: L2('Inscribed on one number of a die.', 'Se inscriben en un número de un dado.'), color: '#ff9fd0' },
   { id: 'stars', name: L2('Constellations', 'Constelaciones'), note: L2('Level a reaction or a set for the whole run.', 'Suben de nivel una reacción o un set toda la partida.'), color: '#d9b8ff' },
+  { id: 'totem', name: L2('Totems', 'Tótems'), note: L2('Level a family\'s ability for the whole run.', 'Suben de nivel la habilidad de una familia toda la partida.'), color: '#e0b070' },
   { id: 'forge', name: L2('Forge and Shop', 'Forja y Tienda'), note: L2('Help the Forge or restock the shop.', 'Ayudan a la Forja o reabastecen la tienda.'), color: '#e8a86b' },
   { id: 'fortune', name: L2('Life and Fortune', 'Vida y Fortuna'), note: L2('Lives and Shards.', 'Vidas y Fragmentos.'), color: '#6fbf4a' },
   { id: 'misc', name: L2('Other', 'Otros'), note: null, color: '#a8a0b8' },
@@ -455,6 +473,7 @@ const FAMILY_BY_ID = {
 
 export function consumableFamily(c) {
   if (c.type === 'rune') return 'rune'
+  if (c.type === 'totem') return 'totem'
   if (c.type === 'constellation' || c.type === 'blackhole') return 'stars'
   if (c.id.startsWith('transmute_')) return 'change'
   return FAMILY_BY_ID[c.id] ?? 'misc'

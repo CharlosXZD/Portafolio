@@ -37,6 +37,18 @@ const CHAIN_BUDGET_MS = 1000
 const clamp01 = (x) => Math.min(1, Math.max(0, x))
 
 /** A 5x3 pixel arrow for the Drift buttons. */
+// Drift to the top face (EXPANSION.md L2): an arrow under a bar.
+function PixelTop() {
+  const rows = ['#####', '.....', '..#..', '.###.', '#####']
+  return (
+    <svg width={10} height={10} viewBox="0 0 5 5" shapeRendering="crispEdges" aria-hidden>
+      {rows.flatMap((row, y) =>
+        [...row].map((c, x) => (c === '#' ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill="currentColor" /> : null)),
+      )}
+    </svg>
+  )
+}
+
 function PixelArrow({ up }) {
   const rows = up ? ['..#..', '.###.', '#####'] : ['#####', '.###.', '..#..']
   return (
@@ -602,6 +614,22 @@ export default function Die({
                   <PixelArrow up={delta === 1} />
                 </motion.button>
               ))}
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.85 }}
+                disabled={die.value >= die.sides}
+                onClick={() => {
+                  playClick()
+                  driftDir.current = 1
+                  onNudge?.(die.id, 'top')
+                }}
+                aria-label={t('elementa.die.driftTop')}
+                title={t('elementa.die.driftTop')}
+                className="el-btn el-btn--sm !px-1.5 text-[#e8f4fa]"
+                style={{ '--face': '#3d5866', '--lit': '#6f93a3', '--lip': '#1f323b' }}
+              >
+                <PixelTop />
+              </motion.button>
             </span>
           )}
           {showHotkey && !die.locked && !canFreeLock && !canFreeze && !canDrift && hotkey != null && (

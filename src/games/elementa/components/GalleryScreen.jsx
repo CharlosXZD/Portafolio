@@ -6,14 +6,14 @@ import { ELEMENTS, PURE_ELEMENT_IDS, COSMIC_BASE_IDS, rarityForElement, families
 import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
 import { CONSUMABLES, CONSUMABLE_FAMILIES, consumableFamily } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
-import { REACTIONS } from '../data/reactions.js'
+import { REACTIONS, FIRMAMENT_REACTION_IDS, CLASSIC_SECRET_IDS } from '../data/reactions.js'
 import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS, WARDENS } from '../data/bossModifiers.js'
 import { ENDINGS, visibleEndingIds } from '../data/endings.js'
 import CompletionMarks from './CompletionMarks.jsx'
 import { EndingCard, EndingArt } from './EndingCards.jsx'
 import { dieDescriptor, relicDescriptor, consumableDescriptor } from '../data/itemDescriptors.js'
 import { localize, ELEMENTS_ES, localizeDeck, localizeReaction, localizeBossModifier } from '../data/i18n.js'
-import { readProfile, completion, isDeckUnlocked, knowsRecipe, TOTALS } from '../utils/profile.js'
+import { readProfile, completion, isDeckUnlocked, knowsRecipe, crossedDoor, TOTALS } from '../utils/profile.js'
 import ItemIcon from './ItemIcon.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import BossAvatar from './BossAvatar.jsx'
@@ -38,9 +38,9 @@ const RARITY_LABEL = {
 const FAMILY_TEXT = {
   en: {
     fire: 'Fire and every fusion made with Fire. They explode on their max face; the ones that fizzle on a 1 refund a reroll when they do (Kindling).',
-    water: 'Water and every fusion made with Water. They can lock for free, and locking refunds a reroll.',
+    water: 'Water and every fusion made with Water. They can lock for free, and locking refunds a reroll. A locked one also sends half its score to Mult (Tide).',
     earth: 'Earth and every fusion made with Earth. Steady value with no downside, +2 for every reroll they sit out this round (Patience).',
-    air: 'Air and every fusion made with Air. They switch on set bonuses, and once per round you can nudge one up or down by 1 (Drift).',
+    air: 'Air and every fusion made with Air. They switch on set bonuses, and once per round you can nudge one up or down by 1, or to its top face (Drift).',
     arcane: 'No element and no family. Arcane dice care about where they sit in your row.',
     neutral: 'Not tied to any element.',
     mythic: 'The Firmament\'s dice: no element, one of each per run, each the prize of a Warden.',
@@ -48,9 +48,9 @@ const FAMILY_TEXT = {
   },
   es: {
     fire: 'Fuego y toda fusión hecha con Fuego. Explotan en su cara máxima; los que se apagan con un 1 devuelven un reroll al hacerlo (Yesca).',
-    water: 'Agua y toda fusión hecha con Agua. Se bloquean gratis, y bloquear devuelve un reroll.',
+    water: 'Agua y toda fusión hecha con Agua. Se bloquean gratis, y bloquear devuelve un reroll. Uno bloqueado también manda la mitad de su puntaje al Mult (Marea).',
     earth: 'Tierra y toda fusión hecha con Tierra. Valor estable sin desventajas, +2 por cada reroll que se quedan fuera esta ronda (Paciencia).',
-    air: 'Aire y toda fusión hecha con Aire. Activan los bonos de set, y una vez por ronda puedes mover uno 1 arriba o abajo (Deriva).',
+    air: 'Aire y toda fusión hecha con Aire. Activan los bonos de set, y una vez por ronda puedes mover uno 1 arriba o abajo, o hasta su cara máxima (Deriva).',
     arcane: 'Sin elemento ni familia. A los dados Arcanos les importa dónde están en tu fila.',
     neutral: 'No está ligado a ningún elemento.',
     mythic: 'Los dados del Firmamento: sin elemento, uno de cada tipo por partida, cada uno el premio de un Custodio.',
@@ -180,6 +180,8 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
     }),
     [profile],
   )
+  const classicSeen = CLASSIC_SECRET_IDS.filter((id) => seen.reactions.has(id)).length
+  const firmamentSeen = FIRMAMENT_REACTION_IDS.filter((id) => seen.reactions.has(id)).length
 
   const entries = useMemo(() => {
     if (tab === 'dice') {
@@ -478,9 +480,19 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
           <p className="text-center text-base text-[var(--text-dim)]">{t('elementa.gallery.reactionsIntro')}</p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => !r.secret).map(reactionCard)}</div>
           <h3 className="el-label text-center text-[var(--arcane-hi)]">
-            {t('elementa.gallery.secretReactions')} {parts.reactions}/{TOTALS.reactions}
+            {t('elementa.gallery.secretReactions')} {classicSeen}/{CLASSIC_SECRET_IDS.length}
           </h3>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => r.secret).map(reactionCard)}</div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => r.secret && !r.firmament).map(reactionCard)}</div>
+          {/* The Firmament's reactions (EXPANSION.md L5), once the file has crossed the door. */}
+          {crossedDoor(profile) && (
+            <>
+              <h3 className="el-label text-center text-[var(--arcane-hi)]">
+                {t('elementa.gallery.firmamentReactions')} {firmamentSeen}/{FIRMAMENT_REACTION_IDS.length}
+              </h3>
+              <p className="text-center text-base text-[var(--text-dim)]">{t('elementa.gallery.firmamentReactionsIntro')}</p>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => r.firmament).map(reactionCard)}</div>
+            </>
+          )}
         </div>
       ) : tab === 'achievements' ? (
         <AchievementsList profile={profile} />

@@ -155,6 +155,17 @@ export const RELICS_ES = {
     description:
       'Las explosiones suman el doble, pero un dado que se apaga con un 1 también anula otro dado al azar.',
   },
+  deep_current: { name: 'Corriente Profunda', description: 'El primer bloqueo de cada ronda da +10 Mult.' },
+  spring_tide: { name: 'Marea Viva', description: 'Cada dado de la familia Agua bloqueado da +2 Mult.' },
+  gale_seal: {
+    name: 'Sello del Vendaval',
+    description: 'Cuando usas Deriva, toda la puntuación del dado movido también va al Mult.',
+  },
+  second_wind: { name: 'Segundo Aliento', description: '+1 carga de Deriva cada ronda.' },
+  standing_stones: {
+    name: 'Piedras Erguidas',
+    description: 'La Paciencia da +3 por cada reroll que un dado se queda fuera, en vez de +2.',
+  },
   undertow: {
     name: 'Resaca',
     description: 'Bloquear un dado de bloqueo libre también vuelve a tirar gratis un dado suelto al azar.',
@@ -254,10 +265,12 @@ export const RELICS_ES = {
 }
 
 import { CONSTELLATIONS_ES } from './constellations.js'
+import { TOTEMS_ES } from './totems.js'
 import { RUNES } from './runes.js'
 
 export const CONSUMABLES_ES = {
   ...CONSTELLATIONS_ES,
+  ...TOTEMS_ES,
   ...Object.fromEntries(RUNES.map((r) => [`rune_${r.id}`, { name: r.name.es, description: r.description.es }])),
   upgrade_stone: {
     name: 'Piedra de Mejora',
@@ -463,6 +476,33 @@ export const REACTIONS_ES = {
   slipstream: { name: 'Corriente', description: 'Ouranos junto a un dado de la familia del Aire: un atajo por el cielo. +3 Base, +2 Mult.' },
   frozen_moment: { name: 'Instante Helado', description: 'Tempus junto a Hielo: un instante, guardado. Suma la cara menor a la Base, +2 Mult.' },
   cascade: { name: 'Cascada', description: 'Entropía junto a un dado Mítico: cada Mítico recuerda que fue primero. +10 Base, +5 Mult.' },
+  sunburst: { name: 'Estallido Solar', description: 'La Luz aviva un Fuego: +2 Mult.' },
+  rainbow: { name: 'Arcoíris', description: 'La Luz atraviesa el Aire: +3 Base, +1 Mult.' },
+  ink: { name: 'Tinta', description: 'La Oscuridad mancha el Agua: suma la cara mayor a la Base.' },
+  cavern: { name: 'Caverna', description: 'La Oscuridad se asienta en la Tierra: +4 Base.' },
+  erosion: { name: 'Erosión', description: 'El Tiempo desgasta la Tierra: +1.5 Mult.' },
+  burnout: { name: 'Agotamiento', description: 'El Tiempo consume al Fuego: +4 Base.' },
+  horizon: { name: 'Horizonte', description: 'El Espacio se abre alrededor del Aire: +3 Base, +1 Mult.' },
+  orbit: { name: 'Órbita', description: 'El Espacio sostiene a la Tierra en un círculo: suma la cara menor a la Base, +1 Mult.' },
+  wildfire_burst: { name: 'Incendio Forestal', description: 'El Caos alimenta al Fuego: +2 Mult.' },
+  whirlwind: { name: 'Torbellino', description: 'El Caos agita el Aire: +4 Base, +0.5 Mult.' },
+  drain: { name: 'Drenaje', description: 'El Vacío se traga el Agua: +1.5 Mult.' },
+  hollow_ground: { name: 'Suelo Hueco', description: 'El Vacío socava la Tierra: suma ambas caras a la Base.' },
+  twilight: { name: 'Crepúsculo', description: 'La Luz se encuentra con la Oscuridad: suma ambas caras a la Base, +1.5 Mult.' },
+  spacetime: { name: 'Espaciotiempo', description: 'El Tiempo y el Espacio se pliegan juntos: +3 Base, +2 Mult.' },
+  maw: { name: 'Fauces', description: 'El Caos cae en el Vacío: +2 Mult.' },
+  daybreak: { name: 'Amanecer', description: 'La Luz llega a tiempo: +4 Base, +1 Mult.' },
+  glitch: { name: 'Falla', description: 'El Caos hace tartamudear al Tiempo: +2.5 Mult.' },
+  blackout: { name: 'Apagón', description: 'La Oscuridad se encuentra con el Vacío: +5 Base.' },
+  pinhole: { name: 'Orificio', description: 'La Luz se cuela en el Vacío: +2 Mult.' },
+  starlight: { name: 'Luz Estelar', description: 'La Luz cruza el Espacio: +4 Base, +1 Mult.' },
+  dusk: { name: 'Ocaso', description: 'La Oscuridad sigue al Tiempo: +1.5 Mult.' },
+  rift: { name: 'Grieta', description: 'El Caos desgarra el Espacio: +3 Mult.' },
+  flicker: { name: 'Parpadeo', description: 'El Caos hace parpadear la Luz: +3 Base, +1 Mult.' },
+  corruption: { name: 'Corrupción', description: 'El Caos se filtra en la Oscuridad: +2 Mult.' },
+  stasis: { name: 'Estasis', description: 'El Tiempo se detiene en el Vacío: +2 Mult.' },
+  vacuum: { name: 'Vacío Total', description: 'El Espacio se vacía en el Vacío: +3 Mult.' },
+  eclipse_shade: { name: 'Sombra de Eclipse', description: 'La Oscuridad cae sobre el Espacio: +3 Base, +1 Mult.' },
 }
 
 export function localizeReaction(reaction, lang) {

@@ -258,7 +258,8 @@ const strings = {
   'elementa.diceTray.gust': { en: 'Gust: free reroll', es: 'Ráfaga: reroll gratis' },
   'elementa.diceTray.gustPick': { en: 'Pick a die to reroll for free', es: 'Elige un dado para volver a tirar gratis' },
   'elementa.die.gustHint': { en: 'Gust: reroll this die for free (once per round)', es: 'Ráfaga: vuelve a tirar este dado gratis (una vez por ronda)' },
-  'elementa.die.driftHint': { en: 'Drift: nudge this die by 1 (once per round)', es: 'Deriva: mueve este dado 1 (una vez por ronda)' },
+  'elementa.die.driftHint': { en: 'Drift: nudge this die by 1, or to its top face (limited charges a round)', es: 'Deriva: mueve este dado 1, o hasta su cara máxima (cargas limitadas por ronda)' },
+  'elementa.die.driftTop': { en: 'Drift to the top face', es: 'Deriva: hasta la cara máxima' },
   'elementa.die.driftUp': { en: 'Drift up by 1', es: 'Deriva: subir 1' },
   'elementa.die.driftDown': { en: 'Drift down by 1', es: 'Deriva: bajar 1' },
 
@@ -388,8 +389,10 @@ const strings = {
   'elementa.boons.almanacTargets': { en: 'Next targets: {targets}.', es: 'Próximos objetivos: {targets}.' },
   'elementa.die.watch': { en: 'Watch', es: 'Reloj' },
   'elementa.cast.copied': { en: 'copied', es: 'copiado' },
+  'elementa.cast.tide': { en: 'Tide', es: 'Marea' },
   'elementa.cast.level': { en: 'Lv {n}', es: 'Nv {n}' },
   'elementa.runInfo.constellations': { en: 'Constellations', es: 'Constelaciones' },
+  'elementa.runInfo.totems': { en: 'Totems', es: 'Tótems' },
   'elementa.roundResult.shattered': { en: 'Glass shattered: {dice}', es: 'Se rompió el cristal: {dice}' },
   'elementa.cast.hide': { en: 'Hide', es: 'Ocultar' },
   'elementa.cast.show': { en: 'Show', es: 'Mostrar' },
@@ -577,6 +580,11 @@ const strings = {
   'elementa.gallery.bossHint': { en: 'Not faced yet. Bosses appear every fifth round.', es: 'Aún sin enfrentar. Los jefes aparecen cada cinco rondas.' },
   'elementa.gallery.anyFusion': { en: 'any fusion', es: 'cualquier fusión' },
   'elementa.gallery.secretReactions': { en: 'Secret reactions', es: 'Reacciones secretas' },
+  'elementa.gallery.firmamentReactions': { en: 'Firmament reactions', es: 'Reacciones del Firmamento' },
+  'elementa.gallery.firmamentReactionsIntro': {
+    en: 'The new elements react with the old four and with each other. Every one is secret until a cast triggers it, and fusions bring both parents.',
+    es: 'Los elementos nuevos reaccionan con los cuatro de siempre y entre sí. Todas son secretas hasta que un lanzamiento las activa, y las fusiones traen a sus dos padres.',
+  },
   'elementa.gallery.secretHint': {
     en: 'A secret reaction between two particular fusion dice. Line them up to find it.',
     es: 'Una reacción secreta entre dos dados de fusión específicos. Ponlos juntos para descubrirla.',
