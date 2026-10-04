@@ -6,6 +6,8 @@
 // Storage: one localStorage key holding { [slot]: file }. Older versions
 // kept per-slot runs and one shared profile; those are migrated on first
 // read (each old run becomes a file, carrying a copy of the old profile).
+// The six Mythic dice (data/elements.js MYTHIC_DIE_IDS), for the v0.8 migration.
+const MYTHIC_IDS = ['light', 'darkness', 'time', 'space', 'chaos', 'void']
 const KEY = 'elementa-files-v2'
 const LEGACY_SAVES = 'elementa-saves-v1'
 const LEGACY_PROFILE = 'elementa-profile-v1'
@@ -58,7 +60,10 @@ function normalizeProfile(p = {}) {
     keepers: p.keepers || {},
     // Files from before recipes: any beaten difficulty means Primordial
     // fell at least once, so the Aether recipe is already known.
-    recipes: p.recipes || ((p.difficultiesBeaten || []).length > 0 ? ['aether'] : []),
+    // A Warden used to unlock its Mythic die in the shops; since v0.8 it
+    // teaches the recipe (K1), so `mythics` folds into `recipes`. The old
+    // list stays as it was, read-only.
+    recipes: withMythicRecipes(p.recipes || ((p.difficultiesBeaten || []).length > 0 ? ['aether'] : []), p.mythics),
     endings: p.endings || [],
     deckEndings: p.deckEndings || {},
     wins: p.wins || winsFromLists(p.decksBeaten || [], p.difficultiesBeaten || []),
@@ -70,6 +75,11 @@ function normalizeProfile(p = {}) {
     ...kairosRename(p),
     ...oldVisions(p),
   }
+}
+
+function withMythicRecipes(recipes, mythics = []) {
+  const extra = (mythics || []).filter((id) => MYTHIC_IDS.includes(id) && !recipes.includes(id))
+  return extra.length ? [...recipes, ...extra] : recipes
 }
 
 // A file that learned the god recipes before the story scenes existed

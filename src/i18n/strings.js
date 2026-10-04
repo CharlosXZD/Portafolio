@@ -724,7 +724,7 @@ const strings = {
   'elementa.clockwork.paused': { en: 'paused', es: 'en pausa' },
   'elementa.clockwork.cast': { en: 'Time is up: the table is cast.', es: 'Se acabó el tiempo: se lanza la mesa.' },
   'elementa.hud.sealedAll': { en: 'The Hollow seals every relic and consumable this round.', es: 'El Hueco sella todas las reliquias y consumibles esta ronda.' },
-  'elementa.toast.mythic': { en: 'Mythic die unlocked', es: 'Dado Mítico desbloqueado' },
+  'elementa.toast.mythic': { en: 'Mythic recipe learned', es: 'Receta Mítica aprendida' },
   'elementa.toast.warden': { en: 'Warden defeated', es: 'Custodio derrotado' },
   'elementa.gallery.bossWarden': { en: 'A Warden of the Firmament. Guards {die}.', es: 'Un Custodio del Firmamento. Guarda {die}.' },
   'elementa.atlas.title': { en: 'Atlas\'s services', es: 'Los servicios de Atlas' },
@@ -747,6 +747,9 @@ const strings = {
   'elementa.story.continue': { en: 'Continue', es: 'Continuar' },
   'elementa.gallery.story': { en: 'Story scenes', es: 'Escenas de la historia' },
   'elementa.gallery.storyNone': { en: 'Scenes you have seen on this file can be replayed here.', es: 'Las escenas que hayas visto en este archivo se pueden repetir aquí.' },
+  'elementa.gallery.recipeVesper': { en: 'Recipe unknown: place its two elements in a Forge past the door', es: 'Receta desconocida: pon sus dos elementos en una Forja más allá de la puerta' },
+  'elementa.hud.stardust': { en: 'Stardust', es: 'Polvo Estelar' },
+  'elementa.roundResult.stardust': { en: '+{n} Stardust', es: '+{n} Polvo Estelar' },
 }
 
 export default strings

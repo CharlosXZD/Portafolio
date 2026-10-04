@@ -107,6 +107,15 @@ const LAND = {
   chaos: ['sparks', '#ff3fa4', '#ffd166'],
   void: ['puff', '#8a7aa8', '#3a3048'],
   entropy: ['ring', '#f0e8ff', '#ff4fd8'],
+  glimmer: ['sparks', '#fff3b8', '#ffffff'],
+  gloom: ['dust', '#6d5aa6', '#2a1f40'],
+  moment: ['ring', '#cbbcff', '#ffffff'],
+  reach: ['swirl', '#7d9bff', '#c9d4ff'],
+  flux: ['sparks', '#ff74c0', '#ffd166'],
+  nil: ['puff', '#9a8fb3', '#3a3048'],
+  singularity: ['ring', '#e8e0ff', '#120c1a'],
+  abyss: ['dust', '#4a3d6e', '#120c1a'],
+  dead_star: ['dust', '#6b6378', '#3a3448'],
 }
 
 function LandBurstImpl({ elementId, size, heavy = 0 }) {

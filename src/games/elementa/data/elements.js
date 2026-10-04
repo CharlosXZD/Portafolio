@@ -44,6 +44,22 @@ export const FLAGS = {
   SATELLITE: 'satellite', // Satellite: neighbors count their face +1; scores nothing
   QUASAR: 'quasar', // Quasar: its face goes to Mult; one per run
   ZENITH: 'zenith', // Zenith: +1 reroll a round, more at rounds 20 and 25
+  // EXPANSION.md K1: the six base elements of the Firmament.
+  GLIMMER: 'glimmer', // Glimmer: its neighbors never fizzle
+  GLOOM: 'gloom', // Gloom: the die on its right scores 0, half of it to Mult
+  MOMENT: 'moment', // Moment: +1 reroll every round
+  REACH: 'reach', // Reach: also reacts with the dice two places away
+  FLUX: 'flux', // Flux: a random pure element every roll
+  NIL: 'nil', // Null: scores nothing, +0.5 Mult per empty dice slot
+  // K4: their two-element fusions, and the Dead Star a collapse leaves.
+  SHADOW: 'shadow', // Shadow: eats its left neighbor into Mult, steadies its right
+  CONTINUUM: 'continuum', // Continuum: the pool is a ring, +1 reroll a round
+  OBLIVION: 'oblivion', // Oblivion: swallows your lowest die into Mult
+  ALBA: 'alba', // Alba: no face below 2, the first reroll each round is free
+  ANOMALY: 'anomaly', // Anomaly: after a reroll, one unheld die rolls again
+  SINGULARITY: 'singularity', // Singularity: scores nothing, doubles its neighbors
+  ABYSS: 'abyss', // Abyss: its neighbors score 0, +2 Mult per empty dice slot
+  DEAD_STAR: 'deadStar', // Dead Star: scores nothing, +0.5 Mult per other die
 }
 
 const flagSet = (...flags) => Object.fromEntries(flags.map((f) => [f, true]))
@@ -60,6 +76,9 @@ export const TIERS = {
   PRIMAL: 'primal',
   // H3: the Mythic dice of the Firmament (no element), and Entropy (H5).
   MYTHIC: 'mythic',
+  // K1: the Firmament's base elements (Glimmer, Gloom, Moment, Reach, Flux,
+  // Null), each its own family like Fire.
+  COSMIC: 'cosmic',
 }
 
 export const ELEMENTS = {
@@ -485,8 +504,8 @@ export const ELEMENTS = {
     tagline: 'While it is in your pool: +1 reroll every round, +1 more from round 20 and again from round 25.',
     flags: flagSet(FLAGS.ZENITH),
   },
-  // The six Mythic dice (H3): no element, one of each per run, each the
-  // prize of the Warden that guards it. Sold only in the Firmament.
+  // The six Mythic dice (H3): no element, one of each held at a time. Since
+  // K1 they are forged, never bought: a Warden teaches the file the recipe.
   light: {
     id: 'light',
     name: 'Light',
@@ -494,6 +513,10 @@ export const ELEMENTS = {
     rarity: RARITY.MYTHIC,
     warden: 'dawn',
     bigGrowth: true,
+    // K1: forged from 4 glimmer dice and 1 Stardust, once its Warden taught it.
+    recipe: { glimmer: 4 },
+    stardust: 1,
+    forgeCost: 20,
     parents: [],
     color: '#fff2a8',
     tagline: 'No die can score below its face. Fizzles are cancelled, and faces stay visible.',
@@ -506,6 +529,10 @@ export const ELEMENTS = {
     rarity: RARITY.MYTHIC,
     warden: 'umbra',
     bigGrowth: true,
+    // K1: forged from 4 gloom dice and 1 Stardust, once its Warden taught it.
+    recipe: { gloom: 4 },
+    stardust: 1,
+    forgeCost: 20,
     parents: [],
     color: '#6a4fb8',
     tagline: 'The dice on either side of it score 0. What they would have scored goes to your Mult.',
@@ -518,6 +545,10 @@ export const ELEMENTS = {
     rarity: RARITY.MYTHIC,
     warden: 'clockwork',
     bigGrowth: true,
+    // K1: forged from 4 moment dice and 1 Stardust, once its Warden taught it.
+    recipe: { moment: 4 },
+    stardust: 1,
+    forgeCost: 20,
     parents: [],
     color: '#b9a6ff',
     tagline: 'Once per round, undo your last reroll and get it back. Unused rerolls carry over, up to +3.',
@@ -530,6 +561,10 @@ export const ELEMENTS = {
     rarity: RARITY.MYTHIC,
     warden: 'expanse',
     bigGrowth: true,
+    // K1: forged from 4 reach dice and 1 Stardust, once its Warden taught it.
+    recipe: { reach: 4 },
+    stardust: 1,
+    forgeCost: 20,
     parents: [],
     color: '#5a7cff',
     tagline: 'Its two neighbors and the two end dice all count as neighbors of each other. Always Warp.',
@@ -542,6 +577,10 @@ export const ELEMENTS = {
     rarity: RARITY.MYTHIC,
     warden: 'maelstrom',
     bigGrowth: true,
+    // K1: forged from 4 flux dice and 1 Stardust, once its Warden taught it.
+    recipe: { flux: 4 },
+    stardust: 1,
+    forgeCost: 20,
     parents: [],
     color: '#ff3fa4',
     tagline: 'Every roll it becomes a random die from the whole game, in a random size.',
@@ -554,6 +593,10 @@ export const ELEMENTS = {
     rarity: RARITY.MYTHIC,
     warden: 'hollow',
     bigGrowth: true,
+    // K1: forged from 4 nil dice and 1 Stardust, once its Warden taught it.
+    recipe: { nil: 4 },
+    stardust: 1,
+    forgeCost: 20,
     parents: [],
     color: '#8a7aa8',
     tagline: 'Scores nothing. Every empty slot you have gives +1 Mult.',
@@ -567,10 +610,193 @@ export const ELEMENTS = {
     rarity: RARITY.MYTHIC,
     bigGrowth: true,
     parents: [],
-    recipe: { light: 1, darkness: 1, time: 1, space: 1, chaos: 1, void: 1, aether: 1 },
+    // K3: four slots now, the three stable element fusions and Aether
+    // (Default; the old seven-dice recipe no longer fits).
+    recipe: { shadow: 1, continuum: 1, oblivion: 1, aether: 1 },
+    forgeCost: 300,
     color: '#f0e8ff',
     tagline: 'Everything at once. Scores its face + 104, and +10 Mult.',
     flags: flagSet(FLAGS.ENTROPY),
+  },
+
+  // --- The Firmament's base elements (EXPANSION.md K1): sold in Firmament
+  // shops like Fire or Water, each its own family. Working names (Default):
+  // Glimmer (Light), Gloom (Dark), Moment (Time), Reach (Space), Flux
+  // (Chaos), Null (Void). Null's id is `nil`, so it never collides with a
+  // missing value.
+  glimmer: {
+    id: 'glimmer',
+    name: 'Glimmer',
+    tier: TIERS.COSMIC,
+    rarity: RARITY.RARE,
+    price: 14,
+    firmament: true,
+    parents: [],
+    color: '#fff3b8',
+    tagline: 'A little light, kept warm. Its neighbors never fizzle.',
+    flags: flagSet(FLAGS.GLIMMER),
+  },
+  gloom: {
+    id: 'gloom',
+    name: 'Gloom',
+    tier: TIERS.COSMIC,
+    rarity: RARITY.RARE,
+    price: 14,
+    firmament: true,
+    parents: [],
+    color: '#6d5aa6',
+    tagline: 'The die on its right scores 0, and half of that score goes to your Mult.',
+    flags: flagSet(FLAGS.GLOOM),
+  },
+  moment: {
+    id: 'moment',
+    name: 'Moment',
+    tier: TIERS.COSMIC,
+    rarity: RARITY.RARE,
+    price: 14,
+    firmament: true,
+    parents: [],
+    color: '#cbbcff',
+    tagline: 'While it is in your pool: +1 reroll every round.',
+    flags: flagSet(FLAGS.MOMENT),
+  },
+  reach: {
+    id: 'reach',
+    name: 'Reach',
+    tier: TIERS.COSMIC,
+    rarity: RARITY.RARE,
+    price: 14,
+    firmament: true,
+    parents: [],
+    color: '#7d9bff',
+    tagline: 'Reacts with the dice two places away, as well as its neighbors.',
+    flags: flagSet(FLAGS.REACH),
+  },
+  flux: {
+    id: 'flux',
+    name: 'Flux',
+    tier: TIERS.COSMIC,
+    rarity: RARITY.RARE,
+    price: 14,
+    firmament: true,
+    parents: [],
+    color: '#ff74c0',
+    tagline: 'Every roll it becomes a random pure element (Fire, Water, Earth or Air).',
+    flags: flagSet(FLAGS.FLUX),
+  },
+  nil: {
+    id: 'nil',
+    name: 'Null',
+    tier: TIERS.COSMIC,
+    rarity: RARITY.RARE,
+    price: 14,
+    firmament: true,
+    parents: [],
+    color: '#9a8fb3',
+    tagline: 'Scores nothing. +0.5 Mult for every empty dice slot.',
+    flags: flagSet(FLAGS.NIL),
+  },
+
+  // --- The element fusions (K4): two different base dice in the Forge.
+  // Vesper teaches each one the first time its parents are placed. A
+  // `volatile` fusion can collapse into a Dead Star when forged.
+  shadow: {
+    id: 'shadow',
+    name: 'Shadow',
+    tier: TIERS.DOUBLE,
+    rarity: RARITY.EPIC,
+    cosmic: true,
+    forgeCost: 10,
+    parents: ['gloom', 'glimmer'],
+    color: '#8a74c8',
+    tagline: 'The die on its left scores 0 and its score goes to Mult; the die on its right never fizzles and counts +1.',
+    flags: flagSet(FLAGS.SHADOW),
+  },
+  continuum: {
+    id: 'continuum',
+    name: 'Continuum',
+    tier: TIERS.DOUBLE,
+    rarity: RARITY.EPIC,
+    cosmic: true,
+    forgeCost: 10,
+    parents: ['moment', 'reach'],
+    color: '#a3b0ff',
+    tagline: 'Joins the two ends of your pool into a ring, and gives +1 reroll every round.',
+    flags: flagSet(FLAGS.CONTINUUM),
+  },
+  oblivion: {
+    id: 'oblivion',
+    name: 'Oblivion',
+    tier: TIERS.DOUBLE,
+    rarity: RARITY.EPIC,
+    cosmic: true,
+    forgeCost: 10,
+    parents: ['flux', 'nil'],
+    color: '#c06fae',
+    tagline: 'Each cast it swallows your lowest die (it scores 0) and adds twice its face to Mult.',
+    flags: flagSet(FLAGS.OBLIVION),
+  },
+  alba: {
+    id: 'alba',
+    name: 'Alba',
+    tier: TIERS.DOUBLE,
+    rarity: RARITY.EPIC,
+    cosmic: true,
+    forgeCost: 10,
+    parents: ['glimmer', 'moment'],
+    color: '#ffe6a8',
+    tagline: 'No die rolls below 2, and your first reroll each round is free.',
+    flags: flagSet(FLAGS.ALBA),
+  },
+  anomaly: {
+    id: 'anomaly',
+    name: 'Anomaly',
+    tier: TIERS.DOUBLE,
+    rarity: RARITY.EPIC,
+    cosmic: true,
+    volatile: true,
+    forgeCost: 10,
+    parents: ['flux', 'moment'],
+    color: '#ff9ad6',
+    tagline: 'After every reroll, one random unheld die rolls once more, for free.',
+    flags: flagSet(FLAGS.ANOMALY),
+  },
+  singularity: {
+    id: 'singularity',
+    name: 'Singularity',
+    tier: TIERS.DOUBLE,
+    rarity: RARITY.EPIC,
+    cosmic: true,
+    volatile: true,
+    forgeCost: 10,
+    parents: ['glimmer', 'nil'],
+    color: '#e8e0ff',
+    tagline: 'Scores nothing. The Base of both its neighbors is doubled.',
+    flags: flagSet(FLAGS.SINGULARITY),
+  },
+  abyss: {
+    id: 'abyss',
+    name: 'Abyss',
+    tier: TIERS.DOUBLE,
+    rarity: RARITY.EPIC,
+    cosmic: true,
+    volatile: true,
+    forgeCost: 10,
+    parents: ['gloom', 'nil'],
+    color: '#4a3d6e',
+    tagline: 'Both its neighbors score 0. Every empty dice slot gives +2 Mult.',
+    flags: flagSet(FLAGS.ABYSS),
+  },
+  // What a volatile fusion leaves when it collapses (K4). Never sold.
+  dead_star: {
+    id: 'dead_star',
+    name: 'Dead Star',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    parents: [],
+    color: '#6b6378',
+    tagline: 'A fusion that collapsed. Scores nothing; +0.5 Mult for every other die in your pool.',
+    flags: flagSet(FLAGS.DEAD_STAR),
   },
 }
 
@@ -588,6 +814,12 @@ export const CHRONO_ID = 'chrono'
 // sells Pulsar and Zenith (I2), and Kairos there.
 export const CELESTIAL_DIE_IDS = ['comet', 'pulsar', 'satellite', 'quasar', 'zenith']
 export const MYTHIC_DIE_IDS = ['light', 'darkness', 'time', 'space', 'chaos', 'void']
+// The Firmament's base elements (K1) and their fusions (K4).
+export const COSMIC_BASE_IDS = ['glimmer', 'gloom', 'moment', 'reach', 'flux', 'nil']
+export const COSMIC_FUSION_IDS = ['shadow', 'continuum', 'oblivion', 'alba', 'anomaly', 'singularity', 'abyss']
+export const DEAD_STAR_ID = 'dead_star'
+/** A base element of the Firmament (K1). */
+export const isCosmicBase = (elementId) => ELEMENTS[elementId]?.tier === TIERS.COSMIC
 export const ENTROPY_ID = 'entropy'
 
 /** A Mythic die or Entropy: one of each kind per run (H3). */
@@ -624,7 +856,7 @@ export function reactionElementsOf(elementId) {
   const def = ELEMENTS[elementId]
   if (!def) return []
   if (def.flags[FLAGS.ALL_ELEMENTS]) return [...PURE_ELEMENT_IDS]
-  if (def.tier === TIERS.PURE) return [elementId]
+  if (def.tier === TIERS.PURE || def.tier === TIERS.COSMIC) return [elementId]
   return def.parents
 }
 
@@ -647,7 +879,7 @@ export function familiesOf(elementId) {
   if (!def) return []
   if (def.tier === TIERS.ARCANE) return ['arcane']
   if (def.tier === TIERS.MYTHIC) return ['mythic']
-  if (def.tier === TIERS.PURE) return [elementId]
+  if (def.tier === TIERS.PURE || def.tier === TIERS.COSMIC) return [elementId]
   return def.parents
 }
 
@@ -721,6 +953,20 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.SATELLITE]: 'Scores 0. The dice on both sides count their face +1 (explosion chains unchanged).',
   [FLAGS.QUASAR]: 'Scores 0 Base. Its face goes to your Mult instead, flat. One per run.',
   [FLAGS.ZENITH]: 'While it is in your pool: +1 reroll every round, +1 more from round 20 and again from round 25.',
+  [FLAGS.GLIMMER]: 'The dice on both sides of it never fizzle.',
+  [FLAGS.GLOOM]: 'The die on its right scores 0, and half of what it would have scored goes to your Mult.',
+  [FLAGS.MOMENT]: 'While it is in your pool: +1 reroll every round.',
+  [FLAGS.REACH]: 'Reacts with the dice two places away on each side, as well as its neighbors.',
+  [FLAGS.FLUX]: 'Every roll it becomes a random pure element, keeping its size. Locking keeps its current element.',
+  [FLAGS.NIL]: 'Scores 0. Every empty dice slot gives +0.5 Mult.',
+  [FLAGS.SHADOW]: 'The die on its left scores 0 and that score goes to your Mult. The die on its right never fizzles and counts +1.',
+  [FLAGS.CONTINUUM]: 'The two ends of your pool count as neighbors (a ring). While it is in your pool: +1 reroll every round.',
+  [FLAGS.OBLIVION]: 'Each cast it swallows your lowest other die: that die scores 0, and twice its face goes to your Mult.',
+  [FLAGS.ALBA]: 'No die can show less than 2. Your first reroll each round is free.',
+  [FLAGS.ANOMALY]: 'After every reroll, one random unheld die rolls once more, for free.',
+  [FLAGS.SINGULARITY]: 'Scores 0. The dice on both sides of it score double.',
+  [FLAGS.ABYSS]: 'The dice on both sides of it score 0. Every empty dice slot gives +2 Mult.',
+  [FLAGS.DEAD_STAR]: 'Scores 0. Every other die in your pool gives +0.5 Mult.',
   [FLAGS.BEACON]: 'Both neighbors score x1.5.',
   [FLAGS.ALL_ELEMENTS]: 'Reacts as Fire, Water, Earth, and Air at once.',
   [FLAGS.BULLION]: 'Scores 0, but pays your final Mult (rounded down) in Shards on a clear.',
@@ -748,6 +994,9 @@ const MYTHIC_TEXT = {
     chronoShop: 'Sold only by the Horologist, in the Firmament.',
     celestial: 'Celestial: sold only in the Firmament.',
     onePerRun: 'One per run. It cannot be copied.',
+    cosmic: 'A base element of the Firmament: sold only past the door.',
+    forged: 'Forged from 4 {base} dice and 1 Stardust, once its Warden has taught the recipe.',
+    volatile: 'Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it.',
   },
   es: {
     one: 'Mítico: uno de cada tipo por partida. No se puede copiar.',
@@ -756,11 +1005,15 @@ const MYTHIC_TEXT = {
     chronoShop: 'Solo lo vende el Relojero, en el Firmamento.',
     celestial: 'Celestial: solo se vende en el Firmamento.',
     onePerRun: 'Uno por partida. No se puede copiar.',
+    cosmic: 'Un elemento base del Firmamento: solo se vende más allá de la puerta.',
+    forged: 'Se forja con 4 dados de {base} y 1 Polvo Estelar, cuando su Custodio ya enseñó la receta.',
+    volatile: 'Volátil: al forjarlo puede colapsar en una Estrella Muerta (25%), salvo que un Catalizador lo estabilice.',
   },
 }
 
 export function mythicTextLines(elementId, lang = 'en') {
   const text = MYTHIC_TEXT[lang] ?? MYTHIC_TEXT.en
+  const def = ELEMENTS[elementId]
   const out = []
   if (isMythic(elementId)) out.push(text.one)
   if (elementId === 'space') out.push(text.space)
@@ -768,6 +1021,12 @@ export function mythicTextLines(elementId, lang = 'en') {
   if (elementId === CHRONO_ID) out.push(text.chronoShop)
   if (CELESTIAL_DIE_IDS.includes(elementId)) out.push(text.celestial)
   if (elementId === 'quasar') out.push(text.onePerRun)
+  if (isCosmicBase(elementId)) out.push(text.cosmic)
+  if (isMythic(elementId) && def?.stardust) {
+    const base = Object.keys(def.recipe)[0]
+    out.push(text.forged.replace('{base}', localize(lang, ELEMENTS[base].name, ELEMENTS_ES, base, 'name')))
+  }
+  if (def?.volatile) out.push(text.volatile)
   return out
 }
 

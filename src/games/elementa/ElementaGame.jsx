@@ -35,7 +35,6 @@ import {
   updateStats,
   allFilesComplete,
   markWardens,
-  unlockMythics,
   setMoteFed,
   markScenes,
 } from './utils/profile.js'
@@ -57,7 +56,7 @@ import StoryScene from './components/StoryScene.jsx'
 import { sceneById } from './data/story.js'
 import { GOD_TRIALS } from './data/bossModifiers.js'
 import { LATEST_VERSION } from './data/patchNotes.js'
-import { GOD_IDS } from './data/elements.js'
+import { GOD_IDS, MYTHIC_DIE_IDS } from './data/elements.js'
 import './elementa.css'
 
 // Phases where a run is actually in progress and worth persisting. Meta
@@ -202,10 +201,15 @@ function ElementaGameInner() {
   useEffect(() => {
     if (slot == null || !(AUTOSAVE_PHASES.has(state.phase) || state.phase === 'victory')) return
     markWardens(slot, state.wardens || [])
-    notify(unlockMythics(slot, state.mythics || []).map((id) => ({ kind: 'mythic', id })))
-    if (state.recipes?.includes('entropy') && learnRecipe(slot, 'entropy')) notify([{ kind: 'recipe', id: 'entropy' }])
+    // Recipes learned during the run (a Warden's Mythic die, Entropy, an
+    // element fusion Vesper teaches, K1, K4) go to the file with a toast.
+    notify(
+      (state.recipes || [])
+        .filter((id) => !['aether', ...GOD_IDS].includes(id) && learnRecipe(slot, id))
+        .map((id) => ({ kind: MYTHIC_DIE_IDS.includes(id) ? 'mythic' : 'recipe', id })),
+    )
     setMoteFed(slot, state.moteFed || 0)
-  }, [state.phase, state.wardens, state.mythics, state.recipes, state.moteFed, slot, notify])
+  }, [state.phase, state.wardens, state.recipes, state.moteFed, slot, notify])
 
   // Each new cast result: discover secret reactions, record bests, and
   // check cast achievements.

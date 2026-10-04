@@ -72,6 +72,21 @@ export const ELEMENTS_ES = {
   chaos: { name: 'Caos', tagline: 'En cada tirada se vuelve un dado al azar de todo el juego, de un tamaño al azar.' },
   void: { name: 'Vacío', tagline: 'No anota nada. Cada espacio vacío que tengas da +1 Multiplicador.' },
   entropy: { name: 'Entropía', tagline: 'Todo a la vez. Anota su cara + 104, y +10 Multiplicador.' },
+  // The Firmament's base elements and their fusions (EXPANSION.md K1, K4).
+  glimmer: { name: 'Destello', tagline: 'Un poco de luz, guardada tibia. Sus vecinos nunca se apagan.' },
+  gloom: { name: 'Penumbra', tagline: 'El dado a su derecha anota 0, y la mitad de ese puntaje va a tu Multiplicador.' },
+  moment: { name: 'Instante', tagline: 'Mientras está en tu reserva: +1 reroll cada ronda.' },
+  reach: { name: 'Alcance', tagline: 'Reacciona con los dados a dos lugares de distancia, además de sus vecinos.' },
+  flux: { name: 'Flujo', tagline: 'En cada tirada se vuelve un elemento puro al azar (Fuego, Agua, Tierra o Aire).' },
+  nil: { name: 'Nulo', tagline: 'No anota nada. +0.5 Multiplicador por cada espacio de dado vacío.' },
+  shadow: { name: 'Sombra', tagline: 'El dado a su izquierda anota 0 y su puntaje va al Multiplicador; el de su derecha nunca se apaga y cuenta +1.' },
+  continuum: { name: 'Continuo', tagline: 'Une los dos extremos de tu reserva en un anillo, y da +1 reroll cada ronda.' },
+  oblivion: { name: 'Olvido', tagline: 'En cada lanzamiento se traga tu dado más bajo (anota 0) y suma el doble de su cara al Multiplicador.' },
+  alba: { name: 'Alba', tagline: 'Ningún dado sale por debajo de 2, y tu primer reroll de cada ronda es gratis.' },
+  anomaly: { name: 'Anomalía', tagline: 'Después de cada reroll, un dado no guardado al azar se tira una vez más, gratis.' },
+  singularity: { name: 'Singularidad', tagline: 'No anota nada. La Base de sus dos vecinos se duplica.' },
+  abyss: { name: 'Abismo', tagline: 'Sus dos vecinos anotan 0. Cada espacio de dado vacío da +2 Multiplicador.' },
+  dead_star: { name: 'Estrella Muerta', tagline: 'Una fusión que colapsó. No anota nada; +0.5 Multiplicador por cada otro dado en tu reserva.' },
 }
 
 // Keyed by the flag's string value (FLAGS.EXPLODE === 'explode', etc.), not
@@ -108,6 +123,20 @@ export const FLAG_DESCRIPTIONS_ES = {
   mimicLeft: 'Actúa como el dado a su izquierda: sus habilidades y su puntaje.',
   mimicSplit: 'Actúa como el dado a su izquierda, pero anota lo que anota el dado a su derecha.',
   allElements: 'Reacciona como Fuego, Agua, Tierra y Aire a la vez.',
+  glimmer: 'Los dados a sus dos lados nunca se apagan.',
+  gloom: 'El dado a su derecha anota 0, y la mitad de lo que habría anotado va a tu Multiplicador.',
+  moment: 'Mientras está en tu reserva: +1 reroll cada ronda.',
+  reach: 'Reacciona con los dados a dos lugares de distancia a cada lado, además de sus vecinos.',
+  flux: 'En cada tirada se vuelve un elemento puro al azar, conservando su tamaño. Bloquearlo conserva su elemento.',
+  nil: 'Anota 0. Cada espacio de dado vacío da +0.5 Multiplicador.',
+  shadow: 'El dado a su izquierda anota 0 y ese puntaje va a tu Multiplicador. El dado a su derecha nunca se apaga y cuenta +1.',
+  continuum: 'Los dos extremos de tu reserva cuentan como vecinos (un anillo). Mientras está en tu reserva: +1 reroll cada ronda.',
+  oblivion: 'En cada lanzamiento se traga tu otro dado más bajo: ese dado anota 0, y el doble de su cara va a tu Multiplicador.',
+  alba: 'Ningún dado puede mostrar menos de 2. Tu primer reroll de cada ronda es gratis.',
+  anomaly: 'Después de cada reroll, un dado no guardado al azar se tira una vez más, gratis.',
+  singularity: 'Anota 0. Los dados a sus dos lados anotan el doble.',
+  abyss: 'Los dados a sus dos lados anotan 0. Cada espacio de dado vacío da +2 Multiplicador.',
+  deadStar: 'Anota 0. Cada otro dado en tu reserva da +0.5 Multiplicador.',
 }
 
 export const RELICS_ES = {

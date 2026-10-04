@@ -5,6 +5,7 @@
 // on the player through boss effects. Scoring reads the powers in
 // engine/scoring.js; this file holds the rolling side.
 import { ELEMENTS, FLAGS, PRIMORDIAL_DIE_ID, inFamily } from '../data/elements.js'
+import { runesOf } from '../data/runes.js'
 
 /** Every god power in the pool: { god, index, drawback }. */
 export function godPowers(dice) {
@@ -37,9 +38,14 @@ export function rollContext(die, dice, fx, acting = die.elementId) {
   if (fx.fireTopTwoExplode && fire) explodeFrom = die.sides - 1
   // Comet (I1) explodes on its two highest faces.
   if (ELEMENTS[acting]?.flags[FLAGS.COMET]) explodeFrom = Math.min(explodeFrom, Math.max(1, die.sides - 1))
-  // A Rune of Ember (J3) makes any die explode on its top two faces.
-  const runeExplode = die.rune === 'ember'
-  if (runeExplode) explodeFrom = Math.min(explodeFrom, Math.max(1, die.sides - 1))
+  // A Rune of Ember (K3b) makes its own number an exploding face. A die that
+  // does not explode by itself explodes only there.
+  const explodeFaces = runesOf(die)
+    .filter((r) => r.id === 'ember')
+    .map((r) => r.face)
+  const runeExplode = explodeFaces.length > 0
+  const explodes = ELEMENTS[acting]?.flags[FLAGS.EXPLODE] || ELEMENTS[acting]?.flags[FLAGS.COMET]
+  if (runeExplode && !explodes) explodeFrom = Infinity
   // Ognen explodes on any face of 4 or more.
   const ognen = own.find((p) => p.god === 'ognen')
   if (ognen) explodeFrom = Math.min(explodeFrom, Math.min(4, die.sides))
@@ -53,7 +59,7 @@ export function rollContext(die, dice, fx, acting = die.elementId) {
   const chainCap = ognen ? (fx.ognenUncapped ? Infinity : 10) : undefined
   // Varuna's drawback, and her trial: 1s come up 50% more often.
   const oneBias = fx.varunaCurse || powers.some((p) => p.god === 'varuna' && p.drawback) ? 1.5 : 1
-  return { explodeFrom, explodeChance, chainCap, oneBias, runeExplode }
+  return { explodeFrom, explodeChance, chainCap, oneBias, runeExplode, explodeFaces }
 }
 
 const toFace = (d, value) => ({ ...d, value, total: value, explosions: 0 })

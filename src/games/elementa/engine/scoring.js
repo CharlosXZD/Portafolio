@@ -4,6 +4,7 @@ import { REACTIONS, reactionById } from '../data/reactions.js'
 import { random } from './rng.js'
 import { godPowers, rollContext } from './gods.js'
 import { levelBonus } from '../data/constellations.js'
+import { hasActiveRune } from '../data/runes.js'
 
 const DEFAULT_EXPLODE_CAP = 10
 // Darkness (EXPANSION.md H3) adds its neighbors' score to Mult divided by
@@ -21,6 +22,8 @@ const CHAOS_SIZES = ['d3', 'd5', 'd6', 'd10', 'd20']
 const CHAOS_FORM_IDS = Object.keys(ELEMENTS).filter(
   (id) => ![TIERS.GOD, TIERS.PRIMAL, TIERS.MYTHIC].includes(ELEMENTS[id].tier),
 )
+// What Flux can become each roll (K1): a pure element.
+const FLUX_FORM_IDS = ['earth', 'fire', 'water', 'air']
 
 function randInt(max) {
   return 1 + Math.floor(random() * max)
@@ -85,7 +88,9 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
     const from = ctx.explodeFrom ?? sides
     const chance = ctx.explodeChance ?? 1
     let current = value
-    while (current >= from && explosions < cap) {
+    // A Rune of Ember (K3b) makes its own number an exploding face.
+    const runeFaces = ctx.explodeFaces ?? []
+    while ((current >= from || runeFaces.includes(current)) && explosions < cap) {
       if (chance < 1 && random() >= chance) break
       const next = rollFace(sides, bias)
       const addValue = fx.fireExplodeDouble ? next * 2 : next
@@ -106,6 +111,10 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
  */
 export function shiftChaos(dice) {
   return dice.map((d) => {
+    // Flux (K1) becomes a random pure element, keeping its own size.
+    if (d.elementId === 'flux' && !d.held && !d.locked) {
+      return { ...d, chaosForm: { elementId: FLUX_FORM_IDS[Math.floor(random() * FLUX_FORM_IDS.length)], tierId: d.tierId } }
+    }
     if (d.elementId !== 'chaos' || d.held || d.locked) return d
     const elementId = CHAOS_FORM_IDS[Math.floor(random() * CHAOS_FORM_IDS.length)]
     const tierId = CHAOS_SIZES[Math.floor(random() * CHAOS_SIZES.length)]
@@ -254,9 +263,16 @@ function adjacencyLinks(perDie, fx) {
   for (let i = 1; i < n - 1; i++) {
     if (hasFlag(perDie[i].actingAs, FLAGS.CONDUIT)) links.push([i - 1, i + 1, 2])
   }
-  if (fx.wrapAdjacency && n > 2) links.push([n - 1, 0])
+  // The Ley Line relic, or a Continuum in the pool (K4), joins the ends.
+  const ring = fx.wrapAdjacency || perDie.some((d) => hasFlag(d.actingAs, FLAGS.CONTINUUM))
+  if (ring && n > 2) links.push([n - 1, 0])
   // Space (H3): its two neighbors and the two end dice all touch each other.
   const linked = (a, b) => links.some(([x, y]) => (x === a && y === b) || (x === b && y === a))
+  // Reach (K1) also reacts with the dice two places away.
+  perDie.forEach((d, i) => {
+    if (!hasFlag(d.actingAs, FLAGS.REACH)) return
+    for (const j of [i - 2, i + 2]) if (j >= 0 && j < n && !linked(i, j)) links.push([Math.min(i, j), Math.max(i, j)])
+  })
   perDie.forEach((d, i) => {
     if (!hasFlag(d.actingAs, FLAGS.SPACE)) return
     const group = [...new Set([i - 1, i + 1, 0, n - 1])].filter((j) => j >= 0 && j < n && j !== i).sort((a, b) => a - b)
@@ -285,7 +301,8 @@ function secretPairMatches([x, y], a, b) {
 function findReactions(perDie, fx, extraMult = 0, constellations = null) {
   const found = []
   // A Rune of Kinship (J3): for reactions, the die is its left neighbor.
-  const reactAs = perDie.map((d, i) => (d.rune === 'kinship' && i > 0 ? perDie[i - 1].actingAs : d.actingAs))
+  // Since K3b it works only when the die shows the rune's number.
+  const reactAs = perDie.map((d, i) => (hasActiveRune(d, 'kinship') && i > 0 ? perDie[i - 1].actingAs : d.actingAs))
   for (const [i, j, factor = 1] of adjacencyLinks(perDie, fx)) {
     const a = perDie[i]
     const b = perDie[j]
@@ -349,8 +366,9 @@ function findReactions(perDie, fx, extraMult = 0, constellations = null) {
 // low faces (B3). Blessing of Ember-ward cancels every fizzle for a round.
 function fizzles(d, ctx, fx = {}) {
   if (ctx.noFizzle) return false
-  // A Rune of Anchor (J3): this die never fizzles.
-  if (d.rune === 'anchor') return false
+  // A Rune of Anchor (K3b): this die can't fizzle on the rune's number. A
+  // Glimmer or a Shadow beside it (K1, K4) keeps it from fizzling too.
+  if (hasActiveRune(d, 'anchor') || d.steadied) return false
   // Ognen fizzles on 1 to 3 (B4), and so does the Fire family in his trial.
   const upTo = Math.max(
     d.fizzleUpTo || 0,
@@ -376,12 +394,20 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   // Light (H3): no face below Light's, and nothing fizzles. A lifted die
   // keeps its explosions on top. The Dawn (H2) still reads the rolled face.
   const floor = lightFloor(dice)
+  // Alba (K4) lifts every die to 2 at least, and Weights (K6) its own die.
+  const alba = acting.some((id) => hasFlag(id, FLAGS.ALBA)) ? 2 : 0
   const perDie = dice.map((d, i) => {
-    const lift = floor > d.value ? floor - d.value : 0
+    const dieFloor = Math.max(floor, alba, d.weights ? 2 : 0)
+    const lift = dieFloor > d.value ? dieFloor - d.value : 0
     return { ...d, actingAs: acting[i], rolledFace: d.value, value: d.value + lift, total: d.total + lift }
   })
   if (floor > 0) ctx = { ...ctx, noFizzle: true }
   const n = perDie.length
+  // A Glimmer keeps both neighbors from fizzling (K1); a Shadow its right one (K4).
+  perDie.forEach((d, i) => {
+    if (hasFlag(d.actingAs, FLAGS.GLIMMER)) [i - 1, i + 1].forEach((j) => perDie[j] && (perDie[j].steadied = true))
+    if (hasFlag(d.actingAs, FLAGS.SHADOW) && perDie[i + 1]) perDie[i + 1].steadied = true
+  })
 
   const explodeCount = perDie.reduce((sum, d) => sum + (d.explosions || 0), 0)
 
@@ -487,7 +513,9 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     // The Satellite scores nothing itself, and the Quasar's face goes to
     // Mult instead of Base (I1).
     const celestialOut = hasFlag(d.actingAs, FLAGS.SATELLITE) || hasFlag(d.actingAs, FLAGS.QUASAR)
-    const out = midas || bullion || empty || overexposed || d.swallowed || celestialOut
+    // Null, Singularity and the Dead Star score nothing either (K1, K4).
+    const cosmicOut = [FLAGS.NIL, FLAGS.SINGULARITY, FLAGS.DEAD_STAR].some((f) => hasFlag(d.actingAs, f))
+    const out = midas || bullion || empty || overexposed || d.swallowed || celestialOut || cosmicOut
     // A Comet that exploded scores its whole total twice (I1).
     const cometFactor = hasFlag(d.actingAs, FLAGS.COMET) && (d.explosions || 0) > 0 ? 2 : 1
     let contribution = fizzled || zeroTargets.has(i) || banned || out ? 0 : d.total * cometFactor
@@ -498,8 +526,9 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (fx.highFaceHalf && d.value > 4) contribution /= 2
       if (d.elementId === 'earth' && fx.earthPipMultiplier) contribution *= fx.earthPipMultiplier
       if (hasFlag(d.actingAs, FLAGS.DOUBLE_ON_SET) && winningValues.has(d.id)) contribution *= 2
-      // A Rune of Glass (J3): the die's score is doubled (it may shatter after).
-      if (d.rune === 'glass') {
+      // A Rune of Glass (K3b): on its number the score is doubled (it may
+      // shatter after).
+      if (hasActiveRune(d, 'glass')) {
         contribution *= 2
         noteBoost(d, { rune: 'glass', from: i, factor: 2 })
       }
@@ -516,6 +545,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       const satellites = [i - 1, i + 1].filter((j) => perDie[j] && hasFlag(perDie[j].actingAs, FLAGS.SATELLITE))
       contribution += satellites.length
       satellites.forEach((j) => noteBoost(d, { id: 'satellite', from: j, add: 1 }))
+      // A Shadow on its left counts this die +1 (K4).
+      if (perDie[i - 1] && hasFlag(perDie[i - 1].actingAs, FLAGS.SHADOW)) {
+        contribution += 1
+        noteBoost(d, { id: 'shadow', from: i - 1, add: 1 })
+      }
       // Gaea scores the face of every other Earth-family die (B4).
       if (powers.some((p) => p.index === i && p.god === 'gaea')) {
         contribution += perDie.reduce((sum, o, j) => (j !== i && inFamily(o.elementId, 'earth') ? sum + o.value : sum), 0)
@@ -565,9 +599,18 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (perDie[j].contribution > 0) noteBoost(perDie[j], { id: d.elementId, from: i, factor: 1.5 })
     }
   })
-  // A Rune of Echo (J3): the die scores twice, after Beacon's boost.
+  // A Singularity doubles both neighbors' Base (K4).
   perDie.forEach((d, i) => {
-    if (d.rune !== 'echo' || !(d.contribution > 0)) return
+    if (!hasFlag(d.actingAs, FLAGS.SINGULARITY)) return
+    for (const j of [i - 1, i + 1]) {
+      if (!perDie[j] || !(perDie[j].contribution > 0)) continue
+      perDie[j].contribution *= 2
+      noteBoost(perDie[j], { id: 'singularity', from: i, factor: 2 })
+    }
+  })
+  // A Rune of Echo (K3b): on its number the die scores twice, after Beacon.
+  perDie.forEach((d, i) => {
+    if (!hasActiveRune(d, 'echo') || !(d.contribution > 0)) return
     d.contribution *= 2
     noteBoost(d, { rune: 'echo', from: i, factor: 2 })
   })
@@ -600,6 +643,39 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       perDie[j].darkened = true
     }
     if (eaten > 0) darkLines.push({ kind: 'mythic', id: 'darkness', value: eaten / DARKNESS_DIVISOR, dice: [i] })
+  })
+  // The Firmament's eaters (K1, K4). Each takes a neighbor's score (Gloom
+  // the right one, half of it; Shadow the left one, all of it; Abyss both,
+  // for nothing), and Oblivion swallows your lowest other die for twice its
+  // face. Like Darkness, what they take goes to Mult as a line of their own.
+  const eat = (j) => {
+    if (!perDie[j]) return 0
+    const v = perDie[j].contribution
+    perDie[j].contribution = 0
+    perDie[j].darkened = true
+    return v
+  }
+  perDie.forEach((d, i) => {
+    if (hasFlag(d.actingAs, FLAGS.GLOOM)) {
+      const v = eat(i + 1)
+      if (v > 0) darkLines.push({ kind: 'mythic', id: 'gloom', value: v / 2, dice: [i] })
+    }
+    if (hasFlag(d.actingAs, FLAGS.SHADOW)) {
+      const v = eat(i - 1)
+      if (v > 0) darkLines.push({ kind: 'mythic', id: 'shadow', value: v, dice: [i] })
+    }
+    if (hasFlag(d.actingAs, FLAGS.ABYSS)) [i - 1, i + 1].forEach(eat)
+    if (hasFlag(d.actingAs, FLAGS.OBLIVION)) {
+      let low = -1
+      perDie.forEach((o, j) => {
+        if (j !== i && !o.swallowed && (low < 0 || o.value < perDie[low].value)) low = j
+      })
+      if (low >= 0) {
+        const face = perDie[low].value
+        eat(low)
+        darkLines.push({ kind: 'mythic', id: 'oblivion', value: face * 2, dice: [i, low] })
+      }
+    }
   })
   perDie.forEach((d) => (d.contribution = Math.round(d.contribution * 100) / 100))
 
@@ -672,6 +748,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   perDie.forEach((d, i) => {
     if (hasFlag(d.actingAs, FLAGS.VOID) && !d.swallowed) addMult({ kind: 'mythic', id: 'void', value: ctx.emptySlots || 0, dice: [i] })
     if (hasFlag(d.actingAs, FLAGS.ENTROPY) && d.contribution > 0) addMult({ kind: 'mythic', id: 'entropy', value: 10, dice: [i] })
+    // Null and Abyss feed on empty dice slots, the Dead Star on the rest of
+    // the pool (K1, K4).
+    if (hasFlag(d.actingAs, FLAGS.NIL) && !d.swallowed) addMult({ kind: 'mythic', id: 'nil', value: 0.5 * (ctx.emptyDiceSlots || 0), dice: [i] })
+    if (hasFlag(d.actingAs, FLAGS.ABYSS) && !d.swallowed) addMult({ kind: 'mythic', id: 'abyss', value: 2 * (ctx.emptyDiceSlots || 0), dice: [i] })
+    if (hasFlag(d.actingAs, FLAGS.DEAD_STAR) && !d.swallowed) addMult({ kind: 'mythic', id: 'dead_star', value: 0.5 * (n - 1), dice: [i] })
     // Quasar (I1): its face, flat, into Mult.
     if (hasFlag(d.actingAs, FLAGS.QUASAR) && !d.swallowed && !zeroTargets.has(i) && !(fx.bannedElementId && d.elementId === fx.bannedElementId)) addMult({ kind: 'celestial', id: 'quasar', value: d.total, dice: [i] })
   })

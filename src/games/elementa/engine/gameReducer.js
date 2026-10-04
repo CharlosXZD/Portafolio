@@ -21,6 +21,10 @@ import {
   isOnePerRun,
   CELESTIAL_DIE_IDS,
   canGrowBig,
+  COSMIC_BASE_IDS,
+  COSMIC_FUSION_IDS,
+  DEAD_STAR_ID,
+  isCosmicBase,
 } from '../data/elements.js'
 import { nextTier, prevTier, tierById, sellValueForDie } from '../data/diceTiers.js'
 import { RELICS, RARITY, relicById, costForRelic, sellValueForRelic } from '../data/relics.js'
@@ -76,7 +80,7 @@ import {
 } from './map.js'
 import { firmamentEnding } from '../data/endings.js'
 import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
-import { GLASS_BREAK_CHANCE } from '../data/runes.js'
+import { GLASS_BREAK_CHANCE, RUNE_CLASH_FEE, runesOf, hasActiveRune, migrateDieRunes, fitRunes, faceCap } from '../data/runes.js'
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
 
 const STARTING_TIER = 'd6'
@@ -108,6 +112,11 @@ const MAX_CONSUMABLES = 3
 const WARP_CAP = 3
 const WARP_OFFER_CHANCE = 0.02
 const WARP_PREMIUM = 12
+// Stardust (EXPANSION.md K2, Defaults): what a boss and a Warden drop, and
+// Vesper's price for one.
+const STARDUST_PER_BOSS = 1
+const STARDUST_PER_WARDEN = 2
+const STARDUST_PRICE = 30
 const ALL_FUSION_IDS = [...DOUBLE_FUSION_IDS, ...TRIPLE_FUSION_IDS, QUADRA_FUSION_ID]
 
 // Rarity is round-gated so a run can't snowball into a legendary-item build
@@ -350,7 +359,8 @@ function chronoAfterRoll(dice, relics, ctx, rolled) {
 function freshRoundCounters(dice) {
   // Time (H3): the reroll Rewind can undo, and whether it was used.
   // Pulsar counts the rerolls made (I1); the Hourglass's free rerolls (I2)
-  // last the round.
+  // last the round. Alba (K4) makes the round's first reroll free.
+  const alba = actingElementIds(dice).some((id) => elementHasFlag(id, FLAGS.ALBA))
   return {
     driftUsed: false,
     gustUsed: false,
@@ -358,7 +368,7 @@ function freshRoundCounters(dice) {
     lastReroll: null,
     rewindUsed: false,
     rerollsMade: 0,
-    freeRerolls: 0,
+    freeRerolls: alba ? 1 : 0,
   }
 }
 
@@ -372,8 +382,10 @@ function scoreContext(state) {
     permanentMult: state.permanentMult || 0,
     reactionMultBonus: buffs.communion ? 0.5 : 0,
     noFizzle: Boolean(buffs.noFizzle),
-    // Void (H3): every empty slot is +1 Mult.
+    // Void (H3): every empty slot is +1 Mult. Null and Abyss count only the
+    // empty dice slots (K1, K4).
     emptySlots: emptySlots(state),
+    emptyDiceSlots: Math.max(0, maxDiceFor(state) - poolSize(state.dice)),
     // Pulsar (I1) counts the rerolls made this round.
     rerollsMade: state.rerollsMade || 0,
     // Mult that comes from items rather than dice (I2): the Metronome, the
@@ -390,7 +402,8 @@ function scoreContext(state) {
  * die, left to right. The pool never loses its last die.
  */
 function shatterGlass(state) {
-  const broken = state.dice.filter((d) => d.rune === 'glass' && random() < GLASS_BREAK_CHANCE).map((d) => d.id)
+  // Since K3b only a die showing its Glass number can break.
+  const broken = state.dice.filter((d) => hasActiveRune(d, 'glass', d.value) && random() < GLASS_BREAK_CHANCE).map((d) => d.id)
   if (broken.length === 0) return { state, shattered: [] }
   if (broken.length >= state.dice.length) broken.pop()
   return {
@@ -649,13 +662,13 @@ function rollShopStock(state, type) {
   const unlockedFusions = fusionsUnlockedBy(state.ownedElementsEver).filter(
     (id) => id !== QUADRA_FUSION_ID || knowsAether(state),
   )
-  // The Firmament still sells every die from Elementa, plus the Mythic dice
-  // this file has unlocked and the run does not hold yet (H3), and the
-  // Celestial dice (I3).
-  const mythics = firmament ? MYTHIC_DIE_IDS.filter((id) => state.mythics?.includes(id) && !holdsKind(state.dice, id)) : []
+  // The Firmament still sells every die from Elementa, plus its six base
+  // elements (K1) and the Celestial dice (I3). The Mythic dice are forged
+  // now, never sold (K1).
+  const cosmic = firmament ? COSMIC_BASE_IDS : []
   const celestials = firmament ? CELESTIAL_DIE_IDS.filter((id) => !holdsKind(state.dice, id)) : []
   const asOffer = (id) => ({ id, rarity: rarityForElement(id), stockWeight: ELEMENTS[id].stockWeight ?? 1 })
-  const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...mythics, ...celestials].map(asOffer)
+  const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...cosmic, ...celestials].map(asOffer)
   const dieOfferCount = Math.min(type.dice, allBuyable.length)
   const luckyRound = state.round + (type.legendary ? 3 : 0)
   const dieWeight = (item) => rarityWeight(item, luckyRound) * item.stockWeight
@@ -773,7 +786,7 @@ function moteTier(fed = 0) {
 /**
  * The secret stock for the stages from `from` to `to` (Claude's default):
  * at 40, a Hollow Pact and a random die carrying Warp; at 120, a Warp Seal
- * and an unlocked Mythic die the run lacks, with Warp (a Chrono if none).
+ * and 2 Stardust (K2; it used to be a Mythic die, which is forged now).
  */
 function moteStockFor(state, from, to) {
   const out = []
@@ -784,8 +797,7 @@ function moteStockFor(state, from, to) {
   }
   if (from < 2 && to >= 2) {
     out.push({ kind: 'consumable', id: 'warp_seal' })
-    const mythics = MYTHIC_DIE_IDS.filter((id) => state.mythics?.includes(id) && !holdsKind(state.dice, id))
-    out.push({ kind: 'die', elementId: mythics.length ? randomOf(mythics) : CHRONO_ID })
+    out.push({ kind: 'stardust', amount: 2 })
   }
   return out
 }
@@ -793,6 +805,7 @@ function moteStockFor(state, from, to) {
 /** What one of Mote's offers costs. Its dice are d6 and carry Warp (+12). */
 function moteOfferCost(state, offer) {
   if (offer.kind === 'pact') return MOTE_PACT_PRICE
+  if (offer.kind === 'stardust') return STARDUST_PRICE
   if (offer.kind === 'consumable') return consumableCost(consumableById(offer.id), state.relics, state.shop)
   return newDieCost(offer.elementId, state.dice, state.relics, null, STARTING_TIER) + WARP_PREMIUM
 }
@@ -825,10 +838,15 @@ function availableRerolls(state) {
   return cap - state.rerollsUsed + (state.freeRerolls || 0)
 }
 
-/** Zenith (I1): +1 reroll every round, +1 more from round 20 and again from 25. */
+/**
+ * Zenith (I1): +1 reroll every round, +1 more from round 20 and again from
+ * 25. Moment (K1) and Continuum (K4): +1 every round.
+ */
 function zenithRerolls(state) {
   const each = 1 + (state.round >= 20 ? 1 : 0) + (state.round >= 25 ? 1 : 0)
-  return actingElementIds(state.dice).filter((id) => id === 'zenith').length * each
+  const acting = actingElementIds(state.dice)
+  const steady = acting.filter((id) => elementHasFlag(id, FLAGS.MOMENT) || elementHasFlag(id, FLAGS.CONTINUUM)).length
+  return acting.filter((id) => id === 'zenith').length * each + steady
 }
 
 // Boss rewards (CHOOSE_BOSS_REWARD) can widen these for the rest of a run.
@@ -960,6 +978,8 @@ function baseTitleState() {
     // seen (the doors), Mythic dice unlocked, Wardens beaten, Mote's meal.
     endingsSeen: [],
     mythics: [],
+    // Stardust (K2): dropped by bosses, spent forging a Mythic die.
+    stardust: 0,
     wardens: [],
     moteFed: 0,
   }
@@ -973,6 +993,19 @@ function fileFields(file = {}) {
     mythics: [...(file.mythics || [])],
     wardens: [...(file.wardens || [])],
     moteFed: file.mote?.fed || 0,
+  }
+}
+
+// Runes moved onto faces (EXPANSION.md K3b): an old `die.rune` sits on the
+// die's top face. A run from before Stardust has none.
+function migrateRuns(save) {
+  const fix = (list) => (Array.isArray(list) ? list.map(migrateDieRunes) : list)
+  return {
+    ...save,
+    stardust: save.stardust ?? 0,
+    dice: fix(save.dice || []),
+    roundPool: fix(save.roundPool),
+    lastReroll: save.lastReroll ? { ...save.lastReroll, dice: fix(save.lastReroll.dice) } : save.lastReroll,
   }
 }
 
@@ -1720,12 +1753,14 @@ function firmamentSets(state) {
   return [1, 2]
 }
 
-/** A Warden falls (H2): its Mythic die joins the file; all six teach Entropy (H5). */
+/**
+ * A Warden falls (H2): it teaches the file its Mythic die's recipe (K1; it
+ * used to put the die in the shops), and all six teach Entropy (H5).
+ */
 function beatWarden(state, id) {
   const guards = bossById(id)?.guards
   const wardens = (state.wardens || []).includes(id) ? state.wardens : [...(state.wardens || []), id]
-  const mythics = guards && !(state.mythics || []).includes(guards) ? [...(state.mythics || []), guards] : state.mythics || []
-  const next = { ...state, wardens, mythics }
+  const next = guards ? withRecipe({ ...state, wardens }, guards) : { ...state, wardens }
   return WARDEN_COUNT <= wardens.length ? withRecipe(next, ENTROPY_ID) : next
 }
 
@@ -1780,7 +1815,7 @@ function reduce(state, action) {
     case 'LOAD_RUN': {
       // Older saves predate seeds: give them a generator state so the rest
       // of the run is still saved and reproducible from here on.
-      const save = renameChrono(action.save)
+      const save = migrateRuns(renameChrono(action.save))
       return {
         ...save,
         // Past the door the gods' gauntlet is long over (H1).
@@ -1916,6 +1951,18 @@ function reduce(state, action) {
           return d
         })
       }
+      // Anomaly (K4): after every reroll, one random unheld die rolls again.
+      if (actingElementIds(dice).some((id) => elementHasFlag(id, FLAGS.ANOMALY))) {
+        const loose = dice.filter((d) => !d.held && !d.locked)
+        if (loose.length) {
+          const pick = randomOf(loose)
+          const i = dice.findIndex((d) => d.id === pick.id)
+          const actor = actingElementIds(dice)[i]
+          const relics = effectiveRelics(state)
+          const again = rollDie(actor, pick.sides, relics, rollContext(pick, dice, relicEffects(relics), actor))
+          dice = dice.map((d) => (d.id === pick.id ? { ...d, ...again, anomaly: true } : { ...d, anomaly: false }))
+        }
+      }
       dice = settleTide(dice)
       // Chrono (H4): any 1 rewinds time, as often as it takes (no limit).
       const chrono = chronoAfterRoll(
@@ -1937,7 +1984,7 @@ function reduce(state, action) {
         const kindled =
           !state.roundBuffs?.noFizzle &&
           d.value === 1 &&
-          d.rune !== 'anchor' &&
+          !hasActiveRune(d, 'anchor', d.value) &&
           elementHasFlag(d.elementId, FLAGS.ZERO_ON_MIN) &&
           inFamily(d.elementId, 'fire')
         if (kindled) kindling += 1
@@ -2095,12 +2142,15 @@ function reduce(state, action) {
         // Entropy's recipe (H2, H5).
         const wardenBeaten = state.bossModifier?.tier === 4 ? state.bossModifier.id : null
         if (wardenBeaten) state = beatWarden(state, wardenBeaten)
+        // Stardust (K2): every boss drops some, a Warden more.
+        const stardustGain = beatBoss ? (wardenBeaten ? STARDUST_PER_WARDEN : STARDUST_PER_BOSS) : 0
         return {
           ...state,
           // Beating a boss first offers a permanent upgrade, then the shop.
           phase: crossroads ? 'crossroads' : won ? 'victory' : beatBoss ? 'bossReward' : 'shop',
           chronicle: won ? chronicle : { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
-          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic, timeCarry, wardenBeaten },
+          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic, timeCarry, wardenBeaten, stardustGain },
+          stardust: (state.stardust || 0) + stardustGain,
           shards,
           relics,
           permanentRerollBonus,
@@ -2812,5 +2862,6 @@ export const selectors = {
   doorOpen,
   firmamentSets,
   isFixedBoss,
+  stardustPrice: STARDUST_PRICE,
   canRewind: (state) => state.phase === 'rolling' && Boolean(state.lastReroll) && holdsTime(state.dice) && !state.rewindUsed,
 }

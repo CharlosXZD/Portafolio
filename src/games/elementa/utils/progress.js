@@ -3,6 +3,7 @@
 // "what should unlock" logic lives here; ElementaGame.jsx calls it and
 // writes the results through utils/profile.js.
 import { DECKS } from '../data/decks.js'
+import { runesOf } from '../data/runes.js'
 import { ELEMENTS, TIERS, MYTHIC_DIE_IDS } from '../data/elements.js'
 import { ENDING_IDS } from '../data/endings.js'
 import { SECRET_REACTION_IDS, REACTIONS } from '../data/reactions.js'
@@ -44,7 +45,7 @@ export function achievementsFromState(state) {
   const levels = Object.values(state.constellations || {})
   if (levels.some((l) => l >= 5)) ids.push('stargazer')
   if (levels.some((l) => l >= 10)) ids.push('sky_cartographer')
-  if (state.dice.some((d) => d.rune)) ids.push('runesmith')
+  if (state.dice.some((d) => runesOf(d).length > 0)) ids.push('runesmith')
   if (state.dice.some((d) => d.edition === 'warp')) ids.push('warp_slot')
   if (state.dice.some((d) => d.sides >= 100)) ids.push('century')
   if (state.dice.some((d) => d.elementId === 'chrono')) ids.push('stopped_clock')
@@ -84,7 +85,9 @@ export function achievementsFromProfile(profile) {
   if (secrets.length >= 1) ids.push('secret_one')
   if (secrets.length >= SECRET_REACTION_IDS.length) ids.push('secret_all')
   // The Firmament (v0.7).
-  const mythics = (profile.mythics || []).filter((id) => MYTHIC_DIE_IDS.includes(id))
+  // A Mythic die counts once its recipe is known (K1; old files' `mythics`
+  // were folded into `recipes`).
+  const mythics = (profile.recipes || []).filter((id) => MYTHIC_DIE_IDS.includes(id))
   if (mythics.length >= 1) ids.push('first_myth')
   if (mythics.length >= MYTHIC_DIE_IDS.length) ids.push('six_unspoken')
   const wardens = profile.wardens || []

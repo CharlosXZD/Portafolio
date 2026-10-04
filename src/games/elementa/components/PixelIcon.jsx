@@ -206,6 +206,63 @@ const ICONS = {
     rows: ['c.c.c.c', '.chhhc.', 'chcccch', '.hc.ch.', 'chcccch', '.chhhc.', 'c.c.c.c'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
+  // The Firmament's base elements, their fusions and the Dead Star (K1, K4).
+  glimmer: {
+    rows: ['...c...', '...h...', '.c.h.c.', '..hhh..', '.c.h.c.', '...h...', '...c...'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  gloom: {
+    rows: ['..ccc..', '.ccc...', 'ccc....', 'ccc..h.', 'ccc....', '.ccc...', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  moment: {
+    rows: ['.ccccc.', '..chc..', '...c...', '...c...', '..c.c..', '.c.h.c.', '.ccccc.'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  reach: {
+    rows: ['.......', 'c.....c', '.c...c.', 'cchhhcc', '.c...c.', 'c.....c', '.......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  flux: {
+    rows: ['cc...cc', '.cc.cc.', '..chc..', '..hhh..', '..chc..', '.cc.cc.', 'cc...cc'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  nil: {
+    rows: ['.......', '..ccc..', '.c...c.', '.c.h.c.', '.c...c.', '..ccc..', '.......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  shadow: {
+    rows: ['..ccc..', '.cchhh.', 'ccchhhh', 'ccchhhh', 'ccchhhh', '.cchhh.', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  continuum: {
+    rows: ['.ccccc.', 'c.....c', 'c.hhh.c', 'c.h.h.c', 'c.hhh.c', 'c.....c', '.ccccc.'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  oblivion: {
+    rows: ['c.....c', '.c...c.', '..ccc..', '..c.c..', '..ccc..', '.c...c.', 'c.....c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  alba: {
+    rows: ['.......', '.h.h.h.', '..hhh..', 'hhhhhhh', '.......', 'ccccccc', '.......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  anomaly: {
+    rows: ['..cc...', '.c..c..', '....c..', '...c...', '..c....', '.......', '..h....'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  singularity: {
+    rows: ['c..c..c', '.c.c.c.', '..ccc..', 'cccHccc', '..ccc..', '.c.c.c.', 'c..c..c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)', H: '#000000' },
+  },
+  abyss: {
+    rows: ['ccccccc', 'c.....c', '.c...c.', '.c.h.c.', '..c.c..', '..c.c..', '...c...'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  dead_star: {
+    rows: ['.c...c.', '..c.c..', 'c.ccc.c', '..chc..', 'c.ccc.c', '..c.c..', '.c...c.'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
   spark: {
     rows: ['...c...', '...c...', '.c.h.c.', 'cchhhcc', '.c.h.c.', '...c...', '...c...'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },

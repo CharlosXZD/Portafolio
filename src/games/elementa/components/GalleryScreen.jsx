@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
-import { ELEMENTS, PURE_ELEMENT_IDS, rarityForElement, familiesOf } from '../data/elements.js'
+import { ELEMENTS, PURE_ELEMENT_IDS, COSMIC_BASE_IDS, rarityForElement, familiesOf } from '../data/elements.js'
 import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
@@ -187,9 +187,13 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
         // Dice that must be unlocked (gods, the Primordial die, Mythic dice,
         // Aether before its recipe) stay in an "Unlocks" box until found:
         // no family, no rarity, so the Gallery spoils nothing (v0.7 notes).
+        // Since v0.8 a Mythic die or an element fusion (K1, K4) leaves the box
+        // once the file knows its recipe.
+        const forgedByRecipe = def.tier === 'mythic' || def.cosmic
         const locked =
           !seen.dice.has(id) &&
-          (['god', 'primal', 'mythic'].includes(def.tier) || (def.tier === 'quadra' && !knowsRecipe(profile, id)))
+          (['god', 'primal'].includes(def.tier) ||
+            ((forgedByRecipe || def.tier === 'quadra') && !knowsRecipe(profile, id)))
         return {
           key: id,
           seen: seen.dice.has(id),
@@ -205,7 +209,9 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
               {parents && (
                 <div className="text-base text-[var(--gold-1)]">
                   {/* Aether's recipe is secret until Primordial falls (B6). */}
-                  {def.tier === 'quadra' && !knowsRecipe(profile, id)
+                  {def.cosmic && !knowsRecipe(profile, id)
+                    ? t('elementa.gallery.recipeVesper')
+                    : def.tier === 'quadra' && !knowsRecipe(profile, id)
                     ? t('elementa.gallery.recipeUnknown')
                     : `${t('elementa.gallery.fusionOf')} ${parents}`}
                 </div>
@@ -304,7 +310,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       return [{ key: 'all', entries: named }, ...unlocks]
     }
     if (sort === 'family') {
-      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, 'arcane', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral']
+      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, ...COSMIC_BASE_IDS, 'arcane', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral']
       return order
         .map((f) => ({
           key: f,

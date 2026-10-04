@@ -36,16 +36,21 @@ export const KEYWORDS = Object.fromEntries(
     K('undo', '#b9a6ff', L('Undo', 'Deshacer'), L('Takes back your last reroll, and refunds it.', 'Deshace tu último reroll, y lo devuelve.')),
     K('shift', '#ff3fa4', L('Shift', 'Cambia'), L('Becomes a different random die on every roll.', 'Se vuelve otro dado al azar en cada tirada.')),
     K('empty', '#8a7aa8', L('Empty', 'Vacío'), L('Feeds on the empty slots you have.', 'Se alimenta de los espacios vacíos que tienes.')),
+    // EXPANSION.md K1, K4, K6.
+    K('cosmic', '#c9b8ff', L('Cosmic', 'Cósmico'), L('A base element of the Firmament, a family of its own.', 'Un elemento base del Firmamento, una familia propia.')),
+    K('steady', '#fff3b8', L('Steady', 'Firme'), L('Keeps the dice beside it from fizzling.', 'Evita que los dados de al lado se apaguen.')),
+    K('volatile', '#ff8a6b', L('Volatile', 'Volátil'), L('Forging it can collapse into a Dead Star (25%). A Catalyst prevents it.', 'Al forjarlo puede colapsar en una Estrella Muerta (25%). Un Catalizador lo evita.')),
+    K('rune', '#d6c4ff', L('Rune', 'Runa'), L('Inscribed on one number of a die: it works only when the die shows that number.', 'Inscrita en un número de un dado: solo funciona cuando el dado muestra ese número.')),
     K('burst', '#8fd8ff', L('Burst', 'Estallido'), L('Scores its whole total twice when it explodes.', 'Anota todo su total dos veces cuando explota.')),
     K('pulse', '#ff8fd0', L('Pulse', 'Pulso'), L('Gains Base for every reroll made this round.', 'Gana Base por cada reroll hecho esta ronda.')),
     K('flare', '#c58cff', L('Flare', 'Destello'), L('Its face goes to Mult instead of Base.', 'Su cara va al Mult en lugar de la Base.')),
     K('rerolls', '#ffe08a', L('Rerolls', 'Rerolls'), L('Gives you extra rerolls while it is in your pool.', 'Te da rerolls extra mientras esté en tu reserva.')),
     // The Runes (J3), shown on a die that carries one.
-    K('rune_echo', '#9fd8ff', L('Echo', 'Eco'), L('Rune: the die scores twice.', 'Runa: el dado anota dos veces.')),
-    K('rune_glass', '#d6f2ff', L('Glass', 'Cristal'), L('Rune: doubled score, but it may shatter after a cast.', 'Runa: puntaje doble, pero puede romperse tras un lanzamiento.')),
-    K('rune_kinship', '#ffb8e8', L('Kinship', 'Parentesco'), L("Rune: counts as its left neighbor's element for reactions.", 'Runa: cuenta como el elemento de su vecino izquierdo para las reacciones.')),
-    K('rune_ember', '#ff8a4d', L('Ember', 'Brasa'), L('Rune: explodes on its top two faces.', 'Runa: explota con sus dos caras más altas.')),
-    K('rune_anchor', '#9fb4c8', L('Anchor', 'Ancla'), L('Rune: never fizzles.', 'Runa: nunca se apaga.')),
+    K('rune_echo', '#9fd8ff', L('Echo', 'Eco'), L('Rune: on its number, the die scores twice.', 'Runa: en su número, el dado anota dos veces.')),
+    K('rune_glass', '#d6f2ff', L('Glass', 'Cristal'), L('Rune: on its number, doubled score, but it may shatter after the cast.', 'Runa: en su número, puntaje doble, pero puede romperse tras el lanzamiento.')),
+    K('rune_kinship', '#ffb8e8', L('Kinship', 'Parentesco'), L("Rune: on its number, counts as its left neighbor's element for reactions.", 'Runa: en su número, cuenta como el elemento de su vecino izquierdo para las reacciones.')),
+    K('rune_ember', '#ff8a4d', L('Ember', 'Brasa'), L('Rune: its number is an exploding face.', 'Runa: su número es una cara que explota.')),
+    K('rune_anchor', '#9fb4c8', L('Anchor', 'Ancla'), L('Rune: on its number, the die cannot fizzle.', 'Runa: en su número, el dado no puede apagarse.')),
   ].map((k) => [k.id, k]),
 )
 
