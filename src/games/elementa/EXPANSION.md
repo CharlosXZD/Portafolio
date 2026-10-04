@@ -1531,9 +1531,9 @@ The six shop elements (Light, Darkness, Time, Space, Chaos, Void, ids `glimmer`,
 
 **Status: Ready.** Carlos's playtest (2026-10-04): at round 25 he scored about 79,000 against a target near 86,000 with good dice (some dice scored 200), and agreed with Claude's simulation: the start is easy, but from round 15 the targets (x1.45 every round) outgrow what builds can do. He asked for **a late scaler and a slightly easier curve**. All numbers are **Defaults** (tune after playtests). The goal: a good build should sit near **1.0 to 1.3 times the target at every round up to 30**, a mediocre one falls behind slowly, and the first 15 rounds stay as easy as they are.
 
-### M1. The curve after round 15
+### M1. The curve (**already built by Claude on 2026-10-04; the agent must not redo it**)
 
-`thresholdForRound` (engine/scoring.js): rounds 1 to 15 unchanged. **After round 15 the growth is x1.40 per round instead of x1.45** (**Default**): round 20 is about 7,800 (was 9,313), round 24 about 30,000 (was 41,167), round 25 about 42,000 (was 59,693), round 30 about 227,000 (was 382,615) on Ember. The Warden multipliers (1.0, 1.1, 1.25) and every difficulty multiplier stay. Runs already saved keep their stored target. Print the new table in the report.
+`thresholdForRound` in `engine/scoring.js` now has three stretches (Carlos asked for a harder start after the first simulation, and the ease after 15): **rounds 1 to 10 start 75% higher but grow x1.37** (round 1 is 14, was 8; round 5 is 49, was 35; round 10 is 238, was 227); **rounds 11 to 15 keep x1.45** (round 15 is 1,526, was 1,453); **after round 15 the growth is x1.40** (round 20 is 8,205, round 24 is 31,521, round 25 is 44,130, round 30 is 237,342 on Ember; it was 9,313, 41,167, 59,693 and 382,615). Constants `EARLY_BASE_FACTOR`, `EARLY_GROWTH`, `LATE_GROWTH`. Warden multipliers and difficulty multipliers still apply last. The balance bot now clears round 1 with a median 1.4 times the target (it was 2.25). Only retune these numbers if M5's simulation says to.
 
 ### M2. Every die can grow past d20 in the Firmament
 

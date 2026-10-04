@@ -825,8 +825,22 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
 // Round 1 must be clearable with the starting 3d6 Earth kit (max roll 18,
 // no multiplier available yet), so keep the base well under that ceiling.
 // The curve itself is driven by the chosen difficulty (data/difficulty.js).
+// The target curve (Carlos, 2026-10-04, after Claude's balance simulation):
+// the start was too easy and everything past round 15 outgrew the builds.
+// Rounds 1 to 10 start 75% higher but grow slower (x1.37) so round 10 lands
+// where it always did; rounds 11 to 15 keep the old x1.45; past round 15 the
+// growth eases to x1.40 (the Firmament). Difficulty multipliers apply last.
+export const EARLY_BASE_FACTOR = 1.75
+export const EARLY_GROWTH = 1.37
+export const LATE_GROWTH = 1.4
 export function thresholdForRound(round, difficulty) {
-  const base = difficulty.thresholdBase * Math.pow(difficulty.thresholdGrowth, round - 1)
+  const tenth = difficulty.thresholdBase * EARLY_BASE_FACTOR * Math.pow(EARLY_GROWTH, 9)
+  let base
+  if (round <= 10) base = difficulty.thresholdBase * EARLY_BASE_FACTOR * Math.pow(EARLY_GROWTH, round - 1)
+  else {
+    const fifteenth = tenth * Math.pow(difficulty.thresholdGrowth, 5)
+    base = round <= 15 ? tenth * Math.pow(difficulty.thresholdGrowth, round - 10) : fifteenth * Math.pow(LATE_GROWTH, round - 15)
+  }
   return Math.round(base * (difficulty.thresholdMultiplier ?? 1))
 }
 
