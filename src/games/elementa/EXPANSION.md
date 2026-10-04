@@ -12,6 +12,8 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 **Work in the main checkout only.** Do not create git worktrees, sibling folders, or copies of the project unless Carlos explicitly asks. (An earlier phase used a sibling worktree `Portafolio-v0.5` to keep a playtest undisturbed; Carlos did not want the extra folder. Work on the current branch in `/Users/charly/Desktop/Projects/Portafolio`.) If you need isolation, use a branch and ask first.
 
+**Mute the game before any browser test.** Carlos plays in his own tab while agents test, and he hears double music. Before driving the game in the browser pane, set `elementa-music-enabled` to `false`, and `elementa-music-volume` and `elementa-sfx-volume` to `0` in localStorage (in the same call that writes any test save), then reload. Never leave sound on in a test save. The Jukebox page is the only exception, and only when the task is to check a song.
+
 **Never build from `IDEAS.md`** (Carlos's inbox of loose ideas). Never treat `CONTENT.md` as a plan: it describes only the current game.
 
 **Read first, in this order:**
@@ -485,7 +487,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.7** | The Firmament | **Built.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
 | **v0.7.2** | Firmament depth | **Built.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
 | **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
-| **v0.8** | Cosmic elements | **Ready.** Part K: the six Mythic dice become elements forged with Stardust after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
+| **v0.8** | Cosmic elements | **Ready.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
@@ -1289,101 +1291,123 @@ Show a small rune glyph on the die, a line in its tooltip, and keywords. Runes c
 - Achievements: "Stargazer" (own a level 5 Constellation), "Cartographer of Skies" (level 10), "Runesmith" (a die with a rune). Secret.
 - Node tests: each Constellation's bonus in the ledger, Black Hole, level cap, save/load, each Rune, Glass shattering with a seeded RNG. Browser pass on a Firmament test save.
 
-## Part K: v0.8 "Cosmic elements" (spec, 2026-10-03)
+## Part K: v0.8 "Cosmic elements" (spec, 2026-10-03, second pass)
 
-**Status: Ready.** Workshopped with Carlos on 2026-10-03. Claude fills the gaps with defaults, marked **Default** (Carlos can change any of them after a playtest). Claude's agent reads this, B1 to B4, Part H (H3, H5, H6, H7) and Part J (Runes). The third realms and the number dice (the old "Rewriting reality") are **not** in this step; they move to the end of the roadmap and need their own workshop.
+**Status: Ready.** Workshopped with Carlos on 2026-10-03 (this is the corrected version after his second pass). Claude fills the gaps with defaults, marked **Default** (Carlos can change any of them after a playtest). The agent reads this, B1 to B4, Part H (H3, H5, H6, H7) and Part J (Runes, which K3b changes). The third realms and the number dice (the old "Rewriting reality") are **not** in this step; they move to the end of the roadmap and need their own workshop.
 
-### K1. The six Mythic dice are now elements
+### K1. Two layers: base elements (shops) and Mythic dice (forged)
 
-Light, Darkness, Time, Space, Chaos and Void are **new base elements**, as basic as Fire, Water, Earth and Air. Each keeps its ability from H3 exactly as built. What changes is how you get them and what you can do with them.
+- **Six new base elements, found in shops** like Fire, Water, Earth and Air: Light, Dark, Time, Space, Chaos and Void, as weaker dice. Working names so they do not clash with the Mythic dice (**Default**, Carlos can rename): **Glimmer** (Light), **Gloom** (Dark), **Moment** (Time), **Reach** (Space), **Flux** (Chaos), **Null** (Void). Firmament only (they join the shop dice pool the moment you cross the door), rare-ish weight, price 14, sized by round like other shop dice. They need no unlock. Each is a family, like Fire; fusions belong to both parents' families.
+- **Draft abilities (Claude's spec, tune after playtests):**
 
-- **How you get one: you forge it, like a god die.** It is not sold in shops any more (remove the Mythic dice from every shop pool, from Mote's secret stock and from the Astral Exchange; Mote's second tier gives Stardust instead, see K2).
-- **The recipe (file level, learned once):** defeating a Warden in any run teaches the file the recipe of the element that Warden guards (Dawn: Light, Umbra: Darkness, Clockwork: Time, Expanse: Space, Maelstrom: Chaos, Hollow: Void). This replaces the old "its die joins the shops" unlock; migrate `profile.mythics` into `profile.recipes` (a file that had Light unlocked now knows Light's recipe).
-- **What forging one costs: Stardust + one die of any kind** (**Default**; the Shard cost is 20). The die you place is absorbed and reborn as the element, and it keeps its size and its upgrades (K3).
-- Still one of each kind held at a time (`holdsKind`). Fusing one into something frees the slot, so you can forge it again.
-- **Families:** each element is a family, like Fire. A fusion belongs to both parents' families, so Light-family and Time-family relics and reactions work on Alba. The nine Mythic reactions from v0.7.1 keep working, now between elements.
-- **Rarity:** they keep the Mythic rarity label (the rarest), and the Gallery keeps them in the Unlocks box until the file knows their recipe.
+| Base die | Ability |
+|---|---|
+| Glimmer | Its neighbors never fizzle. |
+| Gloom | The die on its right scores 0; half of that score goes to Mult. |
+| Moment | +1 reroll every round. |
+| Reach | Reacts with the die two places away as well as its neighbors. |
+| Flux | Becomes a random pure element each roll. |
+| Null | Scores nothing; +0.5 Mult for every empty dice slot. |
+
+- **The six Mythic dice** (Light, Darkness, Time, Space, Chaos, Void, abilities exactly as built in H3) **are forged, like the god dice, never bought.** Remove them from every shop pool, from the Astral Exchange and from Mote's secret stock.
+  - **Recipe (file level):** beating a Warden in any run teaches the file that Warden's Mythic recipe (Dawn: Light, Umbra: Darkness, Clockwork: Time, Expanse: Space, Maelstrom: Chaos, Hollow: Void). This replaces "its die joins the shops"; migrate `profile.mythics` into `profile.recipes`.
+  - **To forge one:** 4 slots of the same base die (for Light, 4 Glimmer) **plus 1 Stardust** (K2) and 20 Shards (**Default**, exactly the shape of a god forge, and Stardust is the new part).
+  - Still one of each Mythic held at a time (`holdsKind`); Space keeps Warp. The Gallery keeps them in the Unlocks box until the file knows the recipe.
 
 ### K2. Stardust
 
-- **A run resource**, shown beside Shards. `state.stardust`.
-- **Every Warden defeated in this run gives 1 Stardust** (**Default**; the Warden rounds are 20, 25, 30).
-- **Vesper also sells 1 Stardust per visit for 30 Shards** (**Default**), so a run is never stuck.
-- **Mote's pantry:** the 120-appetite stock replaces its Mythic die with 2 Stardust.
-- Stardust is saved with the run and shown in Run Info. It is spent only by forging an element die (K1); fusions between elements cost Shards only.
+- A **run resource** beside Shards (`state.stardust`, saved, shown in Run Info and the Forge).
+- **Bosses drop it**: every boss defeated gives **1 Stardust**, and a Warden gives **2** (**Default**). It is spent only by forging a Mythic die.
+- Vesper sells 1 Stardust per visit for 30 Shards (**Default**), so a run is never stuck. Mote's 120-appetite stock gives 2 Stardust instead of a die.
 
-### K3. The Forge, rebuilt: slots and sizes
+### K3. The Forge, rebuilt: slots, sizes, carry-over
 
-This applies to **every Forge** (Elementa too), not only the Firmament.
+Applies to **every Forge** (Elementa too).
 
-- **Slots.** The Forge shows **4 open slots**. You place dice into them (click a die, then a slot; drag works too; click a placed die to take it back). Nothing is automatic: you choose exactly which dice are absorbed, so you can keep the one with the Whetstone and use the plain copy.
-- **Recipes are read from what you place.** The Forge shows a live preview of what the dice in the slots would make, the cost, and the size and upgrades it would carry. If the dice match no recipe it says so. A recipe the file does not know shows as "???" (gods, Aether and cosmic elements stay secret until learned, as today). If several known recipes fit (a single die plus Stardust can become any known element), a small chooser appears.
-- **Recipe shapes:** a classic double fusion is 2 slots, a triple fusion 3, Aether and the gods 4 (as today). A cosmic element is 1 slot plus Stardust. A cosmic fusion is 2 slots (two element dice). **Entropy changes to 4 slots: Shadow, Continuum, Oblivion and Aether** (**Default**; the old recipe needed 7 dice, which would not fit; Entropy's recipe is still learned after all six Wardens have fallen).
-- **The result's size follows the dice you used.** Average the **size tier index** of every absorbed die (d3 is 0, d5 is 1, d6 is 2, d10 is 3, d20 is 4, then the big sizes) and round **down**. Examples: two d5 make a d5; a d3 and a d6 make a d5; two d10 make a d10 (Carlos wrote "2 d15"; there is no d15, so the d10 reading is used). A result that cannot grow big (anything but Aether, Entropy and the elements' own growth rules) is capped at d20. Today a forged die always comes out as a d3, which is why forging late feels like a loss; this fixes it.
-- **What carries over** (**Default**, the player picks it by slot order):
-  - Whetstone bonuses: the **sum** of every absorbed die's bonus.
-  - A Rune: the one from the **leftmost** slot that has one (the others are lost).
-  - Warp: if any absorbed die has Warp, the result has Warp.
-  - Growth counters (Sapling, Patience, Pulsar) reset.
-- The Fusion Spark relic and the discount relics keep working; the cost shown in the Forge is the final cost.
-- Accord: a fusion still adds +1; a cosmic element forge adds nothing.
+- **Four open slots.** Click a die, then a slot (drag works too); click a placed die to take it back. Nothing is automatic: you choose exactly which dice are absorbed.
+- **Recipes are read from what you place**, with a live preview of the result, its cost, its size and what carries over. No match says so. Unknown recipes (gods, Aether, Mythic dice) show "???" until learned, as today. A single recipe family can have several matches (a chooser appears).
+- **Recipe shapes:** double fusion 2 slots, triple 3, Aether and gods 4 (as today), a **Mythic die 4 of one base die + Stardust**, an **element fusion 2 slots** (two different base dice, K4). **Entropy becomes 4 slots: Shadow, Continuum, Oblivion and Aether** (**Default**: the old 7-dice recipe cannot fit; it is still learned after all six Wardens have fallen).
+- **Result size = the average size of what you absorbed.** Average the **size tier index** (d3 is 0, d5 is 1, d6 is 2, d10 is 3, d20 is 4, then the big sizes) and round **down**. Two d5 make a d5; a d3 and a d6 make a d5; two d10 make a d10 (Carlos wrote "2 d15"; there is no d15, so the d10 reading is used). A result that cannot grow big is capped at d20.
+- **Upgrades carry over** (**Default**): Whetstone and Honing Oil bonuses add up across the absorbed dice; Warp stays if any absorbed die had it; growth counters (Sapling, Patience, Pulsar) reset. **Runes stay**, see K3b.
+- The Fusion Spark and discount relics still work; the Forge shows the final cost. A fusion still adds +1 Accord (a Mythic forge adds nothing).
 
-### K4. Fusions of the elements
+### K3b. Runes are inscribed on a number
 
-Only **two-element fusions** for now (Vesper's rule, K5). Seven, curated (**Default** list; the other pairs wait):
+Part J's Runes (Echo, Glass, Kinship, Ember, Anchor) change: **a rune now belongs to one face (one number) of one die**, and works only when the die lands on that number. A die can carry runes on several faces. Data: `die.runes = [{ id, face }]`; migrate an old `die.rune` to `{ id, face: die.sides }` (its top face).
+
+| Rune | Effect on its number |
+|---|---|
+| Echo | When the die shows this number it scores twice. |
+| Glass | When it shows this number the score is doubled, and there is a 20% chance the die shatters after scoring (the die is lost). |
+| Kinship | When it shows this number the die counts as its left neighbor's element for reactions. |
+| Ember | This number is an exploding face. |
+| Anchor | When the die shows this number it cannot fizzle (useful on a Fire die's 1). |
+
+**How a rune is placed (interactive, like the Forge):** use the rune item, pick the die, and a **Inscribe screen** opens with the die shown large. **Rotate it to the number you want** (arrow buttons, the left and right keys, or drag; faces that already hold a rune are marked) and confirm. A die with many faces (d30 and up) uses a number stepper (plus and minus one, plus and minus ten) as well. Inscribing on a face that already has a rune **replaces** it. Show a rune's number on the die and in its tooltip. Respect Reduced motion (no spin, just a fade).
+
+**What the Forge does with runes:** all runes stay on the forged die, on the **same number**. Two cases need help:
+- **A number clash:** two absorbed dice carry runes on the same number.
+- **A shrink:** the result is a smaller die, and a rune's number no longer exists on it (that rune moves to the new die's top face, which can then clash).
+
+When there is a clash or a shrink, **Brasa** (and **Vesper** in the Firmament) says so before you forge: *for an extra fee they can superpose the runes (both stay, stacked on one number), or forge as is and **one of them is lost**.* The fee is **8 Shards per clash** (**Default**). If you decline, which rune is lost is a **silent 50/50** with the run's seeded RNG: you cannot choose and are not told the odds. The preview shows only "one will be lost". The result card then shows what survived.
+
+**Chisel:** each half keeps the runes; numbers that no longer exist move to the new top face, and clashes superpose for free (a consumable has no fee). **Transmute** removes runes; **Shadow Twin** copies them. **Gem Socket** (K6) lets a die superpose a second rune on an already runed number when you inscribe it (instead of replacing it).
+
+### K4. Fusions of the base elements
+
+Only **two-element fusions** (Vesper's rule, K5), made from two **different base dice** placed in the slots. Seven, curated (**Default** list; the other pairs wait):
 
 | Die | Made of | Kind | Draft ability (Claude's spec; tune after playtests) |
 |---|---|---|---|
-| **Shadow** | Darkness + Light | stable | The die on its left scores 0 and its score goes to Mult; the die on its right never fizzles and counts +1 on its face. |
-| **Continuum** | Time + Space | stable | Joins the two ends of the pool into a ring (like Ley Line) and gives +1 reroll every round. |
-| **Oblivion** | Chaos + Void | stable | Each cast it swallows your lowest die (that die scores 0) and adds twice that die's face to Mult. |
-| **Alba** | Light + Time | stable | Faces never roll below 2 (a floor of 2 for every die) and your first reroll each round is free. |
-| **Anomaly** | Chaos + Time | volatile | After every reroll, one random unheld die rolls once more for free. |
-| **Singularity** | Light + Void | volatile | Scores nothing; the Base of both neighbors is doubled. |
-| **Abyss** | Darkness + Void | volatile | Both neighbors score 0; every empty dice slot adds +2 Mult. |
+| **Shadow** | Gloom + Glimmer | stable | The die on its left scores 0 and its score goes to Mult; the die on its right never fizzles and counts +1 on its face. |
+| **Continuum** | Moment + Reach | stable | Joins the two ends of the pool into a ring (like Ley Line) and gives +1 reroll every round. |
+| **Oblivion** | Flux + Null | stable | Each cast it swallows your lowest die (that die scores 0) and adds twice that die's face to Mult. |
+| **Alba** | Glimmer + Moment | stable | Faces never roll below 2 (a floor of 2 for every die) and your first reroll each round is free. |
+| **Anomaly** | Flux + Moment | volatile | After every reroll, one random unheld die rolls once more for free. |
+| **Singularity** | Glimmer + Null | volatile | Scores nothing; the Base of both neighbors is doubled. |
+| **Abyss** | Gloom + Null | volatile | Both neighbors score 0; every empty dice slot adds +2 Mult. |
 
-- Each fusion is Epic, belongs to both parents' families, has a procedural placeholder and a keyword tag, and appears in the Gallery (Unlocks box until its recipe is known). It is known once the file knows **both parents' element recipes**; Vesper teaches it the first time you place the pair.
-- **Volatile fusions can collapse.** Chance **25%** (**Default**), shown in the Forge preview before you commit. On a collapse both dice are consumed and you get a **Dead Star** instead: a die of the usual size that scores nothing and adds **+0.5 Mult for every other die in your pool** (**Default**). A **Catalyst** (K6) makes one fusion 100% safe. Stable fusions never collapse.
-- (Black Hole is already the name of a Constellation in Part J, so the failed fusion is called Dead Star.)
+- Each is Epic, belongs to both parents' families, has a procedural placeholder, a keyword tag and a Gallery entry (Unlocks box until its recipe is known). **Vesper teaches a fusion the first time you place its two parents** (a short line, no Warden needed).
+- **Volatile fusions can collapse:** 25% (**Default**), shown in the Forge preview before you commit. A collapse consumes both dice and gives a **Dead Star** (usual size, scores nothing, +0.5 Mult for every other die in your pool). A **Catalyst** (K6) makes one fusion 100% safe. Stable fusions never collapse. (Black Hole is a Constellation name, hence Dead Star.)
 
 ### K5. Vesper, the Cosmologist
 
-- A new keeper who **works in the same Forge shop** (and the Astral Exchange's forge): a second portrait and her own lines beside the Smith, not a new shop on the Road. **Firmament only.**
-- **Personality (Carlos):** mysterious, fun, we do not know much about her, and she is smart. Write her lines (EN and ES, three per visit pattern like the others) with that voice: playful, a little teasing, always knows more than she says, never explains where she came from.
-- **First meeting scene:** she introduces herself, explains that the new elements are **dangerous**, and that for now she will only combine **two** at a time. After that scene her lines vary per visit.
-- **She teaches fusions** (see K4), **sells the Stardust** (K2) and the **Catalyst** (K6).
-- Procedural placeholder portrait (no AI art), a Keepers-tab entry, and her lore lines unlock with visits like the others.
+- A new keeper in the **same Forge shop** (and the Astral Exchange's forge) beside Brasa: a second portrait and her own lines, not a new Road stop. **Firmament only.**
+- **Personality (Carlos):** mysterious, fun, we do not know much about her, and she is smart. Lines (EN and ES, three per visit pattern) playful, a little teasing, always knowing more than she says, never explaining where she is from.
+- **First meeting scene:** she introduces herself, says the new elements are **dangerous**, and that for now she will only combine **two** at a time. She teaches fusions (K4), sells Stardust (K2) and the Catalyst (K6), and shares the rune warnings with Brasa (K3b).
+- Procedural placeholder portrait (no AI art), a Keepers-tab entry, lore lines unlocking with visits.
 
 ### K6. Pip's scene and more die items
 
-- **Pip's scene on crossing the door** (the first time on a file): Pip explains that this is a new realm, that there are new elements (Light, Darkness, Time, Space, Chaos, Void), that Wardens guard their recipes, and that Stardust is how you forge them. Two or three short pages, replayable from the Gallery's Endings tab like the other scenes.
-- **More die items** (Carlos: "I've been really grinding for them and it's super fun"). New consumables that modify a die, so the grind has more to chase. All Uncommon to Epic, sold in the same places as Whetstone and Chisel (Elementa too, except where noted), each with a keyword, sprite and Gallery entry:
+- **Pip's scene on crossing the door** (the first time on a file): this is a new realm, there are new elements (Glimmer, Gloom, Moment, Reach, Flux, Null), Wardens guard the recipes of the Mythic dice, Stardust is how you forge them. Two or three short pages, replayable from the Gallery like the other scenes.
+- **More die items** (Carlos: "I've been really grinding for them and it's super fun"). Consumables that modify a die, Uncommon to Epic, sold where Whetstone and Chisel are (Elementa too, except where noted), each with a keyword, sprite and Gallery entry:
 
 | Item | Rarity | Effect |
 |---|---|---|
 | **Weights** | Uncommon | The die's faces below 2 count as 2, for good. |
-| **Honing Oil** | Rare | Like Whetstone, but +4 instead of +2 (it adds on top of a Whetstone). |
-| **Graft** | Rare | Pick two dice: move the Rune and the Whetstone bonus from the first onto the second. |
-| **Solvent** | Uncommon | Strips every upgrade from a die (bonus, Rune, Weights) and pays back 5 Shards. |
-| **Gem Socket** | Epic | The die gets a **second Rune socket** (a die can hold two Runes; the Forge's carry rule takes the leftmost two). |
-| **Catalyst** | Rare | Firmament only, Vesper and the Astral Exchange. Placed into the Forge: makes one volatile fusion 100% safe. |
+| **Honing Oil** | Rare | Like Whetstone, but +4 (adds on top of a Whetstone). |
+| **Graft** | Rare | Pick a die with a rune, then another die: move that rune onto the other die, and rotate to choose its number (same Inscribe screen). |
+| **Solvent** | Uncommon | Strips every upgrade from a die (bonus, runes, Weights) and pays back 5 Shards. |
+| **Gem Socket** | Epic | The die can superpose a second rune on an already runed number (see K3b). |
+| **Catalyst** | Rare | Firmament only (Vesper, the Astral Exchange). Placed in the Forge: one volatile fusion becomes 100% safe. |
 
 ### K7. Data, saves and the rest
 
-- **Profile:** cosmic recipes in `recipes` (migrate `mythics`); keep `mythics` read-only for old files.
-- **Run:** `stardust`; dice keep their fields (`bonus`, `rune`, a second rune slot, `edition`).
-- **Test saves:** update `tools/firmamentTestSaves.mjs` so the saves know every recipe and hold Stardust, so the whole Forge can be tried without playing.
-- **Gallery:** the Unlocks box rules now use "recipe known". Add Vesper to Keepers.
-- **Scenes:** Pip's crossing scene, Vesper's first meeting. **Music:** a short theme for Vesper's visits if you can (otherwise the Forge's), and a note in MUSIC.md.
+- **Profile:** Mythic recipes in `recipes` (migrate `mythics`; keep it read-only for old files).
+- **Run:** `stardust`, `die.runes`, a base-element family per new die. Old saves still load: a run holding Mythic dice keeps them; old `die.rune` migrates (K3b).
+- **Mute the game for every test** (see the agent rules at the top).
+- **Test saves:** update `tools/firmamentTestSaves.mjs` so the file knows every recipe and holds Stardust and some runed dice.
+- **Gallery:** Unlocks box rules use "recipe known". Add Vesper to Keepers; new dice and items in their groups.
+- **Scenes and music:** Pip's crossing scene and Vesper's first meeting; a short theme for Vesper's visits if possible (otherwise the Forge's), noted in MUSIC.md.
 - **Docs and release:** GDD section, CONTENT.md, patch notes "Alpha 0.8 Cosmic elements" in Part D and `data/patchNotes.js`; mark Part K Built.
-- **Tests:** Node scripts for the size rule (the four examples above), carry-over (bonus sum, rune order, Warp), each recipe from slots, a collapse with a seeded RNG (and Catalyst preventing it), Stardust from a Warden, the save migration, and every new die's scoring. Browser pass on a test save: place dice in the slots, see the preview, forge each kind.
+- **Tests:** Node scripts for the size rule (the four examples), carry-over (bonuses, Warp), each recipe from slots, the Mythic forge with Stardust, rune effects per face for every rune, a clash and a shrink with fee and with the seeded 50/50, Chisel and rune moves, a collapse with a seeded RNG (and Catalyst preventing it), Stardust from a boss and a Warden, the save migrations. Browser pass on a test save (muted): place dice in slots, see the preview, inscribe a rune by rotating, forge each kind.
 
-**Open (Carlos can answer after a playtest):** Stardust per Warden (1) and Vesper's price (30); the collapse chance (25%); the carry-over choices (sum, leftmost rune); whether Alba is stable; Entropy's new recipe; the Shard cost of forging an element (20).
+**Open (Carlos can answer after a playtest):** base-die names; Stardust amounts (1 per boss, 2 per Warden; Vesper 30 Shards); forging a Mythic die (4 of a base die, 20 Shards); the collapse chance; the rune fee (8 per clash); a shrunk rune moving to the top face; whether Alba is stable; Entropy's new recipe; the Mythic dice leaving the shops entirely.
 
 ## Decision log
 
 - **2026-10-03 (v0.8 workshop):**
-  - The six Mythic dice become elements, forged with Stardust after a Warden teaches the recipe (not bought); the Forge gets 4 slots and a size-by-average rule; seven curated two-element fusions, some volatile (Dead Star on collapse); Vesper joins the Forge; Pip explains it all on crossing the door; more die items; the third realms leave v0.8 for a later workshop: Part K.
+  - Base elements (Glimmer, Gloom, Moment, Reach, Flux, Null) are bought in shops; the six Mythic dice are forged like gods with a Warden's recipe and Stardust from bosses; the Forge gets 4 slots, size by average and carry-over; runes are inscribed on a number by rotating the die, and a forge clash or shrink offers Brasa's or Vesper's superpose fee or a silent 50/50 loss; seven curated two-element fusions, some volatile (Dead Star on collapse); Vesper joins the Forge; Pip explains it on crossing the door; more die items; the third realms leave v0.8 for a later workshop: Part K.
 - **2026-09-30:**
   - Multiple TBOI-style endings driven by run choices: agreed.
   - Aether recipe locked until Primordial is beaten on the file: Ready (B6).
