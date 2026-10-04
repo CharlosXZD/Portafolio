@@ -447,8 +447,8 @@ export const KEEPERS = {
         'Una Constelación es solo una costumbre que las estrellas adoptaron. Alimenta una costumbre bastante y se vuelve ley.',
       ),
       L(
-        'The Black Hole is not a star. It is where the sky keeps what it has not decided about yet.',
-        'El Agujero Negro no es una estrella. Es donde el cielo guarda lo que todavía no ha decidido.',
+        'The Great Attractor is not a star. It is where the sky keeps what it has not decided about yet.',
+        'El Gran Atractor no es una estrella. Es donde el cielo guarda lo que todavía no ha decidido.',
       ),
       L(
         'Atlas draws where the Roads go. I draw why. We do not speak much, the maps get crowded.',

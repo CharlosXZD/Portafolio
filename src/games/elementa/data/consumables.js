@@ -314,7 +314,7 @@ export const CONSUMABLES = [
   })),
   {
     id: 'const_black_hole',
-    name: 'Black Hole',
+    name: 'The Great Attractor',
     kind: 'consumable',
     type: 'blackhole',
     target: 'self',

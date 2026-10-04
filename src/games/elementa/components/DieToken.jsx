@@ -1,3 +1,4 @@
+import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { ELEMENTS } from '../data/elements.js'
 import { RuneDots } from './RuneMarks.jsx'
 import { mix } from '../utils/color.js'
@@ -15,9 +16,20 @@ export const shapeTier = (die) => die.chaosForm?.tierId ?? die.tierId
  * die is wearing this roll.
  */
 export function DieMarks({ die, size }) {
+  const { t } = useLanguage()
   const small = size < 56
+  const form = die.chaosForm?.elementId ?? die.reactForm
   return (
     <>
+      {die.fresh && (
+        <span
+          className="el-chip pointer-events-none absolute -left-2 -top-2 z-[2] text-[#2a1d00]"
+          style={{ fontSize: small ? 6 : 7, background: '#ffd166' }}
+          title={t('elementa.shop.apprentice')}
+        >
+          {t('elementa.die.fresh')}
+        </span>
+      )}
       {die.edition === 'warp' && (
         <span
           className="el-chip pointer-events-none absolute -right-2 -top-2 z-[2] text-[#f3e8ff]"
@@ -34,12 +46,12 @@ export function DieMarks({ die, size }) {
           {die.tierId.toUpperCase()}
         </span>
       )}
-      {die.chaosForm && ELEMENTS[die.chaosForm.elementId] && (
-        <span className="pointer-events-none absolute -bottom-1 -right-1 z-[2] rounded-sm bg-[var(--ink)] p-[2px]" title={die.chaosForm.elementId}>
+      {form && ELEMENTS[form] && (
+        <span className="pointer-events-none absolute -bottom-1 -right-1 z-[2] rounded-sm bg-[var(--ink)] p-[2px]" title={form}>
           <PixelIcon
-            name={die.chaosForm.elementId}
+            name={form}
             size={small ? 8 : 11}
-            color={ELEMENTS[die.chaosForm.elementId].color}
+            color={ELEMENTS[form].color}
             hi="#fffaf0"
           />
         </span>

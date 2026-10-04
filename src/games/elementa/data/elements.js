@@ -43,7 +43,15 @@ export const FLAGS = {
   PULSAR: 'pulsar', // Pulsar: +1 Base per reroll this round, up to +10
   SATELLITE: 'satellite', // Satellite: neighbors count their face +1; scores nothing
   QUASAR: 'quasar', // Quasar: its face goes to Mult; one per run
-  ZENITH: 'zenith', // Zenith: +1 reroll a round, more at rounds 20 and 25
+  ZENITH: 'zenith', // Zenith: +2 rerolls a round, more at rounds 20 and 25
+  // EXPANSION.md N5: the new dice of v0.8.3.
+  TIMELIKE: 'timelikeCurve', // Closed Timelike Curve: Mult x2 if cast within 20 seconds
+  SHOOTING_STAR: 'shootingStar', // explodes on its top three faces, and when another die does
+  NEUTRON_STAR: 'neutronStar', // as Shooting Star, and on a face another die shows
+  NON_EUCLID: 'nonEuclid', // every die reacts with every other, up to its sides
+  HORIZON: 'eventHorizon', // spawns two Black Hole dice on its highest face
+  BLACK_HOLE_DIE: 'blackHoleDie', // temporary: +50 to every die between the two
+  ENTANGLE: 'entangle', // copies a random other die's abilities and score
   // EXPANSION.md K1: the six base elements of the Firmament.
   GLIMMER: 'glimmer', // Glimmer: its neighbors never fizzle
   GLOOM: 'gloom', // Gloom: the die on its right scores 0, half of it to Mult
@@ -453,6 +461,7 @@ export const ELEMENTS = {
     parents: [],
     color: '#8fd8ff',
     tagline: 'Explodes on its two highest faces, and scores its whole total twice when it does.',
+    charged: 'half',
     flags: flagSet(FLAGS.COMET),
   },
   pulsar: {
@@ -464,7 +473,8 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#ff8fd0',
-    tagline: 'Every reroll this round adds +1 to its Base, up to +10.',
+    tagline: 'Every reroll this round adds +10 to its Base, up to +100.',
+    charged: 'half',
     flags: flagSet(FLAGS.PULSAR),
   },
   satellite: {
@@ -476,7 +486,8 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#b8c8e8',
-    tagline: 'The dice on both sides count their face +1. It does not score itself.',
+    tagline: 'The dice on both sides count their face +15% of their own size. It does not score itself.',
+    charged: 'half',
     flags: flagSet(FLAGS.SATELLITE),
   },
   quasar: {
@@ -489,7 +500,7 @@ export const ELEMENTS = {
     stockWeight: 0.4,
     parents: [],
     color: '#c58cff',
-    tagline: 'Its face goes to Mult instead of Base. One per run.',
+    tagline: 'Its face goes to Mult, doubled, instead of Base. One per run.',
     flags: flagSet(FLAGS.QUASAR),
   },
   zenith: {
@@ -501,7 +512,8 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#ffe08a',
-    tagline: 'While it is in your pool: +1 reroll every round, +1 more from round 20 and again from round 25.',
+    tagline: 'While it is in your pool: +2 rerolls every round, +1 more from round 20 and again from round 25.',
+    charged: 'half',
     flags: flagSet(FLAGS.ZENITH),
   },
   // The six Mythic dice (H3): no element, one of each held at a time. Since
@@ -633,7 +645,8 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#fff3b8',
-    tagline: 'A little light, kept warm. Its neighbors never fizzle.',
+    tagline: 'A little light, kept warm. Its neighbors never fizzle and count +10 Base.',
+    charged: 'half',
     flags: flagSet(FLAGS.GLIMMER),
   },
   gloom: {
@@ -645,7 +658,8 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#6d5aa6',
-    tagline: 'The die on its right scores 0, and half of that score goes to your Mult.',
+    tagline: 'The die on its right scores half, and the other half goes to your Mult.',
+    charged: 'half',
     flags: flagSet(FLAGS.GLOOM),
   },
   moment: {
@@ -657,8 +671,9 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#cbbcff',
-    tagline: 'While it is in your pool: +1 reroll every round.',
-    flags: flagSet(FLAGS.MOMENT),
+    tagline: '+2 rerolls every round. It can be locked, and it summons a ghost of your past score.',
+    charged: 'half',
+    flags: flagSet(FLAGS.MOMENT, FLAGS.FREE_LOCK),
   },
   reach: {
     id: 'reach',
@@ -669,7 +684,8 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#7d9bff',
-    tagline: 'Reacts with the dice two places away, as well as its neighbors.',
+    tagline: 'Reacts with dice up to three places away, and bridges its two neighbors so they react.',
+    charged: 'half',
     flags: flagSet(FLAGS.REACH),
   },
   flux: {
@@ -681,8 +697,111 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#ff74c0',
-    tagline: 'Every roll it becomes a random pure element (Fire, Water, Earth or Air).',
+    tagline: 'Each roll it becomes the pure element that reacts best with a neighbor, and its reactions get +1 Mult.',
+    charged: 'half',
     flags: flagSet(FLAGS.FLUX),
+  },
+  // --- v0.8.3 (EXPANSION.md N5): seven dice that arrive at your level. All
+  // Charged but the Event Horizon; sold in Firmament Markets and the Astral
+  // Exchange like the other Celestial dice. ---
+  timelike_curve: {
+    id: 'timelike_curve',
+    name: 'Closed Timelike Curve',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 16,
+    firmament: true,
+    parents: [],
+    color: '#9fe8c8',
+    tagline: 'Cast within 20 seconds of the round starting and your Mult is doubled.',
+    charged: 'half',
+    flags: flagSet(FLAGS.TIMELIKE),
+  },
+  shooting_star: {
+    id: 'shooting_star',
+    name: 'Shooting Star',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 16,
+    firmament: true,
+    parents: [],
+    color: '#ffe9a8',
+    tagline: 'Explodes on its three highest faces, and whenever another die explodes.',
+    charged: 'half',
+    flags: flagSet(FLAGS.SHOOTING_STAR),
+  },
+  neutron_star: {
+    id: 'neutron_star',
+    name: 'Neutron Star',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 16,
+    firmament: true,
+    parents: [],
+    color: '#a8d8ff',
+    tagline: 'Explodes like a Shooting Star, and also when it shows the same face as another die.',
+    charged: 'half',
+    flags: flagSet(FLAGS.NEUTRON_STAR),
+  },
+  non_euclid: {
+    id: 'non_euclid',
+    name: 'Non-Euclidean Die',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.LEGENDARY,
+    price: 30,
+    firmament: true,
+    parents: [],
+    color: '#d08cff',
+    tagline: 'Every die reacts with every other, wherever they sit. A die reacts with at most as many others as it has sides.',
+    charged: 'half',
+    flags: flagSet(FLAGS.NON_EUCLID),
+  },
+  event_horizon: {
+    id: 'event_horizon',
+    name: 'Event Horizon',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.LEGENDARY,
+    price: 30,
+    firmament: true,
+    parents: [],
+    color: '#5a3d9a',
+    tagline: 'Scores nothing. On its highest face it spawns two Black Hole dice.',
+    flags: flagSet(FLAGS.HORIZON),
+  },
+  // What the Event Horizon makes (N5): never sold, temporary, no slot.
+  black_hole_die: {
+    id: 'black_hole_die',
+    name: 'Black Hole Die',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.LEGENDARY,
+    parents: [],
+    color: '#1d1829',
+    tagline: 'Temporary. Every die between the two Black Hole dice gets +50 score.',
+    flags: flagSet(FLAGS.BLACK_HOLE_DIE),
+  },
+  // The ghost the Time die summons (N2): temporary, adds a Base once.
+  time_ghost: {
+    id: 'time_ghost',
+    name: 'Time Ghost',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.RARE,
+    parents: [],
+    color: '#cbbcff',
+    tagline: 'Temporary. It adds, once, the Base your dice scored before the last reroll.',
+    flags: {},
+  },
+  entanglement: {
+    id: 'entanglement',
+    name: 'Quantum Entanglement',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.LEGENDARY,
+    price: 30,
+    firmament: true,
+    parents: [],
+    color: '#7affd8',
+    tagline: 'Picks a random other die each roll and copies its abilities and its score.',
+    charged: 'half',
+    flags: flagSet(FLAGS.ENTANGLE),
   },
   nil: {
     id: 'nil',
@@ -693,7 +812,8 @@ export const ELEMENTS = {
     firmament: true,
     parents: [],
     color: '#9a8fb3',
-    tagline: 'Scores nothing. +0.5 Mult for every empty dice slot.',
+    tagline: 'Scores nothing. Its face goes to your Mult, plus +1 Mult for every empty dice slot. It takes no slot.',
+    charged: 'full',
     flags: flagSet(FLAGS.NIL),
   },
 
@@ -709,7 +829,8 @@ export const ELEMENTS = {
     forgeCost: 10,
     parents: ['gloom', 'glimmer'],
     color: '#8a74c8',
-    tagline: 'The die on its left scores 0 and its score goes to Mult; the die on its right never fizzles and counts +1.',
+    tagline: 'The die on its left scores half (the rest to Mult); the die on its right never fizzles and counts +10 Base.',
+    charged: 'half',
     flags: flagSet(FLAGS.SHADOW),
   },
   continuum: {
@@ -721,8 +842,9 @@ export const ELEMENTS = {
     forgeCost: 10,
     parents: ['moment', 'reach'],
     color: '#a3b0ff',
-    tagline: 'Joins the two ends of your pool into a ring, and gives +1 reroll every round.',
-    flags: flagSet(FLAGS.CONTINUUM),
+    tagline: 'The ends of your pool form a ring, +2 rerolls a round, it can be locked, and it reacts three places away.',
+    charged: 'half',
+    flags: flagSet(FLAGS.CONTINUUM, FLAGS.FREE_LOCK),
   },
   oblivion: {
     id: 'oblivion',
@@ -733,7 +855,8 @@ export const ELEMENTS = {
     forgeCost: 10,
     parents: ['flux', 'nil'],
     color: '#c06fae',
-    tagline: 'Each cast it swallows your lowest die (it scores 0) and adds twice its face to Mult.',
+    tagline: 'Each cast it swallows your lowest die for 3 times its face in Mult; it takes the best reacting element each roll and no slot.',
+    charged: 'half',
     flags: flagSet(FLAGS.OBLIVION),
   },
   alba: {
@@ -745,7 +868,8 @@ export const ELEMENTS = {
     forgeCost: 10,
     parents: ['glimmer', 'moment'],
     color: '#ffe6a8',
-    tagline: 'No die rolls below 2, and your first reroll each round is free.',
+    tagline: 'No die rolls below a quarter of its size, your first reroll each round is free, and its neighbors count +10 Base.',
+    charged: 'half',
     flags: flagSet(FLAGS.ALBA),
   },
   anomaly: {
@@ -758,7 +882,8 @@ export const ELEMENTS = {
     forgeCost: 10,
     parents: ['flux', 'moment'],
     color: '#ff9ad6',
-    tagline: 'After every reroll, one random unheld die rolls once more, for free.',
+    tagline: 'After every reroll, two random unheld dice roll once more and keep the better result. +2 rerolls a round.',
+    charged: 'half',
     flags: flagSet(FLAGS.ANOMALY),
   },
   singularity: {
@@ -771,7 +896,8 @@ export const ELEMENTS = {
     forgeCost: 10,
     parents: ['glimmer', 'nil'],
     color: '#e8e0ff',
-    tagline: 'Scores nothing. The Base of both its neighbors is doubled.',
+    tagline: 'Scores nothing. The Base of both neighbors is tripled, and its face goes to your Mult. It takes no slot.',
+    charged: 'full',
     flags: flagSet(FLAGS.SINGULARITY),
   },
   abyss: {
@@ -784,7 +910,8 @@ export const ELEMENTS = {
     forgeCost: 10,
     parents: ['gloom', 'nil'],
     color: '#4a3d6e',
-    tagline: 'Both its neighbors score 0. Every empty dice slot gives +2 Mult.',
+    tagline: 'Its neighbors score half. Every empty dice slot gives +3 Mult. It takes no slot.',
+    charged: 'half',
     flags: flagSet(FLAGS.ABYSS),
   },
   // What a volatile fusion leaves when it collapses (K4). Never sold.
@@ -795,7 +922,8 @@ export const ELEMENTS = {
     rarity: RARITY.EPIC,
     parents: [],
     color: '#6b6378',
-    tagline: 'A fusion that collapsed. Scores nothing; +0.5 Mult for every other die in your pool.',
+    tagline: 'A fusion that collapsed. Scores nothing; +1 Mult for every other die in your pool.',
+    charged: 'half',
     flags: flagSet(FLAGS.DEAD_STAR),
   },
 }
@@ -812,7 +940,22 @@ export const ARCANE_DIE_IDS = ['midas', 'sapling', 'mirror', 'conduit', 'kairos'
 export const CHRONO_ID = 'chrono'
 // The Celestial dice (I1): sold only in the Firmament; the Horologist also
 // sells Pulsar and Zenith (I2), and Kairos there.
-export const CELESTIAL_DIE_IDS = ['comet', 'pulsar', 'satellite', 'quasar', 'zenith']
+export const CELESTIAL_DIE_IDS = ['comet', 'pulsar', 'satellite', 'quasar', 'zenith', 'timelike_curve', 'shooting_star', 'neutron_star', 'non_euclid', 'event_horizon', 'entanglement']
+// The temporary dice of v0.8.3: the Event Horizon's Black Hole dice and the
+// Time die's ghost. They take no slot, cannot be held or sold, and go away
+// when the round ends.
+export const BLACK_HOLE_DIE_ID = 'black_hole_die'
+export const TIME_GHOST_ID = 'time_ghost'
+export const isTempDie = (d) => Boolean(d?.temp)
+// Dice that take no dice slot (N2, N3): the Void and what it is part of. At
+// most VOID_CAP at once.
+export const SLOT_FREE_IDS = ['nil', 'oblivion', 'singularity', 'abyss']
+export const VOID_CAP = 3
+export const takesNoSlot = (elementId) => SLOT_FREE_IDS.includes(elementId)
+// The Charged tag (N1): 'half' of the die's face also goes to Mult, 'full' all of it.
+export const chargedOf = (elementId) => ELEMENTS[elementId]?.charged ?? null
+// The dice of v0.8.3 (N6): they arrive sized to your pool, and are bought at the apprentice's discount.
+export const NEW_DICE_IDS = [...'glimmer', 'gloom', 'moment', 'reach', 'flux', 'nil', 'shadow', 'continuum', 'oblivion', 'alba', 'anomaly', 'singularity', 'abyss', ...CELESTIAL_DIE_IDS]
 export const MYTHIC_DIE_IDS = ['light', 'darkness', 'time', 'space', 'chaos', 'void']
 // The Firmament's base elements (K1) and their fusions (K4).
 export const COSMIC_BASE_IDS = ['glimmer', 'gloom', 'moment', 'reach', 'flux', 'nil']
@@ -844,10 +987,18 @@ const isMimic = (id) => Boolean(ELEMENTS[id]?.flags[FLAGS.MIMIC_LEFT] || ELEMENT
  */
 export function actingElementIds(dice) {
   const out = []
+  let previous = -1 // the nearest real die on the left: a Black Hole die or a ghost is not a neighbor
   dice.forEach((d, i) => {
     // Chaos (H3) acts as the die it became on its last roll.
     const own = d.chaosForm?.elementId ?? d.elementId
-    out.push(isMimic(d.elementId) && i > 0 ? out[i - 1] : own)
+    out.push(isMimic(d.elementId) && previous >= 0 ? out[previous] : own)
+    if (!d.temp) previous = i
+  })
+  // Quantum Entanglement (N5) acts as the die it picked this roll.
+  dice.forEach((d, i) => {
+    if (!ELEMENTS[d.elementId]?.flags[FLAGS.ENTANGLE] || !d.entangledWith) return
+    const t = dice.findIndex((x) => x.id === d.entangledWith && x.id !== d.id)
+    if (t >= 0) out[i] = out[t]
   })
   return out
 }
@@ -956,24 +1107,31 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.VOID]: 'Scores 0. Every empty dice, relic and consumable slot gives +1 Mult.',
   [FLAGS.ENTROPY]: 'Scores its face + 104, and adds +10 to your Mult.',
   [FLAGS.COMET]: 'Explodes on its two highest faces. When it explodes, it scores its whole total twice.',
-  [FLAGS.PULSAR]: 'Every reroll this round adds +1 to its Base, up to +10. It starts over next round.',
-  [FLAGS.SATELLITE]: 'Scores 0. The dice on both sides count their face +1 (explosion chains unchanged).',
-  [FLAGS.QUASAR]: 'Scores 0 Base. Its face goes to your Mult instead, flat. One per run.',
-  [FLAGS.ZENITH]: 'While it is in your pool: +1 reroll every round, +1 more from round 20 and again from round 25.',
-  [FLAGS.GLIMMER]: 'The dice on both sides of it never fizzle.',
-  [FLAGS.GLOOM]: 'The die on its right scores 0, and half of what it would have scored goes to your Mult.',
-  [FLAGS.MOMENT]: 'While it is in your pool: +1 reroll every round.',
-  [FLAGS.REACH]: 'Reacts with the dice two places away on each side, as well as its neighbors.',
-  [FLAGS.FLUX]: 'Every roll it becomes a random pure element, keeping its size. Locking keeps its current element.',
-  [FLAGS.NIL]: 'Scores 0. Every empty dice slot gives +0.5 Mult.',
-  [FLAGS.SHADOW]: 'The die on its left scores 0 and that score goes to your Mult. The die on its right never fizzles and counts +1.',
-  [FLAGS.CONTINUUM]: 'The two ends of your pool count as neighbors (a ring). While it is in your pool: +1 reroll every round.',
-  [FLAGS.OBLIVION]: 'Each cast it swallows your lowest other die: that die scores 0, and twice its face goes to your Mult.',
-  [FLAGS.ALBA]: 'No die can show less than 2. Your first reroll each round is free.',
-  [FLAGS.ANOMALY]: 'After every reroll, one random unheld die rolls once more, for free.',
-  [FLAGS.SINGULARITY]: 'Scores 0. The dice on both sides of it score double.',
-  [FLAGS.ABYSS]: 'The dice on both sides of it score 0. Every empty dice slot gives +2 Mult.',
-  [FLAGS.DEAD_STAR]: 'Scores 0. Every other die in your pool gives +0.5 Mult.',
+  [FLAGS.PULSAR]: 'Every reroll this round adds +10 to its Base, up to +100. It starts over next round.',
+  [FLAGS.SATELLITE]: 'Scores 0. The dice on both sides count their face plus 15% of their own size (rounded up, at least 1; explosion chains unchanged).',
+  [FLAGS.QUASAR]: 'Scores 0 Base. Its whole total goes to your Mult, doubled. One per run.',
+  [FLAGS.ZENITH]: 'While it is in your pool: +2 rerolls every round, +1 more from round 20 and again from round 25.',
+  [FLAGS.GLIMMER]: 'The dice on both sides of it never fizzle, and each counts +10 Base.',
+  [FLAGS.GLOOM]: 'The die on its right scores half of what it would have, and the other half goes to your Mult.',
+  [FLAGS.MOMENT]: 'While it is in your pool: +2 rerolls every round. It can lock its face for free. After every reroll a ghost die appears holding the Base your dice scored before it, and adds it once.',
+  [FLAGS.REACH]: 'Reacts with the dice two and three places away on each side, as well as its neighbors, and its two neighbors react with each other.',
+  [FLAGS.FLUX]: 'Every roll it becomes the pure element that makes the best reaction with a neighbor (a seeded pick among ties), keeping its size. Every reaction it takes part in gets +1 Mult.',
+  [FLAGS.NIL]: 'Scores 0. Its whole face goes to your Mult, and every empty dice slot gives +1 Mult. It takes no dice slot (at most 3 such dice).',
+  [FLAGS.SHADOW]: 'The die on its left scores half, and the other half goes to your Mult. The die on its right never fizzles and counts +10 Base.',
+  [FLAGS.CONTINUUM]: 'The two ends of your pool count as neighbors (a ring). While it is in your pool: +2 rerolls every round. It can lock for free, and reacts with the dice up to three places away.',
+  [FLAGS.OBLIVION]: 'Each cast it swallows your lowest other die: that die scores 0, and 3 times its face goes to your Mult. Every roll it also reacts as the pure element that reacts best with a neighbor (+1 Mult on its reactions). It takes no dice slot (at most 3 such dice).',
+  [FLAGS.ALBA]: 'No die can show less than a quarter of its own size (rounded up, at least 2). Your first reroll each round is free. Its neighbors count +10 Base.',
+  [FLAGS.ANOMALY]: 'After every reroll, two random unheld dice roll once more for free and keep the better result. While it is in your pool: +2 rerolls every round.',
+  [FLAGS.SINGULARITY]: 'Scores 0. The dice on both sides of it score triple, and its whole face goes to your Mult. It takes no dice slot (at most 3 such dice).',
+  [FLAGS.ABYSS]: 'The dice on both sides of it score half. Every empty dice slot gives +3 Mult. It takes no dice slot (at most 3 such dice).',
+  [FLAGS.DEAD_STAR]: 'Scores 0. Every other die in your pool gives +1 Mult.',
+  [FLAGS.TIMELIKE]: 'If you cast within 20 seconds of the round starting, your Mult is doubled.',
+  [FLAGS.SHOOTING_STAR]: 'Explodes on its three highest faces, and whenever another die explodes.',
+  [FLAGS.NEUTRON_STAR]: 'Explodes on its three highest faces, whenever another die explodes, and when it shows the same face as another die.',
+  [FLAGS.NON_EUCLID]: 'Every die reacts with every other, wherever they sit. A die reacts with at most as many other dice as it has sides.',
+  [FLAGS.HORIZON]: 'Scores 0. When it shows its highest face it spawns two Black Hole dice, which last the round.',
+  [FLAGS.BLACK_HOLE_DIE]: 'Temporary, takes no slot. Every die between the two Black Hole dice gets +50 score.',
+  [FLAGS.ENTANGLE]: 'Each roll it picks a random other die and copies its abilities and its score.',
   [FLAGS.BEACON]: 'Both neighbors score x1.5.',
   [FLAGS.ALL_ELEMENTS]: 'Reacts as Fire, Water, Earth, and Air at once.',
   [FLAGS.BULLION]: 'Scores 0, but pays your final Mult (rounded down) in Shards on a clear.',
@@ -988,8 +1146,14 @@ export function describeElement(elementId, lang = 'en') {
     .filter(Boolean)
   flagLines.push(...familyAbilitiesOf(elementId).map((id) => familyAbilityText(id, lang)))
   flagLines.push(...godTextLines(elementId, lang))
+  if (def.charged) flagLines.push(CHARGED_TEXT[lang]?.[def.charged] ?? CHARGED_TEXT.en[def.charged])
   flagLines.push(...mythicTextLines(elementId, lang))
   return { tagline: localize(lang, def.tagline, ELEMENTS_ES, elementId, 'tagline'), flagLines }
+}
+
+const CHARGED_TEXT = {
+  en: { half: 'Charged: half of its face is also added to your Mult.', full: 'Charged: its whole face is also added to your Mult.' },
+  es: { half: 'Cargado: la mitad de su cara también se suma a tu Mult.', full: 'Cargado: toda su cara también se suma a tu Mult.' },
 }
 
 // The Mythic rules (H3, H5), for tooltips and the Gallery.

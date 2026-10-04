@@ -12,6 +12,9 @@
 //           and Constellations at levels 4, 5 and 10, and has seen two Firmament
 //           reactions, so Tide, Drift, Totems and the Gallery's new section
 //           can be tried at once.
+//           Since v0.8.3 (N7) it also holds the new dice: Closed Timelike
+//           Curve, Shooting and Neutron Star, Event Horizon, Quantum
+//           Entanglement, Non-Euclidean, Comet, Pulsar, Shadow, Continuum.
 //   File 2: Split path.
 //   File 3: Primordial path, in the gods' gauntlet. Mote has eaten 35 Shards
 //           of goods, so a little more makes it speak.
@@ -48,7 +51,7 @@ const FILES = [
     wardens: ['expanse', 'maelstrom', 'hollow'],
     mythics: ['space', 'chaos', 'void'],
     moteFed: 0,
-    extraDice: ['glimmer', 'glimmer', 'glimmer', 'glimmer', 'flux', 'moment', 'nil', 'water', 'ice', 'air', 'lightning'],
+    extraDice: ['glimmer', 'glimmer', 'glimmer', 'glimmer', 'flux', 'moment', 'nil', 'water', 'ice', 'air', 'lightning', 'timelike_curve', 'shooting_star', 'neutron_star', 'event_horizon', 'entanglement', 'non_euclid', 'comet', 'pulsar', 'shadow', 'continuum'],
     familyKit: true,
   },
   { path: 'split', seed: 'SPLITPTH', deckId: 'tidecaller', endings: ['neutral', 'split'], wardens: [], mythics: [], moteFed: 0 },

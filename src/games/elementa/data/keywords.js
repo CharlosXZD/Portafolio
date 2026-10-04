@@ -45,6 +45,8 @@ export const KEYWORDS = Object.fromEntries(
     K('burst', '#8fd8ff', L('Burst', 'Estallido'), L('Scores its whole total twice when it explodes.', 'Anota todo su total dos veces cuando explota.')),
     K('pulse', '#ff8fd0', L('Pulse', 'Pulso'), L('Gains Base for every reroll made this round.', 'Gana Base por cada reroll hecho esta ronda.')),
     K('flare', '#c58cff', L('Flare', 'Destello'), L('Its face goes to Mult instead of Base.', 'Su cara va al Mult en lugar de la Base.')),
+    K('charged', '#ffd84a', L('Charged', 'Cargado'), L('Half of its face is also added to your Mult.', 'La mitad de su cara también se suma a tu Mult.')),
+    K('summon', '#b8a0ff', L('Summon', 'Invoca'), L('Creates a temporary die that lasts the round and takes no slot.', 'Crea un dado temporal que dura la ronda y no ocupa espacio.')),
     K('rerolls', '#ffe08a', L('Rerolls', 'Rerolls'), L('Gives you extra rerolls while it is in your pool.', 'Te da rerolls extra mientras esté en tu reserva.')),
     // The Runes (J3), shown on a die that carries one.
     K('rune_echo', '#9fd8ff', L('Echo', 'Eco'), L('Rune: on its number, the die scores twice.', 'Runa: en su número, el dado anota dos veces.')),

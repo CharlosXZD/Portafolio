@@ -12,6 +12,34 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.8.3',
+    name: L('Crutches for the new dice', 'Muletas para los dados nuevos'),
+    date: null,
+    highlights: [
+      L(
+        'The Firmament\'s dice are stronger on purpose. The new Charged tag adds half of a die\'s face to your Mult (the Void and Singularity add all of it).',
+        'Los dados del Firmamento son más fuertes a propósito. La nueva etiqueta Cargado suma la mitad de la cara de un dado a tu Mult (el Vacío y la Singularidad suman toda).',
+      ),
+      L(
+        'The six new elements and their fusions got upgrades: Light and Alba give neighbors +10, Darkness halves, Time gives +2 rerolls and a ghost of your past score, Space reaches three places, Chaos picks its best element, and the Void takes no dice slot.',
+        'Los seis elementos nuevos y sus fusiones mejoraron: Luz y Alba dan +10 a sus vecinos, Oscuridad divide a la mitad, Tiempo da +2 rerolls y un fantasma de tu puntaje pasado, Espacio llega a tres lugares, Caos elige su mejor elemento, y el Vacío no ocupa espacio de dado.',
+      ),
+      L(
+        'Seven new dice: Closed Timelike Curve (cast within 20 seconds for x2 Mult), Shooting Star, Neutron Star, the Non-Euclidean Die, Event Horizon (it opens two Black Hole dice) and Quantum Entanglement.',
+        'Siete dados nuevos: Curva Temporal Cerrada (lanza en 20 segundos por x2 Mult), Estrella Fugaz, Estrella de Neutrones, el Dado No Euclidiano, Horizonte de Sucesos (abre dos dados Agujero Negro) y Entrelazamiento Cuántico.',
+      ),
+      L(
+        'New dice arrive at your level: their size follows your pool, and a new one you buy upgrades at half price twice.',
+        'Los dados nuevos llegan a tu nivel: su tamaño sigue a tu reserva, y uno nuevo que compras mejora a mitad de precio dos veces.',
+      ),
+      L(
+        'The Constellation Black Hole is now The Great Attractor.',
+        'La Constelación Agujero Negro ahora se llama El Gran Atractor.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.8.2',
     name: L('Late scaling', 'Escala tardía'),
     date: null,

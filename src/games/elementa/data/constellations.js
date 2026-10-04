@@ -63,5 +63,5 @@ export function levelBonus(constellations, target) {
 /** The Spanish name/description for each Constellation, for data/i18n.js. */
 export const CONSTELLATIONS_ES = Object.fromEntries([
   ...CONSTELLATIONS.map((c) => [`const_${c.id}`, { name: c.es, description: constellationText(c, 'es') }]),
-  ['const_black_hole', { name: 'Agujero Negro', description: BLACK_HOLE_TEXT.es }],
+  ['const_black_hole', { name: 'El Gran Atractor', description: BLACK_HOLE_TEXT.es }],
 ])

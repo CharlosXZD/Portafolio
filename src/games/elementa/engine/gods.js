@@ -36,15 +36,17 @@ export function rollContext(die, dice, fx, acting = die.elementId) {
   let explodeFrom = die.sides
   // Chain Break: Fire-family dice explode on their top two faces.
   if (fx.fireTopTwoExplode && fire) explodeFrom = die.sides - 1
-  // Comet (I1) explodes on its two highest faces.
+  // Comet (I1) explodes on its two highest faces, the stars (N5) on three.
   if (ELEMENTS[acting]?.flags[FLAGS.COMET]) explodeFrom = Math.min(explodeFrom, Math.max(1, die.sides - 1))
+  const star = ELEMENTS[acting]?.flags[FLAGS.SHOOTING_STAR] || ELEMENTS[acting]?.flags[FLAGS.NEUTRON_STAR]
+  if (star) explodeFrom = Math.min(explodeFrom, Math.max(1, die.sides - 2))
   // A Rune of Ember (K3b) makes its own number an exploding face. A die that
   // does not explode by itself explodes only there.
   const explodeFaces = runesOf(die)
     .filter((r) => r.id === 'ember')
     .map((r) => r.face)
   const runeExplode = explodeFaces.length > 0
-  const explodes = ELEMENTS[acting]?.flags[FLAGS.EXPLODE] || ELEMENTS[acting]?.flags[FLAGS.COMET]
+  const explodes = ELEMENTS[acting]?.flags[FLAGS.EXPLODE] || ELEMENTS[acting]?.flags[FLAGS.COMET] || star
   if (runeExplode && !explodes) explodeFrom = Infinity
   // Ognen explodes on any face of 4 or more.
   const ognen = own.find((p) => p.god === 'ognen')

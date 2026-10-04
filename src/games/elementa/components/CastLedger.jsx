@@ -29,6 +29,8 @@ export function useLineLabel(discovered) {
     if (line.kind === 'explosions') return `${t('elementa.cast.explosions')} x${line.count}${lv}`
     // A family's own ability, Tide (L1).
     if (line.kind === 'family') return t(`elementa.cast.${line.id}`) + lv
+    // The Charged tag (N1).
+    if (line.kind === 'charged') return t('elementa.cast.charged')
     if (line.kind === 'set') return (SET_TIER_LABEL[lang][line.tier] ?? line.tier) + lv
     if (line.kind === 'reaction') {
       const r = reactionById(line.id)

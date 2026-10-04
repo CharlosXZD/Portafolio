@@ -53,27 +53,39 @@ export const DICE_TEXT = {
   void: T('Absence with an appetite. It scores nothing, and every empty slot feeds your Mult.', 'Una ausencia con hambre. No anota nada, y cada espacio vacío alimenta tu Multiplicador.', ['mythic', 'empty']),
   entropy: T('Every Mythic die and Aether, forged into the end of all things.', 'Todos los dados Míticos y el Éter, forjados en el fin de todas las cosas.', ['mythic']),
   // The Celestial dice (EXPANSION.md I1).
-  comet: T('A star that burned out long ago and is still falling. Its biggest rolls blaze, and count twice.', 'Una estrella que se apagó hace siglos y aún cae. Sus tiradas más altas arden, y cuentan doble.', ['explodes', 'burst']),
-  pulsar: T('A dead star that ticks like a clock. Every reroll makes it hit harder.', 'Una estrella muerta que late como un reloj. Cada reroll la hace golpear más fuerte.', ['pulse']),
-  satellite: T('It scores nothing and lifts everyone near it.', 'No anota nada y levanta a todo el que tiene cerca.', ['boost']),
+  comet: T('A star that burned out long ago and is still falling. Its biggest rolls blaze, and count twice.', 'Una estrella que se apagó hace siglos y aún cae. Sus tiradas más altas arden, y cuentan doble.', ['explodes', 'burst', 'charged']),
+  pulsar: T('A dead star that ticks like a clock. Every reroll makes it hit harder.', 'Una estrella muerta que late como un reloj. Cada reroll la hace golpear más fuerte.', ['pulse', 'charged']),
+  satellite: T('It scores nothing and lifts everyone near it.', 'No anota nada y levanta a todo el que tiene cerca.', ['boost', 'charged']),
   quasar: T('The brightest thing in the sky, and all of it goes to Mult. Only one can shine.', 'Lo más brillante del cielo, y todo va al Mult. Solo uno puede brillar.', ['flare']),
-  zenith: T('The highest point the Casters ever reached. Holding it buys you more time.', 'El punto más alto que los Lanzadores alcanzaron. Tenerlo te da más tiempo.', ['rerolls']),
+  zenith: T('The highest point the Casters ever reached. Holding it buys you more time.', 'El punto más alto que los Lanzadores alcanzaron. Tenerlo te da más tiempo.', ['rerolls', 'charged']),
   // The Firmament's base elements and their fusions (K1, K4).
-  glimmer: T('A spark of the first dawn, small enough to hold. It keeps its neighbors from going out.', 'Una chispa del primer amanecer, tan pequeña que cabe en la mano. Evita que sus vecinos se apaguen.', ['cosmic', 'steady']),
-  gloom: T('A little of the night. It eats the die on its right and keeps half of it as Mult.', 'Un poco de la noche. Se come al dado de su derecha y guarda la mitad como Multiplicador.', ['cosmic', 'devour']),
-  moment: T('One moment, saved for later. One more reroll every round.', 'Un momento, guardado para después. Un reroll más cada ronda.', ['cosmic', 'undo']),
-  reach: T('A little distance, folded. It reaches the dice two places away.', 'Un poco de distancia, doblada. Alcanza los dados a dos lugares.', ['cosmic', 'reaction']),
-  flux: T('Never the same element twice. Each roll it is Fire, Water, Earth or Air.', 'Nunca el mismo elemento dos veces. En cada tirada es Fuego, Agua, Tierra o Aire.', ['cosmic', 'shift']),
-  nil: T('A small absence. It scores nothing and feeds on your empty dice slots.', 'Una pequeña ausencia. No anota nada y se alimenta de tus espacios de dado vacíos.', ['cosmic', 'empty']),
-  shadow: T('Light and dark in one die. It eats its left neighbor and steadies its right one.', 'Luz y oscuridad en un dado. Se come a su vecino izquierdo y sostiene al derecho.', ['devour', 'steady']),
-  continuum: T('Time that loops through space. Your pool becomes a ring.', 'Tiempo que da la vuelta por el espacio. Tu reserva se vuelve un anillo.', ['reaction', 'undo']),
-  oblivion: T('It forgets your weakest die, and remembers it as Mult.', 'Olvida tu dado más débil, y lo recuerda como Multiplicador.', ['devour', 'empty']),
-  alba: T('The first light of a new day. Nothing rolls below 2, and the first reroll is free.', 'La primera luz de un día nuevo. Nada sale por debajo de 2, y el primer reroll es gratis.', ['floor', 'undo']),
-  anomaly: T('Something that should not happen, happening. After a reroll, one more die rolls again.', 'Algo que no debería pasar, pasando. Tras un reroll, un dado más se tira de nuevo.', ['volatile', 'shift']),
-  singularity: T('Everything falls toward it. Its neighbors score double; it scores nothing.', 'Todo cae hacia ella. Sus vecinos anotan el doble; ella no anota nada.', ['volatile', 'boost']),
-  abyss: T('A hole in the table. Its neighbors fall in, and empty slots feed it.', 'Un agujero en la mesa. Sus vecinos caen dentro, y los espacios vacíos lo alimentan.', ['volatile', 'devour', 'empty']),
-  dead_star: T('What is left when a fusion collapses. It weighs on everything around it.', 'Lo que queda cuando una fusión colapsa. Pesa sobre todo lo que la rodea.', ['empty']),
+  glimmer: T('A spark of the first dawn, small enough to hold. It keeps its neighbors from going out.', 'Una chispa del primer amanecer, tan pequeña que cabe en la mano. Evita que sus vecinos se apaguen.', ['cosmic', 'steady', 'charged']),
+  gloom: T('A little of the night. It eats the die on its right and keeps half of it as Mult.', 'Un poco de la noche. Se come al dado de su derecha y guarda la mitad como Multiplicador.', ['cosmic', 'devour', 'charged']),
+  moment: T('One moment, saved for later. One more reroll every round.', 'Un momento, guardado para después. Un reroll más cada ronda.', ['cosmic', 'undo', 'charged']),
+  reach: T('A little distance, folded. It reaches the dice two places away.', 'Un poco de distancia, doblada. Alcanza los dados a dos lugares.', ['cosmic', 'reaction', 'charged']),
+  flux: T('Never the same element twice. Each roll it is Fire, Water, Earth or Air.', 'Nunca el mismo elemento dos veces. En cada tirada es Fuego, Agua, Tierra o Aire.', ['cosmic', 'shift', 'charged']),
+  nil: T('A small absence. It scores nothing and feeds on your empty dice slots.', 'Una pequeña ausencia. No anota nada y se alimenta de tus espacios de dado vacíos.', ['cosmic', 'empty', 'charged']),
+  shadow: T('Light and dark in one die. It eats its left neighbor and steadies its right one.', 'Luz y oscuridad en un dado. Se come a su vecino izquierdo y sostiene al derecho.', ['devour', 'steady', 'charged']),
+  continuum: T('Time that loops through space. Your pool becomes a ring.', 'Tiempo que da la vuelta por el espacio. Tu reserva se vuelve un anillo.', ['reaction', 'undo', 'charged']),
+  oblivion: T('It forgets your weakest die, and remembers it as Mult.', 'Olvida tu dado más débil, y lo recuerda como Multiplicador.', ['devour', 'empty', 'charged']),
+  alba: T('The first light of a new day. Nothing rolls below 2, and the first reroll is free.', 'La primera luz de un día nuevo. Nada sale por debajo de 2, y el primer reroll es gratis.', ['floor', 'undo', 'charged']),
+  anomaly: T('Something that should not happen, happening. After a reroll, one more die rolls again.', 'Algo que no debería pasar, pasando. Tras un reroll, un dado más se tira de nuevo.', ['volatile', 'shift', 'charged']),
+  singularity: T('Everything falls toward it. Its neighbors score double; it scores nothing.', 'Todo cae hacia ella. Sus vecinos anotan el doble; ella no anota nada.', ['volatile', 'boost', 'charged']),
+  abyss: T('A hole in the table. Its neighbors fall in, and empty slots feed it.', 'Un agujero en la mesa. Sus vecinos caen dentro, y los espacios vacíos lo alimentan.', ['volatile', 'devour', 'empty', 'charged']),
+  dead_star: T('What is left when a fusion collapses. It weighs on everything around it.', 'Lo que queda cuando una fusión colapsa. Pesa sobre todo lo que la rodea.', ['empty', 'charged']),
 }
+
+// v0.8.3 (EXPANSION.md N5): the new dice.
+Object.assign(DICE_TEXT, {
+  timelike_curve: T('A loop that closes on itself. Be quick, and it pays double.', 'Un bucle que se cierra sobre sí mismo. Sé rápido, y paga el doble.', ['charged', 'loop']),
+  shooting_star: T('One wish, and the sky answers. It explodes when anything near it does.', 'Un deseo, y el cielo responde. Explota cuando algo cerca de él lo hace.', ['charged', 'explodes']),
+  neutron_star: T('A dead star that cannot stop burning. It also explodes on a face another die shows.', 'Una estrella muerta que no deja de arder. También explota con una cara que muestra otro dado.', ['charged', 'explodes']),
+  non_euclid: T('Where it sits, the row stops being a row. Every die touches every other.', 'Donde está, la fila deja de ser una fila. Cada dado toca a todos los demás.', ['charged', 'reaction']),
+  event_horizon: T('The last place light can leave. Its top face opens two black holes.', 'El último lugar del que la luz puede salir. Su cara más alta abre dos agujeros negros.', ['summon']),
+  black_hole_die: T('Everything between a pair of these is pulled in, and comes out heavier.', 'Todo lo que queda entre un par de estos es atraído, y sale más pesado.', ['summon']),
+  time_ghost: T('Your own past score, standing beside you for one round.', 'Tu propio puntaje pasado, a tu lado durante una ronda.', ['summon']),
+  entanglement: T('Two dice, one fate. It borrows a stranger\'s whole self.', 'Dos dados, un destino. Toma prestado todo el ser de un desconocido.', ['charged', 'copy']),
+})
 
 export function diceText(elementId, lang = 'en') {
   const entry = DICE_TEXT[elementId]

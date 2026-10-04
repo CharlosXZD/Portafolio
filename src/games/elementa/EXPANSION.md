@@ -490,7 +490,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8** | Cosmic elements | **Built.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
 | **v0.8.1** | Family growth | **Built.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
 | **v0.8.2** | Late scaling | **Built.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
-| **v0.8.3** | Crutches for the new dice | **Ready.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
+| **v0.8.3** | Crutches for the new dice | **Built.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
 | **v0.8.5** | Strange faces | **Ready.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
 | **v0.8.6** | Sigils | Sigil dice by path (sun, scale, key; eye, spiral, maw), unlocked by finishing each path's Firmament ending. Needs a short workshop for the effects first. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
@@ -503,6 +503,13 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.8.3 "Crutches for the new dice" (in development, unreleased)
+- **Charged:** half a die's face (all of it for the Void and Singularity) is also Mult, a ledger line.
+- **The base elements and their fusions upgraded** (Light +10 to neighbors, Darkness halves, Time +2 rerolls and a ghost, Space three places and a bridge, Chaos picks the best element, Void in Mult and slotless, and each fusion inherits); Celestial numbers raised.
+- **Seven new dice:** Closed Timelike Curve (x2 Mult in 20 seconds), Shooting Star, Neutron Star, Non-Euclidean Die, Event Horizon with its temporary Black Hole dice, Quantum Entanglement (and the Time Ghost).
+- **Crutches:** new dice arrive at your pool's level, and a freshly bought one upgrades at half price twice.
+- **The Constellation "Black Hole" is now The Great Attractor.**
 
 ### Alpha v0.8.2 "Late scaling" (in development, unreleased)
 - **The curve** (built earlier): harder start (x1.75, growth x1.37 to round 10), x1.40 after round 15.
@@ -1575,7 +1582,7 @@ A Constellation at **level 5** doubles the Mult of that reaction (or the set tie
 
 ## Part N: v0.8.3 "Crutches for the new dice" (spec, 2026-10-04)
 
-**Status: Ready.** Carlos's problem: the Firmament's new dice try to compete with dice that were upgraded for 15 rounds. So they are made **powerful on purpose**, arrive at the player's level, and grow cheaper. His workshop table and new die ideas are in `IDEAS.md` ("Workshop new Die"); this is the build spec. **Only the dice listed here** (the six base elements, the seven element fusions, the Dead Star, the five Celestial dice, and the seven new dice below); the Mythic dice, Entropy, Chrono, Kairos and every older die are untouched. Carlos's answers on 2026-10-04 are folded in. Items marked **Default** are Claude's reading of something Carlos did not spell out; list each in the report.
+**Status: Built** (Alpha v0.8.3, GDD §43; the Defaults were built as written, GDD §43 lists the ones added). Carlos's problem: the Firmament's new dice try to compete with dice that were upgraded for 15 rounds. So they are made **powerful on purpose**, arrive at the player's level, and grow cheaper. His workshop table and new die ideas are in `IDEAS.md` ("Workshop new Die"); this is the build spec. **Only the dice listed here** (the six base elements, the seven element fusions, the Dead Star, the five Celestial dice, and the seven new dice below); the Mythic dice, Entropy, Chrono, Kairos and every older die are untouched. Carlos's answers on 2026-10-04 are folded in. Items marked **Default** are Claude's reading of something Carlos did not spell out; list each in the report.
 
 ### N1. The "Charged" tag: face to Mult
 

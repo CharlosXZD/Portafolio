@@ -1,4 +1,4 @@
-import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily, actingElementIds } from '../data/elements.js'
+import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily, actingElementIds, chargedOf, isTempDie, PURE_ELEMENT_IDS } from '../data/elements.js'
 import { tierById } from '../data/diceTiers.js'
 import { REACTIONS, reactionById } from '../data/reactions.js'
 import { random } from './rng.js'
@@ -18,13 +18,18 @@ export const DARKNESS_KEEP = 0.5
 // leave 1 from looping forever.
 export const CHRONO_SAFETY_STOP = 2000
 // Pulsar (I1): at most this much Base from rerolls.
-export const PULSAR_CAP = 10
+export const PULSAR_CAP = 100
+export const PULSAR_STEP = 10
+// Black Hole dice (N5): what every die between a pair gets.
+export const BLACK_HOLE_BONUS = 50
+// What Light, Alba and Shadow add to the dice beside them (N2, N3).
+export const NEIGHBOR_BONUS = 10
 // The sizes Chaos can take (H3).
 const CHAOS_SIZES = ['d3', 'd5', 'd6', 'd10', 'd20']
 // Every die Chaos can become: everything but the gods, the Primordial die
 // and the Mythic dice.
 const CHAOS_FORM_IDS = Object.keys(ELEMENTS).filter(
-  (id) => ![TIERS.GOD, TIERS.PRIMAL, TIERS.MYTHIC].includes(ELEMENTS[id].tier),
+  (id) => ![TIERS.GOD, TIERS.PRIMAL, TIERS.MYTHIC].includes(ELEMENTS[id].tier) && !['black_hole_die', 'time_ghost'].includes(id),
 )
 // What Flux can become each roll (K1): a pure element.
 const FLUX_FORM_IDS = ['earth', 'fire', 'water', 'air']
@@ -67,6 +72,43 @@ function rollFace(sides, oneBias = 1) {
   return randInt(sides)
 }
 
+const isStarFlag = (elementId) => hasFlag(elementId, FLAGS.SHOOTING_STAR) || hasFlag(elementId, FLAGS.NEUTRON_STAR)
+
+/**
+ * The stars (N5): a Shooting Star explodes whenever another die does, and a
+ * Neutron Star also when another die shows its face. A star that did not
+ * explode on its own is made to, once (it rolls again and adds, chaining
+ * from its three highest faces). Held and locked dice stay as they are.
+ */
+export function starChain(dice) {
+  const acting = actingElementIds(dice)
+  let out = dice
+  for (let pass = 0; pass < dice.length; pass++) {
+    let changed = false
+    out = out.map((d, i) => {
+      if (!isStarFlag(acting[i]) || (d.explosions || 0) > 0 || d.held || d.locked || d.temp) return d
+      const others = out.filter((o, j) => j !== i && !o.temp)
+      const triggered = others.some((o) => (o.explosions || 0) > 0) || (hasFlag(acting[i], FLAGS.NEUTRON_STAR) && others.some((o) => o.value === d.value))
+      if (!triggered) return d
+      changed = true
+      const from = Math.max(1, d.sides - 2)
+      const chain = [...(d.chain || [d.value])]
+      let total = d.total
+      let explosions = 0
+      let value = d.value
+      do {
+        value = rollFace(d.sides)
+        chain.push(value)
+        total += value
+        explosions += 1
+      } while (value >= from && explosions < DEFAULT_EXPLODE_CAP)
+      return { ...d, total, explosions, chain, rollId: random() }
+    })
+    if (!changed) break
+  }
+  return out
+}
+
 export function rollDie(elementId, sides, relics = [], ctx = {}) {
   const fx = relicEffects(relics)
   const bias = ctx.oneBias ?? 1
@@ -80,7 +122,7 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
   const chain = [value]
 
   // A Rune of Ember (J3) makes any die explode (ctx.runeExplode).
-  if (hasFlag(elementId, FLAGS.EXPLODE) || hasFlag(elementId, FLAGS.COMET) || ctx.runeExplode) {
+  if (hasFlag(elementId, FLAGS.EXPLODE) || hasFlag(elementId, FLAGS.COMET) || isStarFlag(elementId) || ctx.runeExplode) {
     // A boss round's "Calm Winds" twist caps every explosion chain at
     // exactly 1 (the first max face still explodes once, then stops),
     // overriding even an uncapped-chain relic for the round. `ctx` (from
@@ -113,12 +155,45 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
  * new form, a random die and size from the whole game. It keeps its own
  * element for saving and display; `actingElementIds` reads the form.
  */
-export function shiftChaos(dice) {
-  return dice.map((d) => {
-    // Flux (K1) becomes a random pure element, keeping its own size.
-    if (d.elementId === 'flux' && !d.held && !d.locked) {
-      return { ...d, chaosForm: { elementId: FLUX_FORM_IDS[Math.floor(random() * FLUX_FORM_IDS.length)], tierId: d.tierId } }
+// How much a reaction is worth when Chaos picks its form (N2): Mult counts
+// five times a point of Base; a face-based Base reads as a typical 4.
+const reactionRating = (r) => (r.mult || 0) * 5 + (typeof r.base === 'number' ? r.base : r.base ? 4 : 0)
+
+/**
+ * The pure element that makes the best reaction with a neighbor (N2): every
+ * pure element is rated against the elements on each side, and one of the
+ * best is drawn with the seeded RNG.
+ */
+export function bestReactingElement(dice, index) {
+  const neighbors = [dice[index - 1], dice[index + 1]].filter((x) => x && !isTempDie(x))
+  const elementsOf = (x) => reactionElementsOf(x.chaosForm?.elementId ?? x.elementId)
+  let best = -1
+  let picks = []
+  for (const e of FLUX_FORM_IDS) {
+    let rating = 0
+    for (const nb of neighbors) {
+      const eb = elementsOf(nb)
+      for (const r of REACTIONS) {
+        if (!r.elements) continue
+        const [x, y] = r.elements
+        if ((e === x && eb.includes(y)) || (e === y && eb.includes(x))) rating = Math.max(rating, reactionRating(r))
+      }
+      if (eb.includes(e)) rating = Math.max(rating, 2) // Resonance
     }
+    if (rating > best) { best = rating; picks = [e] } else if (rating === best) picks.push(e)
+  }
+  return picks[Math.floor(random() * picks.length)]
+}
+
+export function shiftChaos(dice) {
+  return dice.map((d, i) => {
+    // Chaos (the base element, N2) takes the pure element that makes the best
+    // reaction with a neighbor, keeping its own size. The Oblivion reacts as
+    // that element too, but keeps its own abilities (`reactForm`).
+    if (d.elementId === 'flux' && !d.held && !d.locked) {
+      return { ...d, chaosForm: { elementId: bestReactingElement(dice, i), tierId: d.tierId } }
+    }
+    if (d.elementId === 'oblivion' && !d.held && !d.locked) return { ...d, reactForm: bestReactingElement(dice, i) }
     if (d.elementId !== 'chaos' || d.held || d.locked) return d
     const elementId = CHAOS_FORM_IDS[Math.floor(random() * CHAOS_FORM_IDS.length)]
     const tierId = CHAOS_SIZES[Math.floor(random() * CHAOS_SIZES.length)]
@@ -140,6 +215,7 @@ export function rerollPool(dice, relics = [], opts = {}) {
   const acting = actingElementIds(next)
   for (let i = 0; i < next.length; i++) {
     const die = next[i]
+    if (die.temp) continue
     if (die.held || die.locked) {
       if (opts.noGrowth) continue
       // Sapling grows while it sits a reroll out.
@@ -168,7 +244,7 @@ export function rerollPool(dice, relics = [], opts = {}) {
     }
   }
 
-  return next
+  return starChain(next)
 }
 
 /**
@@ -266,6 +342,27 @@ function sourceOf(relics, key) {
 function adjacencyLinks(perDie, fx) {
   const links = []
   const n = perDie.length
+  // A Non-Euclidean die (N5): every die reacts with every other, but a die
+  // takes part in at most as many reactions as it has sides. Pairs are taken
+  // left to right, so the result is the same every time.
+  if (perDie.some((d) => hasFlag(d.actingAs, FLAGS.NON_EUCLID))) {
+    const used = perDie.map(() => 0)
+    const bridge = (k) => hasFlag(perDie[k].actingAs, FLAGS.NON_EUCLID)
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        // The Non-Euclidean die is the bridge itself: it does not use up a die's reactions.
+        if (bridge(i) || bridge(j)) {
+          links.push([i, j])
+          continue
+        }
+        if (used[i] >= perDie[i].sides || used[j] >= perDie[j].sides) continue
+        links.push([i, j])
+        used[i] += 1
+        used[j] += 1
+      }
+    }
+    return links
+  }
   for (let i = 0; i < n - 1; i++) links.push([i, i + 1])
   // A Conduit's bridge counts double (B10), marked with a third entry.
   for (let i = 1; i < n - 1; i++) {
@@ -276,10 +373,12 @@ function adjacencyLinks(perDie, fx) {
   if (ring && n > 2) links.push([n - 1, 0])
   // Space (H3): its two neighbors and the two end dice all touch each other.
   const linked = (a, b) => links.some(([x, y]) => (x === a && y === b) || (x === b && y === a))
-  // Reach (K1) also reacts with the dice two places away.
+  // Space, the base element (K1, N2), also reacts with the dice two and three
+  // places away, and bridges its two neighbors; so does the Continuum (N3).
   perDie.forEach((d, i) => {
-    if (!hasFlag(d.actingAs, FLAGS.REACH)) return
-    for (const j of [i - 2, i + 2]) if (j >= 0 && j < n && !linked(i, j)) links.push([Math.min(i, j), Math.max(i, j)])
+    if (!hasFlag(d.actingAs, FLAGS.REACH) && !hasFlag(d.actingAs, FLAGS.CONTINUUM)) return
+    for (const j of [i - 3, i - 2, i + 2, i + 3]) if (j >= 0 && j < n && !linked(i, j)) links.push([Math.min(i, j), Math.max(i, j)])
+    if (hasFlag(d.actingAs, FLAGS.REACH) && i > 0 && i < n - 1 && !linked(i - 1, i + 1)) links.push([i - 1, i + 1])
   })
   perDie.forEach((d, i) => {
     if (!hasFlag(d.actingAs, FLAGS.SPACE)) return
@@ -321,8 +420,8 @@ function findReactions(perDie, fx, extraMult = 0, constellations = null) {
     const strict = (a.contribution > 0 || a.reactsAtZero) && (b.contribution > 0 || b.reactsAtZero)
     const ra = reactAs[i]
     const rb = reactAs[j]
-    const ea = reactionElementsOf(ra)
-    const eb = reactionElementsOf(rb)
+    const ea = [...reactionElementsOf(ra), ...(a.reactForm ? [a.reactForm] : [])]
+    const eb = [...reactionElementsOf(rb), ...(b.reactForm ? [b.reactForm] : [])]
     const ids = new Set()
     // Mythic dice have no element: only the secret reactions that name them
     // can fire (v0.7).
@@ -358,7 +457,9 @@ function findReactions(perDie, fx, extraMult = 0, constellations = null) {
       const lv = r.secret || r.mythic ? { level: 0, base: 0, mult: 0, factor: 1 } : levelBonus(constellations, id)
       // A milestone (M4) doubles or triples the reaction's Mult, or its Base when it has no Mult.
       const hasMult = r.mult > 0
-      const mult = hasMult ? (r.mult + (fx.reactionMultBonus || 0) + extraMult + lv.mult) * lv.factor : 0
+      // Chaos and the Oblivion (N2, N3): every reaction they take part in gets +1 Mult.
+      const chaotic = [a, b].some((x) => ['flux', 'oblivion'].includes(x.elementId))
+      const mult = (hasMult ? (r.mult + (fx.reactionMultBonus || 0) + extraMult + lv.mult) * lv.factor : 0) + (chaotic ? 1 : 0)
       found.push({
         id,
         a: i,
@@ -397,6 +498,53 @@ function fizzles(d, ctx, fx = {}) {
  * what the reveal animation steps through.
  */
 export function evaluatePool(dice, relics = [], ctx = {}) {
+  // The Event Horizon's Black Hole dice and the Time die's ghost (N2, N5) sit
+  // in the row but are not part of the pool the rules see.
+  if (dice.some(isTempDie)) return evaluateWithTemps(dice, relics, ctx)
+  return evaluateCore(dice, relics, ctx)
+}
+
+/**
+ * Scores a row that holds temporary dice. The rules run on the real dice; the
+ * temporary ones add what they carry (the ghost its Base, a Black Hole pair
+ * +50 to every die between them), and the result is laid back over the whole
+ * row so its indices match the dice on the table.
+ */
+function evaluateWithTemps(row, relics, ctx) {
+  const real = row.filter((d) => !isTempDie(d))
+  const holes = row.flatMap((d, i) => (d.temp === 'hole' ? [i] : []))
+  const dieBonus = {}
+  if (holes.length >= 2) {
+    const lo = Math.min(...holes)
+    const hi = Math.max(...holes)
+    row.forEach((d, i) => {
+      if (i > lo && i < hi && !isTempDie(d)) dieBonus[d.id] = (dieBonus[d.id] || 0) + BLACK_HOLE_BONUS
+    })
+  }
+  const ghostBase = row.filter((d) => d.temp === 'ghost').reduce((sum, d) => sum + (d.ghostBase || 0), 0)
+  const res = evaluateCore(real, relics, { ...ctx, dieBonus, ghostBase })
+  const fullIndex = []
+  row.forEach((d, i) => !isTempDie(d) && fullIndex.push(i))
+  const at = (i) => fullIndex[i]
+  const remapLine = (l) => (l.dice ? { ...l, dice: l.dice.map(at) } : l)
+  let r = 0
+  const dice = row.map((d) => {
+    if (!isTempDie(d)) {
+      const x = res.dice[r++]
+      return { ...x, boosts: x.boosts?.map((b) => (b.from == null ? b : { ...b, from: at(b.from) })) }
+    }
+    return { ...d, contribution: d.temp === 'ghost' ? d.ghostBase || 0 : 0, boosts: [] }
+  })
+  return {
+    ...res,
+    dice,
+    baseLines: res.baseLines.map(remapLine),
+    multLines: res.multLines.map(remapLine),
+    reactions: res.reactions.map((x) => ({ ...x, a: at(x.a), b: at(x.b) })),
+  }
+}
+
+function evaluateCore(dice, relics = [], ctx = {}) {
   const fx = relicEffects(relics)
   // `actingAs`: the element whose abilities a die uses (itself, unless it
   // is a Masquerade or Chameleon borrowing from its left neighbor, or a
@@ -405,10 +553,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   // Light (H3): no face below Light's, and nothing fizzles. A lifted die
   // keeps its explosions on top. The Dawn (H2) still reads the rolled face.
   const floor = lightFloor(dice)
-  // Alba (K4) lifts every die to 2 at least, and Weights (K6) its own die.
-  const alba = acting.some((id) => hasFlag(id, FLAGS.ALBA)) ? 2 : 0
+  // Alba (K4, N3) lifts every die to a quarter of its own size (at least 2),
+  // and Weights (K6) its own die.
+  const hasAlba = acting.some((id) => hasFlag(id, FLAGS.ALBA))
   const perDie = dice.map((d, i) => {
-    const dieFloor = Math.max(floor, alba, d.weights ? 2 : 0)
+    const dieFloor = Math.max(floor, hasAlba ? Math.max(2, Math.ceil(d.sides / 4)) : 0, d.weights ? 2 : 0)
     const lift = dieFloor > d.value ? dieFloor - d.value : 0
     return { ...d, actingAs: acting[i], rolledFace: d.value, value: d.value + lift, total: d.total + lift }
   })
@@ -523,7 +672,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     const overexposed = fx.maxFaceZero && d.rolledFace === d.sides
     // The Satellite scores nothing itself, and the Quasar's face goes to
     // Mult instead of Base (I1).
-    const celestialOut = hasFlag(d.actingAs, FLAGS.SATELLITE) || hasFlag(d.actingAs, FLAGS.QUASAR)
+    const celestialOut = [FLAGS.SATELLITE, FLAGS.QUASAR, FLAGS.HORIZON, FLAGS.BLACK_HOLE_DIE].some((f) => hasFlag(d.actingAs, f))
     // Null, Singularity and the Dead Star score nothing either (K1, K4).
     const cosmicOut = [FLAGS.NIL, FLAGS.SINGULARITY, FLAGS.DEAD_STAR].some((f) => hasFlag(d.actingAs, f))
     const out = midas || bullion || empty || overexposed || d.swallowed || celestialOut || cosmicOut
@@ -554,15 +703,26 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       }
       contribution += d.bonus || 0
       // Pulsar: +1 for every reroll made this round, up to +10 (I1).
-      if (hasFlag(d.actingAs, FLAGS.PULSAR)) contribution += Math.min(PULSAR_CAP, ctx.rerollsMade || 0)
-      // A Satellite on either side lifts the face by 1 (I1).
+      if (hasFlag(d.actingAs, FLAGS.PULSAR)) contribution += Math.min(PULSAR_CAP, PULSAR_STEP * (ctx.rerollsMade || 0))
+      // A Satellite on either side lifts the face by 15% of this die's size (I1, N4).
       const satellites = [i - 1, i + 1].filter((j) => perDie[j] && hasFlag(perDie[j].actingAs, FLAGS.SATELLITE))
-      contribution += satellites.length
-      satellites.forEach((j) => noteBoost(d, { id: 'satellite', from: j, add: 1 }))
-      // A Shadow on its left counts this die +1 (K4).
+      const lift = Math.max(1, Math.ceil(d.sides * 0.15))
+      contribution += satellites.length * lift
+      satellites.forEach((j) => noteBoost(d, { id: 'satellite', from: j, add: lift }))
+      // Light and Alba count both neighbors +10, a Shadow its right one (N2, N3).
+      ;[i - 1, i + 1].forEach((j) => {
+        if (!perDie[j] || !(hasFlag(perDie[j].actingAs, FLAGS.GLIMMER) || hasFlag(perDie[j].actingAs, FLAGS.ALBA))) return
+        contribution += NEIGHBOR_BONUS
+        noteBoost(d, { id: perDie[j].elementId, from: j, add: NEIGHBOR_BONUS })
+      })
       if (perDie[i - 1] && hasFlag(perDie[i - 1].actingAs, FLAGS.SHADOW)) {
-        contribution += 1
-        noteBoost(d, { id: 'shadow', from: i - 1, add: 1 })
+        contribution += NEIGHBOR_BONUS
+        noteBoost(d, { id: 'shadow', from: i - 1, add: NEIGHBOR_BONUS })
+      }
+      // Black Hole dice (N5): every die between a pair gets +50.
+      if (ctx.dieBonus?.[d.id]) {
+        contribution += ctx.dieBonus[d.id]
+        noteBoost(d, { id: 'black_hole_die', from: i, add: ctx.dieBonus[d.id], hole: true })
       }
       // Gaea scores the face of every other Earth-family die (B4).
       if (powers.some((p) => p.index === i && p.god === 'gaea')) {
@@ -596,6 +756,15 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       noteBoost(d, { id: d.elementId, from: i + 1, copy: true })
     }
   })
+  // Quantum Entanglement (N5): the score of the die it picked this roll.
+  perDie.forEach((d, i) => {
+    if (!hasFlag(d.elementId, FLAGS.ENTANGLE)) return
+    const target = perDie.findIndex((x) => x.id === d.entangledWith && x.id !== d.id)
+    if (target < 0) return
+    d.contribution = ownScores[target]
+    d.boosts = []
+    noteBoost(d, { id: 'entanglement', from: target, copy: true })
+  })
   perDie.forEach((d, i) => {
     const copiesLeft = hasFlag(d.elementId, FLAGS.MIRROR_LEFT) || hasFlag(d.elementId, FLAGS.MIMIC_LEFT)
     if (i > 0 && copiesLeft) {
@@ -613,13 +782,13 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (perDie[j].contribution > 0) noteBoost(perDie[j], { id: d.elementId, from: i, factor: 1.5 })
     }
   })
-  // A Singularity doubles both neighbors' Base (K4).
+  // A Singularity triples both neighbors' Base (K4, N3).
   perDie.forEach((d, i) => {
     if (!hasFlag(d.actingAs, FLAGS.SINGULARITY)) return
     for (const j of [i - 1, i + 1]) {
       if (!perDie[j] || !(perDie[j].contribution > 0)) continue
-      perDie[j].contribution *= 2
-      noteBoost(perDie[j], { id: 'singularity', from: i, factor: 2 })
+      perDie[j].contribution *= 3
+      noteBoost(perDie[j], { id: 'singularity', from: i, factor: 3 })
     }
   })
   // A Rune of Echo (K3b): on its number the die scores twice, after Beacon.
@@ -669,16 +838,23 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     perDie[j].darkened = true
     return v
   }
+  // Darkness, Shadow and Nadir (N2, N3) halve a neighbor: it keeps half its score.
+  const halve = (j) => {
+    if (!perDie[j]) return 0
+    const half = perDie[j].contribution / 2
+    perDie[j].contribution = half
+    return half
+  }
   perDie.forEach((d, i) => {
     if (hasFlag(d.actingAs, FLAGS.GLOOM)) {
-      const v = eat(i + 1)
-      if (v > 0) darkLines.push({ kind: 'mythic', id: 'gloom', value: v / 2, dice: [i] })
+      const v = halve(i + 1)
+      if (v > 0) darkLines.push({ kind: 'mythic', id: 'gloom', value: v, dice: [i] })
     }
     if (hasFlag(d.actingAs, FLAGS.SHADOW)) {
-      const v = eat(i - 1)
+      const v = halve(i - 1)
       if (v > 0) darkLines.push({ kind: 'mythic', id: 'shadow', value: v, dice: [i] })
     }
-    if (hasFlag(d.actingAs, FLAGS.ABYSS)) [i - 1, i + 1].forEach(eat)
+    if (hasFlag(d.actingAs, FLAGS.ABYSS)) [i - 1, i + 1].forEach(halve)
     if (hasFlag(d.actingAs, FLAGS.OBLIVION)) {
       let low = -1
       perDie.forEach((o, j) => {
@@ -687,7 +863,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       if (low >= 0) {
         const face = perDie[low].value
         eat(low)
-        darkLines.push({ kind: 'mythic', id: 'oblivion', value: face * 2, dice: [i, low] })
+        darkLines.push({ kind: 'mythic', id: 'oblivion', value: face * 3, dice: [i, low] })
       }
     }
   })
@@ -695,7 +871,8 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
 
   // --- Base ---
   const baseLines = []
-  const diceSum = perDie.reduce((sum, d) => sum + d.contribution, 0)
+  // The Time die's ghost adds the Base your dice scored before the last reroll (N2).
+  const diceSum = perDie.reduce((sum, d) => sum + d.contribution, 0) + (ctx.ghostBase || 0)
   baseLines.push({ kind: 'dice', value: diceSum, op: 'add' })
   let baseValue = diceSum
 
@@ -796,16 +973,25 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     if (hasFlag(d.actingAs, FLAGS.ENTROPY) && d.contribution > 0) addMult({ kind: 'mythic', id: 'entropy', value: 10, dice: [i] })
     // Null and Abyss feed on empty dice slots, the Dead Star on the rest of
     // the pool (K1, K4).
-    if (hasFlag(d.actingAs, FLAGS.NIL) && !d.swallowed) addMult({ kind: 'mythic', id: 'nil', value: 0.5 * (ctx.emptyDiceSlots || 0), dice: [i] })
-    if (hasFlag(d.actingAs, FLAGS.ABYSS) && !d.swallowed) addMult({ kind: 'mythic', id: 'abyss', value: 2 * (ctx.emptyDiceSlots || 0), dice: [i] })
-    if (hasFlag(d.actingAs, FLAGS.DEAD_STAR) && !d.swallowed) addMult({ kind: 'mythic', id: 'dead_star', value: 0.5 * (n - 1), dice: [i] })
+    if (hasFlag(d.actingAs, FLAGS.NIL) && !d.swallowed) addMult({ kind: 'mythic', id: 'nil', value: (ctx.emptyDiceSlots || 0), dice: [i] })
+    if (hasFlag(d.actingAs, FLAGS.ABYSS) && !d.swallowed) addMult({ kind: 'mythic', id: 'abyss', value: 3 * (ctx.emptyDiceSlots || 0), dice: [i] })
+    if (hasFlag(d.actingAs, FLAGS.DEAD_STAR) && !d.swallowed) addMult({ kind: 'mythic', id: 'dead_star', value: n - 1, dice: [i] })
     // Quasar (I1): its face, flat, into Mult.
-    if (hasFlag(d.actingAs, FLAGS.QUASAR) && !d.swallowed && !zeroTargets.has(i) && !(fx.bannedElementId && d.elementId === fx.bannedElementId)) addMult({ kind: 'celestial', id: 'quasar', value: d.total, dice: [i] })
+    if (hasFlag(d.actingAs, FLAGS.QUASAR) && !d.swallowed && !zeroTargets.has(i) && !(fx.bannedElementId && d.elementId === fx.bannedElementId)) addMult({ kind: 'celestial', id: 'quasar', value: d.total * 2, dice: [i] })
+    // The Charged tag (N1): half of the face (or all of it) is also Mult, unless the die was swallowed.
+    const charge = chargedOf(d.elementId)
+    if (charge && !d.swallowed) addMult({ kind: 'charged', id: 'charged', value: Math.round(d.value * (charge === 'full' ? 1 : 0.5) * 10) / 10, dice: [i] })
   })
   // Severed Grace (B3): +1 Mult for the rest of the run.
   if (ctx.permanentMult) addMult({ kind: 'boon', id: 'severed_grace', value: ctx.permanentMult })
   // The Metronome and the Cuckoo Clock (I2).
   ;(ctx.bonusMult || []).forEach((line) => addMult({ ...line }))
+  // Closed Timelike Curve (N5): Mult x2 while the cast window is open.
+  const curve = perDie.findIndex((d) => hasFlag(d.actingAs, FLAGS.TIMELIKE))
+  if (ctx.ctcActive && curve >= 0) {
+    multiplier *= 2
+    multLines.push({ kind: 'celestial', id: 'timelike_curve', value: 2, op: 'mul', dice: [curve] })
+  }
   // The multiplying relics (M3): each is one ledger line.
   const multMult = (id, key, value) => {
     if (!(value > 1)) return

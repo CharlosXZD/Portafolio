@@ -13,7 +13,7 @@
 import { gameReducer, selectors } from '../engine/gameReducer.js'
 import { evaluatePool } from '../engine/scoring.js'
 import { nextChoices } from '../engine/map.js'
-import { ELEMENTS } from '../data/elements.js'
+import { ELEMENTS, NEW_DICE_IDS } from '../data/elements.js'
 import { DECKS } from '../data/decks.js'
 import { DIFFICULTIES } from '../data/difficulty.js'
 const DIFFICULTIES_BY_ID = (id) => DIFFICULTIES.find((d) => d.id === id)
@@ -71,7 +71,9 @@ function shop(s) {
     if (did) continue
     // buy a die if room
     if (selectors.poolSize(s.dice) < selectors.maxDiceFor(s)) {
-      for (const id of s.shop?.buyableElements || []) { const n = gameReducer(s, { type: 'BUY_DIE', elementId: id }); if (n !== s) { s = n; did = true; break } }
+      // Aided: the dice of v0.8.3 first (they arrive at the pool's level)
+      const buyable = [...(s.shop?.buyableElements || [])].sort((a, b) => (aided ? +NEW_DICE_IDS.includes(b) - +NEW_DICE_IDS.includes(a) : 0))
+      for (const id of buyable) { const n = gameReducer(s, { type: 'BUY_DIE', elementId: id }); if (n !== s) { s = n; did = true; break } }
     }
     if (!did) break
   }
@@ -93,7 +95,8 @@ function advance(s) {
 // and reroll, and reports the median score / target. Three builds:
 //   unaided   the bot's own kind of game: dice only up to d20, basic relics, no Constellations
 //   mediocre  the same plus two dice grown past d20 in the Firmament
-//   good      four dice grown, the multiplying relics as they unlock, Constellations
+//   good      three dice grown, the multiplying relics as they unlock, Constellations
+//   crutched  the mediocre build, but four of its dice are v0.8.3 dice (Charged, arriving at the pool's size)
 // These are assumptions about spending, not measurements: change them here.
 if (process.argv.includes('build')) {
   const { thresholdForRound } = await import('../engine/scoring.js')
@@ -132,17 +135,18 @@ if (process.argv.includes('build')) {
     return Object.fromEntries(targets.map((t) => [t, Math.min(10, Math.floor(total / targets.length))]))
   }
   console.log('Reference builds on', diffId, '(median score / target over', runs, 'samples per round)')
-  console.log('round  target   unaided mediocre   good')
+  console.log('round  target   unaided mediocre   good crutched')
   for (let R = 1; R <= maxRound; R++) {
     const out = []
-    for (const kind of ['unaided', 'mediocre', 'good']) {
+    for (const kind of ['unaided', 'mediocre', 'good', 'crutched']) {
       const ratios = []
       for (let k = 0; k < runs; k++) {
         let s = gameReducer({ phase: 'title' }, { type: 'START_RUN', deckId: DECKS[k % DECKS.length].id, difficultyId: diffId, seed: 'B' + R + kind + k })
         const th = thresholdForRound(R, s.difficulty)
         const n = Math.min(10, 3 + Math.floor(R / 2))
-        const dice = Array.from({ length: n }, (_, i) => { const tier = tierById(tierFor(R, kind, i)); return { ...s.dice[0], id: 'b' + i, elementId: POOL[i % POOL.length], tierId: tier.id, sides: tier.sides, held: false, locked: false } })
-        s = { ...s, round: R, threshold: th, realm: R > 15 ? 'firmament' : 'elementa', dice, relics: relicsFor(R, kind), constellations: constFor(R, kind), rerollsUsed: 0 }
+        const NEWER = ['comet', 'pulsar', 'shooting_star', 'glimmer', 'timelike_curve']
+        const dice = Array.from({ length: n }, (_, i) => { const tier = tierById(tierFor(R, kind === 'crutched' ? 'mediocre' : kind, i)); return { ...s.dice[0], id: 'b' + i, elementId: kind === 'crutched' && R > 15 && i >= n - 4 ? NEWER[i % NEWER.length] : POOL[i % POOL.length], tierId: tier.id, sides: tier.sides, held: false, locked: false } })
+        s = { ...s, round: R, threshold: th, realm: R > 15 ? 'firmament' : 'elementa', dice, relics: relicsFor(R, kind === 'crutched' ? 'mediocre' : kind), constellations: constFor(R, kind === 'crutched' ? 'mediocre' : kind), rerollsUsed: 0 }
         s = gameReducer(s, { type: 'REROLL_UNHELD' })
         s = playRound(s)
         ratios.push(score(s) / th)

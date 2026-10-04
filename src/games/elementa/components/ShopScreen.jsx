@@ -984,14 +984,14 @@ function UpgradeShelf({ state, dispatch, openKey, setOpenKey, buy }) {
             key={die.id}
             itemKey={`upgrade-${die.id}`}
             item={{ ...item, sides: die.sides, name: `${item.name} d${die.sides} > d${up.next.sides}` }}
-            caption={`d${die.sides} > d${up.next.sides}`}
+            caption={`d${die.sides} > d${up.next.sides}${up.apprentice ? ` · ${t('elementa.shop.apprentice')}` : ''}`}
             renderIcon={(onClick) => <DieToken die={die} size={56} onClick={onClick} title={item.name} />}
             cost={up.cost}
             affordable={state.shards >= up.cost}
             size={56}
             actions={[
               {
-                label: `${t('elementa.shop.upgrade')} ${up.cost}`,
+                label: `${t('elementa.shop.upgrade')} ${up.cost}${up.apprentice ? ` (${t('elementa.shop.apprentice')})` : ''}`,
                 disabled: state.shards < up.cost,
                 onClick: () => buy({ type: 'UPGRADE_DIE', dieId: die.id }),
               },

@@ -41,7 +41,7 @@ export function useStepCaption(discovered) {
     // A die that a neighbor changed says so: "Fire: Beacon x1.5, +9 Base".
     if (step.kind === 'die') {
       const detail = step.boosts
-        .map((b) => `${b.rune ? runeById(b.rune).name[lang] : dieName(dice[b.from])} ${b.copy ? t('elementa.cast.copied') : b.factor ? `x${b.factor}` : `+${b.add}`}`)
+        .map((b) => `${b.rune ? runeById(b.rune).name[lang] : b.hole ? t('elementa.cast.blackHole') : dieName(dice[b.from])} ${b.copy ? t('elementa.cast.copied') : b.factor ? `x${b.factor}` : `+${b.add}`}`)
         .join(', ')
       return { who: dieName(dice[step.dieIndex]), detail: detail || null, effect }
     }

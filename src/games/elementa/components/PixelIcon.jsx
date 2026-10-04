@@ -124,6 +124,38 @@ const ICONS = {
     rows: ['.c...c.', 'cc...cc', '.cchcc.', '..chc..', '.cchcc.', 'cc...cc', '.c...c.'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
+  timelike_curve: {
+    rows: ['.ccccc.', 'c.....c', 'c.hhh.c', 'c.h...c', 'c.hhh.c', 'c.....c', '.ccccc.'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  shooting_star: {
+    rows: ['.....hh', '....hcc', '...hcc.', '.chcc..', '.cc.c..', 'cc.....', 'c......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  neutron_star: {
+    rows: ['..c.c..', '.cchcc.', 'cchhhcc', '.hhhhh.', 'cchhhcc', '.cchcc.', '..c.c..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  non_euclid: {
+    rows: ['c.....c', '.c...c.', '..c.c..', 'cchhhcc', '..c.c..', '.c...c.', 'c.....c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  event_horizon: {
+    rows: ['..ccc..', '.c...c.', 'c.hhh.c', 'c.hHh.c', 'c.hhh.c', '.c...c.', '..ccc..'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)', H: '#000000' },
+  },
+  black_hole_die: {
+    rows: ['.ccccc.', 'cc...cc', 'c.....c', 'c..h..c', 'c.....c', 'cc...cc', '.ccccc.'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  time_ghost: {
+    rows: ['..ccc..', '.ccccc.', 'cchchcc', 'ccccccc', 'ccccccc', 'cc.c.cc', 'c.....c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  entanglement: {
+    rows: ['cc...cc', 'c.h.h.c', '.chhhc.', '..hhh..', '.chhhc.', 'c.h.h.c', 'cc...cc'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
   quasar: {
     rows: ['c..c..c', '.c.h.c.', '..chc..', 'chhhhhc', '..chc..', '.c.h.c.', 'c..c..c'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },

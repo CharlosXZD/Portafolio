@@ -21,6 +21,12 @@ import {
   isOnePerRun,
   CELESTIAL_DIE_IDS,
   canGrowBig,
+  takesNoSlot,
+  VOID_CAP,
+  NEW_DICE_IDS,
+  BLACK_HOLE_DIE_ID,
+  TIME_GHOST_ID,
+  isTempDie,
   COSMIC_BASE_IDS,
   COSMIC_FUSION_IDS,
   DEAD_STAR_ID,
@@ -45,6 +51,7 @@ import {
 import {
   rollDie,
   rerollPool,
+  starChain,
   evaluatePool,
   thresholdForRound,
   shardsEarned,
@@ -113,6 +120,9 @@ const MAX_CONSUMABLES = 3
 const WARP_CAP = 3
 const WARP_OFFER_CHANCE = 0.02
 const WARP_PREMIUM = 12
+// The apprentice discount (EXPANSION.md N6): a new die's next two upgrades cost half, for two shop visits.
+const APPRENTICE_UPGRADES = 2
+const APPRENTICE_VISITS = 2
 // Stardust (EXPANSION.md K2, Defaults): what a boss and a Warden drop, and
 // Vesper's price for one.
 const STARDUST_PER_BOSS = 1
@@ -303,19 +313,22 @@ const countExplosions = (dice) => dice.reduce((sum, d) => sum + (d.explosions ||
 // --- The Firmament's dice rules (EXPANSION.md H3 to H5). ---
 
 const isWarp = (d) => d.edition === 'warp'
+// The Void and what it is part of take no slot (EXPANSION.md N2); the
+// temporary dice (Black Holes, the Time ghost) never do.
+const isSlotFree = (d) => takesNoSlot(d.elementId)
 
-/** Dice that count toward the dice cap: Warp dice do not (H3). */
+/** Dice that count toward the dice cap: Warp dice, the Void's family and temporary dice do not (H3, N2). */
 function poolSize(dice) {
-  return dice.filter((d) => !isWarp(d)).length
+  return dice.filter((d) => !isWarp(d) && !isSlotFree(d) && !isTempDie(d)).length
 }
 
 function warpCount(dice) {
   return dice.filter(isWarp).length
 }
 
-/** Whether a pool fits the dice cap and the Warp cap. */
+/** Whether a pool fits the dice cap, the Warp cap and the Void cap. */
 function fitsPool(state, dice) {
-  return poolSize(dice) <= maxDiceFor(state) && warpCount(dice) <= WARP_CAP
+  return poolSize(dice) <= maxDiceFor(state) && warpCount(dice) <= WARP_CAP && dice.filter(isSlotFree).length <= VOID_CAP
 }
 
 /** One of each Mythic die (and one Entropy) per run (H3). */
@@ -365,6 +378,8 @@ function freshRoundCounters(dice) {
   return {
     driftsUsed: 0,
     lockedThisRound: false,
+    // Closed Timelike Curve (N5): its 20-second window has not run out yet.
+    ctcExpired: false,
     gustUsed: false,
     explosionsThisRound: countExplosions(dice),
     lastReroll: null,
@@ -398,6 +413,8 @@ function scoreContext(state) {
     totems: state.totems || {},
     // Crown of Ages (M3) multiplies by the round.
     round: state.round,
+    // Closed Timelike Curve (N5): the cast window is open until the timer runs out.
+    ctcActive: !state.ctcExpired,
     // Deep Current (L3): whether a lock has happened this round.
     lockedThisRound: Boolean(state.lockedThisRound),
   }
@@ -442,11 +459,75 @@ function itemMult(state) {
   return out
 }
 
+/** One use of the apprentice discount; the mark ends when none are left. */
+function agedFresh(fresh, key) {
+  if (!fresh) return fresh
+  const next = { ...fresh, [key]: Math.max(0, (fresh[key] || 0) - 1) }
+  return next.upgrades > 0 && next.visits > 0 ? next : null
+}
+
+// --- Temporary dice and the dice that pick or spawn (EXPANSION.md N2, N5). ---
+
+/** A Black Hole die or the Time ghost: it takes no slot, cannot be held, sold or upgraded, and goes with the round. */
+function makeTempDie(elementId, temp, extra = {}) {
+  return {
+    id: makeId(),
+    elementId,
+    temp,
+    tierId: 'd3',
+    sides: 0,
+    edition: null,
+    held: true,
+    locked: true,
+    lockedVia: null,
+    value: 0,
+    total: 0,
+    explosions: 0,
+    chain: [0],
+    rollId: 0,
+    ...extra,
+  }
+}
+
+const withoutTemps = (dice) => dice.filter((d) => !isTempDie(d))
+
+/**
+ * What happens to the new dice after a roll: a Quantum Entanglement picks a
+ * random other die (seeded; a held one keeps its pick while it is still
+ * there), and an Event Horizon on its highest face opens two Black Hole dice
+ * on either side of it, once a round.
+ */
+function settleNewDice(dice) {
+  const real = withoutTemps(dice)
+  let out = dice.map((d) => {
+    if (!elementHasFlag(d.elementId, FLAGS.ENTANGLE)) return d
+    const kept = (d.held || d.locked) && real.some((x) => x.id === d.entangledWith && x.id !== d.id)
+    if (kept) return d
+    const others = real.filter((x) => x.id !== d.id)
+    return { ...d, entangledWith: others.length ? randomOf(others).id : null }
+  })
+  out = out.flatMap((d) => {
+    if (!elementHasFlag(d.elementId, FLAGS.HORIZON) || d.bhOpen || d.value !== d.sides || d.sides < 1) return [d]
+    return [makeTempDie(BLACK_HOLE_DIE_ID, 'hole'), { ...d, bhOpen: true }, makeTempDie(BLACK_HOLE_DIE_ID, 'hole')]
+  })
+  return out
+}
+
+/** The Time die's ghost (N2): the Base the dice scored before this reroll, in a temporary die beside the Time die. One at a time. */
+function summonGhost(dice, ghostBase) {
+  const at = dice.findIndex((d) => !isTempDie(d) && (elementHasFlag(d.elementId, FLAGS.MOMENT) || elementHasFlag(actingElementIds(dice)[dice.indexOf(d)], FLAGS.MOMENT)))
+  if (at < 0) return dice
+  const rest = dice.filter((d) => d.temp !== 'ghost')
+  const idx = rest.findIndex((d) => d.id === dice[at].id)
+  return [...rest.slice(0, idx + 1), makeTempDie(TIME_GHOST_ID, 'ghost', { ghostBase: Math.round(ghostBase * 100) / 100 }), ...rest.slice(idx + 1)]
+}
+
 function rollFreshRound(dice, relics) {
   const fx = relicEffects(relics)
   // A fresh round frees every die, so Chaos takes a new form first (H3).
+  // Temporary dice go with the round that made them (N5).
   const pool = shiftChaos(
-    dice.map((d) => ({ ...d, ...unmaelstrom(d), held: false, locked: false, lockedVia: null, swallowed: false })),
+    withoutTemps(dice).map((d) => ({ ...d, ...unmaelstrom(d), held: false, locked: false, lockedVia: null, swallowed: false, bhOpen: false })),
   )
   // Masquerade and Chameleon roll with the abilities they borrow.
   const acting = actingElementIds(pool)
@@ -460,11 +541,13 @@ function rollFreshRound(dice, relics) {
   }))
   // Varuna's tide settles every roll (B4), and a Chrono 1 rewinds it (H4).
   // A Pocket Watch (I2) keeps its die on the face it showed, held.
-  return chronoAfterRoll(settleTide(rolled), relics, {}, null).dice.map((d) => {
-    if (!d.watch) return d
-    const v = Math.min(d.watch, d.sides)
-    return { ...d, watch: null, value: v, total: v, explosions: 0, chain: [v], held: true }
-  })
+  return settleNewDice(
+    chronoAfterRoll(starChain(settleTide(rolled)), relics, {}, null).dice.map((d) => {
+      if (!d.watch) return d
+      const v = Math.min(d.watch, d.sides)
+      return { ...d, watch: null, value: v, total: v, explosions: 0, chain: [v], held: true }
+    }),
+  )
 }
 
 // `cut` is the current shop type's own price cut (data/shops.js), stacked
@@ -483,7 +566,10 @@ function shopCut(shop, kind) {
 function dieUpgradeCost(die, relics, shop, realm = 'elementa') {
   const next = nextTier(die.tierId, realm === 'firmament' && canGrowBig(die.elementId))
   if (!next) return null
-  return { next, cost: applyDiscount(next.upgradeCost, relics, shopCut(shop, 'upgrade')) }
+  // The apprentice discount (N6): a new die's next two upgrades cost half.
+  const apprentice = (die.fresh?.upgrades || 0) > 0
+  const cost = applyDiscount(next.upgradeCost, relics, shopCut(shop, 'upgrade'))
+  return { next, cost: apprentice ? Math.max(1, Math.round(cost / 2)) : cost, apprentice }
 }
 
 function isFusionElement(elementId) {
@@ -501,7 +587,7 @@ function newDieCost(elementId, dice, relics, shop, sizeId = SHOP_DIE_TIER) {
         : ELEMENTS[elementId].price ?? DIE_BASE_COST_BY_TIER[tier]
   // Bigger dice cost more: a d3 is the base price. A Mythic die is a d6 at
   // its own price, and a Warp offer costs more (H3).
-  const premium = isMythic(elementId) ? 0 : SHOP_DIE_SIZES.find((x) => x.id === sizeId)?.premium ?? 0
+  const premium = isMythic(elementId) ? 0 : sizePremium(sizeId)
   const warp = shop?.dieWarp?.[elementId] && elementId !== 'space' ? WARP_PREMIUM : 0
   return applyDiscount(base + premium + warp, relics, shopCut(shop, 'die'))
 }
@@ -913,6 +999,27 @@ function rollShopStock(state, type) {
 
 // Each die on offer has its own size, most often a d3; a Mythic die arrives
 // as a d6. In the Firmament an offer now and then comes with Warp (H3).
+/**
+ * The size a die of v0.8.3 arrives in (N6): drawn from one tier below to one
+ * above the median tier of your pool, instead of the round's weights. Capped
+ * at d20 in Elementa and at d100 past the door.
+ */
+function arrivalSize(state, elementId) {
+  const index = (d) => Math.max(0, DICE_TIERS.findIndex((t) => t.id === d.tierId))
+  const sorted = withoutTemps(state.dice).map(index).sort((a, b) => a - b)
+  const median = sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0
+  const cap = DICE_TIERS.length - 1 - (canGrowBig(elementId) ? 0 : DICE_TIERS.length - 1 - DICE_TIERS.findIndex((t) => t.id === 'd20'))
+  const lo = Math.max(0, Math.min(median - 1, cap))
+  const hi = Math.min(cap, median + 1)
+  return DICE_TIERS[lo + Math.floor(random() * (hi - lo + 1))].id
+}
+
+/** A size's price premium (K1 sizes, then 1.5 Shards a side past d20). */
+function sizePremium(sizeId) {
+  const known = SHOP_DIE_SIZES.find((x) => x.id === sizeId)
+  return known ? known.premium : Math.round((tierById(sizeId)?.sides ?? 0) * 1.5)
+}
+
 function finishStock(state, itemOffers, buyableElements, luckyRound) {
   const firmament = state.realm === 'firmament'
   const dieSizes = Object.fromEntries(
@@ -920,7 +1027,9 @@ function finishStock(state, itemOffers, buyableElements, luckyRound) {
       id,
       isMythic(id)
         ? STARTING_TIER
-        : weightedSample(SHOP_DIE_SIZES, 1, (size) => (luckyRound >= size.from ? size.weight : 0))[0]?.id ?? SHOP_DIE_TIER,
+        : firmament && NEW_DICE_IDS.includes(id)
+          ? arrivalSize(state, id)
+          : weightedSample(SHOP_DIE_SIZES, 1, (size) => (luckyRound >= size.from ? size.weight : 0))[0]?.id ?? SHOP_DIE_TIER,
     ]),
   )
   const dieWarp = firmament
@@ -1078,10 +1187,12 @@ function availableRerolls(state) {
  * 25. Moment (K1) and Continuum (K4): +1 every round.
  */
 function zenithRerolls(state) {
-  const each = 1 + (state.round >= 20 ? 1 : 0) + (state.round >= 25 ? 1 : 0)
+  // Zenith, Time, the Continuum and the Anomaly each give +2 (N2 to N4); the
+  // Zenith adds one more from round 20 and again from round 25.
+  const each = 2 + (state.round >= 20 ? 1 : 0) + (state.round >= 25 ? 1 : 0)
   const acting = actingElementIds(state.dice)
-  const steady = acting.filter((id) => elementHasFlag(id, FLAGS.MOMENT) || elementHasFlag(id, FLAGS.CONTINUUM)).length
-  return acting.filter((id) => id === 'zenith').length * each + steady
+  const steady = acting.filter((id) => [FLAGS.MOMENT, FLAGS.CONTINUUM, FLAGS.ANOMALY].some((f) => elementHasFlag(id, f))).length
+  return acting.filter((id) => id === 'zenith').length * each + steady * 2
 }
 
 // Boss rewards (CHOOSE_BOSS_REWARD) can widen these for the rest of a run.
@@ -1544,7 +1655,7 @@ function transmuteTargetFor(elementId) {
  * instead of silently spending the click.
  */
 export function consumableTargetOk(state, item, die) {
-  if (!die) return false
+  if (!die || isTempDie(die)) return false
   switch (item.type === 'downgrade' ? 'split' : item.type) {
     case 'upgrade':
       return Boolean(growTier(state, die))
@@ -2038,7 +2149,9 @@ export function initialState() {
 // it back after, so randomness is part of the (saveable) game state.
 export function gameReducer(state, action) {
   if (typeof state.rngState === 'number') setRngState(state.rngState)
-  const next = reduce(state, action)
+  let next = reduce(state, action)
+  // Black Hole dice and the Time ghost last only for the round (N5).
+  if (next !== state && next.phase && next.phase !== 'rolling' && next.dice?.some(isTempDie)) next = { ...next, dice: withoutTemps(next.dice) }
   if (next !== state && typeof next.rngState === 'number') return { ...next, rngState: getRngState() }
   return next
 }
@@ -2113,6 +2226,12 @@ function reduce(state, action) {
     case 'RESUME_RUN': {
       if (state.phase !== 'runPreview' || !state.resumePhase) return state
       return { ...state, phase: state.resumePhase, resumePhase: null }
+    }
+
+    // The Closed Timelike Curve's 20 seconds ran out (N5); the UI keeps the clock.
+    case 'CTC_EXPIRE': {
+      if (state.phase !== 'rolling' || state.ctcExpired) return state
+      return { ...state, ctcExpired: true }
     }
 
     case 'TOGGLE_HELD': {
@@ -2210,6 +2329,8 @@ function reduce(state, action) {
         explosionsThisRound: state.explosionsThisRound,
         bossModifier: state.bossModifier,
       }
+      // The Time die's ghost keeps the Base the dice scored before this reroll (N2).
+      const ghostBase = evaluatePool(withoutTemps(state.dice), effectiveRelics(state), scoreContext(state)).baseLines[0]?.value || 0
       let dice = rerollPool(state.dice, effectiveRelics(state), { patienceBonus: totemLevel(state.totems, 'earth') })
       if (fx.overclockZeroChance) {
         dice = dice.map((d) => {
@@ -2220,19 +2341,23 @@ function reduce(state, action) {
           return d
         })
       }
-      // Anomaly (K4): after every reroll, one random unheld die rolls again.
+      // Anomaly (K4, N3): after every reroll, two random unheld dice roll once
+      // more, for free, and keep the better result.
       if (actingElementIds(dice).some((id) => elementHasFlag(id, FLAGS.ANOMALY))) {
-        const loose = dice.filter((d) => !d.held && !d.locked)
-        if (loose.length) {
-          const pick = randomOf(loose)
+        const loose = dice.filter((d) => !d.held && !d.locked && !d.temp)
+        const relics = effectiveRelics(state)
+        const picked = new Set()
+        for (let k = 0; k < 2 && loose.length; k++) {
+          const pick = loose.splice(Math.floor(random() * loose.length), 1)[0]
+          picked.add(pick.id)
           const i = dice.findIndex((d) => d.id === pick.id)
           const actor = actingElementIds(dice)[i]
-          const relics = effectiveRelics(state)
           const again = rollDie(actor, pick.sides, relics, rollContext(pick, dice, relicEffects(relics), actor))
-          dice = dice.map((d) => (d.id === pick.id ? { ...d, ...again, anomaly: true } : { ...d, anomaly: false }))
+          if (again.total > pick.total) dice = dice.map((d) => (d.id === pick.id ? { ...d, ...again } : d))
         }
+        dice = dice.map((d) => ({ ...d, anomaly: picked.has(d.id) }))
       }
-      dice = settleTide(dice)
+      dice = starChain(settleTide(dice))
       // Chrono (H4): any 1 rewinds time, as often as it takes (no limit).
       const chrono = chronoAfterRoll(
         dice,
@@ -2240,7 +2365,8 @@ function reduce(state, action) {
         scoreContext(state),
         new Set(state.dice.filter((d) => !d.held && !d.locked).map((d) => d.id)),
       )
-      dice = chrono.dice
+      // The Time die's ghost, the Entanglement's pick and the Event Horizon's holes (N2, N5).
+      dice = settleNewDice(summonGhost(chrono.dice, ghostBase))
       // Kindling (Fire family): a rerolled die that lands on a fizzling 1
       // pays back one reroll this round. It is deliberately uncapped (Carlos):
       // a pool of three or more small Fire dice earns back about a reroll per
@@ -2331,7 +2457,7 @@ function reduce(state, action) {
         ...state,
         gustUsed: true,
         explosionsThisRound: (state.explosionsThisRound || 0) + rolled.explosions,
-        dice: state.dice.map((d) => (d.id === die.id ? { ...d, ...rolled, held: false, growth: 0, kindled: false, drifted: false } : d)),
+        dice: settleNewDice(starChain(state.dice.map((d) => (d.id === die.id ? { ...d, ...rolled, held: false, growth: 0, kindled: false, drifted: false } : d)))),
       }
     }
 
@@ -2481,7 +2607,9 @@ function reduce(state, action) {
     case 'BUY_DIE': {
       if (state.phase !== 'shop' || !state.shop.buyableElements.includes(action.elementId)) return state
       const sizeId = state.shop.dieSizes?.[action.elementId] ?? SHOP_DIE_TIER
-      const die = makeDie(action.elementId, sizeId, state.shop.dieWarp?.[action.elementId] ? 'warp' : null)
+      const bought = makeDie(action.elementId, sizeId, state.shop.dieWarp?.[action.elementId] ? 'warp' : null)
+      // A die of v0.8.3 bought past the door is a new apprentice (N6).
+      const die = state.realm === 'firmament' && NEW_DICE_IDS.includes(action.elementId) ? { ...bought, fresh: { visits: APPRENTICE_VISITS, upgrades: APPRENTICE_UPGRADES } } : bought
       // The dice cap (Warp dice aside), the Warp cap, one of each Mythic (H3).
       if (!fitsPool(state, [...state.dice, die]) || holdsKind(state.dice, action.elementId)) return state
       const cost = newDieCost(action.elementId, state.dice, state.relics, state.shop, sizeId)
@@ -2503,6 +2631,7 @@ function reduce(state, action) {
 
     case 'SELL_DIE': {
       if (state.phase !== 'shop') return state
+      if (isTempDie(state.dice.find((d) => d.id === action.dieId))) return state
       if (state.dice.length <= 1) return state
       const die = state.dice.find((d) => d.id === action.dieId)
       // The Primordial die is only lent (B1).
@@ -2909,7 +3038,7 @@ function reduce(state, action) {
       return {
         ...state,
         shards: state.shards - up.cost,
-        dice: state.dice.map((d) => (d.id === die.id ? { ...d, tierId: up.next.id, sides: up.next.sides } : d)),
+        dice: state.dice.map((d) => (d.id === die.id ? { ...d, tierId: up.next.id, sides: up.next.sides, fresh: up.apprentice ? agedFresh(d.fresh, 'upgrades') : d.fresh } : d)),
       }
     }
 
@@ -3003,6 +3132,8 @@ function reduce(state, action) {
       if (round > finalRound(state) && !state.endless) {
         return { ...withRecipe(state, QUADRA_FUSION_ID), phase: 'victory', ending: state.ending ?? state.path ?? 'neutral' }
       }
+      // Leaving a shop ends one of an apprentice's two visits (N6).
+      if (state.dice.some((d) => d.fresh)) state = { ...state, dice: state.dice.map((d) => (d.fresh ? { ...d, fresh: agedFresh(d.fresh, 'visits') } : d)) }
       let map = travel(state.map, round)
       if (!map) return state
       // Leaving a Black Market empty-handed invites a Shrine ahead (B3);

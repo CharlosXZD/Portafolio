@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, Reorder, motion, useAnimationControls } from 'framer-motion'
 import Die from './Die.jsx'
+import TempDie from './TempDie.jsx'
+import { CURVE_SECONDS, tickCurve } from '../utils/curveTimer.js'
 import CastLedger from './CastLedger.jsx'
 import { buildCastScript, applyCastStep, finishCastScript } from '../utils/castScript.js'
 import CastStage, { CastCaption, useStepCaption } from './CastStage.jsx'
 import { TRIGGER_EVENT } from '../utils/useTriggerPulses.js'
 import { evaluatePool, lightFloor } from '../engine/scoring.js'
 import { selectors } from '../engine/gameReducer.js'
-import { ELEMENTS, inFamily, actingElementIds } from '../data/elements.js'
+import { ELEMENTS, FLAGS, inFamily, actingElementIds } from '../data/elements.js'
 import { reactionById } from '../data/reactions.js'
 import { bossById } from '../data/bossModifiers.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
@@ -119,6 +121,31 @@ function useNarrow() {
 const fmt = (n) => Math.round(n * 100) / 100
 
 /** The Clockwork's countdown (H2): big, hard to miss, red near the end. */
+/** The Closed Timelike Curve's 20 seconds (N5): a quieter bar than the Clockwork's, since it never forces a cast. */
+function CurveTimer({ left, paused, reducedMotion }) {
+  const { t } = useLanguage()
+  const color = left > 0 ? '#9fe8c8' : '#6e6480'
+  return (
+    <div className="el-panel flex w-full items-center gap-4 px-4 py-2" style={{ '--edge': color }} role="timer" aria-live="off">
+      <PixelIcon name="timelike_curve" size={22} color={color} hi="#fffaf0" />
+      <div className="flex flex-1 flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <span className="el-label" style={{ color }}>
+            {left > 0 ? t('elementa.curve.label') : t('elementa.curve.closed')}
+            {paused && left > 0 ? ` (${t('elementa.clockwork.paused')})` : ''}
+          </span>
+          <span className="pixel-score text-xl [text-shadow:2px_2px_0_var(--ink)]" style={{ color }}>
+            {Math.ceil(left)}
+          </span>
+        </div>
+        <div className="h-2 w-full bg-[var(--stone-0)]" style={{ boxShadow: '0 0 0 2px var(--ink)' }}>
+          <div className="h-full" style={{ width: `${(left / CURVE_SECONDS) * 100}%`, background: color, transition: reducedMotion ? 'none' : 'width 0.2s linear' }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ClockworkTimer({ left, total, paused, reducedMotion }) {
   const { t } = useLanguage()
   const secs = Math.ceil(left)
@@ -327,6 +354,28 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     if (countdown > 0 && timeLeft <= 0 && !revealing) submitRef.current()
   }, [countdown, timeLeft, revealing])
 
+  // The Closed Timelike Curve (N5): 20 live seconds from the start of the
+  // round. It never forces a cast; when it runs out the bonus just ends.
+  const hasCurve = actingElementIds(state.dice).some((id) => ELEMENTS[id]?.flags[FLAGS.TIMELIKE])
+  const [curveLeft, setCurveLeft] = useState(CURVE_SECONDS)
+  useEffect(() => setCurveLeft(CURVE_SECONDS), [state.round, state.roundSeq])
+  const curveLive = hasCurve && !state.ctcExpired && !paused && !revealing && curveLeft > 0
+  useEffect(() => {
+    if (!curveLive) return
+    let last = performance.now()
+    const id = setInterval(() => {
+      const now = performance.now()
+      const dt = (now - last) / 1000
+      last = now
+      if (document.hidden) return
+      setCurveLeft((v) => tickCurve(v, dt))
+    }, 200)
+    return () => clearInterval(id)
+  }, [curveLive])
+  useEffect(() => {
+    if (hasCurve && curveLeft <= 0 && !state.ctcExpired) dispatch({ type: 'CTC_EXPIRE' })
+  }, [hasCurve, curveLeft, state.ctcExpired, dispatch])
+
   // Keyboard: 1-9 hold/release a die, R rerolls, Enter/Space casts. Any key
   // during the reveal skips to the result.
   useEffect(() => {
@@ -515,6 +564,10 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
               <ClockworkTimer left={timeLeft} total={countdown} paused={!timerLive && timeLeft > 0 && !revealing} reducedMotion={reducedMotion} />
             )}
 
+            {hasCurve && !revealing && (
+              <CurveTimer left={state.ctcExpired ? 0 : curveLeft} paused={!curveLive} reducedMotion={reducedMotion} />
+            )}
+
             {fallen && (
               <motion.p
                 initial={{ opacity: 0, y: -6 }}
@@ -641,6 +694,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                     onDragEnd={() => setTimeout(() => (draggingRef.current = false), 80)}
                     className="touch-none"
                   >
+                    {die.temp ? (
+                      <TempDie die={die} contribution={dieResult?.contribution ?? null} lit={litDice.has(i)} />
+                    ) : (
                     <Die
                       die={die}
                       hotkey={i < 9 ? i + 1 : null}
@@ -688,6 +744,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       lit={litDice.has(i)}
                       contribution={dieResult?.contribution ?? null}
                     />
+                    )}
                   </Reorder.Item>
                 )
               })}
