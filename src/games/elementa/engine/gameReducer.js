@@ -26,7 +26,7 @@ import {
   DEAD_STAR_ID,
   isCosmicBase,
 } from '../data/elements.js'
-import { nextTier, prevTier, tierById, sellValueForDie } from '../data/diceTiers.js'
+import { nextTier, prevTier, tierById, sellValueForDie, DICE_TIERS } from '../data/diceTiers.js'
 import { RELICS, RARITY, relicById, costForRelic, sellValueForRelic } from '../data/relics.js'
 import { CONSUMABLES, consumableById, costForConsumable, sellValueForConsumable } from '../data/consumables.js'
 import { deckById } from '../data/decks.js'
@@ -514,9 +514,14 @@ function rerollShopOffersCost(state) {
 // the fusion die, an alternative to hoping the shop offers it. Works for
 // any fusion tier: a double costs 2 parents, a triple 3, the quadra all 4.
 // See GDD.md §13a/§18.
-function forgeCost(relics, tier, shop) {
+function forgeCost(relics, tier, shop, base = FORGE_BASE_COST_BY_TIER[tier]) {
   const fx = relicEffects(relics)
-  return applyDiscount(Math.max(1, FORGE_BASE_COST_BY_TIER[tier] - (fx.forgeDiscount || 0)), relics, shopCut(shop, 'forge'))
+  return applyDiscount(Math.max(1, base - (fx.forgeDiscount || 0)), relics, shopCut(shop, 'forge'))
+}
+
+/** A recipe's own Forge cost (a Mythic die's 20, an element fusion's 10), or its tier's. */
+function forgeCostFor(state, def) {
+  return forgeCost(state.relics, def.tier, state.shop, def.forgeCost ?? FORGE_BASE_COST_BY_TIER[def.tier])
 }
 
 // Aether's recipe is secret until Primordial falls on this save file
@@ -554,10 +559,9 @@ function forgeableRecipes(state) {
   const ownedCounts = new Map()
   state.dice.forEach((d) => ownedCounts.set(d.elementId, (ownedCounts.get(d.elementId) || 0) + 1))
   const fusions = knowsAether(state) ? ALL_FUSION_IDS : ALL_FUSION_IDS.filter((id) => id !== QUADRA_FUSION_ID)
-  const gods = GOD_IDS.filter((id) => state.recipes?.includes(id))
-  // Entropy (H5): known once every Warden has fallen on the file.
-  const entropy = state.recipes?.includes(ENTROPY_ID) ? [ENTROPY_ID] : []
-  return [...fusions, ...gods, ...entropy].map((fusionElementId) => {
+  // Gods, Mythic dice, element fusions and Entropy need their recipe (B4, K1, K4, H5).
+  const learned = [...GOD_IDS, ...MYTHIC_DIE_IDS, ...COSMIC_FUSION_IDS, ENTROPY_ID].filter((id) => state.recipes?.includes(id))
+  return [...fusions, ...learned].map((fusionElementId) => {
     const def = ELEMENTS[fusionElementId]
     const needs = recipeNeeds(def)
     const godFull =
@@ -570,9 +574,196 @@ function forgeableRecipes(state) {
       parents: Object.entries(needs).flatMap(([p, n]) => Array(n).fill(p)),
       tier: def.tier,
       canForge,
-      cost: forgeCost(state.relics, def.tier, state.shop),
+      cost: forgeCostFor(state, def),
     }
   })
+}
+
+// --- The Forge, rebuilt (EXPANSION.md K3, K3b, K4): four open slots. The
+// player places the dice to absorb; the recipe is read from them. ---
+
+export const FORGE_SLOTS = 4
+// A volatile fusion's chance to collapse into a Dead Star (K4, Default).
+export const COLLAPSE_CHANCE = 0.25
+// Every recipe the Forge can make, by what it consumes.
+const FORGE_RESULTS = [
+  ...ALL_FUSION_IDS,
+  ...GOD_IDS,
+  ...MYTHIC_DIE_IDS,
+  ...COSMIC_FUSION_IDS,
+  ENTROPY_ID,
+]
+
+/** Whether the run (its file) knows how to forge this. */
+function knowsForge(state, id) {
+  const def = ELEMENTS[id]
+  if (id === QUADRA_FUSION_ID) return knowsAether(state)
+  if (def.tier === TIERS.GOD || def.tier === TIERS.MYTHIC || def.cosmic) return Boolean(state.recipes?.includes(id))
+  return true
+}
+
+/** The recipes whose dice are exactly the placed ones (as a multiset of elements). */
+function forgeMatches(state, dice) {
+  const key = (counts) =>
+    Object.entries(counts)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([id, n]) => `${id}x${n}`)
+      .join(',')
+  const placed = {}
+  dice.forEach((d) => (placed[d.elementId] = (placed[d.elementId] || 0) + 1))
+  const want = key(placed)
+  return FORGE_RESULTS.filter((id) => key(recipeNeeds(ELEMENTS[id])) === want).map((id) => ({ id, known: knowsForge(state, id) }))
+}
+
+/**
+ * The forged die's size (K3): the average of the absorbed dice's size tier
+ * (d3 0, d5 1, d6 2, d10 3, d20 4, then the big sizes), rounded down. A
+ * result that cannot grow big stops at d20.
+ */
+export function forgedSize(dice, resultId) {
+  const index = (d) => Math.max(0, DICE_TIERS.findIndex((t) => t.id === d.tierId))
+  let i = Math.floor(dice.reduce((sum, d) => sum + index(d), 0) / dice.length)
+  if (!canGrowBig(resultId)) i = Math.min(i, DICE_TIERS.findIndex((t) => t.id === 'd20'))
+  return DICE_TIERS[i].id
+}
+
+/**
+ * The runes the forged die receives (K3b): every rune stays on its number;
+ * a number the new die lacks moves to its top face (a shrink). Two dice
+ * with runes on the same number clash: `clashes` counts the extra sources.
+ */
+function forgedRunes(dice, sides) {
+  const all = dice.flatMap((d) => fitRunes(runesOf(d), sides).map((r) => ({ ...r, from: d.id })))
+  const byFace = new Map()
+  all.forEach((r) => byFace.set(r.face, [...(byFace.get(r.face) || []), r]))
+  let clashes = 0
+  const clashFaces = []
+  byFace.forEach((list, face) => {
+    const sources = new Set(list.map((r) => r.from)).size
+    if (sources > 1) {
+      clashes += sources - 1
+      clashFaces.push(face)
+    }
+  })
+  return { all, clashes, clashFaces, moved: all.filter((r) => r.moved).length }
+}
+
+/**
+ * Everything the Forge shows before you commit (K3): the result (or the
+ * matches to choose from), its size, cost, Stardust, what carries over, the
+ * rune clash fee, a volatile fusion's collapse chance, and why it can't be
+ * forged right now (`blocked`). `opts`: { resultId, superpose, catalyst }.
+ */
+function forgePlan(state, dieIds, opts = {}) {
+  const dice = dieIds.map((id) => state.dice.find((d) => d.id === id)).filter(Boolean)
+  if (dice.length === 0) return { dice, matches: [], result: null }
+  const matches = forgeMatches(state, dice)
+  const pick = matches.find((m) => m.id === opts.resultId) ?? matches[0] ?? null
+  if (!pick) return { dice, matches, result: null, blocked: 'noMatch' }
+  const def = ELEMENTS[pick.id]
+  const tierId = forgedSize(dice, pick.id)
+  const sides = tierById(tierId).sides
+  const runes = forgedRunes(dice, sides)
+  const fee = runes.clashes * RUNE_CLASH_FEE
+  const cost = forgeCostFor(state, def)
+  const stardust = def.stardust || 0
+  const catalyst = Boolean(opts.catalyst) && state.consumables.some((c) => c.type === 'catalyst')
+  const collapseChance = def.volatile && !catalyst ? COLLAPSE_CHANCE : 0
+  const total = cost + (opts.superpose ? fee : 0)
+  const rest = state.dice.filter((d) => !dieIds.includes(d.id))
+  let blocked = null
+  if (!pick.known) blocked = 'unknown'
+  else if (!state.shop?.forgeOpen) blocked = 'closed'
+  else if (def.tier === TIERS.GOD && godCount(rest) >= godCapFor(state)) blocked = 'godCap'
+  else if (holdsKind(rest, pick.id)) blocked = 'onePerRun'
+  else if ((state.stardust || 0) < stardust) blocked = 'stardust'
+  else if (state.shards < total) blocked = 'shards'
+  return {
+    dice,
+    matches,
+    result: pick.id,
+    known: pick.known,
+    tierId,
+    sides,
+    cost,
+    stardust,
+    fee,
+    total,
+    clashes: runes.clashes,
+    clashFaces: runes.clashFaces,
+    movedRunes: runes.moved,
+    runes: runes.all,
+    // Upgrades carry over (K3, Default): bonuses add up, Warp stays if any
+    // absorbed die had it, Weights and a Gem Socket stay too.
+    carry: {
+      bonus: dice.reduce((sum, d) => sum + (d.bonus || 0), 0),
+      warp: dice.some(isWarp),
+      weights: dice.some((d) => d.weights),
+      socket: dice.some((d) => d.socket),
+    },
+    volatile: Boolean(def.volatile),
+    collapseChance,
+    catalyst,
+    blocked,
+  }
+}
+
+/**
+ * Forges the placed dice (K3). With `superpose` the clash fee is paid and
+ * every rune stays; otherwise, on each clashing number, the runes of one
+ * absorbed die (a seeded 50/50, never shown) survive and the others are
+ * lost. A volatile fusion may collapse into a Dead Star unless a Catalyst
+ * steadies it.
+ */
+function forge(state, dieIds, opts = {}) {
+  const plan = forgePlan(state, dieIds, opts)
+  if (!plan.result || plan.blocked) return state
+  let runes = plan.runes
+  const lost = []
+  if (!opts.superpose) {
+    plan.clashFaces.forEach((face) => {
+      const sources = [...new Set(runes.filter((r) => r.face === face).map((r) => r.from))]
+      const keep = randomOf(sources)
+      runes = runes.filter((r) => {
+        const drop = r.face === face && r.from !== keep
+        if (drop) lost.push(r.id)
+        return !drop
+      })
+    })
+  }
+  const collapsed = plan.collapseChance > 0 && random() < plan.collapseChance
+  const resultId = collapsed ? DEAD_STAR_ID : plan.result
+  const made = {
+    ...makeDie(resultId, plan.tierId, plan.carry.warp ? 'warp' : null),
+    bonus: plan.carry.bonus || undefined,
+    weights: plan.carry.weights || undefined,
+    socket: plan.carry.socket || undefined,
+    runes: runes.map(({ id, face }) => ({ id, face })),
+  }
+  // The forged die takes the place of the first absorbed one.
+  const at = state.dice.findIndex((d) => dieIds.includes(d.id))
+  const kept = state.dice.filter((d) => !dieIds.includes(d.id))
+  const dice = [...kept.slice(0, at), made, ...kept.slice(at)]
+  const consumables = plan.catalyst
+    ? state.consumables.filter((c, i) => i !== state.consumables.findIndex((x) => x.type === 'catalyst'))
+    : state.consumables
+  const ownedElementsEver = state.ownedElementsEver.includes(resultId) ? state.ownedElementsEver : [...state.ownedElementsEver, resultId]
+  const def = ELEMENTS[plan.result]
+  const next = {
+    ...state,
+    dice,
+    consumables,
+    ownedElementsEver,
+    shards: state.shards - plan.cost - (opts.superpose ? plan.fee : 0),
+    stardust: (state.stardust || 0) - plan.stardust,
+    shop: {
+      ...state.shop,
+      lastForge: { resultId, wanted: plan.result, collapsed, lost, dieId: made.id, superposed: Boolean(opts.superpose && plan.clashes) },
+    },
+  }
+  // A fusion still leans the Accord (B1); gods, Mythic dice and Entropy don't.
+  const fusion = [TIERS.DOUBLE, TIERS.TRIPLE, TIERS.QUADRA].includes(def.tier)
+  return addAccord(next, fusion ? 'fusion' : null)
 }
 
 // Weighted sample without replacement: a rarity with weight 0 (round-gated)
@@ -1734,6 +1925,11 @@ function resolveClearEffects(state, total) {
 
 // --- The Firmament (EXPANSION.md H1, H2). ---
 
+/** Vesper works the Forge and the Astral Exchange's forge, past the door (K5). */
+function vesperHere(state) {
+  return state.realm === 'firmament' && ['forge', 'astral'].includes(state.shop?.type)
+}
+
 /** A path's door opens once the file has seen that path's Elementa ending. */
 function doorOpen(state) {
   return (state.endingsSeen || []).includes(state.path ?? 'neutral')
@@ -2241,40 +2437,50 @@ function reduce(state, action) {
       return { ...sold, shards: state.shards + value }
     }
 
+    // The old one-click forge: picks the first dice that fit the recipe and
+    // forges them through the slots' rules (K3). Kept for older callers.
     case 'FUSE_DICE': {
       if (state.phase !== 'shop' || !state.shop?.forgeOpen) return state
       const def = ELEMENTS[action.fusionElementId]
-      if (!def || def.tier === 'pure' || def.tier === 'arcane' || def.tier === TIERS.PRIMAL) return state
-      if (action.fusionElementId === QUADRA_FUSION_ID && !knowsAether(state)) return state
-      // Entropy is the only Mythic die the Forge makes, and only one (H5).
-      if (def.tier === TIERS.MYTHIC && (def.id !== ENTROPY_ID || !state.recipes?.includes(ENTROPY_ID))) return state
-      if (holdsKind(state.dice, def.id)) return state
-      if (def.tier === TIERS.GOD && (!state.recipes?.includes(def.id) || godCount(state.dice) >= godCapFor(state))) return state
-      const usedIds = new Set()
-      const parentDice = []
+      if (!def || !FORGE_RESULTS.includes(def.id)) return state
+      const used = []
       for (const [parentId, n] of Object.entries(recipeNeeds(def))) {
         for (let k = 0; k < n; k++) {
-          const match = state.dice.find((d) => d.elementId === parentId && !usedIds.has(d.id))
+          const match = state.dice.find((d) => d.elementId === parentId && !used.includes(d.id))
           if (!match) return state
-          usedIds.add(match.id)
-          parentDice.push(match)
+          used.push(match.id)
         }
       }
-      const cost = forgeCost(state.relics, def.tier, state.shop)
-      if (state.shards < cost) return state
-      const fusionDie = makeDie(action.fusionElementId)
-      const ownedElementsEver = state.ownedElementsEver.includes(action.fusionElementId)
-        ? state.ownedElementsEver
-        : [...state.ownedElementsEver, action.fusionElementId]
-      return addAccord(
-        {
-          ...state,
-          shards: state.shards - cost,
-          dice: [...state.dice.filter((d) => !usedIds.has(d.id)), fusionDie],
-          ownedElementsEver,
-        },
-        def.tier === TIERS.GOD ? null : 'fusion',
-      )
+      return forge(state, used, { resultId: def.id })
+    }
+
+    // The Forge's slots (K3): forge exactly the placed dice.
+    case 'FORGE': {
+      if (state.phase !== 'shop' || !Array.isArray(action.dieIds)) return state
+      const ids = [...new Set(action.dieIds)].slice(0, FORGE_SLOTS)
+      return forge(state, ids, { resultId: action.resultId, superpose: Boolean(action.superpose), catalyst: Boolean(action.catalyst) })
+    }
+
+    // Vesper teaches an element fusion the first time its two parents sit in
+    // her Forge's slots (K4, K5).
+    case 'TEACH_FUSION': {
+      if (state.phase !== 'shop' || !vesperHere(state)) return state
+      const def = ELEMENTS[action.fusionElementId]
+      if (!def?.cosmic || state.recipes?.includes(def.id)) return state
+      if (!def.parents.every((p) => state.dice.some((d) => d.elementId === p))) return state
+      return withRecipe(state, def.id)
+    }
+
+    // Vesper's Stardust (K2): one per visit.
+    case 'BUY_STARDUST': {
+      if (state.phase !== 'shop' || !vesperHere(state) || state.shop.stardustBought) return state
+      if (state.shards < STARDUST_PRICE) return state
+      return {
+        ...state,
+        shards: state.shards - STARDUST_PRICE,
+        stardust: (state.stardust || 0) + 1,
+        shop: { ...state.shop, stardustBought: true },
+      }
     }
 
     case 'BUY_RELIC': {
@@ -2754,6 +2960,9 @@ function reduce(state, action) {
       } else if (offer.kind === 'consumable') {
         if (state.consumables.length >= consumableCapFor(state)) return state
         next = { ...state, consumables: giveConsumable(state, consumableById(offer.id)) }
+      } else if (offer.kind === 'stardust') {
+        // Mote's 120 stock: 2 Stardust for one Stardust's price (K2, Default).
+        next = { ...state, stardust: (state.stardust || 0) + offer.amount }
       } else {
         const die = makeDie(offer.elementId, STARTING_TIER, 'warp')
         if (!fitsPool(state, [...state.dice, die]) || holdsKind(state.dice, offer.elementId)) return state
@@ -2863,5 +3072,9 @@ export const selectors = {
   firmamentSets,
   isFixedBoss,
   stardustPrice: STARDUST_PRICE,
+  forgePlan,
+  forgeMatches: (state, dieIds) => forgeMatches(state, dieIds.map((id) => state.dice.find((d) => d.id === id)).filter(Boolean)),
+  vesperHere,
+  forgeSlots: FORGE_SLOTS,
   canRewind: (state) => state.phase === 'rolling' && Boolean(state.lastReroll) && holdsTime(state.dice) && !state.rewindUsed,
 }
