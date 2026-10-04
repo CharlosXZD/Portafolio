@@ -488,6 +488,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.7.2** | Firmament depth | **Built.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
 | **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
 | **v0.8** | Cosmic elements | **Built.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
+| **v0.8.1** | Family growth | **Ready.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
@@ -1430,8 +1431,96 @@ Only **two-element fusions** (Vesper's rule, K5), made from two **different base
 
 **Open (Carlos can answer after a playtest):** base-die names; Stardust amounts (1 per boss, 2 per Warden; Vesper 30 Shards); forging a Mythic die (4 of a base die, 20 Shards); the collapse chance; the rune fee (8 per clash); a shrunk rune moving to the top face; whether Alba is stable; Entropy's new recipe; the Mythic dice leaving the shops entirely.
 
+## Part L: v0.8.1 "Family growth" (spec, 2026-10-04)
+
+**Status: Ready.** Carlos (2026-10-04): "fire is super strong, the ability to explode is something else", so Water and Air grow to match, new relics and items push the families, and the six new elements get reactions. Claude's numbers are **Defaults** (tune after playtests). Do not nerf Fire. Everything here is Elementa-compatible except where it says Firmament.
+
+### L1. Water: Tide
+
+A **locked Water-family die also adds half its score to Mult** (**Carlos: half**, Default amount). Only locked dice, not held ones. A fusion in two families gets each family's ability. Show it as its own ledger line ("Tide +N Mult") and in the family text and the keyword.
+
+### L2. Air: Drift reaches the top
+
+Drift stays **one charge per round, one die**, but the nudge can now go **all the way to the die's top face** (**Carlos**): the player chooses "up or down by 1" or "to the top". The die then scores that face. Landing on the max face by Drift still does not explode (unchanged). Frozen dice cannot drift. UI: the Drift control gets a third button "To the top"; keyboard friendly.
+
+### L3. Relics (five, Default rarities)
+
+| Relic | Rarity | Effect |
+|---|---|---|
+| **Deep Current** | Epic | The first lock each round gives +10 Mult (Carlos's idea, scaled so free locks cannot give +80). |
+| **Undertow** | Rare | Each locked Water-family die gives +2 Mult. |
+| **Gale Seal** | Epic | When you use Drift, the nudged die's whole score also goes to Mult. |
+| **Second Wind** | Rare | +1 Drift charge per round. |
+| **Standing Stones** | Rare | Patience gives +3 per reroll sat out instead of +2. |
+
+Each needs a sprite (existing procedural sprites), an `itemConcept`, Spanish text, a Gallery entry and a ledger line when it fires. Sold in the normal relic pool (round-gated by rarity as usual).
+
+### L4. Totems (new consumables, both relics and items)
+
+Four **Totems** level a family's ability **for the rest of the run**, like Constellations (cap level 5, apply at once, no target, `state.totems: { fire, water, earth, air }`, shown in Run Info and the ledger). Uncommon, price 8. Sold at **Seren's Observatory and the Firmament shops** like Constellations, and also in Elementa's Market at low weight (this is the first item that is not Firmament-only). They live under their own Gallery family "Totems" (not with the Constellations).
+
+| Totem | Per level |
+|---|---|
+| Fire Totem | Kindling pays +1 reroll more every 2 levels; explosions add +0.1 Mult each per level (so Fire stays fun, not stronger than the rest) |
+| Water Totem | Tide adds +10% more of the locked score to Mult (so half becomes 60%, 70%... up to 100% at level 5) |
+| Earth Totem | Patience +1 per reroll sat out |
+| Air Totem | +1 Drift charge per level (one die each) |
+
+### L5. Reactions for the new elements
+
+The six shop elements (Light, Darkness, Time, Space, Chaos, Void, ids `glimmer`, `gloom`, `moment`, `reach`, `flux`, `nil`) have no element today, so they react with nothing. Fix: `reactionElementsOf` returns the element's own id for them (a fusion of two of them returns both parents), and reactions can name them. Two groups:
+
+**Cross reactions (new with classic, 12, curated "natural pairs").** Each is worth about a classic reaction.
+
+| Reaction | Pair | Effect |
+|---|---|---|
+| Sunburst | Light + Fire | +2 Mult |
+| Rainbow | Light + Air | +3 Base, +1 Mult |
+| Ink | Darkness + Water | the higher face to Base |
+| Cavern | Darkness + Earth | +4 Base |
+| Erosion | Time + Earth | +1.5 Mult |
+| Burnout | Time + Fire | +4 Base |
+| Horizon | Space + Air | +3 Base, +1 Mult |
+| Orbit | Space + Earth | the lower face to Base, +1 Mult |
+| Wildfire | Chaos + Fire | +2 Mult |
+| Whirlwind | Chaos + Air | +4 Base, +0.5 Mult |
+| Drain | Void + Water | +1.5 Mult |
+| Hollow Ground | Void + Earth | both faces to Base |
+
+**New with new (15, every pair).** Each is worth about a secret reaction.
+
+| Reaction | Pair | Effect |
+|---|---|---|
+| Twilight | Light + Darkness | both faces to Base, +1.5 Mult |
+| Spacetime | Time + Space | +3 Base, +2 Mult |
+| Maw | Chaos + Void | +2 Mult |
+| Daybreak | Light + Time | +4 Base, +1 Mult |
+| Glitch | Chaos + Time | +2.5 Mult |
+| Blackout | Darkness + Void | +5 Base |
+| Pinhole | Light + Void | +2 Mult |
+| Starlight | Light + Space | +4 Base, +1 Mult |
+| Dusk | Darkness + Time | +1.5 Mult |
+| Rift | Chaos + Space | +3 Mult |
+| Flicker | Chaos + Light | +1 Mult, +3 Base |
+| Corruption | Chaos + Darkness | +2 Mult |
+| Stasis | Time + Void | +2 Mult |
+| Vacuum | Space + Void | +3 Mult |
+| Eclipse Shade | Space + Darkness | +3 Base, +1 Mult |
+
+(The Mythic reactions from v0.7.1 are unchanged: they name the Mythic dice.)
+
+- **All 27 are secret** (hidden "???" in the Gallery until triggered, so nothing spoils) and live in their own Gallery section "Firmament reactions", shown once the file has crossed the door. Fusions of the elements (Shadow, Continuum, Oblivion, Alba, Anomaly, Singularity, Nadir) bring both parents, so they trigger several of these.
+- Constellations do not level them. Add **Master Alchemist** exclusions: the existing "Master Alchemist" achievement stays for the classic secrets only, and a new secret achievement **Cosmic Alchemist** needs every Firmament reaction. `TOTALS.reactions` grows by 27.
+- Names and texts are drafts for Carlos to rewrite (EN and ES).
+
+### L6. Also in this step
+
+- Patch notes "Alpha 0.8.1 Family growth" in Part D and `data/patchNotes.js`; CONTENT.md (regenerate it fully, it still has pre-rename names); GDD section; mark Part L Built.
+- Tests: Node scripts for Tide at half and at each Totem level, Drift to the top (and that it does not explode), each relic, each Totem level, every one of the 27 reactions in the ledger, fusions triggering several, the achievements, old saves loading. Browser pass on a test save, **muted**.
+
 ## Decision log
 
+- **2026-10-04 (families, Carlos):** Fire is strong, so lift the others: Water's locked dice add half their score to Mult, Drift can jump a die to its top face (once a round), five relics, four Totems (relics and items both), and reactions between the new elements, the old ones and each other: Part L.
 - **2026-10-04 (gods, Carlos):** the four gods may share a pool; the old one-god-at-a-time cap is lifted, one of each remains. The Pantheon relic, which only raised the cap, now gives +2 Mult per god die held (Claude's proposal).
 - **2026-10-04 (names, Carlos):** the six shop elements are now **Light, Darkness, Time, Space, Chaos, Void** (families take the same names; they were Glimmer, Gloom, Moment, Reach, Flux, Null). The six Mythic dice are **Luminance (Light), Obscurity (Darkness), Tempus (Time), Ouranos (Space), Hundun (Chaos), Abyss (Void)**; Entropy stays the top. The fusion that was called Abyss is now **Nadir** (Darkness + Void), proposed by Claude. Only display names changed; internal ids are the same (the base elements are `glimmer`, `gloom`, `moment`, `reach`, `flux`, `nil`; the Mythic dice are `light`, `darkness`, `time`, `space`, `chaos`, `void`).
 - **2026-10-03 (v0.8 workshop):**
