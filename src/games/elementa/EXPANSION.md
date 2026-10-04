@@ -489,7 +489,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) merge into v0.8.5. |
 | **v0.8** | Cosmic elements | **Built.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
 | **v0.8.1** | Family growth | **Built.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
-| **v0.8.2** | Late scaling | **Ready.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
+| **v0.8.2** | Late scaling | **Built.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
 | **v0.8.3** | Crutches for the new dice | **Ready.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 poker, Joker and sigil dice (Carlos 2026-10-04: poker and Joker dice merged in here). Face-bound runes (v0.8) already cover part of editable faces, so scope the rest in a workshop first. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
@@ -502,6 +502,13 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.8.2 "Late scaling" (in development, unreleased)
+- **The curve** (built earlier): harder start (x1.75, growth x1.37 to round 10), x1.40 after round 15.
+- **Every die grows past d20** in the Firmament (d30 to d100); Chisel splits a big die one size down.
+- **Four multiplying relics:** Crown of Ages, Heart of the Forge, Starmap, Echo Chamber (from round 15).
+- **Constellation milestones:** level 5 doubles the Mult of a reaction or set, level 10 triples it; Run Info marks them.
+- **Balance simulator extended:** aided and immortal modes, and reference builds that check the late rounds.
 
 ### Alpha v0.8.1 "Family growth" (in development, unreleased)
 - **Water's Tide:** a locked Water-family die also sends half its final score to Mult (its own ledger line). Held dice do not count.
@@ -1530,7 +1537,7 @@ The six shop elements (Light, Darkness, Time, Space, Chaos, Void, ids `glimmer`,
 
 ## Part M: v0.8.2 "Late scaling" (spec, 2026-10-04)
 
-**Status: Ready.** Carlos's playtest (2026-10-04): at round 25 he scored about 79,000 against a target near 86,000 with good dice (some dice scored 200), and agreed with Claude's simulation: the start is easy, but from round 15 the targets (x1.45 every round) outgrow what builds can do. He asked for **a late scaler and a slightly easier curve**. All numbers are **Defaults** (tune after playtests). The goal: a good build should sit near **1.0 to 1.3 times the target at every round up to 30**, a mediocre one falls behind slowly, and the first 15 rounds stay as easy as they are.
+**Status: Built** (Alpha v0.8.2, GDD §42; the Defaults below were built as written, plus the ones GDD §42 lists). Carlos's playtest (2026-10-04): at round 25 he scored about 79,000 against a target near 86,000 with good dice (some dice scored 200), and agreed with Claude's simulation: the start is easy, but from round 15 the targets (x1.45 every round) outgrow what builds can do. He asked for **a late scaler and a slightly easier curve**. All numbers are **Defaults** (tune after playtests). The goal: a good build should sit near **1.0 to 1.3 times the target at every round up to 30**, a mediocre one falls behind slowly, and the first 15 rounds stay as easy as they are.
 
 ### M1. The curve (**already built by Claude on 2026-10-04; the agent must not redo it**)
 

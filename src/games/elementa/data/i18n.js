@@ -155,6 +155,22 @@ export const RELICS_ES = {
     description:
       'Las explosiones suman el doble, pero un dado que se apaga con un 1 también anula otro dado al azar.',
   },
+  crown_of_ages: {
+    name: 'Corona de las Eras',
+    description: 'Multiplica tu Mult por 1 + ronda / 20 (x1.75 en la ronda 15, x2.5 en la ronda 30).',
+  },
+  heart_of_the_forge: {
+    name: 'Corazón de la Forja',
+    description: 'Cada dado de fusión en tu reserva multiplica tu Mult por x1.15.',
+  },
+  starmap: {
+    name: 'Mapa Estelar',
+    description: 'Multiplica tu Mult por 1 + 0.05 por cada nivel de Constelación que tengas, los diez sumados.',
+  },
+  echo_chamber: {
+    name: 'Cámara de Eco',
+    description: 'La mejor reacción del lanzamiento (por Mult) se activa dos veces.',
+  },
   deep_current: { name: 'Corriente Profunda', description: 'El primer bloqueo de cada ronda da +10 Mult.' },
   spring_tide: { name: 'Marea Viva', description: 'Cada dado de la familia Agua bloqueado da +2 Mult.' },
   gale_seal: {
@@ -299,7 +315,7 @@ export const CONSUMABLES_ES = {
   whetstone: { name: 'Piedra de Afilar', description: 'Aplícala a un dado: anota +2 permanente cada vez que anote.' },
   chisel: {
     name: 'Cincel',
-    description: 'Parte un dado en dos del tamaño anterior (d20 en dos d10, d10 en dos d5, d6 en dos d3). Un d5 se astilla en un d3 y deja una Transmutación. Un d3 es demasiado pequeño.',
+    description: 'Parte un dado en dos del tamaño anterior (d30 en dos d20, d20 en dos d10, d10 en dos d5, d6 en dos d3). Un d5 se astilla en un d3 y deja una Transmutación. Un d3 es demasiado pequeño.',
   },
   phoenix_feather: { name: 'Pluma de Fénix', description: 'Recupera 1 vida.' },
   aether_dust: {

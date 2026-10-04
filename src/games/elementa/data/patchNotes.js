@@ -12,6 +12,30 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.8.2',
+    name: L('Late scaling', 'Escala tardía'),
+    date: null,
+    highlights: [
+      L(
+        'The start is a little harder and the late rounds a little kinder: targets grow x1.37 up to round 10, x1.45 to round 15, and x1.40 after that.',
+        'El inicio es un poco más difícil y las rondas tardías un poco más amables: los objetivos crecen x1.37 hasta la ronda 10, x1.45 hasta la 15, y x1.40 después.',
+      ),
+      L(
+        'In the Firmament every die can grow past d20, up to d100. Faces scale with size, so this is how you keep up late.',
+        'En el Firmamento todo dado puede crecer más allá de d20, hasta d100. Las caras crecen con el tamaño, así es como sigues el ritmo al final.',
+      ),
+      L(
+        'Four relics that multiply your Mult, sold from round 15: Crown of Ages (grows with the round), Heart of the Forge (each fusion die), Starmap (each Constellation level) and Echo Chamber (your best reaction fires twice).',
+        'Cuatro reliquias que multiplican tu Mult, a la venta desde la ronda 15: Corona de las Eras (crece con la ronda), Corazón de la Forja (cada dado de fusión), Mapa Estelar (cada nivel de Constelación) y Cámara de Eco (tu mejor reacción se activa dos veces).',
+      ),
+      L(
+        'Constellation milestones: at level 5 a reaction or set gives double Mult, at level 10 triple. Run Info marks them.',
+        'Hitos de Constelación: en el nivel 5 una reacción o set da el doble de Mult, en el nivel 10 el triple. La Info de la partida los marca.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.8.1',
     name: L('Family growth', 'Las familias crecen'),
     date: null,

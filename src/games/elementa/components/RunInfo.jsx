@@ -13,7 +13,7 @@ import BoonsList from './BoonsList.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
 import PixelSprite from './PixelSprite.jsx'
 import { SHOP_TYPES } from '../data/shops.js'
-import { CONSTELLATIONS, LEVEL_CAP } from '../data/constellations.js'
+import { CONSTELLATIONS, LEVEL_CAP, MILESTONES, milestoneFactor } from '../data/constellations.js'
 import { TOTEMS, TOTEM_CAP } from '../data/totems.js'
 
 function Row({ label, children }) {
@@ -130,12 +130,21 @@ export default function RunInfo({ state, onClose, initialTab = 'run' }) {
                     <span>{lang === 'es' ? c.es : c.en}</span>
                     <span className="flex items-center gap-2">
                       <span className="flex gap-[2px]">
-                        {Array.from({ length: LEVEL_CAP }, (_, i) => (
-                          <span key={i} className="h-2 w-1.5" style={{ background: i < level ? 'var(--gold-1)' : '#2a2338' }} />
-                        ))}
+                        {Array.from({ length: LEVEL_CAP }, (_, i) => {
+                          // A taller pip marks a milestone level (M4).
+                          const milestone = MILESTONES.some((m) => m.level === i + 1)
+                          return (
+                            <span
+                              key={i}
+                              className={`w-1.5 ${milestone ? 'h-3 self-end' : 'h-2'}`}
+                              style={{ background: i < level ? (milestone ? 'var(--gold-hi)' : 'var(--gold-1)') : milestone ? '#4a3d66' : '#2a2338' }}
+                            />
+                          )
+                        })}
                       </span>
-                      <span className="pixel-score w-12 text-right text-[9px] text-[var(--gold-1)]">
+                      <span className="pixel-score w-16 text-right text-[9px] text-[var(--gold-1)]">
                         {t('elementa.cast.level').replace('{n}', level)}
+                        {milestoneFactor(level) > 1 ? ` x${milestoneFactor(level)}` : ''}
                       </span>
                     </span>
                   </li>

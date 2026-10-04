@@ -37,8 +37,8 @@ const perLevel = (c, lang) => {
 /** The Constellation's description, from its numbers. */
 export function constellationText(c, lang = 'en') {
   return lang === 'es'
-    ? `Sube un nivel ${c.kind === 'set' ? 'el set' : 'la reacción'} ${c.targetEs} para el resto de la partida: ${perLevel(c, lang)} por nivel (máx. ${LEVEL_CAP}).`
-    : `Levels up ${c.kind === 'set' ? 'the set' : 'the reaction'} ${c.targetEn} for the rest of the run: ${perLevel(c, lang)} per level (max ${LEVEL_CAP}).`
+    ? `Sube un nivel ${c.kind === 'set' ? 'el set' : 'la reacción'} ${c.targetEs} para el resto de la partida: ${perLevel(c, lang)} por nivel (máx. ${LEVEL_CAP}). El nivel 5 duplica su Mult, el nivel 10 lo triplica.`
+    : `Levels up ${c.kind === 'set' ? 'the set' : 'the reaction'} ${c.targetEn} for the rest of the run: ${perLevel(c, lang)} per level (max ${LEVEL_CAP}). Level 5 doubles its Mult, level 10 triples it.`
 }
 
 export const BLACK_HOLE_TEXT = {
@@ -46,12 +46,18 @@ export const BLACK_HOLE_TEXT = {
   es: `Sube un nivel todas las reacciones base y todos los tipos de set a la vez (máx. ${LEVEL_CAP} cada uno).`,
 }
 
+// Milestones (EXPANSION.md M4): at level 5 the Mult a reaction or set gives is
+// doubled, at level 10 tripled. A reaction with no Mult of its own (Forge,
+// Bloom, Dust Devil, Resonance) doubles or triples its Base instead.
+export const MILESTONES = [{ level: 5, factor: 2 }, { level: 10, factor: 3 }]
+export const milestoneFactor = (level) => MILESTONES.reduce((f, m) => (level >= m.level ? m.factor : f), 1)
+
 /** The extra Base and Mult a level adds, for scoring (engine/scoring.js). */
 export function levelBonus(constellations, target) {
   const level = constellations?.[target] || 0
   const c = constellationFor(target)
-  if (!level || !c) return { level: 0, base: 0, mult: 0 }
-  return { level, base: c.base * level, mult: c.mult * level }
+  if (!level || !c) return { level: 0, base: 0, mult: 0, factor: 1 }
+  return { level, base: c.base * level, mult: c.mult * level, factor: milestoneFactor(level) }
 }
 
 /** The Spanish name/description for each Constellation, for data/i18n.js. */

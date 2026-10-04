@@ -110,7 +110,7 @@ export const CONSUMABLES = [
     cost: 3,
     element: null,
     itemConcept: 'a small iron chisel with a wooden grip',
-    description: 'Splits a die in two of the next size down (d20 into two d10, d10 into two d5, d6 into two d3). A d5 chips into a d3 and leaves a Transmute. A d3 is too small.',
+    description: 'Splits a die in two of the next size down (d30 into two d20, d20 into two d10, d10 into two d5, d6 into two d3). A d5 chips into a d3 and leaves a Transmute. A d3 is too small.',
   },
   {
     id: 'phoenix_feather',

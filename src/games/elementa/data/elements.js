@@ -828,8 +828,11 @@ export const isMythic = (elementId) => ELEMENTS[elementId]?.tier === TIERS.MYTHI
 /** Dice limited to one per run: the Mythic dice, and the Quasar (I1). */
 export const isOnePerRun = (elementId) => isMythic(elementId) || elementId === 'quasar'
 
-/** Dice that can grow past d20 in the Firmament (H5): Aether, the Mythic dice, Entropy. */
-export const canGrowBig = (elementId) => Boolean(ELEMENTS[elementId]?.bigGrowth)
+/** Dice that can grow past d20 in the Firmament: every die (M2). */
+// Since v0.8.2 (EXPANSION.md M2) every die can grow past d20 in the Firmament
+// (callers still check the realm); `bigGrowth` only marks the dice that always
+// could, for their description.
+export const canGrowBig = (elementId) => Boolean(ELEMENTS[elementId])
 
 const isMimic = (id) => Boolean(ELEMENTS[id]?.flags[FLAGS.MIMIC_LEFT] || ELEMENTS[id]?.flags[FLAGS.MIMIC_SPLIT])
 
@@ -1021,7 +1024,7 @@ export function mythicTextLines(elementId, lang = 'en') {
   const out = []
   if (isMythic(elementId)) out.push(text.one)
   if (elementId === 'space') out.push(text.space)
-  if (canGrowBig(elementId)) out.push(text.big)
+  if (ELEMENTS[elementId]?.bigGrowth) out.push(text.big)
   if (elementId === CHRONO_ID) out.push(text.chronoShop)
   if (CELESTIAL_DIE_IDS.includes(elementId)) out.push(text.celestial)
   if (elementId === 'quasar') out.push(text.onePerRun)

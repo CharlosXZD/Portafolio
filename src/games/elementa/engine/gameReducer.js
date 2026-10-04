@@ -396,6 +396,8 @@ function scoreContext(state) {
     // Levelled reactions and sets (J1), Totems (L4).
     constellations: state.constellations || {},
     totems: state.totems || {},
+    // Crown of Ages (M3) multiplies by the round.
+    round: state.round,
     // Deep Current (L3): whether a lock has happened this round.
     lockedThisRound: Boolean(state.lockedThisRound),
   }
@@ -870,6 +872,7 @@ function rollShopStock(state, type) {
             !ownedRelicIds.has(r.id) &&
             (!r.needsGods || knowsGods(state)) &&
             (!r.bazaarOnly || type.legendary) &&
+            relicInReach(state, r) &&
             !r.horologistOnly,
         )
       : []),
@@ -942,7 +945,13 @@ function rollHorologistStock(state, ownedRelicIds) {
 // Relics a pact or prize may hand out: never the god relics before the god
 // recipes are known, never the Bazaar's Pantheon.
 function relicGrantable(state, r) {
-  return (!r.needsGods || knowsGods(state)) && !r.bazaarOnly && !r.horologistOnly
+  return (!r.needsGods || knowsGods(state)) && !r.bazaarOnly && !r.horologistOnly && relicInReach(state, r)
+}
+
+// The multiplying relics (M3) wait for round 15, and the Legendary two are
+// Firmament only.
+function relicInReach(state, r) {
+  return state.round >= (r.minRound || 0) && (!r.firmament || state.realm === 'firmament')
 }
 
 function rollDeal(state, id) {
@@ -1513,7 +1522,8 @@ const SHOP_ONLY_CONSUMABLES = ['spark', 'loom']
 // size splits into two of the next size down (d20 into two d10, d10 into two
 // d5, d6 into two d3), a d5 chips into a d3 and a Transmute, and a d3 is
 // left alone.
-const SPLITS = { d20: 'd10', d10: 'd5', d6: 'd3' }
+// A die past d20 splits one size down (M2): a d30 into two d20, a d40 into two d30.
+const SPLITS = { d100: 'd90', d90: 'd80', d80: 'd70', d70: 'd60', d60: 'd50', d50: 'd40', d40: 'd30', d30: 'd20', d20: 'd10', d10: 'd5', d6: 'd3' }
 export function splitPlan(die) {
   if (SPLITS[die.tierId]) return { kind: 'two', tierId: SPLITS[die.tierId] }
   if (die.tierId === 'd5') return { kind: 'chip', tierId: 'd3' }

@@ -8,7 +8,8 @@
 //           Moment, a Null) to try every kind of forge past the door.
 //           Since v0.8.1 (EXPANSION.md L6) it also holds Water, Air, Earth and
 //           Fire dice, the five family relics, all four Totems at level 1 or
-//           2 plus one of each in the bag, and has seen two Firmament
+//           2 plus one of each in the bag, the four multiplying relics (v0.8.2)
+//           and Constellations at levels 4, 5 and 10, and has seen two Firmament
 //           reactions, so Tide, Drift, Totems and the Gallery's new section
 //           can be tried at once.
 //   File 2: Split path.
@@ -76,7 +77,8 @@ function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extra
   })
   s = { ...s, activeSlot: null, difficulty: { ...s.difficulty, thresholdBase: 1, thresholdGrowth: 1 }, threshold: 1 }
   for (let i = 0; i < 200 && !(s.round === 15 && s.phase === 'rolling'); i++) {
-    if (s.phase === 'rolling') s = gameReducer(s, { type: 'SUBMIT_ROUND' })
+    // The curve (M1) no longer follows thresholdBase alone, so pin the target.
+    if (s.phase === 'rolling') s = gameReducer({ ...s, threshold: 1 }, { type: 'SUBMIT_ROUND' })
     else if (s.phase === 'bossReward') s = gameReducer(s, { type: 'CHOOSE_BOSS_REWARD', dieId: s.dice[0].id, slot: 'dice' })
     else if (s.phase === 'shop') {
       if (s.round === 14) s = { ...s, accord: path === 'primordial' ? 20 : path === 'split' ? -20 : 0 }
@@ -85,6 +87,7 @@ function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extra
       s = gameReducer(s, { type: 'NEXT_ROUND' })
     } else throw new Error(`unexpected phase ${s.phase}`)
   }
+  s = { ...s, threshold: 1 }
   if (s.path !== path) throw new Error(`${seed} landed on ${s.path}, wanted ${path}`)
   // Two runed dice that clash on their top face, and (File 1) base dice.
   const runed = s.dice.map((d, i) =>
@@ -106,8 +109,11 @@ function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extra
   }))
   const kit = familyKit
     ? {
-        relics: ['deep_current', 'spring_tide', 'gale_seal', 'second_wind', 'standing_stones'].map((id) => relicById(id)),
+        relics: ['deep_current', 'spring_tide', 'gale_seal', 'second_wind', 'standing_stones', 'crown_of_ages', 'heart_of_the_forge', 'starmap', 'echo_chamber'].map((id) => relicById(id)),
+        relicCapBonus: 4,
         totems: { fire: 1, water: 2, earth: 1, air: 1 },
+        // Pair at the level-5 milestone, Kindle at 10, Straight at 4 (EXPANSION.md M4).
+        constellations: { pair: 5, kindle: 10, straight: 4, three: 1 },
         consumables: ['totem_fire', 'totem_water', 'totem_earth'].map((id, k) => ({ ...consumableById(id), instanceId: `test-${id}-${k}` })),
       }
     : {}

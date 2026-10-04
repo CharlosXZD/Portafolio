@@ -502,6 +502,11 @@ export const ITEM_ART = {
   rune_kinship: ['stone', '#ffb8e8', '#ffffff'],
   rune_ember: ['stone', '#ff8a4d', '#ffffff'],
   rune_anchor: ['stone', '#9fb4c8', '#ffffff'],
+  // The multiplying relics (M3).
+  crown_of_ages: ['crown', '#ffd166', '#ffffff'],
+  heart_of_the_forge: ['heart', '#e5533d', '#ffd166'],
+  starmap: ['scroll', '#3d5fa5', '#ffd166'],
+  echo_chamber: ['ring', '#c9a46b', '#ffffff'],
   // Family growth (L3, L4).
   deep_current: ['wave', '#1f5fb0', '#9fe8e0'],
   spring_tide: ['shell', '#9fc8ff', '#ffffff'],

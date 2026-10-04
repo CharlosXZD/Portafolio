@@ -27,6 +27,8 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 - **Dice details (v0.6.5):** three levels. Hover: name, type, families, current score. Click (still holds or releases the die): the short description and keyword tags. Click and hold about half a second, right-click, or the Info button: the full description. The Gallery shows the full one.
 - **Loadouts and stakes (v0.6.5):** each loadout shows one flame per difficulty, lit once that loadout has beaten it. Dice in your final pool when you beat Cataclysm wear a gold star in the Gallery.
 - **Rerolls:** 3 per round (Inferno and Cataclysm: 2). Locks on Water-family dice are free and refund +1.
+- **Targets (v0.8.2, M1):** round 1 is 14 on Ember, then x1.37 a round to round 10 (238), x1.45 to round 15 (1,526), x1.40 after (round 20: 8,205; 25: 44,130; 30: 237,342). Warden and difficulty multipliers apply last.
+- **Multiplying relics (v0.8.2):** the first x-Mult sources, sold from round 15 (Crown of Ages and Echo Chamber only in the Firmament): Crown of Ages x(1 + round / 20), Heart of the Forge x1.15 per fusion die, Starmap x(1 + 0.05 per Constellation level owned), Echo Chamber (the best reaction triggers twice). Each is one ledger line.
 - **Economy:** clearing pays 5 Shards, +1 per 25% over target (max +15), plus interest (1 per 3 Shards held, max 5).
 - **Lives:** 3. A miss costs one, then Tobb's **Camp** (see §7) and you retry the round. +1 life back every 4th round cleared.
 - **Caps:** 10 dice, 5 relics, 3 consumables (boss rewards and deals change these).
@@ -162,7 +164,7 @@ Five arcane dice (no element, family "Arcane") sold only past the door: in Firma
 
 - **Kairos** is the old Chrono under a new name (a save from before v0.7 is renamed on load). It stays in Elementa's arcane pool.
 - **Warp** is an edition a die can carry: a violet WARP badge. A Warp die does not count toward the dice cap; at most 3 Warp dice at once. Space always has it, the Warp Seal gives it, a Firmament die offer has a 2% chance to come with it (+12 Shards), and Mote's secret stock sells Warp dice.
-- **Past d20:** in the Firmament, Aether, the Mythic dice and Entropy grow in steps of 10 up to d100 (the Forge's growth, Upgrade Stones, boss rewards, Blessing of Flame). Growing costs the new size in Shards (d30 costs 30); they sell for half their sides. They are drawn as a d20 with the size printed on it.
+- **Past d20 (v0.8.2: every die):** in the Firmament any die grows in steps of 10 up to d100 (shop upgrades, Upgrade Stones, boss rewards, Blessing of Flame); Elementa dice stop at d20. A Chisel splits a big die one size down (a d30 into two d20). Faces scale linearly, so this is the main late lever. Growing costs the new size in Shards (d30 costs 30); they sell for half their sides. They are drawn as a d20 with the size printed on it.
 
 ### Keyword tags (v0.6.5)
 Hovering or tapping a tag shows its definition. A die's short description shows the first four; the full description lists them all.
@@ -276,7 +278,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 
 ---
 
-## 3. Relics (50 total)
+## 3. Relics (54 total)
 
 ### Fire family
 | Relic | Rarity | Price | Effect |
@@ -345,6 +347,10 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Heart of the Circle** | Rare | 12 | The middle die (or two) of your pool scores double. |
 | **Ley Line** | Epic | 18 | Your first and last dice count as neighbors, so they can react. |
 | **Pantheon** | Legendary | 28 | Every god die you hold gives +2 Mult. Sold only in the Aether Bazaar. Offered only once the god recipes are known. |
+| **Crown of Ages** | Legendary | 28 | Multiplies your Mult by 1 + round / 20 (x1.75 at round 15, x2.5 at round 30). Sold from round 15. Firmament only. |
+| **Heart of the Forge** | Epic | 18 | Every fusion die in your pool multiplies your Mult by x1.15. Sold from round 15. |
+| **Starmap** | Epic | 18 | Multiplies your Mult by 1 + 0.05 for every Constellation level you own, all ten added up. Sold from round 15. |
+| **Echo Chamber** | Legendary | 28 | The best reaction of the cast (by Mult) triggers twice. Sold from round 15. Firmament only. |
 | **Mainspring** | Epic | 18 | Rerolls you do not use are banked for the next round, up to 3. Sold only by the Horologist, in the Firmament. |
 | **Cuckoo Clock** | Epic | 18 | Clear a round with 0 rerolls left: +5 Shards and +1 Mult on the next round. Sold only by the Horologist, in the Firmament. |
 
@@ -404,7 +410,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Gem Socket** | Epic | 18 | A die | Apply to a die: a second rune can stack on a number that already has one, instead of replacing it. |
 | **Catalyst** | Rare | 12 | You | In the Forge: one volatile fusion forges 100% safe (it cannot collapse). Used when you forge. Firmament only: Vesper and the Astral Exchange. |
 
-**Constellations (v0.7.5).** Used from a shop or mid-round, they apply at once and need no target; "Buy & use" in a shop spends no slot. Each levels one thing for the rest of the run, up to **level 10**: the seven base reactions (Kindle, Forge, Scald, Mist, Bloom, Dust Devil, Resonance) and the three set types (Pair, Three of a kind, Straight). The bonus is added inside the thing's own ledger line, which reads "Kindle Lv 3". Secret reactions do not level. Levels are saved with the run and listed in Run Info. Black Hole gives every one a level (those at 10 stay). Seren's Observatory sells them (four a visit, duplicates allowed, Black Hole about 2% of offers); other Firmament shops stock them at low weight (a tenth to a twentieth of their items). Using one at level 10 does nothing and keeps it.
+**Constellations (v0.7.5).** Used from a shop or mid-round, they apply at once and need no target; "Buy & use" in a shop spends no slot. Each levels one thing for the rest of the run, up to **level 10**: the seven base reactions (Kindle, Forge, Scald, Mist, Bloom, Dust Devil, Resonance) and the three set types (Pair, Three of a kind, Straight). The bonus is added inside the thing's own ledger line, which reads "Kindle Lv 3". Secret reactions do not level. Levels are saved with the run and listed in Run Info. Black Hole gives every one a level (those at 10 stay). Seren's Observatory sells them (four a visit, duplicates allowed, Black Hole about 2% of offers); other Firmament shops stock them at low weight (a tenth to a twentieth of their items). Using one at level 10 does nothing and keeps it. **Milestones (v0.8.2):** at level 5 the Mult that reaction (or set tier) gives is doubled, at level 10 tripled; a reaction with no Mult of its own (Forge, Bloom, Dust Devil, Resonance) doubles or triples its Base instead. Black Hole counts, and Run Info marks the milestone pips and shows the factor ("Lv 10 x3").
 
 **Totems (v0.8.1).** The same idea as Constellations, for the four families: each Totem levels one family's ability for the run, up to **level 5**, applies at once with no target and can be "Buy & use". Levels live in `state.totems` ({ fire, water, earth, air }), appear in Run Info and on the ledger ("Tide Lv 2", "Explosions x3 Lv 2"). Uncommon, 8 Shards, weight 0.3 in the normal consumable pool. Unlike Constellations they are **not Firmament-only**: every Firmament shop and Elementa's Market stock them (no other Elementa shop), and Seren's Observatory has them at weight 0.6 next to the Constellations. They have their own Gallery family, "Totems".
 

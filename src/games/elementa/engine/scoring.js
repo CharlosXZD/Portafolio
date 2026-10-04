@@ -248,6 +248,8 @@ function setBonusTier(maxGroupSize, longestRun, noStraight) {
   return null
 }
 
+// Fusions for Heart of the Forge (M3): doubles, triples and Aether; the element fusions are doubles.
+const FUSION_TIERS = [TIERS.DOUBLE, TIERS.TRIPLE, TIERS.QUADRA]
 const BASE_TIER_MULT = { pair: 1, three: 2, straight: 3 }
 
 // Which relic (if any) supplied an effect key, so the score breakdown can
@@ -353,13 +355,15 @@ function findReactions(perDie, fx, extraMult = 0, constellations = null) {
                 ? (a.value + b.value) * 2
                 : r.base
       // A Constellation's levels (J1) add on top, base reactions only.
-      const lv = r.secret || r.mythic ? { level: 0, base: 0, mult: 0 } : levelBonus(constellations, id)
-      const mult = r.mult > 0 ? r.mult + (fx.reactionMultBonus || 0) + extraMult + lv.mult : 0
+      const lv = r.secret || r.mythic ? { level: 0, base: 0, mult: 0, factor: 1 } : levelBonus(constellations, id)
+      // A milestone (M4) doubles or triples the reaction's Mult, or its Base when it has no Mult.
+      const hasMult = r.mult > 0
+      const mult = hasMult ? (r.mult + (fx.reactionMultBonus || 0) + extraMult + lv.mult) * lv.factor : 0
       found.push({
         id,
         a: i,
         b: j,
-        base: (base + (fx.reactionBaseBonus || 0) + lv.base) * factor,
+        base: (base + (fx.reactionBaseBonus || 0) + lv.base) * (hasMult ? 1 : lv.factor) * factor,
         mult: mult * factor,
         secret: Boolean(r.secret),
         level: lv.level,
@@ -706,6 +710,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   }
 
   const reactions = findReactions(perDie, fx, ctx.reactionMultBonus || 0, ctx.constellations)
+  // Echo Chamber (M3): the best reaction of the cast (by Mult) triggers twice.
+  if (fx.echoChamber && reactions.length) {
+    const best = reactions.reduce((b, r) => (r.mult > b.mult ? r : b), reactions[0])
+    if (best.mult > 0 || best.base > 0) reactions.push({ ...best, echoed: true })
+  }
   reactions.forEach((r) => {
     if (r.base > 0) {
       baseValue += r.base
@@ -727,7 +736,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   if (setTier) {
     const relicBonus = fx.setBonusMultBonus?.[setTier] || 0
     const lv = levelBonus(ctx.constellations, setTier)
-    let tierMult = BASE_TIER_MULT[setTier] + relicBonus + lv.mult
+    let tierMult = (BASE_TIER_MULT[setTier] + relicBonus + lv.mult) * lv.factor
     if (fx.waterFamilySetBonusDouble && setIsAllWaterFamily) tierMult *= 2
     if (setTier === 'pair' && fx.pairMultBonus) tierMult += fx.pairMultBonus
     addMult({ kind: 'set', tier: setTier, value: tierMult, level: lv.level })
@@ -797,6 +806,15 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
   if (ctx.permanentMult) addMult({ kind: 'boon', id: 'severed_grace', value: ctx.permanentMult })
   // The Metronome and the Cuckoo Clock (I2).
   ;(ctx.bonusMult || []).forEach((line) => addMult({ ...line }))
+  // The multiplying relics (M3): each is one ledger line.
+  const multMult = (id, key, value) => {
+    if (!(value > 1)) return
+    multiplier *= value
+    multLines.push({ kind: 'relic', id: sourceOf(relics, key) ?? id, value: Math.round(value * 1000) / 1000, op: 'mul' })
+  }
+  if (fx.roundMultMult) multMult('crown_of_ages', 'roundMultMult', 1 + (ctx.round || 0) / 20)
+  if (fx.fusionMultMult) multMult('heart_of_the_forge', 'fusionMultMult', Math.pow(fx.fusionMultMult, perDie.filter((d) => FUSION_TIERS.includes(ELEMENTS[d.elementId]?.tier)).length))
+  if (fx.constellationMult) multMult('starmap', 'constellationMult', 1 + fx.constellationMult * Object.values(ctx.constellations || {}).reduce((a, b) => a + Math.min(b || 0, 10), 0))
   if (fx.finalMultFactor) {
     multiplier *= fx.finalMultFactor
     multLines.push({ kind: 'relic', id: sourceOf(relics, 'finalMultFactor'), value: fx.finalMultFactor, op: 'mul' })

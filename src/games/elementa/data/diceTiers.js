@@ -5,8 +5,8 @@ export const DICE_TIERS = [
   { id: 'd6', sides: 6, label: 'D6', upgradeCost: 6, sellValue: 3 },
   { id: 'd10', sides: 10, label: 'D10', upgradeCost: 12, sellValue: 6 },
   { id: 'd20', sides: 20, label: 'D20', upgradeCost: 20, sellValue: 10 },
-  // Past d20 (EXPANSION.md H5): only Aether, the Mythic dice and Entropy grow
-  // this far, in steps of 10, in the Firmament. Growing costs the new size.
+  // Past d20 (EXPANSION.md H5, M2): any die grows this far in the Firmament,
+  // in steps of 10. Growing costs the new size.
   { id: 'd30', sides: 30, label: 'D30', upgradeCost: 30, sellValue: 15, bigOnly: true },
   { id: 'd40', sides: 40, label: 'D40', upgradeCost: 40, sellValue: 20, bigOnly: true },
   { id: 'd50', sides: 50, label: 'D50', upgradeCost: 50, sellValue: 25, bigOnly: true },
