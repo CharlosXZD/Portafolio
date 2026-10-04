@@ -75,6 +75,12 @@ export const DICE_TEXT = {
   dead_star: T('What is left when a fusion collapses. It weighs on everything around it.', 'Lo que queda cuando una fusión colapsa. Pesa sobre todo lo que la rodea.', ['empty', 'charged']),
 }
 
+// v0.8.5 (EXPANSION.md O3): poker dice.
+const POKER_TEXT = {
+  poker: T('Nine to Ace. Sit a few together at the table and the house starts paying.', 'Del nueve al As. Junta algunos en la mesa y la casa empieza a pagar.', ['poker']),
+  joker: T('The card nobody counted. Its seventh face is whatever you need.', 'La carta que nadie contó. Su séptima cara es lo que necesites.', ['poker', 'wild']),
+}
+
 // v0.8.3 (EXPANSION.md N5): the new dice.
 Object.assign(DICE_TEXT, {
   timelike_curve: T('A loop that closes on itself. Be quick, and it pays double.', 'Un bucle que se cierra sobre sí mismo. Sé rápido, y paga el doble.', ['charged', 'loop']),
@@ -86,6 +92,8 @@ Object.assign(DICE_TEXT, {
   time_ghost: T('Your own past score, standing beside you for one round.', 'Tu propio puntaje pasado, a tu lado durante una ronda.', ['summon']),
   entanglement: T('Two dice, one fate. It borrows a stranger\'s whole self.', 'Dos dados, un destino. Toma prestado todo el ser de un desconocido.', ['charged', 'copy']),
 })
+
+Object.assign(DICE_TEXT, POKER_TEXT)
 
 export function diceText(elementId, lang = 'en') {
   const entry = DICE_TEXT[elementId]

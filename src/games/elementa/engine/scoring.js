@@ -1,10 +1,11 @@
-import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily, actingElementIds, chargedOf, isTempDie, PURE_ELEMENT_IDS } from '../data/elements.js'
+import { ELEMENTS, FLAGS, TIERS, reactionElementsOf, inFamily, actingElementIds, chargedOf, isTempDie, PURE_ELEMENT_IDS, COSMIC_BASE_IDS } from '../data/elements.js'
 import { tierById } from '../data/diceTiers.js'
 import { REACTIONS, reactionById } from '../data/reactions.js'
 import { random } from './rng.js'
 import { godPowers, rollContext } from './gods.js'
 import { levelBonus } from '../data/constellations.js'
 import { hasActiveRune } from '../data/runes.js'
+import { isPokerId, JOKER_FACE, bestHand } from '../data/poker.js'
 import { totemLevel, tideShare, FIRE_TOTEM_MULT } from '../data/totems.js'
 
 const DEFAULT_EXPLODE_CAP = 10
@@ -110,6 +111,11 @@ export function starChain(dice) {
 }
 
 export function rollDie(elementId, sides, relics = [], ctx = {}) {
+  // Poker dice (O3): one of the faces 9 to Ace (the Joker's seventh is wild).
+  if (ctx.pokerFaces) {
+    const value = ctx.pokerFaces[randInt(ctx.pokerFaces.length) - 1]
+    return { value, total: value, explosions: 0, chain: [value], rollId: random() }
+  }
   const fx = relicEffects(relics)
   const bias = ctx.oneBias ?? 1
   let value = rollFace(sides, bias)
@@ -405,7 +411,30 @@ function secretPairMatches([x, y], a, b) {
   return (match(x, a) && match(y, b)) || (match(x, b) && match(y, a))
 }
 
-function findReactions(perDie, fx, extraMult = 0, constellations = null) {
+// The element that makes the best reaction with the given elements (Rune of
+// Link, O1): the same rating Chaos uses, ties going to the first in this order.
+const LINK_CANDIDATES = [...PURE_ELEMENT_IDS, ...COSMIC_BASE_IDS]
+function bestElementFor(elements, candidates = LINK_CANDIDATES) {
+  let best = null
+  let bestRating = 0
+  for (const e of candidates) {
+    let rating = 0
+    for (const r of REACTIONS) {
+      if (!r.elements) continue
+      const [x, y] = r.elements
+      if ((e === x && elements.includes(y)) || (e === y && elements.includes(x))) rating = Math.max(rating, reactionRating(r))
+    }
+    if (rating > bestRating) {
+      best = e
+      bestRating = rating
+    }
+  }
+  return best
+}
+
+function findReactions(perDie, fx, extraMult = 0, constellations = null, firmament = false) {
+  // Link can only become an element the run has met (the Firmament's six come with the door).
+  const candidates = firmament ? LINK_CANDIDATES : PURE_ELEMENT_IDS
   const found = []
   // A Rune of Kinship (J3): for reactions, the die is its left neighbor.
   // Since K3b it works only when the die shows the rune's number.
@@ -420,8 +449,14 @@ function findReactions(perDie, fx, extraMult = 0, constellations = null) {
     const strict = (a.contribution > 0 || a.reactsAtZero) && (b.contribution > 0 || b.reactsAtZero)
     const ra = reactAs[i]
     const rb = reactAs[j]
-    const ea = [...reactionElementsOf(ra), ...(a.reactForm ? [a.reactForm] : [])]
-    const eb = [...reactionElementsOf(rb), ...(b.reactForm ? [b.reactForm] : [])]
+    let ea = [...reactionElementsOf(ra), ...(a.reactForm ? [a.reactForm] : [])]
+    let eb = [...reactionElementsOf(rb), ...(b.reactForm ? [b.reactForm] : [])]
+    // A Rune of Link (O1): on its number the die reacts with each neighbor as
+    // the element that makes the best reaction with that neighbor.
+    const linkA = hasActiveRune(a, 'link') ? bestElementFor(eb, candidates) : null
+    const linkB = hasActiveRune(b, 'link') ? bestElementFor(ea, candidates) : null
+    if (linkA) ea = [linkA]
+    if (linkB) eb = [linkB]
     const ids = new Set()
     // Mythic dice have no element: only the secret reactions that name them
     // can fire (v0.7).
@@ -606,7 +641,10 @@ function evaluateCore(dice, relics = [], ctx = {}) {
         (d, i) =>
           (fx.earthWildcardForSets && d.elementId === 'earth') ||
           (gaeaPower && inFamily(d.elementId, 'earth') && !powers.some((p) => p.index === i && p.god === 'gaea')) ||
-          powers.some((p) => p.index === i && p.god === 'zephyr'),
+          powers.some((p) => p.index === i && p.god === 'zephyr') ||
+          // A Rune of Wild on its number, or a Joker on its wild face (O1, O3).
+          hasActiveRune(d, 'wild') ||
+          (d.elementId === 'joker' && d.value === JOKER_FACE),
       )
       .map((d) => d.id)
     const wildcardCount = wildcardIds.length
@@ -682,6 +720,12 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     // A Comet that exploded scores its whole total twice (I1).
     const cometFactor = hasFlag(d.actingAs, FLAGS.COMET) && (d.explosions || 0) > 0 ? 2 : 1
     let contribution = fizzled || zeroTargets.has(i) || banned || out ? 0 : d.total * cometFactor
+    // Law of Small Things (O2): a d3 scores x3 and a d5 x2, as if they were d10s.
+    if (fx.lawSmall && contribution > 0 && (d.sides === 3 || d.sides === 5)) {
+      const factor = d.sides === 3 ? 3 : 2
+      contribution *= factor
+      noteBoost(d, { law: 'law_small', from: i, factor })
+    }
     // Entropy (H5): its face + 104.
     if (contribution > 0 && hasFlag(d.actingAs, FLAGS.ENTROPY)) contribution += 104
 
@@ -791,6 +835,17 @@ function evaluateCore(dice, relics = [], ctx = {}) {
       noteBoost(perDie[j], { id: 'singularity', from: i, factor: 3 })
     }
   })
+  // Law of Echo (O2): your highest-scoring die counts twice.
+  if (fx.lawEcho && perDie.length) {
+    let top = 0
+    perDie.forEach((d, i) => {
+      if (d.contribution > perDie[top].contribution) top = i
+    })
+    if (perDie[top].contribution > 0) {
+      perDie[top].contribution *= 2
+      noteBoost(perDie[top], { law: 'law_echo', from: top, factor: 2 })
+    }
+  }
   // A Rune of Echo (K3b): on its number the die scores twice, after Beacon.
   perDie.forEach((d, i) => {
     if (!hasActiveRune(d, 'echo') || !(d.contribution > 0)) return
@@ -886,11 +941,27 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     baseLines.push({ kind: 'relic', id: sourceOf(relics, 'explodeFlatBonus'), value: v, op: 'add' })
   }
 
-  const reactions = findReactions(perDie, fx, ctx.reactionMultBonus || 0, ctx.constellations)
+  // Law of Inversion (O2): the lowest die counts as the highest face.
+  if (fx.lawInversion && perDie.length > 1) {
+    const values = perDie.map((d) => d.value)
+    const gain = Math.max(...values) - Math.min(...values)
+    if (gain > 0) {
+      baseValue += gain
+      baseLines.push({ kind: 'relic', id: sourceOf(relics, 'lawInversion'), value: gain, op: 'add', dice: [values.indexOf(Math.min(...values))] })
+    }
+  }
+
+  const reactions = findReactions(perDie, fx, ctx.reactionMultBonus || 0, ctx.constellations, ctx.firmament)
   // Echo Chamber (M3): the best reaction of the cast (by Mult) triggers twice.
   if (fx.echoChamber && reactions.length) {
     const best = reactions.reduce((b, r) => (r.mult > b.mult ? r : b), reactions[0])
     if (best.mult > 0 || best.base > 0) reactions.push({ ...best, echoed: true })
+  }
+  // Law of Unity (O2): every reaction also counts as a Resonance, +2 Base each.
+  if (fx.lawUnity && reactions.length) {
+    const gain = 2 * reactions.length
+    baseValue += gain
+    baseLines.push({ kind: 'relic', id: sourceOf(relics, 'lawUnity'), value: gain, op: 'add' })
   }
   reactions.forEach((r) => {
     if (r.base > 0) {
@@ -979,6 +1050,8 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     // Quasar (I1): its face, flat, into Mult.
     if (hasFlag(d.actingAs, FLAGS.QUASAR) && !d.swallowed && !zeroTargets.has(i) && !(fx.bannedElementId && d.elementId === fx.bannedElementId)) addMult({ kind: 'celestial', id: 'quasar', value: d.total * 2, dice: [i] })
     // The Charged tag (N1): half of the face (or all of it) is also Mult, unless the die was swallowed.
+    // A Rune of Double (O1): on its number the die's score is also added to Mult.
+    if (hasActiveRune(d, 'double') && d.contribution > 0) addMult({ kind: 'rune', id: 'double', value: d.contribution, dice: [i] })
     const charge = chargedOf(d.elementId)
     if (charge && !d.swallowed) addMult({ kind: 'charged', id: 'charged', value: Math.round(d.value * (charge === 'full' ? 1 : 0.5) * 10) / 10, dice: [i] })
   })
@@ -991,6 +1064,20 @@ function evaluateCore(dice, relics = [], ctx = {}) {
   if (ctx.ctcActive && curve >= 0) {
     multiplier *= 2
     multLines.push({ kind: 'celestial', id: 'timelike_curve', value: 2, op: 'mul', dice: [curve] })
+  }
+  // Poker hands (O3): read among the poker dice only; the best one adds its Mult.
+  const pokerAt = perDie.flatMap((d, i) => (isPokerId(d.elementId) ? [i] : []))
+  const hand = bestHand(pokerAt.map((i) => perDie[i].value))
+  if (hand) addMult({ kind: 'poker', id: hand.id, value: hand.mult, dice: pokerAt })
+  // Law of Greed (O2): each 10 Shards held adds +1 Mult.
+  if (fx.lawGreed && ctx.shards >= 10) addMult({ kind: 'relic', id: sourceOf(relics, 'lawGreed'), value: Math.floor(ctx.shards / 10) })
+  // Law of Symmetry (O2): faces that read the same both ways double the Mult.
+  if (fx.lawSymmetry && perDie.length > 1) {
+    const faces = perDie.map((d) => d.value)
+    if (faces.every((v, i) => v === faces[faces.length - 1 - i])) {
+      multiplier *= 2
+      multLines.push({ kind: 'relic', id: sourceOf(relics, 'lawSymmetry'), value: 2, op: 'mul' })
+    }
   }
   // The multiplying relics (M3): each is one ledger line.
   const multMult = (id, key, value) => {
@@ -1021,6 +1108,8 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     baseLines,
     multLines,
     midasShards,
+    // A Rune of Gold (O1): 2 Shards each cast for every die showing its number.
+    goldShards: 2 * perDie.filter((d) => hasActiveRune(d, 'gold')).length,
     bullionShards,
     dice: perDie,
   }

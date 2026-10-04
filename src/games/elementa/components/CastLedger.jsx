@@ -8,6 +8,8 @@ import { consumableById } from '../data/consumables.js'
 import { ELEMENTS } from '../data/elements.js'
 import { overkillShards } from '../engine/scoring.js'
 import { dealById } from '../data/shops.js'
+import { handById } from '../data/poker.js'
+import { runeById } from '../data/runes.js'
 import { groupLines } from '../utils/ledgerGroups.js'
 
 const SET_TIER_LABEL = {
@@ -29,6 +31,9 @@ export function useLineLabel(discovered) {
     if (line.kind === 'explosions') return `${t('elementa.cast.explosions')} x${line.count}${lv}`
     // A family's own ability, Tide (L1).
     if (line.kind === 'family') return t(`elementa.cast.${line.id}`) + lv
+    // Poker hands (O3) and a Rune of Double (O1).
+    if (line.kind === 'poker') return `${handById(line.id)?.name[lang] ?? '?'} (${t('elementa.gallery.poker')})`
+    if (line.kind === 'rune') return runeById(line.id)?.name[lang] ?? '?'
     // The Charged tag (N1).
     if (line.kind === 'charged') return t('elementa.cast.charged')
     if (line.kind === 'set') return (SET_TIER_LABEL[lang][line.tier] ?? line.tier) + lv

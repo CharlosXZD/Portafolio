@@ -5,6 +5,7 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { playClick, playLand } from '../utils/sound.js'
 import { runeById, runesOf, faceCap } from '../data/runes.js'
+import { facesOf, faceLabel } from '../data/poker.js'
 import { localize, ELEMENTS_ES } from '../data/i18n.js'
 import { ELEMENTS } from '../data/elements.js'
 import DieToken from './DieToken.jsx'
@@ -27,7 +28,8 @@ const DRAG_STEP = 28
 export default function InscribeScreen({ die, runeId = null, choices = null, onConfirm, onCancel }) {
   const { t, lang } = useLanguage()
   const { reducedMotion } = useGameSettings()
-  const [face, setFace] = useState(die.sides)
+  const faces = facesOf(die)
+  const [face, setFace] = useState(faces[faces.length - 1])
   const [turn, setTurn] = useState(0)
   const [pick, setPick] = useState(0)
   const drag = useRef(null)
@@ -38,7 +40,8 @@ export default function InscribeScreen({ die, runeId = null, choices = null, onC
   const big = die.sides >= 30
 
   function go(delta) {
-    const next = ((face - 1 + delta) % die.sides + die.sides) % die.sides + 1
+    const at = faces.indexOf(face)
+    const next = faces[(((at + delta) % faces.length) + faces.length) % faces.length]
     setFace(next)
     setTurn((v) => v + Math.sign(delta))
     playLand(Math.min(die.sides, 20))
@@ -151,7 +154,7 @@ export default function InscribeScreen({ die, runeId = null, choices = null, onC
 
         {/* Every number, with a mark on the ones that already hold a rune. */}
         <div className="flex max-w-full flex-wrap justify-center gap-1">
-          {Array.from({ length: die.sides }, (_, i) => i + 1).map((n) => {
+          {faces.map((n) => {
             const marked = existing.filter((r) => r.face === n)
             return (
               <button
@@ -169,7 +172,7 @@ export default function InscribeScreen({ die, runeId = null, choices = null, onC
                 }}
                 aria-pressed={n === face}
               >
-                {n}
+                {faceLabel(die.elementId, n)}
                 {marked.length > 0 && (
                   <span className="absolute -right-1 -top-1 flex gap-px">
                     {marked.map((r, k) => (
@@ -184,7 +187,7 @@ export default function InscribeScreen({ die, runeId = null, choices = null, onC
 
         <p className="min-h-[1.5rem] text-sm" style={{ color: onFace.length ? '#ffd166' : 'var(--text-mute)' }}>
           {onFace.length === 0
-            ? t('elementa.inscribe.free').replace('{n}', face)
+            ? t('elementa.inscribe.free').replace('{n}', faceLabel(die.elementId, face))
             : stacks
               ? t('elementa.inscribe.stack').replace('{rune}', runeById(onFace[0].id)?.name[lang] ?? '')
               : t('elementa.inscribe.replace').replace('{rune}', runeById(onFace[0].id)?.name[lang] ?? '')}
@@ -196,7 +199,7 @@ export default function InscribeScreen({ die, runeId = null, choices = null, onC
             <span className="el-key">Esc</span>
           </button>
           <button type="button" onClick={confirm} className="el-btn el-btn--gold el-btn--lg">
-            {t('elementa.inscribe.confirm').replace('{n}', face)}
+            {t('elementa.inscribe.confirm').replace('{n}', faceLabel(die.elementId, face))}
             <span className="el-key">Enter</span>
           </button>
         </div>

@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { localizeBossModifier } from '../data/i18n.js'
-import { dieDescriptor } from '../data/itemDescriptors.js'
+import { dieDescriptor, relicDescriptor } from '../data/itemDescriptors.js'
+import { relicById } from '../data/relics.js'
 import { selectors } from '../engine/gameReducer.js'
 import { playClick, playCoin } from '../utils/sound.js'
 import DieSprite from './DieSprite.jsx'
@@ -22,6 +23,7 @@ export default function BossReward({ state, dispatch }) {
   const boss = localizeBossModifier(state.bossModifier, lang)
   const [dieId, setDieId] = useState(null)
   const [slot, setSlot] = useState(null)
+  const [lawId, setLawId] = useState(null)
   const canGrow = state.dice.some((d) => selectors.growTier(state, d))
   const ready = slot && (dieId || !canGrow)
 
@@ -134,12 +136,42 @@ export default function BossReward({ state, dispatch }) {
         </div>
       </section>
 
+      {/* The optional third choice after a Warden or a round-10 boss (O2). */}
+      {(state.rewardLaws || []).length > 0 && (
+        <section className="flex w-full flex-col items-center gap-4">
+          <span className="pixel-heading text-[11px] text-[var(--gold-hi)]">3. {t('elementa.bossReward.lawTitle')}</span>
+          <span className="text-base text-[var(--text-dim)]">{t('elementa.bossReward.lawBody')}</span>
+          <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
+            {state.rewardLaws.map((id) => {
+              const item = relicDescriptor(relicById(id), lang)
+              const on = lawId === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => {
+                    playClick()
+                    setLawId(on ? null : id)
+                  }}
+                  className="el-panel flex flex-col items-center gap-2 p-4 text-center"
+                  style={{ '--edge': on ? 'var(--gold-1)' : 'var(--gold-3)', outline: on ? '3px solid var(--gold-1)' : undefined, outlineOffset: 4 }}
+                >
+                  <span className="pixel-heading text-[10px] text-[var(--gold-hi)]">{item.name}</span>
+                  <span className="text-base leading-snug text-[var(--text-dim)]">{item.description}</span>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
       <button
         type="button"
         disabled={!ready}
         onClick={() => {
           playCoin()
-          dispatch({ type: 'CHOOSE_BOSS_REWARD', dieId, slot })
+          dispatch({ type: 'CHOOSE_BOSS_REWARD', dieId, slot, lawId })
         }}
         className="el-btn el-btn--green el-btn--lg"
       >

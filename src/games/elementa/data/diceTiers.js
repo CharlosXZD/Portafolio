@@ -17,6 +17,13 @@ export const DICE_TIERS = [
   { id: 'd100', sides: 100, label: 'D100', upgradeCost: 100, sellValue: 50, bigOnly: true },
 ]
 
+// The poker dice (EXPANSION.md O3) have fixed faces and no upgrades: their
+// "size" is the highest number they show.
+export const POKER_TIERS = [
+  { id: 'poker', sides: 14, label: 'POKER', upgradeCost: null, sellValue: 5 },
+  { id: 'joker', sides: 15, label: 'JOKER', upgradeCost: null, sellValue: 8 },
+]
+
 /** The next size up; `big` lets a die grow past d20 (H5). */
 export function nextTier(tierId, big = false) {
   const idx = DICE_TIERS.findIndex((t) => t.id === tierId)
@@ -35,7 +42,7 @@ export function prevTier(tierId) {
 }
 
 export function tierById(tierId) {
-  return DICE_TIERS.find((t) => t.id === tierId)
+  return DICE_TIERS.find((t) => t.id === tierId) ?? POKER_TIERS.find((t) => t.id === tierId)
 }
 
 // Selling always pays out less than buying (see GDD.md §6).

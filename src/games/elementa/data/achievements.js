@@ -4,7 +4,7 @@
 export const ACHIEVEMENTS = [
   { id: 'first_clear', name: 'First Spark', description: 'Clear your first round.', sprite: ['flame', '#ffd166'] },
   { id: 'first_win', name: 'Keeper of the Circle', description: 'Win a run.', sprite: ['crown', '#ffd166', '#e5533d', '#3d8fe5'] },
-  { id: 'all_loadouts', name: 'Every Path', description: 'Win with all 8 loadouts.', sprite: ['book', '#8f6bff', '#ffd166'] },
+  { id: 'all_loadouts', name: 'Every Path', description: 'Win with every loadout.', sprite: ['book', '#8f6bff', '#ffd166'] },
   { id: 'cataclysm', name: 'Through the Fire', description: 'Win a run on Cataclysm.', sprite: ['flame', '#7c3aed', '#ff5a5a'] },
   { id: 'cast_1000', name: 'Big Cast', description: 'Score 1,000 in a single cast.', sprite: ['bolt', '#f2c94c'] },
   { id: 'cast_10000', name: 'Colossal Cast', description: 'Score 10,000 in a single cast.', sprite: ['bolt', '#ff7ad9'] },
@@ -63,7 +63,7 @@ export const ACHIEVEMENTS = [
 export const ACHIEVEMENTS_ES = {
   first_clear: { name: 'Primera Chispa', description: 'Supera tu primera ronda.' },
   first_win: { name: 'Guardián del Círculo', description: 'Gana una partida.' },
-  all_loadouts: { name: 'Todos los Caminos', description: 'Gana con los 8 equipos iniciales.' },
+  all_loadouts: { name: 'Todos los Caminos', description: 'Gana con todos los equipos iniciales.' },
   cataclysm: { name: 'A Través del Fuego', description: 'Gana una partida en Cataclismo.' },
   cast_1000: { name: 'Gran Hechizo', description: 'Anota 1,000 en un solo lanzamiento.' },
   cast_10000: { name: 'Hechizo Colosal', description: 'Anota 10,000 en un solo lanzamiento.' },

@@ -75,6 +75,20 @@ export const RUNES = [
     "Inscribe on a number: when the die shows it, it cannot fizzle (good on a Fire die's 1).",
     'Inscríbela en un número: cuando el dado lo muestra, no puede apagarse (buena en el 1 de un dado de Fuego).',
   ),
+  R('wild', 'Wild', 'Comodín', 'Wild', 'Comodín', 'epic', '#e9dcff', 'Inscribe on a number: when the die shows it, it counts as any value for sets.', 'Inscríbela en un número: cuando el dado lo muestra, cuenta como cualquier valor en los sets.'),
+  R('gold', 'Gold', 'Oro', 'Gold', 'Oro', 'uncommon', '#ffd166', 'Inscribe on a number: when the die shows it, it pays 2 Shards each cast.', 'Inscríbela en un número: cuando el dado lo muestra, paga 2 Fragmentos por lanzamiento.'),
+  R(
+    'link',
+    'Link',
+    'Enlace',
+    'Link',
+    'Enlace',
+    'rare',
+    '#8fe8d0',
+    'Inscribe on a number: when the die shows it, it reacts with both neighbors as the element that makes the best reaction with each.',
+    'Inscríbela en un número: cuando el dado lo muestra, reacciona con ambos vecinos como el elemento que hace la mejor reacción con cada uno.',
+  ),
+  R('double', 'Double', 'Doble', 'Double', 'Doble', 'rare', '#ff9ad9', 'Inscribe on a number: when the die shows it, its score is also added to Mult, once per cast.', 'Inscríbela en un número: cuando el dado lo muestra, su puntaje también se suma al Mult, una vez por lanzamiento.'),
 ]
 
 export const runeById = (id) => RUNES.find((r) => r.id === id)

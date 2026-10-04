@@ -502,6 +502,17 @@ export const ITEM_ART = {
   rune_kinship: ['stone', '#ffb8e8', '#ffffff'],
   rune_ember: ['stone', '#ff8a4d', '#ffffff'],
   rune_anchor: ['stone', '#9fb4c8', '#ffffff'],
+  rune_wild: ['stone', '#e9dcff', '#ffffff'],
+  rune_gold: ['stone', '#ffd166', '#ffffff'],
+  rune_link: ['stone', '#8fe8d0', '#ffffff'],
+  rune_double: ['stone', '#ff9ad9', '#ffffff'],
+  // Laws (O2).
+  law_inversion: ['scroll', '#c8b6ff', '#ffd166'],
+  law_unity: ['ring', '#ffd166', '#c8b6ff'],
+  law_symmetry: ['gem', '#9fe8e0', '#ffffff'],
+  law_greed: ['coin', '#ffd166', '#ffffff'],
+  law_echo: ['orb', '#9fd8ff', '#ffffff'],
+  law_small: ['stone', '#e8d8b0', '#ffffff'],
   // The multiplying relics (M3).
   crown_of_ages: ['crown', '#ffd166', '#ffffff'],
   heart_of_the_forge: ['heart', '#e5533d', '#ffd166'],

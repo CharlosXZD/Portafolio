@@ -828,7 +828,7 @@ export default function ShopScreen({ state, dispatch }) {
                   actions={[
                     {
                       label: buyLabel(cost),
-                      disabled: state.shards < cost || relicsFull,
+                      disabled: state.shards < cost || (relicsFull && !relic.law),
                       onClick: () => buy({ type: 'BUY_RELIC', relicId: offer.id }),
                     },
                   ]}

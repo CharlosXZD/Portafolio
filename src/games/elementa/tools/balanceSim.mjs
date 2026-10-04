@@ -4,7 +4,7 @@
 // pass rate and the median and 90th percentile of (best score / target).
 // It does NOT use consumables, Constellations, Totems or the new elements, so
 // it is a floor, not a skilled player. Run: node tools/balanceSim.mjs ember 60 30
-// (difficulty, runs, last round, 'aided', 'immortal'). Past round 15 it continues in Endless mode.
+// (difficulty, runs, last round, 'aided', 'immortal'); DECK=gambler picks one loadout. Past round 15 it continues in Endless mode.
 // 'aided' (EXPANSION.md M5) also takes the late scalers: it buys the multiplying
 // relics first, spends on Constellations and Totems (steering the Road to the
 // Observatory and the Forge), and keeps upgrading dice past d20 in the Firmament.
@@ -13,7 +13,7 @@
 import { gameReducer, selectors } from '../engine/gameReducer.js'
 import { evaluatePool } from '../engine/scoring.js'
 import { nextChoices } from '../engine/map.js'
-import { ELEMENTS, NEW_DICE_IDS } from '../data/elements.js'
+import { ELEMENTS, NEW_DICE_IDS, POKER_DIE_IDS } from '../data/elements.js'
 import { DECKS } from '../data/decks.js'
 import { DIFFICULTIES } from '../data/difficulty.js'
 const DIFFICULTIES_BY_ID = (id) => DIFFICULTIES.find((d) => d.id === id)
@@ -71,8 +71,8 @@ function shop(s) {
     if (did) continue
     // buy a die if room
     if (selectors.poolSize(s.dice) < selectors.maxDiceFor(s)) {
-      // Aided: the dice of v0.8.3 first (they arrive at the pool's level)
-      const buyable = [...(s.shop?.buyableElements || [])].sort((a, b) => (aided ? +NEW_DICE_IDS.includes(b) - +NEW_DICE_IDS.includes(a) : 0))
+      // Aided: poker dice (v0.8.5) and the dice of v0.8.3 first
+      const buyable = [...(s.shop?.buyableElements || [])].sort((a, b) => (aided ? +(NEW_DICE_IDS.includes(b) || POKER_DIE_IDS.includes(b)) - +(NEW_DICE_IDS.includes(a) || POKER_DIE_IDS.includes(a)) : 0))
       for (const id of buyable) { const n = gameReducer(s, { type: 'BUY_DIE', elementId: id }); if (n !== s) { s = n; did = true; break } }
     }
     if (!did) break
@@ -162,7 +162,7 @@ if (process.argv.includes('build')) {
 const rows = {} // round -> {n, passed, ratios[]}
 let deaths = {}, reached = []
 for (let run = 0; run < runs; run++) {
-  const deck = DECKS[run % DECKS.length].id
+  const deck = process.env.DECK || DECKS[run % DECKS.length].id
   let s = gameReducer({ phase: 'title' }, { type: 'START_RUN', deckId: deck, difficultyId: diffId, seed: 'S' + run })
   let last = 0
   for (let step = 0; step < 400; step++) {

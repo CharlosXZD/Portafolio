@@ -6,6 +6,7 @@
 // engine/scoring.js; this file holds the rolling side.
 import { ELEMENTS, FLAGS, PRIMORDIAL_DIE_ID, inFamily } from '../data/elements.js'
 import { runesOf } from '../data/runes.js'
+import { isPokerId, pokerFaces } from '../data/poker.js'
 
 /** Every god power in the pool: { god, index, drawback }. */
 export function godPowers(dice) {
@@ -61,7 +62,8 @@ export function rollContext(die, dice, fx, acting = die.elementId) {
   const chainCap = ognen ? (fx.ognenUncapped ? Infinity : 10) : undefined
   // Varuna's drawback, and her trial: 1s come up 50% more often.
   const oneBias = fx.varunaCurse || powers.some((p) => p.god === 'varuna' && p.drawback) ? 1.5 : 1
-  return { explodeFrom, explodeChance, chainCap, oneBias, runeExplode, explodeFaces }
+  // A poker die (O3) rolls one of its own faces (9 to Ace), by the die itself, not by what it acts as.
+  return { explodeFrom, explodeChance, chainCap, oneBias, runeExplode, explodeFaces, pokerFaces: isPokerId(die.elementId) ? pokerFaces(die.elementId) : null }
 }
 
 const toFace = (d, value) => ({ ...d, value, total: value, explosions: 0 })

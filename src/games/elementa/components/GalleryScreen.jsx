@@ -44,6 +44,7 @@ const FAMILY_TEXT = {
     arcane: 'No element and no family. Arcane dice care about where they sit in your row.',
     neutral: 'Not tied to any element.',
     mythic: 'The Firmament\'s dice: no element, one of each per run, each the prize of a Warden.',
+    poker: 'Faces 9 to Ace. Poker dice together make poker hands, and a Joker is wild. Sold in Elementa too.',
     celestial: 'Dice of the Firmament sky: no element, sold only past the door. Each bends the rules around it.',
   },
   es: {
@@ -54,6 +55,7 @@ const FAMILY_TEXT = {
     arcane: 'Sin elemento ni familia. A los dados Arcanos les importa dónde están en tu fila.',
     neutral: 'No está ligado a ningún elemento.',
     mythic: 'Los dados del Firmamento: sin elemento, uno de cada tipo por partida, cada uno el premio de un Custodio.',
+    poker: 'Caras del 9 al As. Los dados de póker juntos forman manos de póker, y un Comodín es salvaje. También se venden en Elementa.',
     celestial: 'Dados del cielo del Firmamento: sin elemento, solo se venden más allá de la puerta. Cada uno dobla las reglas a su alrededor.',
   },
 }
@@ -228,7 +230,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       })
     }
     if (tab === 'relics') {
-      return RELICS.map((r) => ({ key: r.id, seen: seen.relics.has(r.id), families: [r.element ?? 'neutral'], item: relicDescriptor(r, lang) }))
+      return RELICS.map((r) => ({ key: r.id, seen: seen.relics.has(r.id), families: [r.law ? 'laws' : r.element ?? 'neutral'], item: relicDescriptor(r, lang) }))
     }
     if (tab === 'consumables') {
       return CONSUMABLES.map((c) => ({ key: c.id, seen: seen.consumables.has(c.id), families: [consumableFamily(c)], item: consumableDescriptor(c, lang) }))
@@ -323,7 +325,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       })).filter((g) => g.entries.length > 0)
     }
     if (sort === 'family') {
-      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, ...COSMIC_BASE_IDS, 'arcane', 'celestial', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral']
+      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, ...COSMIC_BASE_IDS, 'arcane', 'poker', 'celestial', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral', 'laws']
       return order
         .map((f) => ({
           key: f,
@@ -332,6 +334,10 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
               ? t('elementa.gallery.arcane')
               : f === 'mythic'
                 ? t('elementa.gallery.mythic')
+                : f === 'poker'
+                  ? t('elementa.gallery.poker')
+                  : f === 'laws'
+                    ? t('elementa.gallery.laws')
                 : f === 'celestial'
                   ? t('elementa.gallery.celestial')
                 : f === 'neutral'

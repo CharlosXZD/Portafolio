@@ -59,6 +59,20 @@ export const RARITY_GLOW = {
   [RARITY.MYTHIC]: '#ff4fd8',
 }
 
+// A Law (O2): a Mythic relic with its own slot, a flat price of 40.
+const law = (id, name, text, effects, itemConcept) => ({
+  id,
+  name,
+  kind: 'relic',
+  law: true,
+  rarity: RARITY.MYTHIC,
+  cost: 40,
+  element: null,
+  itemConcept,
+  description: `A Law: ${text}`,
+  effects,
+})
+
 export const RELICS = [
   {
     id: 'molten_core',
@@ -603,6 +617,16 @@ export const RELICS = [
     description: 'The best reaction of the cast (by Mult) triggers twice.',
     effects: { echoChamber: true },
   },
+  // --- Laws (EXPANSION.md O2): Mythic relics that rewrite one scoring rule.
+  // One Law slot, apart from the relic slots; a second Law replaces the first
+  // (no refund). Sold in the Vault, the Bazaar, the Astral Exchange and Seren's
+  // Observatory, and offered after a Warden or a round-10 boss. ---
+  law('law_inversion', 'Law of Inversion', 'your lowest die counts as your highest face for scoring.', { lawInversion: true }, 'a mirror hung upside down, the room still the right way up'),
+  law('law_unity', 'Law of Unity', 'every reaction also counts as a Resonance (+2 Base each).', { lawUnity: true }, 'two rings of different metals, welded into one'),
+  law('law_symmetry', 'Law of Symmetry', 'if your pool\'s faces read the same forwards and backwards, Mult x2.', { lawSymmetry: true }, 'a butterfly pinned open, both wings the same'),
+  law('law_greed', 'Law of Greed', 'each 10 Shards you hold adds +1 Mult.', { lawGreed: true }, 'a scale whose pan is forever heavier than the weights'),
+  law('law_echo', 'Law of Echo', 'your highest-scoring die counts twice.', { lawEcho: true }, 'a bell that rings once and answers itself'),
+  law('law_small', 'Law of Small Things', 'your d3 dice score x3 and your d5 dice x2, as if they were d10s.', { lawSmall: true }, 'a thimble holding a whole ocean'),
   // --- The Horologist's relics (EXPANSION.md I2): sold only by him, in the
   // Firmament (`horologistOnly`). ---
   {
@@ -634,7 +658,7 @@ export function relicById(id) {
 }
 
 export function costForRelic(relic, discountPct = 0) {
-  const base = RARITY_COST[relic.rarity]
+  const base = relic.cost ?? RARITY_COST[relic.rarity]
   return Math.max(1, Math.round(base * (1 - discountPct)))
 }
 

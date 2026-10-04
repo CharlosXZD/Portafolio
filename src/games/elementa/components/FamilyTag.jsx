@@ -7,6 +7,7 @@ import PixelIcon from './PixelIcon.jsx'
 const ARCANE_COLOR = '#8f6bff'
 const MYTHIC_COLOR = '#ff4fd8'
 const CELESTIAL_COLOR = '#7ad1ff'
+const POKER_COLOR = '#ff7a8a'
 
 /**
  * One family chip: the element's color, pixel mark and name, or "Arcane".
@@ -15,15 +16,15 @@ const CELESTIAL_COLOR = '#7ad1ff'
  */
 export function FamilyTag({ family }) {
   const { t, lang } = useLanguage()
-  const arcane = family === 'arcane' || family === 'mythic' || family === 'celestial'
-  const color = family === 'mythic' ? MYTHIC_COLOR : family === 'celestial' ? CELESTIAL_COLOR : arcane ? ARCANE_COLOR : ELEMENTS[family].color
+  const arcane = family === 'arcane' || family === 'mythic' || family === 'celestial' || family === 'poker'
+  const color = family === 'mythic' ? MYTHIC_COLOR : family === 'celestial' ? CELESTIAL_COLOR : family === 'poker' ? POKER_COLOR : arcane ? ARCANE_COLOR : ELEMENTS[family].color
   const name = arcane ? t(`elementa.gallery.${family}`) : localize(lang, ELEMENTS[family].name, ELEMENTS_ES, family, 'name')
   return (
     <span
       className="el-chip inline-flex items-center gap-1.5"
       style={{ background: mix(color, '#120d1c', 0.45), color: mix(color, '#ffffff', 0.6), '--edge': color }}
     >
-      <PixelIcon name={arcane ? 'spark' : family} size={7} color={mix(color, '#ffffff', 0.5)} hi="#fffaf0" />
+      <PixelIcon name={family === 'poker' ? 'poker' : arcane ? 'spark' : family} size={7} color={mix(color, '#ffffff', 0.5)} hi="#fffaf0" />
       {name}
     </span>
   )

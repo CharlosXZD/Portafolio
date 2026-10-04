@@ -175,6 +175,13 @@ Eleven arcane dice (no element, family "Celestial"; the first five since v0.7.2,
 - **Warp** is an edition a die can carry: a violet WARP badge. A Warp die does not count toward the dice cap; at most 3 Warp dice at once. Space always has it, the Warp Seal gives it, a Firmament die offer has a 2% chance to come with it (+12 Shards), and Mote's secret stock sells Warp dice.
 - **Past d20 (v0.8.2: every die):** in the Firmament any die grows in steps of 10 up to d100 (shop upgrades, Upgrade Stones, boss rewards, Blessing of Flame); Elementa dice stop at d20. A Chisel splits a big die one size down (a d30 into two d20). Faces scale linearly, so this is the main late lever. Growing costs the new size in Shards (d30 costs 30); they sell for half their sides. They are drawn as a d20 with the size printed on it.
 
+
+### Poker dice and the Joker (Alpha v0.8.5; Elementa and the Firmament)
+- **Poker die** (Rare, 10 Shards, from round 3 in Elementa Markets and in every Firmament shop): six faces, **9, 10, J, Q, K, A**; each is also the number 9 to 14, so every rule that reads a value still works. Its size is fixed: no upgrades, no Upgrade Stone, no Chisel. Family "Poker" (its own tag and Gallery group).
+- **Joker** (Epic, 20 Shards): a poker die with a **wild seventh face** (shown as a star, stored as 15): any rank for a poker hand, any value for a set. At most 2 Jokers in a pool.
+- **Poker hands** are read **among the poker dice only**, Jokers included, and the best one adds Mult once: pair +1, two pair +2, three of a kind +3, straight (five in a row) +5, full house +5, four of a kind +8, five of a kind +15. At least two poker dice. The ledger names the hand ("Straight (Poker)").
+- **Gambler loadout** (ninth; unlocks once any other loadout has won): four poker dice and a Joker.
+
 ### Keyword tags (v0.6.5)
 Hovering or tapping a tag shows its definition. A die's short description shows the first four; the full description lists them all.
 
@@ -215,9 +222,15 @@ Hovering or tapping a tag shows its definition. A die's short description shows 
 | #Burst | Scores its whole total twice when it explodes. |
 | #Pulse | Gains Base for every reroll made this round. |
 | #Flare | Its face goes to Mult instead of Base. |
+| #Poker | Faces 9 to Ace. Poker dice together make hands that add Mult. |
 | #Charged | Half of its face is also added to your Mult. |
 | #Summon | Creates a temporary die that lasts the round and takes no slot. |
 | #Rerolls | Gives you extra rerolls while it is in your pool. |
+| #Law | Rewrites one scoring rule. Only one Law at a time, and it takes no relic slot. |
+| #Wild | Rune: on its number, the die counts as any value for sets. |
+| #Gold | Rune: on its number, the die pays 2 Shards each cast. |
+| #Link | Rune: on its number, the die reacts with both neighbors as the element that reacts best with each. |
+| #Double | Rune: on its number, its score is also added to Mult. |
 | #Echo | Rune: on its number, the die scores twice. |
 | #Glass | Rune: on its number, doubled score, but it may shatter after the cast. |
 | #Kinship | Rune: on its number, counts as its left neighbor's element for reactions. |
@@ -285,6 +298,8 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Black Hole Die** | Everything between a pair of these is pulled in, and comes out heavier. | #Summon |
 | **Time Ghost** | Your own past score, standing beside you for one round. | #Summon |
 | **Quantum Entanglement** | Two dice, one fate. It borrows a stranger's whole self. | #Charged #Copy |
+| **Poker Die** | Nine to Ace. Sit a few together at the table and the house starts paying. | #Poker |
+| **Joker** | The card nobody counted. Its seventh face is whatever you need. | #Poker #Wild |
 | **Void** | A small absence. It scores nothing and feeds on your empty dice slots. | #Cosmic #Empty #Charged |
 | **Shadow** | Light and dark in one die. It eats its left neighbor and steadies its right one. | #Devour #Steady #Charged |
 | **Continuum** | Time that loops through space. Your pool becomes a ring. | #Reaction #Undo #Charged |
@@ -297,7 +312,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 
 ---
 
-## 3. Relics (54 total)
+## 3. Relics (60 total, 6 of them Laws)
 
 ### Fire family
 | Relic | Rarity | Price | Effect |
@@ -373,9 +388,21 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Mainspring** | Epic | 18 | Rerolls you do not use are banked for the next round, up to 3. Sold only by the Horologist, in the Firmament. |
 | **Cuckoo Clock** | Epic | 18 | Clear a round with 0 rerolls left: +5 Shards and +1 Mult on the next round. Sold only by the Horologist, in the Firmament. |
 
+### Laws (v0.8.5)
+A Law rewrites one scoring rule. There is **one Law slot**, apart from the relic slots; a second Law replaces the first, with no refund. Sold (one a visit) in the Relic Vault, the Aether Bazaar, the Astral Exchange and Seren's Observatory, and offered as an optional third choice (a pick of two) after a Warden or a round-10 boss. 40 Shards. They sit under Relics in the Gallery, in their own group.
+
+| Law | Effect |
+|---|---|
+| **Law of Inversion** | Your lowest die counts as your highest face for scoring. |
+| **Law of Unity** | Every reaction also counts as a Resonance (+2 Base each). |
+| **Law of Symmetry** | If your pool's faces read the same forwards and backwards, Mult x2. |
+| **Law of Greed** | Each 10 Shards you hold adds +1 Mult. |
+| **Law of Echo** | Your highest-scoring die counts twice. |
+| **Law of Small Things** | Your d3 dice score x3 and your d5 dice x2, as if they were d10s. |
+
 ---
 
-## 4. Consumables (49 total)
+## 4. Consumables (53 total)
 
 | Consumable | Rarity | Price | Target | Effect |
 |---|---|---|---|---|
@@ -417,11 +444,15 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Water Totem** | Uncommon | 8 | You | Levels Water: Tide sends 10% more of a locked die's score to Mult per level (50% at level 0, 100% at level 5). |
 | **Earth Totem** | Uncommon | 8 | You | Levels Earth: Patience gives +1 more per reroll sat out, per level. Max level 5. |
 | **Air Totem** | Uncommon | 8 | You | Levels Air: +1 Drift charge a round per level (each charge nudges one die). Max level 5. |
-| **Rune of Echo** | Epic | 18 | A die | On its number the die scores twice (after Beacon). |
-| **Rune of Glass** | Rare | 12 | A die | On its number the score is doubled, and after the cast there is a 20% chance the die shatters (the pool never loses its last die). |
-| **Rune of Kinship** | Rare | 12 | A die | On its number the die counts as its left neighbor's element for reactions. |
-| **Rune of Ember** | Uncommon | 8 | A die | Its number is an exploding face (a die that does not explode by itself explodes only there). |
-| **Rune of Anchor** | Uncommon | 8 | A die | On its number the die can't fizzle (and pays no Kindling). |
+| **Rune of Echo** | Epic | 18 | A die | On its number: when the die shows it, it scores twice. |
+| **Rune of Glass** | Rare | 12 | A die | On its number: when the die shows it, its score is doubled, and there is a 20% chance it shatters after scoring (the die is lost). |
+| **Rune of Kinship** | Rare | 12 | A die | On its number: when the die shows it, it counts as its left neighbor's element for reactions. |
+| **Rune of Ember** | Uncommon | 8 | A die | On its number: that number becomes an exploding face. |
+| **Rune of Anchor** | Uncommon | 8 | A die | On its number: when the die shows it, it cannot fizzle (good on a Fire die's 1). |
+| **Rune of Wild** | Epic | 18 | A die | On its number: when the die shows it, it counts as any value for sets. |
+| **Rune of Gold** | Uncommon | 8 | A die | On its number: when the die shows it, it pays 2 Shards each cast. |
+| **Rune of Link** | Rare | 12 | A die | On its number: when the die shows it, it reacts with both neighbors as the element that makes the best reaction with each. |
+| **Rune of Double** | Rare | 12 | A die | On its number: when the die shows it, its score is also added to Mult, once per cast. |
 | **Weights** | Uncommon | 8 | A die | Apply to a die: its faces below 2 count as 2, for good. |
 | **Honing Oil** | Rare | 12 | A die | Apply to a die: it permanently scores +4 whenever it scores (on top of a Whetstone). |
 | **Graft** | Rare | 12 | A die | Pick a die with a rune, then another die: the rune moves onto it, on the number you choose. |
@@ -902,7 +933,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 
 ## 8. Loadouts, difficulties, achievements
 
-### Loadouts (each unlocks by winning with the previous one)
+### Loadouts (each unlocks by winning with the previous one; the Gambler by winning with any other)
 | Loadout | Starting dice | Tagline |
 |---|---|---|
 | **Stonecaller** | Earth, Earth, Earth | Steady stone. No risk, no tricks. |
@@ -913,6 +944,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 | **Forgeborn** | Earth, Fire, Steel | Starts with Steel: fire without the fizzle. |
 | **Stormchaser** | Fire, Air, Lightning | Chain explosions straight into sets. |
 | **Avatar** | Earth, Earth, Aether | Master of all four. Starts with Aether. |
+| **Gambler** | Poker, Poker, Poker, Poker, Joker | Four poker dice and a Joker. Make hands. |
 
 ### Difficulties (each unlocks by winning the previous one)
 Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
@@ -927,14 +959,14 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 ### Achievements (47, 22 public and 25 secret; secret ones show as ??? until earned and do not count toward completion)
 - **First Spark**: Clear your first round.
 - **Keeper of the Circle**: Win a run.
-- **Every Path**: Win with all 8 loadouts.
+- **Every Path**: Win with every loadout.
 - **Through the Fire**: Win a run on Cataclysm.
 - **Big Cast**: Score 1,000 in a single cast.
 - **Colossal Cast**: Score 10,000 in a single cast.
 - **Overkill**: Clear a round at 5x the target.
 - **Chain Reaction**: Trigger 5 reactions in one cast.
 - **Hidden Chemistry**: Discover a secret reaction.
-- **Master Alchemist**: Discover every classic secret reaction (the Mythic ones included; not the Firmament's 27).
+- **Master Alchemist**: Discover every classic secret reaction.
 - **Quintessence**: Own an Aether die.
 - **Collector**: Fill every relic slot.
 - **Dragon's Hoard**: Hold 100 Shards at once.

@@ -52,6 +52,9 @@ export const FLAGS = {
   HORIZON: 'eventHorizon', // spawns two Black Hole dice on its highest face
   BLACK_HOLE_DIE: 'blackHoleDie', // temporary: +50 to every die between the two
   ENTANGLE: 'entangle', // copies a random other die's abilities and score
+  // EXPANSION.md O3: poker dice.
+  POKER: 'poker', // 9 to A; poker hands among the poker dice
+  JOKER: 'joker', // a wild seventh face
   // EXPANSION.md K1: the six base elements of the Firmament.
   GLIMMER: 'glimmer', // Glimmer: its neighbors never fizzle
   GLOOM: 'gloom', // Gloom: the die on its right scores 0, half of it to Mult
@@ -803,6 +806,31 @@ export const ELEMENTS = {
     charged: 'half',
     flags: flagSet(FLAGS.ENTANGLE),
   },
+  // --- v0.8.5 (EXPANSION.md O3): poker dice. Fixed faces (9, 10, J, Q, K, A),
+  // sold in Elementa too. The Joker has a wild seventh face. ---
+  poker: {
+    id: 'poker',
+    name: 'Poker Die',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.RARE,
+    price: 10,
+    minRound: 3,
+    parents: [],
+    color: '#d94a5a',
+    tagline: 'Faces 9 to Ace. Poker dice together make poker hands, which add Mult.',
+    flags: flagSet(FLAGS.POKER),
+  },
+  joker: {
+    id: 'joker',
+    name: 'Joker',
+    tier: TIERS.ARCANE,
+    rarity: RARITY.EPIC,
+    price: 20,
+    parents: [],
+    color: '#a05cd6',
+    tagline: 'A poker die with a wild seventh face: any rank for a poker hand, any value for a set.',
+    flags: flagSet(FLAGS.POKER, FLAGS.JOKER),
+  },
   nil: {
     id: 'nil',
     name: 'Void',
@@ -944,6 +972,8 @@ export const CELESTIAL_DIE_IDS = ['comet', 'pulsar', 'satellite', 'quasar', 'zen
 // The temporary dice of v0.8.3: the Event Horizon's Black Hole dice and the
 // Time die's ghost. They take no slot, cannot be held or sold, and go away
 // when the round ends.
+// The poker dice (O3): their own family, sold in Elementa too.
+export const POKER_DIE_IDS = ['poker', 'joker']
 export const BLACK_HOLE_DIE_ID = 'black_hole_die'
 export const TIME_GHOST_ID = 'time_ghost'
 export const isTempDie = (d) => Boolean(d?.temp)
@@ -1032,6 +1062,7 @@ export function familiesOf(elementId) {
   const def = ELEMENTS[elementId]
   if (!def) return []
   if (CELESTIAL_DIE_IDS.includes(elementId)) return ['celestial']
+  if (POKER_DIE_IDS.includes(elementId)) return ['poker']
   if (def.tier === TIERS.ARCANE) return ['arcane']
   if (def.tier === TIERS.MYTHIC) return ['mythic']
   if (def.tier === TIERS.PURE || def.tier === TIERS.COSMIC) return [elementId]
@@ -1132,6 +1163,8 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.HORIZON]: 'Scores 0. When it shows its highest face it spawns two Black Hole dice, which last the round.',
   [FLAGS.BLACK_HOLE_DIE]: 'Temporary, takes no slot. Every die between the two Black Hole dice gets +50 score.',
   [FLAGS.ENTANGLE]: 'Each roll it picks a random other die and copies its abilities and its score.',
+  [FLAGS.POKER]: 'Faces 9, 10, J, Q, K and A (the numbers 9 to 14). The poker dice together make poker hands, which add Mult.',
+  [FLAGS.JOKER]: 'Its seventh face is wild: any rank for a poker hand, any value for a set. At most 2 Jokers.',
   [FLAGS.BEACON]: 'Both neighbors score x1.5.',
   [FLAGS.ALL_ELEMENTS]: 'Reacts as Fire, Water, Earth, and Air at once.',
   [FLAGS.BULLION]: 'Scores 0, but pays your final Mult (rounded down) in Shards on a clear.',

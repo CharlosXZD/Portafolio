@@ -148,6 +148,8 @@ export function isDifficultyUnlocked(difficultyId, profile) {
 export function isDeckUnlocked(deckId, profile) {
   const idx = DECKS.findIndex((d) => d.id === deckId)
   if (idx <= 0) return true
+  // The Gambler (O3) opens once any other loadout has won.
+  if (deckId === 'gambler') return profile.decksBeaten.length > 0
   return profile.decksBeaten.includes(DECKS[idx - 1].id)
 }
 

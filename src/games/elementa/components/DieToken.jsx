@@ -6,6 +6,7 @@ import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY, dieIconY, dieNumberScale } from './DieSprite.jsx'
 import ElementFx from './ElementFx.jsx'
 import { isBigTier } from '../data/diceTiers.js'
+import { faceLabel } from '../data/poker.js'
 
 /** The shape a die is drawn with: its own size, or a Chaos die's current form (H3). */
 export const shapeTier = (die) => die.chaosForm?.tierId ?? die.tierId
@@ -121,7 +122,7 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
               textShadow: '2px 2px 0 var(--ink)',
             }}
           >
-            {face}
+            {faceLabel(die.elementId, face)}
           </span>
         </>
       )}

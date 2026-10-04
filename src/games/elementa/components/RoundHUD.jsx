@@ -212,6 +212,24 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
         </div>
       </section>
 
+      {/* The Law slot (EXPANSION.md O2): one Law, apart from the relics. */}
+      <section className="flex flex-col gap-3">
+        <h3 className="el-label">{t('elementa.hud.law')}</h3>
+        <div className="flex flex-wrap gap-3 p-1">
+          {state.law ? (
+            <MiniIcon
+              itemKey={`relic-${state.law.id}`}
+              item={relicDescriptor(state.law, lang)}
+              pulse={pulses[`relic:${state.law.id}`]}
+              openKey={openKey}
+              onOpenChange={setOpenKey}
+            />
+          ) : (
+            <EmptySlot />
+          )}
+        </div>
+      </section>
+
       <section className="flex flex-col gap-3">
         <h3 className="el-label">
           {t('elementa.shop.consumables')} {state.consumables.length}/{consumableCap}

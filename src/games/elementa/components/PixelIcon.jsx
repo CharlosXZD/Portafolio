@@ -124,6 +124,14 @@ const ICONS = {
     rows: ['.c...c.', 'cc...cc', '.cchcc.', '..chc..', '.cchcc.', 'cc...cc', '.c...c.'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
+  poker: {
+    rows: ['.ccccc.', 'cchhhcc', 'chhhhhc', 'chhhhhc', 'cchhhcc', '..chc..', '.ccccc.'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  joker: {
+    rows: ['c.c.c.c', 'ccccccc', '.chchc.', '..hhh..', '.chchc.', 'cc...cc', 'c.....c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
   timelike_curve: {
     rows: ['.ccccc.', 'c.....c', 'c.hhh.c', 'c.h...c', 'c.hhh.c', 'c.....c', '.ccccc.'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },

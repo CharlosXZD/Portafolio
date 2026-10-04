@@ -53,8 +53,11 @@ const FILES = [
     moteFed: 0,
     extraDice: ['glimmer', 'glimmer', 'glimmer', 'glimmer', 'flux', 'moment', 'nil', 'water', 'ice', 'air', 'lightning', 'timelike_curve', 'shooting_star', 'neutron_star', 'event_horizon', 'entanglement', 'non_euclid', 'comet', 'pulsar', 'shadow', 'continuum'],
     familyKit: true,
+    lawId: 'law_symmetry',
+    pokerDice: ['poker', 'poker', 'poker', 'joker'],
   },
-  { path: 'split', seed: 'SPLITPTH', deckId: 'tidecaller', endings: ['neutral', 'split'], wardens: [], mythics: [], moteFed: 0 },
+  // File 2 stays in Elementa (the door is not crossed) and holds the v0.8.5 kit (O4): poker dice, a Law, the four new runes.
+  { path: 'split', seed: 'SPLITPTH', deckId: 'tidecaller', endings: ['neutral', 'split'], wardens: [], mythics: [], moteFed: 0, lawId: 'law_greed', pokerDice: ['poker', 'poker', 'poker', 'poker', 'joker'], extraDice: ['air', 'fire'], newRunes: true },
   {
     path: 'primordial',
     seed: 'PRIMPATH',
@@ -68,7 +71,7 @@ const FILES = [
 
 // Walks a run to round 15 with tiny targets, leaning the Accord to `path`
 // just before the final battle locks it.
-function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extraDice, familyKit }) {
+function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extraDice, familyKit, lawId, pokerDice, newRunes }) {
   const file = { endings, wardens, mythics, mote: { fed: moteFed } }
   let s = gameReducer(initialState(), {
     type: 'START_RUN',
@@ -110,6 +113,25 @@ function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extra
     rollId: k,
     runes: [],
   }))
+  // Poker dice (O3) at their own fixed size, a Law (O2) and the four new runes (O1).
+  const poker = (pokerDice || []).map((elementId, k) => ({
+    ...extra[0],
+    id: `test-${elementId}-${k}`,
+    elementId,
+    tierId: elementId,
+    sides: elementId === 'joker' ? 15 : 14,
+    value: 9 + k,
+    total: 9 + k,
+    rollId: 50 + k,
+    runes: [],
+  }))
+  if (newRunes && poker.length >= 4) {
+    poker[0].runes = [{ id: 'wild', face: 12 }]
+    poker[1].runes = [{ id: 'gold', face: 10 }]
+    poker[2].runes = [{ id: 'link', face: 11 }]
+    poker[3].runes = [{ id: 'double', face: 14 }]
+  }
+  const law = lawId ? { law: relicById(lawId) } : {}
   const kit = familyKit
     ? {
         relics: ['deep_current', 'spring_tide', 'gale_seal', 'second_wind', 'standing_stones', 'crown_of_ages', 'heart_of_the_forge', 'starmap', 'echo_chamber'].map((id) => relicById(id)),
@@ -120,7 +142,7 @@ function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extra
         consumables: ['totem_fire', 'totem_water', 'totem_earth'].map((id, k) => ({ ...consumableById(id), instanceId: `test-${id}-${k}` })),
       }
     : {}
-  return { ...s, ...kit, dice: [...runed, ...extra], diceCapBonus: (s.diceCapBonus || 0) + extra.length, shards: 300, stardust: 4 }
+  return { ...s, ...kit, ...law, dice: [...runed, ...extra, ...poker], diceCapBonus: (s.diceCapBonus || 0) + extra.length + poker.length, shards: 300, stardust: 4 }
 }
 
 const files = {}

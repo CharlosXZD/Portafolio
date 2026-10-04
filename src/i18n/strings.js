@@ -716,6 +716,11 @@ const strings = {
   },
   // --- Elementa: the Firmament (EXPANSION.md Part H) ---
   'elementa.gallery.mythic': { en: 'Mythic', es: 'Mítico' },
+  'elementa.hud.law': { en: 'Law', es: 'Ley' },
+  'elementa.bossReward.lawTitle': { en: 'Take a Law', es: 'Toma una Ley' },
+  'elementa.bossReward.lawBody': { en: 'Optional. A Law rewrites one scoring rule and replaces the one you carry.', es: 'Opcional. Una Ley reescribe una regla de puntaje y reemplaza a la que llevas.' },
+  'elementa.gallery.poker': { en: 'Poker', es: 'Póker' },
+  'elementa.gallery.laws': { en: 'Laws', es: 'Leyes' },
   'elementa.gallery.celestial': { en: 'Celestial', es: 'Celestial' },
   'elementa.gallery.unlocks': { en: 'Unlocks', es: 'Por desbloquear' },
   'elementa.gallery.unlocksNote': { en: 'Dice you have not unlocked yet. Nothing is said about them until you find them.', es: 'Dados que aún no desbloqueas. No se dice nada de ellos hasta que los encuentres.' },

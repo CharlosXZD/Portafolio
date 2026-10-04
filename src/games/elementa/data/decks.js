@@ -52,6 +52,13 @@ export const DECKS = [
     dice: ['earth', 'earth', 'aether'],
     tagline: 'Master of all four. Starts with Aether.',
   },
+  // v0.8.5 (EXPANSION.md O3): unlocked by winning with any other loadout.
+  {
+    id: 'gambler',
+    name: 'Gambler',
+    dice: ['poker', 'poker', 'poker', 'poker', 'joker'],
+    tagline: 'Four poker dice and a Joker. Make hands.',
+  },
 ]
 
 export function deckById(id) {

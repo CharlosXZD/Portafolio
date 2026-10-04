@@ -491,7 +491,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.1** | Family growth | **Built.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
 | **v0.8.2** | Late scaling | **Built.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
 | **v0.8.3** | Crutches for the new dice | **Built.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
-| **v0.8.5** | Strange faces | **Ready.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
+| **v0.8.5** | Strange faces | **Built.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
 | **v0.8.6** | Sigils | Sigil dice by path (sun, scale, key; eye, spiral, maw), unlocked by finishing each path's Firmament ending. Needs a short workshop for the effects first. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
@@ -503,6 +503,12 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.8.5 "Strange faces" (in development, unreleased)
+- **Four more runes:** Wild (a set wildcard), Gold (2 Shards a cast), Link (reacts as the best element for each neighbor), Double (the score is also Mult).
+- **Six Laws** in one Law slot apart from the relics: Inversion, Unity, Symmetry, Greed, Echo, Small Things. Sold in the Vault, Bazaar, Astral Exchange and Observatory, and offered after a Warden or a round-10 boss.
+- **Poker dice and the Joker,** in Elementa too: faces 9 to Ace, poker hands among them add Mult, the Joker has a wild seventh face.
+- **New loadout, the Gambler:** four poker dice and a Joker, unlocked by any win.
 
 ### Alpha v0.8.3 "Crutches for the new dice" (in development, unreleased)
 - **Charged:** half a die's face (all of it for the Void and Singularity) is also Mult, a ledger line.
@@ -1652,7 +1658,7 @@ Sold in Firmament Markets and the Astral Exchange like the other Celestial dice 
 
 ## Part O: v0.8.5 "Strange faces" (spec, 2026-10-04)
 
-**Status: Ready.** Workshopped with Carlos on 2026-10-04: four more runes, Laws, and poker and Joker dice, **all in Elementa as well as the Firmament**. Sigil dice move to **v0.8.6** (their own step; not in this one). Run after v0.8.3. Items marked **Default** are Claude's reading; list each in the report.
+**Status: Built** (Alpha v0.8.5, GDD §44; the Defaults were built as written, GDD §44 lists the ones added). Workshopped with Carlos on 2026-10-04: four more runes, Laws, and poker and Joker dice, **all in Elementa as well as the Firmament**. Sigil dice move to **v0.8.6** (their own step; not in this one). Run after v0.8.3. Items marked **Default** are Claude's reading; list each in the report.
 
 ### O1. Four more runes (face-bound, like the other five)
 

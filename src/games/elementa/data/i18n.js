@@ -62,6 +62,8 @@ export const ELEMENTS_ES = {
   satellite: { name: 'Satélite', tagline: 'Los dados a ambos lados cuentan su cara +15% de su propio tamaño. No anota por sí mismo.' },
   quasar: { name: 'Cuásar', tagline: 'Su cara va al Mult, doblada, en lugar de la Base. Uno por partida.' },
   zenith: { name: 'Cénit', tagline: 'Mientras esté en tu reserva: +2 rerolls cada ronda, +1 más desde la ronda 20 y otro desde la 25.' },
+  poker: { name: 'Dado de Póker', tagline: 'Caras del 9 al As. Los dados de póker juntos forman manos de póker, que suman Mult.' },
+  joker: { name: 'Comodín', tagline: 'Un dado de póker con una séptima cara comodín: cualquier rango en una mano, cualquier valor en un set.' },
   timelike_curve: { name: 'Curva Temporal Cerrada', tagline: 'Lanza dentro de 20 segundos del inicio de la ronda y tu Mult se duplica.' },
   shooting_star: { name: 'Estrella Fugaz', tagline: 'Explota con sus tres caras más altas, y cada vez que otro dado explota.' },
   neutron_star: { name: 'Estrella de Neutrones', tagline: 'Explota como una Estrella Fugaz, y también cuando muestra la misma cara que otro dado.' },
@@ -126,6 +128,8 @@ export const FLAG_DESCRIPTIONS_ES = {
   satellite: 'Anota 0. Los dados a ambos lados cuentan su cara más el 15% de su propio tamaño (redondeado hacia arriba, al menos 1; las cadenas de explosión no cambian).',
   quasar: 'Anota 0 de Base. Todo su total va a tu Multiplicador, doblado. Uno por partida.',
   zenith: 'Mientras esté en tu reserva: +2 rerolls cada ronda, +1 más desde la ronda 20 y otro desde la 25.',
+  poker: 'Caras 9, 10, J, Q, K y A (los números 9 a 14). Los dados de póker juntos forman manos de póker, que suman Mult.',
+  joker: 'Su séptima cara es comodín: cualquier rango en una mano de póker, cualquier valor en un set. Máximo 2 Comodines.',
   timelikeCurve: 'Si lanzas dentro de los 20 segundos posteriores al inicio de la ronda, tu Multiplicador se duplica.',
   shootingStar: 'Explota con sus tres caras más altas, y cada vez que otro dado explota.',
   neutronStar: 'Explota con sus tres caras más altas, cada vez que otro dado explota, y cuando muestra la misma cara que otro dado.',
@@ -170,6 +174,12 @@ export const RELICS_ES = {
     description:
       'Las explosiones suman el doble, pero un dado que se apaga con un 1 también anula otro dado al azar.',
   },
+  law_inversion: { name: 'Ley de la Inversión', description: 'Una Ley: tu dado más bajo cuenta como tu cara más alta al puntuar.' },
+  law_unity: { name: 'Ley de la Unidad', description: 'Una Ley: toda reacción cuenta también como una Resonancia (+2 Base cada una).' },
+  law_symmetry: { name: 'Ley de la Simetría', description: 'Una Ley: si las caras de tu reserva se leen igual de izquierda a derecha y al revés, Mult x2.' },
+  law_greed: { name: 'Ley de la Codicia', description: 'Una Ley: cada 10 Fragmentos que tienes suma +1 Mult.' },
+  law_echo: { name: 'Ley del Eco', description: 'Una Ley: tu dado de mayor puntaje cuenta dos veces.' },
+  law_small: { name: 'Ley de las Cosas Pequeñas', description: 'Una Ley: tus d3 anotan x3 y tus d5 x2, como si fueran d10.' },
   crown_of_ages: {
     name: 'Corona de las Eras',
     description: 'Multiplica tu Mult por 1 + ronda / 20 (x1.75 en la ronda 15, x2.5 en la ronda 30).',
@@ -375,6 +385,7 @@ export const CONSUMABLES_ES = {
 }
 
 export const DECKS_ES = {
+  gambler: { name: 'Apostador', tagline: 'Cuatro dados de póker y un Comodín. Forma manos.' },
   balanced: { name: 'Invocapiedras', tagline: 'Piedra firme. Sin riesgo, sin trucos.' },
   tidecaller: { name: 'Llamamareas', tagline: 'Bloqueos gratis que alimentan tus rerolls.' },
   tempest: { name: 'Tempestad', tagline: 'Sets desde la primera tirada.' },

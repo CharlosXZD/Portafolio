@@ -4,7 +4,8 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { ELEMENTS } from '../data/elements.js'
 import { reactionById } from '../data/reactions.js'
-import { localize, ELEMENTS_ES } from '../data/i18n.js'
+import { localize, ELEMENTS_ES, RELICS_ES } from '../data/i18n.js'
+import { relicById } from '../data/relics.js'
 import { useLineLabel } from './CastLedger.jsx'
 import { runeById } from '../data/runes.js'
 
@@ -26,6 +27,8 @@ const centerOf = (rect) => ({ x: rect.left + rect.width / 2, y: rect.top + rect.
 /** "+7", "+1.5" or "x1.5": what a step adds. */
 export const stepValueText = (step) => `${step.op === 'mul' ? 'x' : '+'}${fmt(step.total)}`
 
+const lawName = (id, lang) => localize(lang, relicById(id).name, RELICS_ES, id, 'name')
+
 /**
  * One line saying who is doing what: { who, detail, effect }, for example
  * "Kindle", "Fire + Air", "+1 Mult". A group of reactions drops the dice and
@@ -41,7 +44,7 @@ export function useStepCaption(discovered) {
     // A die that a neighbor changed says so: "Fire: Beacon x1.5, +9 Base".
     if (step.kind === 'die') {
       const detail = step.boosts
-        .map((b) => `${b.rune ? runeById(b.rune).name[lang] : b.hole ? t('elementa.cast.blackHole') : dieName(dice[b.from])} ${b.copy ? t('elementa.cast.copied') : b.factor ? `x${b.factor}` : `+${b.add}`}`)
+        .map((b) => `${b.rune ? runeById(b.rune).name[lang] : b.hole ? t('elementa.cast.blackHole') : b.law ? lawName(b.law, lang) : dieName(dice[b.from])} ${b.copy ? t('elementa.cast.copied') : b.factor ? `x${b.factor}` : `+${b.add}`}`)
         .join(', ')
       return { who: dieName(dice[step.dieIndex]), detail: detail || null, effect }
     }

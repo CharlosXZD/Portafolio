@@ -24,6 +24,7 @@ import {
   takesNoSlot,
   VOID_CAP,
   NEW_DICE_IDS,
+  POKER_DIE_IDS,
   BLACK_HOLE_DIE_ID,
   TIME_GHOST_ID,
   isTempDie,
@@ -87,6 +88,7 @@ import {
 } from './map.js'
 import { firmamentEnding } from '../data/endings.js'
 import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
+import { isPokerId, pokerFaces, JOKER_CAP } from '../data/poker.js'
 import { TOTEM_CAP, totemLevel, kindlingReroll } from '../data/totems.js'
 import { GLASS_BREAK_CHANCE, RUNE_CLASH_FEE, runesOf, hasActiveRune, migrateDieRunes, fitRunes, faceCap } from '../data/runes.js'
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
@@ -195,13 +197,15 @@ function relicEffects(relics) {
 // branch at each call site. It's deliberately never added to state.relics
 // itself, so it can't be sold or shown as an owned relic.
 function effectiveRelics(state) {
-  if (!state.bossModifier) return state.relics
+  // The Law (O2) sits outside the relic slots but scores like a relic.
+  const law = state.law ? [state.law] : []
+  if (!state.bossModifier) return law.length ? [...state.relics, ...law] : state.relics
   // Silence seals one owned relic for the round; the Hollow seals them all (H2).
   const twists = [state.bossModifier, state.extraTwist].filter(Boolean)
   const sealed = twists.map((t) => t.effects?.sealedRelicId).filter(Boolean)
   const sealAll = twists.some((t) => t.effects?.sealAllRelics)
   const relics = sealAll ? [] : sealed.length ? state.relics.filter((r) => !sealed.includes(r.id)) : state.relics
-  return [...relics, ...twists]
+  return [...relics, ...law, ...twists]
 }
 
 function randomOf(list) {
@@ -290,6 +294,8 @@ function applyBossRoundStart(dice, boss) {
 }
 
 function makeDie(elementId, tierId = STARTING_TIER, edition = null) {
+  // A poker die has one fixed size of its own (O3).
+  if (isPokerId(elementId)) tierId = elementId
   const sides = tierById(tierId).sides
   return {
     id: makeId(),
@@ -301,8 +307,8 @@ function makeDie(elementId, tierId = STARTING_TIER, edition = null) {
     held: false,
     locked: false,
     lockedVia: null,
-    value: 1,
-    total: 1,
+    value: isPokerId(elementId) ? pokerFaces(elementId)[0] : 1,
+    total: isPokerId(elementId) ? pokerFaces(elementId)[0] : 1,
     explosions: 0,
     rollId: 0,
   }
@@ -328,7 +334,12 @@ function warpCount(dice) {
 
 /** Whether a pool fits the dice cap, the Warp cap and the Void cap. */
 function fitsPool(state, dice) {
-  return poolSize(dice) <= maxDiceFor(state) && warpCount(dice) <= WARP_CAP && dice.filter(isSlotFree).length <= VOID_CAP
+  return (
+    poolSize(dice) <= maxDiceFor(state) &&
+    warpCount(dice) <= WARP_CAP &&
+    dice.filter(isSlotFree).length <= VOID_CAP &&
+    dice.filter((d) => d.elementId === 'joker').length <= JOKER_CAP
+  )
 }
 
 /** One of each Mythic die (and one Entropy) per run (H3). */
@@ -411,6 +422,9 @@ function scoreContext(state) {
     // Levelled reactions and sets (J1), Totems (L4).
     constellations: state.constellations || {},
     totems: state.totems || {},
+    // Law of Greed (O2) reads the Shards held; Link (O1) the elements the run has met.
+    shards: state.shards,
+    firmament: state.realm === 'firmament',
     // Crown of Ages (M3) multiplies by the round.
     round: state.round,
     // Closed Timelike Curve (N5): the cast window is open until the timer runs out.
@@ -587,7 +601,7 @@ function newDieCost(elementId, dice, relics, shop, sizeId = SHOP_DIE_TIER) {
         : ELEMENTS[elementId].price ?? DIE_BASE_COST_BY_TIER[tier]
   // Bigger dice cost more: a d3 is the base price. A Mythic die is a d6 at
   // its own price, and a Warp offer costs more (H3).
-  const premium = isMythic(elementId) ? 0 : sizePremium(sizeId)
+  const premium = isMythic(elementId) || isPokerId(elementId) ? 0 : sizePremium(sizeId)
   const warp = shop?.dieWarp?.[elementId] && elementId !== 'space' ? WARP_PREMIUM : 0
   return applyDiscount(base + premium + warp, relics, shopCut(shop, 'die'))
 }
@@ -899,6 +913,8 @@ function weightedSample(items, n, weightFn) {
 }
 
 function rarityWeight(item, round) {
+  // Poker dice (O3) have their own first round.
+  if (item.minRound !== undefined) return round >= item.minRound ? RARITY_WEIGHT[item.rarity] ?? 1 : 0
   if (round < RARITY_UNLOCK_ROUND[item.rarity]) return 0
   return RARITY_WEIGHT[item.rarity] ?? 1
 }
@@ -934,7 +950,7 @@ function rollShopStock(state, type) {
     // The Totems (L4) are on the shelf too, a little less often.
     const stars = CONSUMABLES.filter((c) => c.constellation || c.totem)
     const offers = Array.from({ length: type.items }, () => weightedSample(stars, 1, (c) => (c.id === 'const_black_hole' ? 0.2 : c.totem ? 0.6 : 1))[0])
-    return finishStock(state, offers.map((c) => ({ kind: 'consumable', id: c.id })), [], state.round)
+    return finishStock(state, [...offers.map((c) => ({ kind: 'consumable', id: c.id })), ...lawOffer(state, type)], [], state.round)
   }
   // Runes (J3): the Forge's whole shelf, the Bazaar and Exchange's pool, and
   // the Firmament Market's pool.
@@ -958,6 +974,7 @@ function rollShopStock(state, type) {
             !ownedRelicIds.has(r.id) &&
             (!r.needsGods || knowsGods(state)) &&
             (!r.bazaarOnly || type.legendary) &&
+            !r.law &&
             relicInReach(state, r) &&
             !r.horologistOnly,
         )
@@ -969,6 +986,7 @@ function rollShopStock(state, type) {
     kind: item.kind,
     id: item.id,
   }))
+  itemOffers.push(...lawOffer(state, type))
 
   const unlockedFusions = fusionsUnlockedBy(state.ownedElementsEver).filter(
     (id) => id !== QUADRA_FUSION_ID || knowsAether(state),
@@ -978,8 +996,10 @@ function rollShopStock(state, type) {
   // now, never sold (K1).
   const cosmic = firmament ? COSMIC_BASE_IDS : []
   const celestials = firmament ? CELESTIAL_DIE_IDS.filter((id) => !holdsKind(state.dice, id)) : []
-  const asOffer = (id) => ({ id, rarity: rarityForElement(id), stockWeight: ELEMENTS[id].stockWeight ?? 1 })
-  const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...cosmic, ...celestials].map(asOffer)
+  const asOffer = (id) => ({ id, rarity: rarityForElement(id), stockWeight: ELEMENTS[id].stockWeight ?? 1, minRound: ELEMENTS[id].minRound })
+  // Poker dice (O3): Elementa's Markets and every Firmament shop.
+  const poker = firmament || type.id === 'market' ? POKER_DIE_IDS.filter((id) => id !== 'joker' || poolHoldsFewJokers(state)) : []
+  const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...cosmic, ...celestials, ...poker].map(asOffer)
   const dieOfferCount = Math.min(type.dice, allBuyable.length)
   const luckyRound = state.round + (type.legendary ? 3 : 0)
   const dieWeight = (item) => rarityWeight(item, luckyRound) * item.stockWeight
@@ -999,6 +1019,25 @@ function rollShopStock(state, type) {
 
 // Each die on offer has its own size, most often a d3; a Mythic die arrives
 // as a d6. In the Firmament an offer now and then comes with Warp (H3).
+// Laws (O2) are on the shelf of the Vault, the Aether Bazaar, the Astral
+// Exchange and Seren's Observatory: one a visit (Default), never the one you
+// already carry.
+/** Two Laws to choose from after a Warden or a round-10 boss (O2). */
+function pickRewardLaws(state) {
+  const laws = lawsAvailable(state)
+  const out = []
+  while (out.length < 2 && laws.length) out.push(laws.splice(Math.floor(random() * laws.length), 1)[0].id)
+  return out
+}
+
+const LAW_SHOPS = ['vault', 'bazaar', 'astral', 'observatory']
+const lawsAvailable = (state) => RELICS.filter((r) => r.law && r.id !== state.law?.id)
+function lawOffer(state, type) {
+  if (!LAW_SHOPS.includes(type.id)) return []
+  const laws = lawsAvailable(state)
+  return laws.length ? [{ kind: 'relic', id: randomOf(laws).id }] : []
+}
+
 /**
  * The size a die of v0.8.3 arrives in (N6): drawn from one tier below to one
  * above the median tier of your pool, instead of the round's weights. Capped
@@ -1006,7 +1045,7 @@ function rollShopStock(state, type) {
  */
 function arrivalSize(state, elementId) {
   const index = (d) => Math.max(0, DICE_TIERS.findIndex((t) => t.id === d.tierId))
-  const sorted = withoutTemps(state.dice).map(index).sort((a, b) => a - b)
+  const sorted = withoutTemps(state.dice).filter((d) => !isPokerId(d.elementId)).map(index).sort((a, b) => a - b)
   const median = sorted.length ? sorted[Math.floor(sorted.length / 2)] : 0
   const cap = DICE_TIERS.length - 1 - (canGrowBig(elementId) ? 0 : DICE_TIERS.length - 1 - DICE_TIERS.findIndex((t) => t.id === 'd20'))
   const lo = Math.max(0, Math.min(median - 1, cap))
@@ -1020,6 +1059,8 @@ function sizePremium(sizeId) {
   return known ? known.premium : Math.round((tierById(sizeId)?.sides ?? 0) * 1.5)
 }
 
+const poolHoldsFewJokers = (state) => state.dice.filter((d) => d.elementId === 'joker').length < JOKER_CAP
+
 function finishStock(state, itemOffers, buyableElements, luckyRound) {
   const firmament = state.realm === 'firmament'
   const dieSizes = Object.fromEntries(
@@ -1027,7 +1068,9 @@ function finishStock(state, itemOffers, buyableElements, luckyRound) {
       id,
       isMythic(id)
         ? STARTING_TIER
-        : firmament && NEW_DICE_IDS.includes(id)
+        : isPokerId(id)
+          ? id
+          : firmament && NEW_DICE_IDS.includes(id)
           ? arrivalSize(state, id)
           : weightedSample(SHOP_DIE_SIZES, 1, (size) => (luckyRound >= size.from ? size.weight : 0))[0]?.id ?? SHOP_DIE_TIER,
     ]),
@@ -1281,6 +1324,9 @@ function baseTitleState() {
     lockedThisRound: false,
     // Totems (L4): { fire, water, earth, air } levels for the run.
     totems: { fire: 0, water: 0, earth: 0, air: 0 },
+    // The Law slot (O2): one Law, apart from the relic slots; and the Laws on offer after a boss.
+    law: null,
+    rewardLaws: [],
     gustUsed: false,
     explosionsThisRound: 0,
     // The Accord (B1): a hidden lean, + toward the Primordial, - toward
@@ -2465,6 +2511,8 @@ function reduce(state, action) {
       if (state.phase !== 'rolling') return state
       const result = evaluatePool(state.dice, effectiveRelics(state), scoreContext(state))
       const passed = result.roundScore >= state.threshold
+      // Runes of Gold (O1) pay on every cast, cleared or not.
+      if (result.goldShards) state = { ...state, shards: state.shards + result.goldShards }
       // The Maelstrom only lent your dice their elements (H2): give them back.
       if (state.dice.some((d) => d.maelstromFrom)) state = { ...state, dice: state.dice.map((d) => ({ ...d, ...unmaelstrom(d) })) }
       // A god of the gauntlet falls; three more stages before the ending.
@@ -2550,6 +2598,8 @@ function reduce(state, action) {
           phase: crossroads ? 'crossroads' : won ? 'victory' : beatBoss ? 'bossReward' : 'shop',
           chronicle: won ? chronicle : { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
           lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic, timeCarry, wardenBeaten, stardustGain },
+          // A Warden or a round-10 boss also offers a choice of Laws (O2, Default).
+          rewardLaws: beatBoss && (wardenBeaten || state.round === 10) ? pickRewardLaws(state) : [],
           stardust: (state.stardust || 0) + stardustGain,
           shards,
           relics,
@@ -2692,8 +2742,21 @@ function reduce(state, action) {
 
     case 'BUY_RELIC': {
       if (state.phase !== 'shop') return state
+      const wanted = relicById(action.relicId)
+      // A Law (O2) goes in the Law slot and replaces the one there, no refund.
+      if (wanted?.law) {
+        if (state.law?.id === wanted.id) return state
+        const price = relicCost(wanted, state.relics, state.shop)
+        if (state.shards < price) return state
+        return {
+          ...state,
+          shards: state.shards - price,
+          law: wanted,
+          shop: { ...state.shop, itemOffers: state.shop.itemOffers.filter((o) => !(o.kind === 'relic' && o.id === wanted.id)) },
+        }
+      }
       if (state.relics.length >= relicCapFor(state)) return state
-      const relic = relicById(action.relicId)
+      const relic = wanted
       if (!relic || state.relics.some((r) => r.id === relic.id)) return state
       const cost = relicCost(relic, state.relics, state.shop)
       if (state.shards < cost) return state
@@ -3115,7 +3178,9 @@ function reduce(state, action) {
       const canGrow = state.dice.some((d) => growTier(state, d))
       const die = state.dice.find((d) => d.id === action.dieId)
       if (canGrow && !(die && growTier(state, die))) return state
-      return { ...applyBossReward(state, action), phase: 'shop' }
+      // The optional third choice: one of the Laws on offer (O2).
+      const lawChoice = (state.rewardLaws || []).includes(action.lawId) ? relicById(action.lawId) : null
+      return { ...applyBossReward(state, action), phase: 'shop', ...(lawChoice ? { law: lawChoice } : {}), rewardLaws: [] }
     }
 
     // Pick the next stop on the Road (a shop linked from the current one).

@@ -12,6 +12,30 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.8.5',
+    name: L('Strange faces', 'Caras extrañas'),
+    date: null,
+    highlights: [
+      L(
+        'Four more runes: Wild (counts as any value for sets), Gold (pays 2 Shards a cast), Link (reacts as the best element for each neighbor) and Double (its score also goes to Mult).',
+        'Cuatro runas más: Comodín (cuenta como cualquier valor en los sets), Oro (paga 2 Fragmentos por lanzamiento), Enlace (reacciona como el mejor elemento para cada vecino) y Doble (su puntaje también va al Mult).',
+      ),
+      L(
+        'Six Laws, each rewriting one scoring rule: Inversion, Unity, Symmetry, Greed, Echo and Small Things. You carry one at a time, in a slot of its own. Find them in the Vault, the Bazaar, the Astral Exchange and Seren\'s Observatory, or take one after a Warden or a round-10 boss.',
+        'Seis Leyes, cada una reescribe una regla de puntaje: Inversión, Unidad, Simetría, Codicia, Eco y Cosas Pequeñas. Llevas una a la vez, en un espacio propio. Búscalas en la Bóveda, el Bazar, el Intercambio Astral y el Observatorio de Seren, o toma una tras un Custodio o un jefe de la ronda 10.',
+      ),
+      L(
+        'Poker dice: faces 9, 10, J, Q, K and Ace. Poker dice together make poker hands (pair, straight, full house and more) that add Mult. The Joker has a wild seventh face. Both are sold in Elementa too.',
+        'Dados de póker: caras 9, 10, J, Q, K y As. Los dados de póker juntos forman manos de póker (par, escalera, full y más) que suman Mult. El Comodín tiene una séptima cara salvaje. Ambos se venden también en Elementa.',
+      ),
+      L(
+        'A new loadout, the Gambler: four poker dice and a Joker. It opens once you win with any other loadout.',
+        'Un equipo inicial nuevo, el Apostador: cuatro dados de póker y un Comodín. Se abre cuando ganas con cualquier otro equipo.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.8.3',
     name: L('Crutches for the new dice', 'Muletas para los dados nuevos'),
     date: null,

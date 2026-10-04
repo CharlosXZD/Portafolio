@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+import { faceLabel, isPokerId, pokerFaces } from '../data/poker.js'
+
+// A face to flash while a die tumbles (cosmetic only).
+const randomFace = (die) =>
+  isPokerId(die.elementId) ? pokerFaces(die.elementId)[Math.floor(Math.random() * pokerFaces(die.elementId).length)] : 1 + Math.floor(Math.random() * die.sides)
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion'
 import { ELEMENTS, FLAGS, rarityForElement } from '../data/elements.js'
 import { RARITY, RARITY_GLOW } from '../data/relics.js'
@@ -217,7 +222,7 @@ export default function Die({
       let ticks = 0
       const interval = setInterval(() => {
         ticks += 1
-        setDisplayValue(1 + Math.floor(Math.random() * die.sides))
+        setDisplayValue(randomFace(die))
         if (ticks >= FLICKER_TICKS) {
           clearInterval(interval)
           land()
@@ -263,7 +268,7 @@ export default function Die({
       // The face ticks fast, then slower and slower, and lands on the real
       // value the moment the die touches down.
       for (let i = 1; i < TUMBLE_TICKS; i++) {
-        after(landMs * Math.pow(i / TUMBLE_TICKS, 1.7), () => setDisplayValue(1 + Math.floor(Math.random() * die.sides)))
+        after(landMs * Math.pow(i / TUMBLE_TICKS, 1.7), () => setDisplayValue(randomFace(die)))
       }
       after(landMs, () => {
         setLandKey((k) => k + 1)
@@ -372,7 +377,7 @@ export default function Die({
           animate={pose}
           transition={{ type: 'spring', bounce: 0.35, duration: 0.3 }}
           aria-pressed={die.held}
-          aria-label={`${elementName} d${die.sides}: ${showFace ? displayValue : '?'}`}
+          aria-label={`${elementName} d${die.sides}: ${showFace ? faceLabel(die.elementId, displayValue) : '?'}`}
           className={`pixel-score relative isolate block ${die.locked || revealing ? 'cursor-default' : 'cursor-pointer'}`}
           style={{
             width: size,
@@ -411,12 +416,12 @@ export default function Die({
             className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2 leading-none"
             style={{
               top: `${numberY * 100}%`,
-              fontSize: Math.round(size * dieNumberScale(shape, showFace ? displayValue : '?')),
+              fontSize: Math.round(size * dieNumberScale(shape, showFace ? faceLabel(die.elementId, displayValue) : '?')),
               color: '#fffaf0',
               textShadow: '3px 3px 0 var(--ink)',
             }}
           >
-            {showFace ? displayValue : '?'}
+            {showFace ? faceLabel(die.elementId, displayValue) : '?'}
           </motion.span>
           </motion.span>
           {!isFrozen && <ElementFx elementId={die.elementId} size={size} />}
