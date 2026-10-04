@@ -165,6 +165,20 @@ export const KEEPERS = {
       "Mind the sparks! Name's Brasa. Bring me dice, I'll make them bigger, meaner, or both.",
       '¡Cuidado con las chispas! Me llamo Brasa. Tráeme dados y los hago más grandes, más bravos, o las dos cosas.',
     ),
+    // What she says at the slots (EXPANSION.md K3b): runes that clash on a
+    // number, a rune that moves because the new die is smaller.
+    forge: {
+      clash: L(
+        "Two runes on the same number? I can fold them together for {fee} more Shards. Or I forge it as is, and one of them won't make it.",
+        '¿Dos runas en el mismo número? Puedo doblarlas juntas por {fee} Fragmentos más. O lo forjo así, y una de ellas no sobrevive.',
+      ),
+      shrink: L(
+        "This one comes out smaller. A rune on a number it won't have moves to its top face, the {n}.",
+        'Este sale más pequeño. Una runa en un número que no tendrá se muda a su cara más alta, el {n}.',
+      ),
+      volatile: L('That mix is unstable. {chance}% it collapses. Not my favorite odds.', 'Esa mezcla es inestable. {chance}% de que colapse. No son mis probabilidades favoritas.'),
+      teach: L('Huh. {die}. Never seen that one.', 'Vaya. {die}. Nunca había visto esa.'),
+    },
     greet: {
       stranger: [
         L('Two dice go in, one better die comes out. Simple.', 'Entran dos dados, sale uno mejor. Así de simple.'),
@@ -458,6 +472,68 @@ export const KEEPERS = {
     lowLives: L('(it looks at you, a little worried)', '(te mira, un poco preocupado)'),
     loreAt: [5],
     lore: [L('before the first word there was nothing. i was the nothing. now i am a little something.', 'antes de la primera palabra no había nada. yo era la nada. ahora soy un poco de algo.')],
+  },
+
+  // The Cosmologist (EXPANSION.md K5): she shares Brasa's Forge past the
+  // door, and the Astral Exchange's. Mysterious, playful, always knowing
+  // more than she says. All drafts.
+  vesper: {
+    id: 'vesper',
+    name: L('Vesper', 'Vesper'),
+    title: L('The Cosmologist', 'La Cosmóloga'),
+    intro: L(
+      "Oh, you made it through the door. Good. I'm Vesper. Don't ask where I'm from, ask what I can make.",
+      'Ah, cruzaste la puerta. Bien. Soy Vesper. No preguntes de dónde vengo, pregunta qué puedo hacer.',
+    ),
+    greet: {
+      stranger: [
+        L('Two elements at a time. Three would be rude to the universe.', 'Dos elementos a la vez. Tres sería de mala educación con el universo.'),
+        L("Brasa does the heat. I do the parts nobody's named yet.", 'Brasa pone el calor. Yo pongo las partes que nadie ha nombrado todavía.'),
+        L('Stardust, fusions, a warning or two. Pick one. Or all of them.', 'Polvo estelar, fusiones, una advertencia o dos. Elige una. O todas.'),
+      ],
+      regular: [
+        L("You again. I was counting on it. I'm always counting something.", 'Tú otra vez. Contaba con ello. Siempre estoy contando algo.'),
+        L('I named a star after you. It is very small and a little unstable.', 'Le puse tu nombre a una estrella. Es muy pequeña y un poco inestable.'),
+        L('If it glows, it is probably fine. If it hums, step back.', 'Si brilla, probablemente está bien. Si zumba, da un paso atrás.'),
+      ],
+      friend: [
+        L('I could tell you where these elements come from. I could. I will not.', 'Podría decirte de dónde salen estos elementos. Podría. No lo haré.'),
+        L('Brasa says I talk in riddles. Brasa is a riddle that talks.', 'Brasa dice que hablo en acertijos. Brasa es un acertijo que habla.'),
+        L('Sit. The forge can wait. Most things can, except collapse.', 'Siéntate. La forja puede esperar. Casi todo puede, menos el colapso.'),
+      ],
+    },
+    afterBoss: L('A Warden fell. Somewhere a recipe just woke up.', 'Cayó un Custodio. En algún lugar acaba de despertar una receta.'),
+    lowLives: L('You look like a star near the end. Forge something bright, quickly.', 'Pareces una estrella cerca del final. Forja algo brillante, rápido.'),
+    loreAt: [2, 4, 6],
+    lore: [
+      L(
+        'Glimmer, Gloom, Moment, Reach, Flux, Null. Small pieces of very big things. The Wardens keep the big ones.',
+        'Destello, Penumbra, Instante, Alcance, Flujo, Nulo. Pedazos pequeños de cosas muy grandes. Los Custodios guardan las grandes.',
+      ),
+      L(
+        'Stardust is what is left when a star forgets its own name. It remembers how to be a die, though.',
+        'El polvo estelar es lo que queda cuando una estrella olvida su propio nombre. Pero recuerda cómo ser un dado.',
+      ),
+      L(
+        'A Dead Star is not a failure. It is a fusion that tried too hard. I have a few at home.',
+        'Una Estrella Muerta no es un fracaso. Es una fusión que se esforzó demasiado. Tengo unas cuantas en casa.',
+      ),
+    ],
+    forge: {
+      clash: L(
+        'Two runes, one number. I can superpose them, {fee} Shards. Or we let the universe pick, and one goes quiet.',
+        'Dos runas, un número. Puedo superponerlas, {fee} Fragmentos. O dejamos que el universo elija, y una se calla.',
+      ),
+      shrink: L(
+        'Smaller die, fewer numbers. Any rune that loses its number moves to the top face, the {n}. Physics.',
+        'Dado más pequeño, menos números. Una runa que pierde su número se muda a la cara más alta, el {n}. Física.',
+      ),
+      volatile: L(
+        'Volatile. {chance}% it collapses into a Dead Star. I would not, but I am not you.',
+        'Volátil. {chance}% de que colapse en una Estrella Muerta. Yo no lo haría, pero yo no soy tú.',
+      ),
+      teach: L('Oh, I know this pair. {die}. Now you know it too. Careful.', 'Ah, conozco esta pareja. {die}. Ahora tú también. Cuidado.'),
+    },
   },
 
   // The Aether Bazaar is hosted by every keeper at once.

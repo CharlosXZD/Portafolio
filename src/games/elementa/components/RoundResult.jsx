@@ -88,6 +88,13 @@ export default function RoundResult({ state, dispatch, compact = false }) {
           </span>
         </div>
       )}
+      {/* A boss drops Stardust (EXPANSION.md K2). */}
+      {r.stardustGain > 0 && (
+        <span className="pixel-score inline-flex items-center gap-1.5 text-xs text-[#d6c4ff]">
+          <PixelIcon name="glimmer" size={12} color="#d6c4ff" hi="#ffffff" />
+          {t('elementa.roundResult.stardust').replace('{n}', r.stardustGain)}
+        </span>
+      )}
       {/* Rune of Glass (EXPANSION.md J3): what broke after the cast. */}
       {r.shattered?.length > 0 && (
         <p className="text-center text-base text-[#d6f2ff]">

@@ -31,6 +31,7 @@ const WHERE = {
   shop_bazaar: L('Aether Bazaar (every keeper)', 'Bazar del Éter (todos los guardianes)'),
   scene_crossroads: L('Story: the Crossroads', 'Historia: la Encrucijada'),
   scene_firmament: L('Story: the visions and the Firmament', 'Historia: las visiones y el Firmamento'),
+  shop_vesper: L('A Forge past the door (Vesper and Brasa)', 'Una Forja más allá de la puerta (Vesper y Brasa)'),
   shop_cartography: L("Atlas's Cartography (the Firmament)", 'Cartografía de Atlas (el Firmamento)'),
   shop_clockwork: L("The Horologist's Clockwork (the Firmament)", 'El Mecanismo del Relojero (el Firmamento)'),
   shop_observatory: L("Seren's Observatory (the Firmament)", 'El Observatorio de Seren (el Firmamento)'),

@@ -78,7 +78,11 @@ function sceneFor(state, seen) {
   }
   if (live && state.bossModifier?.tier === 4) ids.push(`warden_${state.bossModifier.id}`)
   if (state.phase === 'crossroads') ids.push('crossroads')
+  // Pip on crossing the door (K6), then the follower's arrival.
+  if (state.realm === 'firmament' && ['bossReward', 'shop'].includes(state.phase)) ids.push('crossing')
   if (state.phase === 'shop' && state.shop?.firstFirmament) ids.push(`follower_${state.path ?? 'neutral'}`)
+  // Vesper's first meeting, in a Forge past the door (K5).
+  if (state.phase === 'shop' && state.realm === 'firmament' && ['forge', 'astral'].includes(state.shop?.type)) ids.push('vesper_first')
   if (state.phase === 'shop' && state.shop?.type === 'pantry' && (state.moteFed || 0) >= 40) ids.push('mote_first')
   if (state.recipes?.includes('entropy') && ['shop', 'bossReward', 'victory', 'rolling'].includes(state.phase)) ids.push('entropy')
   return ids.find((id) => sceneById(id) && !seen.includes(id)) ?? null

@@ -3,7 +3,8 @@ import { AnimatePresence, motion, useDragControls } from 'framer-motion'
 import { ELEMENTS } from '../data/elements.js'
 import { relicById } from '../data/relics.js'
 import { consumableById } from '../data/consumables.js'
-import { relicDescriptor, consumableDescriptor, dieDescriptor, forgeDescriptor } from '../data/itemDescriptors.js'
+import { relicDescriptor, consumableDescriptor, dieDescriptor } from '../data/itemDescriptors.js'
+import ForgePanel from './ForgePanel.jsx'
 import { localize, ELEMENTS_ES, localizeDifficulty, localizeBossModifier } from '../data/i18n.js'
 import { selectors } from '../engine/gameReducer.js'
 import { thresholdForRound } from '../engine/scoring.js'
@@ -507,7 +508,6 @@ export default function ShopScreen({ state, dispatch }) {
   const pantry = Boolean(type.pantry)
   const sellLabel = (cost) =>
     pantry ? `${t('elementa.pantry.feed')} +${selectors.motePays(cost)}` : `${t('elementa.shop.sell')} +${cost}`
-  const forgeLabel = (cost) => `${t('elementa.shop.forge')} ${cost}`
 
   const rerollShopCost = selectors.rerollShopOffersCost(state)
   const nextTarget = thresholdForRound(state.round + 1, state.difficulty)
@@ -521,7 +521,6 @@ export default function ShopScreen({ state, dispatch }) {
   // Warp dice don't count toward the cap (EXPANSION.md H3).
   const diceCount = selectors.poolSize(state.dice)
   const diceFull = diceCount >= diceCap
-  const forgeable = selectors.forgeableRecipes(state).filter((r) => r.canForge)
 
   function buy(action) {
     playCoin()
@@ -700,6 +699,8 @@ export default function ShopScreen({ state, dispatch }) {
       <div className="flex flex-col items-center gap-6">
         <ShopBanner label={type.name[lang]} color={type.color} />
         <KeeperGreeting state={state} type={type} />
+        {/* Vesper works beside Brasa past the door (EXPANSION.md K5). */}
+        {selectors.vesperHere(state) && <KeeperGreeting state={state} type={{ ...type, keeper: 'vesper', color: '#9fb8ff' }} />}
 
         <AnimatePresence>
           {(armedConsumable || armedPurchase) && (
@@ -780,32 +781,8 @@ export default function ShopScreen({ state, dispatch }) {
         </OfferShelf>
         )}
 
-        {type.forge && forgeable.length === 0 && (
-          <p className="text-center text-base text-[var(--text-mute)]">{t('elementa.shop.forgeNothing')}</p>
-        )}
-
-        {forgeable.length > 0 && (
-          <OfferShelf tut="forge" title={t('elementa.shop.fusionForge')} hint={t('elementa.shop.fusionForgeHint')}>
-            {forgeable.map((recipe) => (
-              <IconSlot
-                key={recipe.fusionElementId}
-                itemKey={`forge-${recipe.fusionElementId}`}
-                item={forgeDescriptor(recipe, lang)}
-                cost={recipe.cost}
-                affordable={state.shards >= recipe.cost}
-                actions={[
-                  {
-                    label: forgeLabel(recipe.cost),
-                    disabled: state.shards < recipe.cost,
-                    onClick: () => buy({ type: 'FUSE_DICE', fusionElementId: recipe.fusionElementId }),
-                  },
-                ]}
-                openKey={openKey}
-                onOpenChange={setOpenKey}
-              />
-            ))}
-          </OfferShelf>
-        )}
+        {/* The Forge's four slots (EXPANSION.md K3): any Forge, or a Fusion Spark. */}
+        {shop.forgeOpen && <ForgePanel state={state} dispatch={dispatch} />}
 
         {type.upgrades && (
           <UpgradeShelf state={state} dispatch={dispatch} openKey={openKey} setOpenKey={setOpenKey} buy={buy} />

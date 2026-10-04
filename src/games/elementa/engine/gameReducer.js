@@ -3152,5 +3152,6 @@ export const selectors = {
   forgeMatches: (state, dieIds) => forgeMatches(state, dieIds.map((id) => state.dice.find((d) => d.id === id)).filter(Boolean)),
   vesperHere,
   forgeSlots: FORGE_SLOTS,
+  collapseChance: COLLAPSE_CHANCE,
   canRewind: (state) => state.phase === 'rolling' && Boolean(state.lastReroll) && holdsTime(state.dice) && !state.rewindUsed,
 }

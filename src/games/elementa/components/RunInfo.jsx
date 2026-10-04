@@ -90,6 +90,8 @@ export default function RunInfo({ state, onClose, initialTab = 'run' }) {
               {state.endless ? ` · ${t('elementa.runInfo.endless')}` : ` / ${selectors.finalRound(state)}`}
             </Row>
             <Row label={t('elementa.runInfo.bestCast')}>{(state.bestCast || 0).toLocaleString()}</Row>
+            {/* Stardust (EXPANSION.md K2). */}
+            <Row label={t('elementa.hud.stardust')}>{state.stardust || 0}</Row>
             <Row label={t('elementa.runInfo.rerolls')}>{selectors.availableRerolls({ ...state, rerollsUsed: 0 })}</Row>
             <Row label={t('elementa.shop.relics')}>
               {state.relics.length} / {selectors.relicCapFor(state)}

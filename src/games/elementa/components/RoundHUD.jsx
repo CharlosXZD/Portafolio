@@ -134,7 +134,16 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
 
       <div className="flex items-center justify-between">
         <Hearts lives={state.lives} maxLives={state.maxLives} />
-        <ShardCount value={state.shards} />
+        <span className="flex items-center gap-3">
+          {/* Stardust (EXPANSION.md K2), once there is any. */}
+          {state.stardust > 0 && (
+            <span className="pixel-score inline-flex items-center gap-1 text-[11px] text-[#d6c4ff]" title={t('elementa.hud.stardust')}>
+              <PixelIcon name="glimmer" size={10} color="#d6c4ff" hi="#ffffff" />
+              {state.stardust}
+            </span>
+          )}
+          <ShardCount value={state.shards} />
+        </span>
       </div>
 
       {nextShop && (

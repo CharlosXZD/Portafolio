@@ -229,6 +229,22 @@ export const MUSIC_THEMES = {
     voices: { lead: 'square', bass: 'sine' },
   },
 
+  // Vesper, the Cosmologist (EXPANSION.md K5): a Forge past the door. A
+  // curious lydian line over soft bells, a little unpredictable.
+  shop_vesper: {
+    root: 52,
+    scale: 'lydian',
+    step: 0.14,
+    lead: '4 . 6 . 7 - 9 . 6 . . 4 . 2 . . 7 . 9 . 11 - 9 . 6 . 4 . 2 - - .',
+    bass: '0 - - - . . 0 . 1 - - - . . 1 .',
+    pad: [
+      [0, 2, 4],
+      [1, 3, 5],
+    ],
+    perc: 'b . . t . . a . b . t . . . a .',
+    voices: { lead: 'triangle', bass: 'sine', pad: 'sine' },
+  },
+
   // --- Bosses ---
   boss_calm_winds: {
     root: 50,
@@ -483,6 +499,8 @@ export function themeForState(state) {
     return boss && MUSIC_THEMES[`boss_${boss}`] ? `boss_${boss}` : 'table'
   }
   if (p === 'bossReward' || p === 'victory' || p === 'crossroads') return 'victory'
+  // Brasa's Forge past the door is Vesper's too (K5).
+  if (p === 'shop' && state.shop?.type === 'forge' && state.realm === 'firmament') return 'shop_vesper'
   if (p === 'shop') return `shop_${state.shop?.type ?? 'market'}`
   if (p === 'gameover') return 'gameover'
   return 'menu'

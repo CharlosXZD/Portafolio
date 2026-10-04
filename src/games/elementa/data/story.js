@@ -321,6 +321,38 @@ export const SCENES = {
       ]),
     ],
   },
+
+  // --- Cosmic elements (EXPANSION.md K6, K5). ---
+  crossing: {
+    title: L('A new realm', 'Un reino nuevo'),
+    color: '#c9b8ff',
+    music: 'scene_firmament',
+    pages: [
+      page(PIP, L('Pip', 'Pip'), [
+        L('Pip flickers, then glows brighter than it ever has. This is not Elementa anymore.', 'Pip parpadea, y luego brilla más que nunca. Esto ya no es Elementa.'),
+        L('Here the elements are new: Glimmer, Gloom, Moment, Reach, Flux and Null. You will find them in the shops.', 'Aquí los elementos son nuevos: Destello, Penumbra, Instante, Alcance, Flujo y Nulo. Los encontrarás en las tiendas.'),
+      ]),
+      page(PIP, L('Pip', 'Pip'), [
+        L('Six Wardens guard the frame. Each one knows the recipe of a Mythic die: beat it, and the recipe is yours.', 'Seis Custodios guardan el marco. Cada uno conoce la receta de un dado Mítico: véncelo, y la receta es tuya.'),
+        L('A Mythic die is forged from four of its element, plus Stardust. Bosses drop Stardust. Pip has never seen any. It wants to.', 'Un dado Mítico se forja con cuatro de su elemento, más Polvo Estelar. Los jefes sueltan Polvo Estelar. Pip nunca lo ha visto. Quiere verlo.'),
+      ]),
+    ],
+  },
+  vesper_first: {
+    title: L('The Cosmologist', 'La Cosmóloga'),
+    color: '#9fb8ff',
+    music: 'shop_vesper',
+    pages: [
+      page(keeper('vesper'), L('Vesper', 'Vesper'), [
+        L("Someone new at Brasa's anvil. I'm Vesper. Where I'm from is a long story, and you don't have the time.", 'Alguien nuevo en el yunque de Brasa. Soy Vesper. De dónde vengo es una historia larga, y no tienes tiempo.'),
+        L('These new elements are dangerous. Lovely, but dangerous. For now I only put two of them together at a time.', 'Estos elementos nuevos son peligrosos. Preciosos, pero peligrosos. Por ahora solo junto dos a la vez.'),
+      ]),
+      page(keeper('vesper'), L('Vesper', 'Vesper'), [
+        L("Place two different ones in the slots and I'll tell you what they make. Some of them hum. Those can collapse.", 'Pon dos distintos en los espacios y te diré qué forman. Algunos zumban. Esos pueden colapsar.'),
+        L('I sell Stardust and Catalysts. And if your runes fight over a number, Brasa and I can make them share. For a fee.', 'Vendo Polvo Estelar y Catalizadores. Y si tus runas se pelean por un número, Brasa y yo podemos hacer que lo compartan. Por una tarifa.'),
+      ]),
+    ],
+  },
 }
 
 export const SCENE_IDS = Object.keys(SCENES)
