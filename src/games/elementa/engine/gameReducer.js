@@ -3148,6 +3148,7 @@ export const selectors = {
   stardustPrice: STARDUST_PRICE,
   forgePlan,
   inscribe,
+  isMythicDie: isMythic,
   forgeMatches: (state, dieIds) => forgeMatches(state, dieIds.map((id) => state.dice.find((d) => d.id === id)).filter(Boolean)),
   vesperHere,
   forgeSlots: FORGE_SLOTS,

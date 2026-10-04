@@ -750,6 +750,18 @@ const strings = {
   'elementa.gallery.recipeVesper': { en: 'Recipe unknown: place its two elements in a Forge past the door', es: 'Receta desconocida: pon sus dos elementos en una Forja más allá de la puerta' },
   'elementa.hud.stardust': { en: 'Stardust', es: 'Polvo Estelar' },
   'elementa.roundResult.stardust': { en: '+{n} Stardust', es: '+{n} Polvo Estelar' },
+  'elementa.rune.onFace': { en: '{rune}, on {n}', es: '{rune}, en el {n}' },
+  'elementa.die.weightsLine': { en: 'Weights: its faces below 2 count as 2.', es: 'Pesas: sus caras menores a 2 cuentan como 2.' },
+  'elementa.die.socketLine': { en: 'Gem Socket: a second rune can stack on a number.', es: 'Engaste: una segunda runa puede apilarse en un número.' },
+  'elementa.inscribe.title': { en: 'Inscribe a rune', es: 'Inscribir una runa' },
+  'elementa.inscribe.hint': { en: 'Turn the {die} to the number the rune will sit on. Arrows, the left and right keys, or drag it.', es: 'Gira el {die} hasta el número donde irá la runa. Flechas, las teclas izquierda y derecha, o arrástralo.' },
+  'elementa.inscribe.prev': { en: 'Previous number', es: 'Número anterior' },
+  'elementa.inscribe.next': { en: 'Next number', es: 'Número siguiente' },
+  'elementa.inscribe.free': { en: 'The rune works whenever the die shows {n}.', es: 'La runa funciona cada vez que el dado muestre {n}.' },
+  'elementa.inscribe.replace': { en: 'This number holds {rune}: it will be replaced.', es: 'Este número tiene {rune}: será reemplazada.' },
+  'elementa.inscribe.stack': { en: 'This number holds {rune}: the Gem Socket stacks the new one on top.', es: 'Este número tiene {rune}: el Engaste apila la nueva encima.' },
+  'elementa.inscribe.confirm': { en: 'Inscribe on {n}', es: 'Inscribir en el {n}' },
+  'elementa.inscribe.graftTo': { en: 'Now pick the die that receives the rune.', es: 'Ahora elige el dado que recibe la runa.' },
 }
 
 export default strings

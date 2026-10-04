@@ -29,7 +29,9 @@ import BossAvatar from './BossAvatar.jsx'
 import { bossById } from '../data/bossModifiers.js'
 import { nextChoices, nodeById } from '../engine/map.js'
 import { tierById } from '../data/diceTiers.js'
+import { runesOf } from '../data/runes.js'
 import { visitKeeper, lineText } from '../utils/keepers.js'
+import { useInscribe } from './useInscribe.jsx'
 import { KEEPERS } from '../data/keepers.js'
 
 /**
@@ -80,7 +82,7 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
       {dieId ? (
         <Tooltip
           disabled={isOpen}
-          content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} rune={item.rune} />}
+          content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} runes={item.runes} weights={item.weights} socket={item.socket} />}
         >
           {/* A press that turned into a hold must not also click. */}
           <span
@@ -121,7 +123,7 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
         )}
       </AnimatePresence>
       {fullOpen && (
-        <DieFullModal elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} rune={item.rune} onClose={() => setFullOpen(false)} />
+        <DieFullModal elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} runes={item.runes} weights={item.weights} socket={item.socket} onClose={() => setFullOpen(false)} />
       )}
     </div>
   )
@@ -472,6 +474,8 @@ export default function ShopScreen({ state, dispatch }) {
   const [armedConsumable, setArmedConsumable] = useState(null)
   // A shop consumable bought with "Buy & use" that still needs a die.
   const [armedPurchase, setArmedPurchase] = useState(null)
+  // Runes and Grafts open the Inscribe screen (EXPANSION.md K3b, K6).
+  const inscribe = useInscribe(state)
 
   // Escape cancels an armed consumable before it reaches the pause menu.
   useEffect(() => {
@@ -481,6 +485,7 @@ export default function ShopScreen({ state, dispatch }) {
       e.stopImmediatePropagation()
       setArmedConsumable(null)
       setArmedPurchase(null)
+      inscribe.reset()
     }
     window.addEventListener('keydown', onKey, { capture: true })
     return () => window.removeEventListener('keydown', onKey, { capture: true })
@@ -548,7 +553,9 @@ export default function ShopScreen({ state, dispatch }) {
                 sides: die.sides,
                 bonus: die.bonus || 0,
                 edition: die.edition,
-                rune: die.rune,
+                runes: runesOf(die),
+                weights: Boolean(die.weights),
+                socket: Boolean(die.socket),
                 name: `${elementName} d${die.sides}${die.bonus ? ` +${die.bonus}` : ''}`,
                 description: die.bonus
                   ? `${base.description} ${t('elementa.shop.dieBonus').replace('{n}', die.bonus)}`
@@ -586,6 +593,13 @@ export default function ShopScreen({ state, dispatch }) {
                           // An impossible target (a d3 under a Chisel, a full pool
                           // for a split) says no and stays armed.
                           const held = state.consumables.find((c) => c.instanceId === armedConsumable)
+                          // A Rune or a Graft picks its number on the Inscribe screen.
+                          const routed = inscribe.route(held, die, (extra) => {
+                            dispatch({ type: 'APPLY_CONSUMABLE', instanceId: armedConsumable, dieId: die.id, ...extra })
+                            setArmedConsumable(null)
+                          })
+                          if (routed === 'fail') return playFail()
+                          if (routed) return playClick()
                           if (held && !selectors.consumableTargetOk(state, held, die)) return playFail()
                           playClick()
                           dispatch({ type: 'APPLY_CONSUMABLE', instanceId: armedConsumable, dieId: die.id })
@@ -594,6 +608,13 @@ export default function ShopScreen({ state, dispatch }) {
                       : armedPurchase
                         ? () => {
                             const bought = consumableById(armedPurchase)
+                            const routed = inscribe.route(bought, die, (extra) => {
+                              playCoin()
+                              dispatch({ type: 'BUY_AND_APPLY_CONSUMABLE', consumableId: armedPurchase, dieId: die.id, ...extra })
+                              setArmedPurchase(null)
+                            })
+                            if (routed === 'fail') return playFail()
+                            if (routed) return playClick()
                             if (bought && !selectors.consumableTargetOk(state, bought, die)) return playFail()
                             playCoin()
                             dispatch({ type: 'BUY_AND_APPLY_CONSUMABLE', consumableId: armedPurchase, dieId: die.id })
@@ -689,12 +710,15 @@ export default function ShopScreen({ state, dispatch }) {
               className="el-panel flex items-center gap-4 px-4 py-2"
               style={{ '--edge': 'var(--gold-1)' }}
             >
-              <span className="text-base text-[var(--gold-hi)]">{t('elementa.shop.chooseDieToApply')}</span>
+              <span className="text-base text-[var(--gold-hi)]">
+                {inscribe.graftFrom ? t('elementa.inscribe.graftTo') : t('elementa.shop.chooseDieToApply')}
+              </span>
               <button
                 type="button"
                 onClick={() => {
                   setArmedConsumable(null)
                   setArmedPurchase(null)
+                  inscribe.reset()
                 }}
                 className="el-btn el-btn--sm"
               >
@@ -963,6 +987,7 @@ export default function ShopScreen({ state, dispatch }) {
           </p>
         )}
       </aside>
+      {inscribe.element}
     </div>
   )
 }

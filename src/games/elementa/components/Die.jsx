@@ -11,7 +11,8 @@ import Tooltip from './Tooltip.jsx'
 import ItemInspector from './ItemInspector.jsx'
 import { DieHoverCard, DieFullModal } from './DieInfo.jsx'
 import { dieDescriptor } from '../data/itemDescriptors.js'
-import { runeById } from '../data/runes.js'
+import { runesOf } from '../data/runes.js'
+import { RuneBadges, runeFootnote } from './RuneMarks.jsx'
 import { useLongPress } from '../utils/useLongPress.js'
 import ElementFx from './ElementFx.jsx'
 import { LandBurst, ExplosionFx, DriftFx, LockFx } from './RollFx.jsx'
@@ -331,7 +332,9 @@ export default function Die({
             bonus={die.bonus || 0}
             edition={die.edition}
             chaosForm={die.chaosForm}
-            rune={die.rune}
+            runes={runesOf(die)}
+            weights={Boolean(die.weights)}
+            socket={Boolean(die.socket)}
             score={!showFace ? '?' : typeof contribution === 'number' ? Math.round(contribution * 10) / 10 : null}
           />
         }
@@ -468,16 +471,8 @@ export default function Die({
           {extra > 0 && (
             <span className="el-chip absolute -left-3 -top-3 bg-[#6fbf4a] text-[var(--ink)]">+{extra}</span>
           )}
-          {/* A rune socketed in this die (EXPANSION.md J3). */}
-          {die.rune && (
-            <span
-              title={runeById(die.rune).name[lang]}
-              className="el-chip absolute -bottom-3 -right-3 z-10 text-[var(--ink)]"
-              style={{ backgroundColor: runeById(die.rune).color }}
-            >
-              {runeById(die.rune).short[lang]}
-            </span>
-          )}
+          {/* Runes on its numbers (EXPANSION.md K3b): lit on the face it shows. */}
+          <RuneBadges die={die} showFace={showFace} />
           {/* A Pocket Watch (I2): it starts next round held, on this face. */}
           {die.watch && (
             <span className="el-chip absolute -bottom-3 -left-3 z-10 bg-[#c9a46b] text-[var(--ink)]">{t('elementa.die.watch')}</span>
@@ -515,7 +510,7 @@ export default function Die({
             <ItemInspector
               item={{
                 ...dieDescriptor(die.elementId, lang),
-                tags: [...dieDescriptor(die.elementId, lang).tags, ...(die.rune ? [`rune_${die.rune}`] : [])],
+                tags: [...dieDescriptor(die.elementId, lang).tags, ...[...new Set(runesOf(die).map((r) => `rune_${r.id}`))]],
                 name: `${elementName} d${die.sides}`,
                 // Who it acts as (a copy, or Chaos's form), and Warp (H3).
                 footnote:
@@ -524,7 +519,8 @@ export default function Die({
                       ? t('elementa.die.actingAs').replace('{die}', localize(lang, acting.name, ELEMENTS_ES, acting.id, 'name'))
                       : null,
                     die.edition === 'warp' ? `WARP: ${t('elementa.die.warpLine')}` : null,
-                    die.rune ? `${runeById(die.rune).name[lang]}: ${runeById(die.rune).description[lang].replace(/^[^:]*: /, '')}` : null,
+                    runeFootnote(die, lang, t) || null,
+                    die.weights ? t('elementa.die.weightsLine') : null,
                   ]
                     .filter(Boolean)
                     .join(' ') || undefined,
@@ -545,7 +541,9 @@ export default function Die({
           bonus={die.bonus || 0}
           edition={die.edition}
           chaosForm={die.chaosForm}
-          rune={die.rune}
+          runes={runesOf(die)}
+          weights={Boolean(die.weights)}
+          socket={Boolean(die.socket)}
           score={!showFace ? '?' : typeof contribution === 'number' ? Math.round(contribution * 10) / 10 : null}
           onClose={() => setFullOpen(false)}
         />

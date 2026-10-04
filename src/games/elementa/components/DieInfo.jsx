@@ -11,7 +11,7 @@ import FamilyTags from './FamilyTag.jsx'
 import KeywordTags, { KeywordTag } from './KeywordTag.jsx'
 import RichText from './RichText.jsx'
 import Modal from './Modal.jsx'
-import { runeById } from '../data/runes.js'
+import { RuneLines } from './RuneMarks.jsx'
 import { RARITY_LABEL } from './ItemInspector.jsx'
 
 // The three levels of detail for a die (EXPANSION.md P5 to P9), one set of
@@ -65,8 +65,20 @@ export function DieEditionLines({ edition = null, chaosForm = null }) {
   )
 }
 
+/** Weights and a Gem Socket on a die (EXPANSION.md K6), in words. */
+export function DieItemLines({ weights = false, socket = false }) {
+  const { t } = useLanguage()
+  if (!weights && !socket) return null
+  return (
+    <div className="flex flex-col gap-1 text-sm leading-snug text-[var(--text-dim)]">
+      {weights && <span>{t('elementa.die.weightsLine')}</span>}
+      {socket && <span>{t('elementa.die.socketLine')}</span>}
+    </div>
+  )
+}
+
 /** Level 1: hover. `score` is a number, '?' (Eclipse) or null (no roll). */
-export function DieHoverCard({ elementId, sides, bonus = 0, score = null, edition = null, chaosForm = null, rune = null }) {
+export function DieHoverCard({ elementId, sides, bonus = 0, score = null, edition = null, chaosForm = null, runes = [], weights = false, socket = false }) {
   const { lang } = useLanguage()
   const name = useDieName(elementId)
   const colors = dieColors(elementId)
@@ -80,13 +92,9 @@ export function DieHoverCard({ elementId, sides, bonus = 0, score = null, editio
       </div>
       <FamilyTags elementId={elementId} />
       <DieEditionLines edition={edition} chaosForm={chaosForm} />
-      {/* A socketed Rune (EXPANSION.md J3). */}
-      {rune && runeById(rune) && (
-        <div className="flex flex-col gap-1">
-          <KeywordTag id={`rune_${rune}`} inline />
-          <span className="text-[15px] leading-snug text-[var(--text-dim)]">{runeById(rune).name[lang]}</span>
-        </div>
-      )}
+      {/* Runes on its numbers (EXPANSION.md K3b), Weights and a Gem Socket (K6). */}
+      <RuneLines runes={runes} />
+      <DieItemLines weights={weights} socket={socket} />
       {score != null && <ScoreBlock value={score} />}
     </div>
   )
@@ -147,7 +155,7 @@ export function DieDetails({ elementId, withFamilies = false }) {
  * shaking table would only cover its own column, and the game's colors and
  * fonts are scoped to `.elementa-root`.
  */
-export function DieFullModal({ elementId, sides, bonus = 0, score = null, edition = null, chaosForm = null, rune = null, onClose }) {
+export function DieFullModal({ elementId, sides, bonus = 0, score = null, edition = null, chaosForm = null, runes = [], weights = false, socket = false, onClose }) {
   const { lang, t } = useLanguage()
   const name = useDieName(elementId)
   const { short } = diceText(elementId, lang)
@@ -179,6 +187,8 @@ export function DieFullModal({ elementId, sides, bonus = 0, score = null, editio
         <RichText text={short} />
       </p>
       <DieEditionLines edition={edition} chaosForm={chaosForm} />
+      <RuneLines runes={runes} />
+      <DieItemLines weights={weights} socket={socket} />
       {score != null && <ScoreBlock value={score} />}
       <DieDetails elementId={elementId} />
     </Modal>,

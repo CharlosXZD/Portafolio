@@ -21,6 +21,7 @@ import BossAvatar from './BossAvatar.jsx'
 import { Pip } from './Tutorial.jsx'
 import { tideLocks } from '../engine/gods.js'
 import { readProfile } from '../utils/profile.js'
+import { useInscribe } from './useInscribe.jsx'
 import { playRoll, playClick, playScoreStep, playBossRound, playFail } from '../utils/sound.js'
 
 // Per game-speed timings for the score reveal (Options -> Scoring speed), in
@@ -183,6 +184,10 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
     [state.activeSlot, state.round, state.lastResult],
   )
 
+  // Runes and Grafts used mid-round pick their number on the Inscribe
+  // screen (EXPANSION.md K3b, K6).
+  const inscribe = useInscribe(state)
+
   // Escape cancels a consumable (or Gust) waiting for its target die.
   useEffect(() => {
     if (!armedConsumable && !gustArmed) return
@@ -191,6 +196,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
       e.stopImmediatePropagation()
       onArmedDone?.()
       setGustArmed(false)
+      inscribe.reset()
     }
     window.addEventListener('keydown', onKey, { capture: true })
     return () => window.removeEventListener('keydown', onKey, { capture: true })
@@ -591,13 +597,18 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
             {targeting && (
               <div className="el-panel flex items-center gap-4 px-4 py-2" style={{ '--edge': 'var(--arcane-hi)' }}>
                 <span className="text-base text-[var(--arcane-hi)]">
-                  {gustArmed ? t('elementa.diceTray.gustPick') : t('elementa.shop.chooseDieToApply')}
+                  {gustArmed
+                    ? t('elementa.diceTray.gustPick')
+                    : inscribe.graftFrom
+                      ? t('elementa.inscribe.graftTo')
+                      : t('elementa.shop.chooseDieToApply')}
                 </span>
                 <button
                   type="button"
                   onClick={() => {
                     onArmedDone?.()
                     setGustArmed(false)
+                    inscribe.reset()
                   }}
                   className="el-btn el-btn--sm"
                 >
@@ -652,6 +663,12 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                           // An impossible target says no and stays armed.
                           const held = state.consumables.find((c) => c.instanceId === armedConsumable)
                           const target = state.dice.find((d) => d.id === id)
+                          const routed = inscribe.route(held, target, (extra) => {
+                            dispatch({ type: 'APPLY_CONSUMABLE', instanceId: armedConsumable, dieId: id, ...extra })
+                            onArmedDone?.()
+                          })
+                          if (routed === 'fail') return playFail()
+                          if (routed) return playClick()
                           if (held && !selectors.consumableTargetOk(state, held, target)) return playFail()
                           dispatch({ type: 'APPLY_CONSUMABLE', instanceId: armedConsumable, dieId: id })
                           onArmedDone?.()
@@ -798,6 +815,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
           />
         </div>
       </motion.div>
+      {inscribe.element}
     </>
   )
 }
