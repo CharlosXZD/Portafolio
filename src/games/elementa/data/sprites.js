@@ -478,6 +478,13 @@ export const ITEM_ART = {
   stopwatch: ['gear', '#c9a46b', '#b9a6ff'],
   time_capsule: ['hourglass', '#b9a6ff', '#ffffff'],
   warp_seal: ['coin', '#a66bff', '#ff4fd8'],
+  // Die items (K6).
+  weights: ['block', '#8a8f99', '#c4c9d2'],
+  honing_oil: ['flask', '#e8b923', '#fff3b8'],
+  graft: ['feather', '#c8d0e8', '#d6c4ff'],
+  solvent: ['flask', '#9fe8e0', '#ffffff'],
+  gem_socket: ['ring', '#ffd166', '#ff4fd8'],
+  catalyst: ['gem', '#7ad1ff', '#ffffff'],
   // Constellations and Runes (J1, J3).
   const_phoenix: ['gem', '#ff8a3d', '#ffffff'],
   const_anvil: ['gem', '#d9892b', '#ffffff'],

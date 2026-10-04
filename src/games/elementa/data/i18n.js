@@ -304,6 +304,13 @@ export const CONSUMABLES_ES = {
     description: 'Aplícalo a un dado para añadir una copia exacta a tu reserva (necesita un espacio libre).',
   },
   loom_of_fate: { name: 'Telar del Destino', description: 'Renueva las ofertas de la tienda, gratis.' },
+  // Die items (EXPANSION.md K6).
+  weights: { name: 'Pesas', description: 'Aplícalas a un dado: sus caras menores a 2 cuentan como 2, para siempre.' },
+  honing_oil: { name: 'Aceite de Afilar', description: 'Aplícalo a un dado: anota +4 permanente cada vez que anote (encima de una Piedra de Afilar).' },
+  graft: { name: 'Injerto', description: 'Elige un dado con una runa, luego otro dado: la runa pasa a él, en el número que elijas.' },
+  solvent: { name: 'Disolvente', description: 'Aplícalo a un dado: le quita todas las mejoras (bono, runas, Pesas) y te devuelve 5 Fragmentos.' },
+  gem_socket: { name: 'Engaste', description: 'Aplícalo a un dado: una segunda runa puede apilarse en un número que ya tiene una, en vez de reemplazarla.' },
+  catalyst: { name: 'Catalizador', description: 'En la Forja: una fusión volátil se forja 100% segura (no puede colapsar). Se usa al forjar.' },
   stopwatch: { name: 'Cronómetro', description: 'Durante una ronda: deshaz tu último reroll y recupéralo.' },
   time_capsule: { name: 'Cápsula del Tiempo', description: 'Guarda 2 rerolls para la próxima ronda.' },
   sand_hourglass: { name: 'Reloj de Arena', description: 'Durante una ronda: tus próximos 3 rerolls de esta ronda no gastan un reroll.' },

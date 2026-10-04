@@ -831,7 +831,14 @@ function rollShopStock(state, type) {
   const runesIn = type.runes || (firmament && type.id === 'market')
   const consumablePool = type.runesOnly
     ? CONSUMABLES.filter((c) => c.runeItem)
-    : CONSUMABLES.filter((c) => (!c.firmament || firmament) && !c.horologistOnly && (!c.runeItem || runesIn))
+    : CONSUMABLES.filter(
+        (c) =>
+          (!c.firmament || firmament) &&
+          !c.horologistOnly &&
+          (!c.runeItem || runesIn) &&
+          // The Catalyst: Vesper's, and the Astral Exchange's (K6).
+          (!c.vesperOnly || type.id === 'astral'),
+      )
   const itemPool = [
     ...(type.itemKinds.includes('relic')
       ? RELICS.filter(
@@ -961,6 +968,10 @@ function buildShopOffers(state, typeId = 'market') {
     dealTaken: false,
     blessings,
     blessingTaken: false,
+    // Vesper (K5) adds a Catalyst to a Firmament Forge's shelf.
+    ...(type.id === 'forge' && state.realm === 'firmament'
+      ? { itemOffers: [...stock.itemOffers, { kind: 'consumable', id: 'catalyst' }] }
+      : {}),
     // Atlas (H6): the services used this visit. Mote: its secret stock.
     ...(type.services ? { servicesUsed: [] } : {}),
     ...(type.pantry ? { moteTier: moteTier(state.moteFed), moteStock: moteStockFor(state, 0, moteTier(state.moteFed)) } : {}),
@@ -1355,6 +1366,17 @@ function wardenAfterReroll(dice, rerolled, fx) {
   return out
 }
 
+/**
+ * A rune on a die's number (K3b). Without a Gem Socket a rune already on
+ * that number is replaced; with one, up to two stack there.
+ */
+function inscribe(die, runeId, face) {
+  const runes = runesOf(die)
+  const here = runes.filter((r) => r.face === face)
+  const keep = here.length < faceCap(die) ? runes : runes.filter((r) => r.face !== face || r !== here[0])
+  return { ...die, rune: undefined, runes: [...keep, { id: runeId, face }] }
+}
+
 // Puts the table back as it was before the last reroll, and refunds it.
 function undoReroll(state) {
   const before = state.lastReroll
@@ -1498,9 +1520,20 @@ export function consumableTargetOk(state, item, die) {
       if (uncopyable(die)) return false
       return Boolean(plan) && (plan.kind === 'chip' || fitsPool(state, [...state.dice, die]))
     }
-    // Runes (J3): any die but a Mythic one, Entropy included.
+    // Runes (J3, K3b): any die but a Mythic one, Entropy included. Which
+    // number is chosen on the Inscribe screen.
     case 'rune':
-      return !isMythic(die.elementId) && die.rune !== item.rune
+      return !isMythic(die.elementId)
+    // Graft (K6): the first die picked must carry a rune.
+    case 'graft':
+      return runesOf(die).length > 0
+    case 'weights':
+      return !die.weights
+    case 'socket':
+      return !die.socket && !isMythic(die.elementId)
+    // Solvent (K6): only a die with something to strip.
+    case 'solvent':
+      return Boolean(die.bonus || die.weights || runesOf(die).length)
     // Warp Seal (H3): any die without Warp, under the Warp cap.
     case 'warp':
       return !isWarp(die) && warpCount(state.dice) < WARP_CAP
@@ -2548,7 +2581,15 @@ function reduce(state, action) {
           itemOffers: dropOffer(state.shop.itemOffers, 'consumable', def.id),
         },
       }
-      const applied = reduce(bought, { type: 'APPLY_CONSUMABLE', instanceId, dieId: action.dieId ?? null })
+      // A rune's number and a Graft's target travel along (K3b, K6).
+      const applied = reduce(bought, {
+        type: 'APPLY_CONSUMABLE',
+        instanceId,
+        dieId: action.dieId ?? null,
+        face: action.face,
+        toDieId: action.toDieId,
+        runeIndex: action.runeIndex,
+      })
       // Couldn't apply (e.g. no valid target): undo the purchase entirely.
       return applied === bought ? state : applied
     }
@@ -2689,8 +2730,12 @@ function reduce(state, action) {
         if (!plan) return state
         if (plan.kind === 'two' && !fitsPool(state, [...state.dice, die])) return state
         const smaller = tierById(plan.tierId)
+        // Each half keeps the runes; a number it no longer has moves to its
+        // top face, and runes that meet there stack for free (K3b).
+        const halfRunes = fitRunes(runesOf(die), smaller.sides).map(({ id, face }) => ({ id, face }))
         const pieces = Array.from({ length: plan.kind === 'two' ? 2 : 1 }, (_, i) => ({
           ...die,
+          runes: halfRunes,
           id: i === 0 ? die.id : makeId(),
           tierId: smaller.id,
           sides: smaller.sides,
@@ -2720,14 +2765,43 @@ function reduce(state, action) {
         if (!consumableTargetOk(state, item, die)) return state
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, edition: 'warp' } : d))
       } else if (item.type === 'rune') {
-        // A Rune (J3) goes in one die; a second replaces the first.
+        // A Rune (K3b) is inscribed on one number (`action.face`, the top
+        // face if none is given). A rune already there is replaced, unless a
+        // Gem Socket lets a second one stack.
         if (!consumableTargetOk(state, item, die)) return state
-        dice = state.dice.map((d) => (d.id === die.id ? { ...d, rune: item.rune } : d))
+        const face = Math.max(1, Math.min(die.sides, Math.round(action.face ?? die.sides)))
+        dice = state.dice.map((d) => (d.id === die.id ? inscribe(d, item.rune, face) : d))
+      } else if (item.type === 'graft') {
+        // Graft (K6): a rune leaves this die (`action.runeIndex` among its
+        // runes) for `action.toDieId`, on the number `action.face`.
+        const to = state.dice.find((d) => d.id === action.toDieId)
+        const moving = runesOf(die)[action.runeIndex ?? 0]
+        if (!moving || !to || to.id === die.id || isMythic(to.elementId)) return state
+        const face = Math.max(1, Math.min(to.sides, Math.round(action.face ?? to.sides)))
+        const left = runesOf(die).filter((_, i) => i !== (action.runeIndex ?? 0))
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, runes: left } : d.id === to.id ? inscribe(d, moving.id, face) : d))
+      } else if (item.type === 'weights') {
+        // Weights (K6): faces below 2 count as 2 (engine/scoring.js).
+        if (die.weights) return state
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, weights: true } : d))
+      } else if (item.type === 'socket') {
+        if (!consumableTargetOk(state, item, die)) return state
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, socket: true } : d))
+      } else if (item.type === 'solvent') {
+        // Solvent (K6): bonus, runes and Weights go; 5 Shards come back.
+        if (!consumableTargetOk(state, item, die)) return state
+        return {
+          ...state,
+          shards: state.shards + 5,
+          dice: state.dice.map((d) => (d.id === die.id ? { ...d, bonus: 0, runes: [], weights: false } : d)),
+          consumables: spent,
+        }
       } else if (item.type === 'watch') {
         // Pocket Watch (I2): next round this die starts held, on this face.
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, watch: d.value } : d))
       } else if (item.type === 'hone') {
-        dice = state.dice.map((d) => (d.id === die.id ? { ...d, bonus: (d.bonus || 0) + 2 } : d))
+        // Whetstone +2; Honing Oil +4 (K6), on top.
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, bonus: (d.bonus || 0) + (item.honeBy || 2) } : d))
       } else if (item.type === 'infuse' || item.type === 'arcanize') {
         let options
         if (item.type === 'infuse') {
@@ -2743,7 +2817,7 @@ function reduce(state, action) {
         dice = state.dice.map((d) => (d.id === die.id ? { ...d, elementId, growth: 0 } : d))
         if (!ownedElementsEver.includes(elementId)) ownedElementsEver = [...ownedElementsEver, elementId]
       } else if (item.type === 'transmute') {
-        dice = state.dice.map((d) => (d.id === die.id ? { ...d, elementId: item.targetElementId, rune: null } : d))
+        dice = state.dice.map((d) => (d.id === die.id ? { ...d, elementId: item.targetElementId, rune: null, runes: [] } : d))
         if (!ownedElementsEver.includes(item.targetElementId)) {
           ownedElementsEver = [...ownedElementsEver, item.targetElementId]
         }
@@ -3073,6 +3147,7 @@ export const selectors = {
   isFixedBoss,
   stardustPrice: STARDUST_PRICE,
   forgePlan,
+  inscribe,
   forgeMatches: (state, dieIds) => forgeMatches(state, dieIds.map((id) => state.dice.find((d) => d.id === id)).filter(Boolean)),
   vesperHere,
   forgeSlots: FORGE_SLOTS,
