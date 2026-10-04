@@ -492,7 +492,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.2** | Late scaling | **Built.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
 | **v0.8.3** | Crutches for the new dice | **Built.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
 | **v0.8.5** | Strange faces | **Built.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
-| **v0.8.6** | Sigils | Sigil dice by path (sun, scale, key; eye, spiral, maw), unlocked by finishing each path's Firmament ending. Needs a short workshop for the effects first. |
+| **v0.8.6** | Sigils | **Ready.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. Needs per-die seeds for the Eye's peek. Run after v0.8.5. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
@@ -1699,8 +1699,48 @@ A **Law** is a Mythic-rarity relic that **rewrites one scoring rule**. There is 
 - Patch notes "Alpha 0.8.5 Strange faces" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; mark Part O Built.
 - Tests: Node scripts for every rune on its number (including Link's best pick and Double once per cast), each Law, every poker hand with and without Jokers, a pool of mixed poker and number dice, the Gambler loadout start, the Law replace rule, old saves loading. Run `tools/balanceSim.mjs` and report the table (teach the bot to buy poker dice). Browser pass on both test saves, **muted**.
 
+## Part P: v0.8.6 "Sigils" (spec, 2026-10-04)
+
+**Status: Ready.** Workshopped with Carlos on 2026-10-04. Run after v0.8.5. A sigil die has **symbols, not numbers**: landing on a face triggers that symbol's effect. Three sets, one per path, each with a normal die and a **Greater** one (Carlos: "let's do them now"). Items marked **Default** are Claude's reading; list each in the report.
+
+### P1. The dice
+
+- **Faces:** a sigil die has six faces. The **Split die** shows Sun, Sun, Scale, Scale, Key, Key; the **Primordial die** shows Eye, Eye, Spiral, Spiral, Maw, Maw; the **Neutral die** (Carlos: a mix) shows all six once: Sun, Scale, Key, Eye, Spiral, Maw. Each face is stored as `{ symbol, value: 0 }`. **No numbers (Carlos): a sigil die never takes part in sets, straights or reactions** and scores no Base; it only does its effect. It is not Charged and cannot be upgraded, chiseled, grafted, cloned or copied (a Masquerade or Chameleon beside it still copies its effect).
+- **Names (Default, drafts):** Split: **Aeris's Sigil**; Primordial: **Nix's Sigil**; Neutral: **Tobb's Sigil**. Greater: **Greater Sigil of Aeris / of Nix / of Tobb**.
+- **Hold one per set** (the normal or the Greater of the same set, not both), so at most three at once. They do not count toward the dice cap? **Default: they do count** (they are dice).
+- **Art:** six procedural pixel glyphs (a sun, scales, a key, an eye, a spiral, a maw) drawn with the existing pixel-icon system, shown on the face in place of a number, on the token, the sprite, tooltips, shop cards and the Gallery. Two colors per set (Split warm white and gold, Primordial deep red and violet, Neutral stone and teal). No AI art.
+
+### P2. The six symbols
+
+Effects resolve when the die's face is read at cast, except **Key** and **Eye**, which resolve the moment they land (they are information and economy, not score).
+
+| Symbol | Normal | Greater |
+|---|---|---|
+| **Sun** | All your dice score **+50%** Base. | **+100%** Base. |
+| **Scale** | **Tips the scales:** your pool's Base is raised to its **expected average** (the sum over your number dice of (faces + 1) / 2) if it came out lower. A floor for bad rolls. | The floor is **1.5 times** the expected average. |
+| **Key** | **+1 reroll** this round, and one locked or frozen die is released. | **+2 rerolls**, and every locked or frozen die is released. |
+| **Eye** | Shows you **the next roll of one die of your choice** (the face it will show on its next reroll), shows the next boss and its twist, and gives **+5 Mult**. | The next roll of **every unheld die**, the boss, and **+10 Mult**. |
+| **Spiral** | The die **rolls again for free**; each Spiral in the chain adds **+2 Mult**, up to 5 times; the chain ends on a non-Spiral face, whose effect then applies. | **+4 Mult** each, up to 8 times. |
+| **Maw** | **Eats your lowest other die** (it scores 0) and **twice its score goes to Mult**. | Eats your **two** lowest other dice, **3 times** their scores to Mult. |
+
+**The Eye's peek (engine note).** The next roll of a die must be exact, whatever the player does before rerolling. Today the order dice are rolled in consumes one shared seeded stream, so changing which dice are held would change an unheld die's result. For this to work, give **every die its own seed for its next roll** (a `nextSeed` on the die, advanced each time it rolls, derived from the run seed and the die id so saves and replays stay identical) and roll each die from its own seed. Then the peek reads that die's `nextSeed` and shows the face (and, for a fire die, whether it will explode) with no side effects. Migrate old saves by giving each die a seed from the run's stream on load. The peek is shown on the die with a small "eye" mark until the reroll, and it never costs anything.
+
+### P3. Unlocking and selling
+
+- **Unlock (Default):** the first time the file finishes a path's **Firmament I** ending (`firmament_<path>_1`), that path's normal sigil die is unlocked; the first time it finishes **Firmament II** (`firmament_<path>_2`), the Greater one is. New profile field `sigils` (list of ids); migrate: a file that already has those endings unlocks them. A toast and a short line from the path's keeper the next time you meet them ("Aeris: I kept something for you.").
+- **Sold by the path's keeper, wherever they appear, in Elementa too:** Aeris's **Shrine** sells the Split sigil die, Nix's **Black Market** the Primordial one, and Tobb's **Market** the Neutral one, each at weight low enough to feel special (about a 1 in 4 visit). Normal 20 Shards, Greater 40 (Legendary). They arrive at the shop's usual size rules (they have no size). Not sold in other shops.
+- **Gallery:** the six dice live in the Unlocks box until unlocked, then in their own "Sigil" family; the symbols are in a small key on the card.
+
+### P4. Also in this step
+
+- Achievements (secret): **Sigil Bearer** (hold a sigil die), **The Whole Pantheon** (hold all three normal ones at once), **Greater Things** (hold a Greater die).
+- Test saves with all six unlocked and a couple of sigil dice in the pool; Gallery `TOTALS`; EN and ES text; keywords (**Sigil**, **Tip the scales**, **Spiral**).
+- Patch notes "Alpha 0.8.6 Sigils" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; mark Part P Built.
+- Tests: Node scripts for each symbol, normal and Greater (including Scale's floor against the expected average, Spiral's chain cap, Maw eating one and two dice), the per-die seed (the same reroll result whether or not other dice are held, the peek matching the next roll exactly, old saves loading), the unlock rules and the keepers' shops, the hold-one-per-set rule. Run `tools/balanceSim.mjs`, report the table. Browser pass on a test save, **muted**.
+
 ## Decision log
 
+- **2026-10-04 (v0.8.6 workshop, Carlos):** sigil dice have no numbers; Scale tips the scales (a floor at the pool's expected average); the Eye shows the next roll of a die; the Neutral die is a mix of all six; a Greater tier now: Part P.
 - **2026-10-04 (v0.8.5 workshop, Carlos):** four more runes, a Law slot with six Laws, poker dice and the Joker with a Gambler loadout, all in Elementa as well; sigil dice move to v0.8.6: Part O.
 - **2026-10-04 (curve and new dice, Carlos):** the start gets harder (x1.75, growth 1.37 to round 10, built by Claude) and eases after round 15 as planned; the new dice get crutches (Part N); Carlos's table and seven new die ideas are folded in, with his answers (Time Ghost, Void without a slot, Charged tag, 20 s Closed Timelike Curve on the Clockwork's timer, Non-Euclidean capped at its sides, Event Horizon's Black Hole dice as a +50 bracket).
 - **2026-10-04 (late scaling, Carlos):** after his round-25 run (79k against about 86k) and Claude's simulation (a modest bot falls from 2.2 times the target at round 3 to 0.8 by round 16), Carlos wants a late scaler and a slightly easier curve: Part M.
