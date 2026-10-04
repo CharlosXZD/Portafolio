@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-03 (Alpha v0.7.5 "Constellations" in development), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-03 (Alpha v0.8 "Cosmic elements" in development), pulled straight from the data files so it matches the code.
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -84,7 +84,12 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 | **Masquerade** | Legendary | - | 30 | Copies the abilities and the score of the die to its left. • Acts as the die on its left: its abilities (reactions, sets, free lock, Beacon, Conduit...), and its score. At the left end it has nothing to copy and scores its own face. |
 | **Chameleon** | Legendary | - | 30 | Copies the abilities of the die to its left and the score of the die to its right. • Acts as the die on its left, but scores what the die on its right scores on its own (before any copying). At either end it keeps what it can't copy. |
 
-**Forging** (at the Forge, the Bazaar, or with a Fusion Spark) consumes one die of each parent: 6 Shards for a double, 10 for a triple, 16 for Aether.
+**Forging (rebuilt in v0.8, every Forge, Elementa too).** The Forge has **four open slots**: click a die, then a slot (or drag it there); click a placed die to take it back. Nothing is automatic. The recipe is read from what you place, with a live preview of the result, its size, its cost, the Stardust it needs and what carries over; no match says so, and a recipe you have not learned shows "???". When several recipes match, a chooser appears.
+- **Shapes:** a double fusion takes 2 slots, a triple 3, Aether and the gods 4, a Mythic die 4 of one base element plus 1 Stardust, an element fusion 2 different base elements, Entropy 4 (Shadow, Continuum, Oblivion, Aether).
+- **Cost:** 6 Shards for a double, 10 for a triple or an element fusion, 16 for Aether, 24 for a god, 20 for a Mythic die (plus 1 Stardust), 300 for Entropy. Discount relics and the shop's cut apply; the button shows the final cost.
+- **Size = the average of the absorbed dice's sizes**, by tier (d3 0, d5 1, d6 2, d10 3, d20 4, then the big sizes), rounded down: two d5 make a d5, a d3 and a d6 make a d5, two d10 make a d10. A result that can't grow big stops at d20.
+- **What carries over:** Whetstone and Honing Oil bonuses add up; Warp stays if any absorbed die had it; Weights and a Gem Socket stay; growth counters start over. **Runes stay on the same number.** If two absorbed dice have runes on the same number (a clash), or the smaller result lacks a rune's number (a shrink: it moves to the top face, and may then clash), Brasa (and Vesper past the door) says so: pay 8 Shards per clash to superpose them (both stay, stacked), or forge as is and one of them is lost, a silent seeded 50/50. The result line names what survived.
+- A fusion still adds +1 Accord; gods, Mythic dice and Entropy add nothing.
 
 ### God dice (Divine; forge-only, hidden until their recipes are known)
 | Die | Made from | Forge cost | Ability | Drawback |
@@ -101,24 +106,48 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 
 **The Aether recipe is secret.** Until you beat Primordial once on a save file, Aether can't be forged and never appears in a shop; the Gallery reads "Recipe unknown: beat Primordial". The first win teaches it (a "New recipe" toast), and the Curator mentions it on your next Vault visit. The Avatar loadout still starts with Aether.
 
-### The Firmament's dice (v0.7)
-Sold only past the door (see §7b), never in Elementa. Every die from Elementa still shows up in the Firmament's shops too.
+### The Firmament's dice (v0.7, reworked in v0.8)
+Every die from Elementa still shows up in the Firmament's shops.
 
-**Mythic dice** (a new rarity after Divine): no element, no reactions of their own, 45 Shards, always a d6. One of each per run (a second can't be bought, and Mirror Shard, Shadow Twin and the Chisel can't copy them). Each is unlocked on the file the first time its Warden falls, and from then on it can turn up in Firmament die offers at Legendary weight.
+**Base elements (v0.8, Firmament only).** Six new elements sold in Firmament shops like Fire or Water: Rare, 14 Shards, sized by round like other shop dice, no unlock. Each is its own family. Working names (Carlos can rename them):
 
-| Die | Guarded by | Abilities |
-|---|---|---|
-| **Light** | The Dawn | No die can score below its face. Fizzles are cancelled, and faces stay visible. • No die can score below its face: lower faces rise to it, and nothing fizzles. Faces stay visible under Eclipse. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
-| **Darkness** | The Umbra | The dice on either side of it score 0. What they would have scored goes to your Mult. • The dice on either side of it score 0, and their combined score is added to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
-| **Time** | The Clockwork | Once per round, undo your last reroll and get it back. Unused rerolls carry over, up to +3. • Once per round, Rewind: undo your last reroll and get it back. Unused rerolls carry into the next round, up to +3. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
-| **Space** | The Expanse | Its two neighbors and the two end dice all count as neighbors of each other. Always Warp. • Its two neighbors and the two end dice all count as neighbors of each other for reactions. • Mythic: one of each kind per run. It cannot be copied. • Always carries Warp: it does not count toward your dice cap. • Can grow past d20 in the Firmament, up to d100. |
-| **Chaos** | The Maelstrom | Every roll it becomes a random die from the whole game, in a random size. • Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
-| **Void** | The Hollow | Scores nothing. Every empty slot you have gives +1 Mult. • Scores 0. Every empty dice, relic and consumable slot gives +1 Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
+| Die (stands for) | Abilities |
+|---|---|
+| **Glimmer** (Light) | A little light, kept warm. Its neighbors never fizzle. • The dice on both sides of it never fizzle. • A base element of the Firmament: sold only past the door. |
+| **Gloom** (Dark) | The die on its right scores 0, and half of that score goes to your Mult. • The die on its right scores 0, and half of what it would have scored goes to your Mult. • A base element of the Firmament: sold only past the door. |
+| **Moment** (Time) | While it is in your pool: +1 reroll every round. • While it is in your pool: +1 reroll every round. • A base element of the Firmament: sold only past the door. |
+| **Reach** (Space) | Reacts with the dice two places away, as well as its neighbors. • Reacts with the dice two places away on each side, as well as its neighbors. • A base element of the Firmament: sold only past the door. |
+| **Flux** (Chaos) | Every roll it becomes a random pure element (Fire, Water, Earth or Air). • Every roll it becomes a random pure element, keeping its size. Locking keeps its current element. • A base element of the Firmament: sold only past the door. |
+| **Null** (Void) | Scores nothing. +0.5 Mult for every empty dice slot. • Scores 0. Every empty dice slot gives +0.5 Mult. • A base element of the Firmament: sold only past the door. |
+
+**Mythic dice** (a rarity after Divine): no element, one of each held at a time (Mirror Shard, Shadow Twin and the Chisel can't copy them). **Since v0.8 they are forged, never sold:** beating a Warden in any run teaches the file that Mythic die's recipe; the Forge then makes it from 4 of the matching base die plus 1 Stardust and 20 Shards. A run that already holds a Mythic die from v0.7 keeps it.
+
+| Die | Recipe taught by | Forge | Abilities |
+|---|---|---|---|
+| **Light** | The Dawn | 4 Glimmer + 1 Stardust, 20 Shards | No die can score below its face. Fizzles are cancelled, and faces stay visible. • No die can score below its face: lower faces rise to it, and nothing fizzles. Faces stay visible under Eclipse. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Glimmer dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Darkness** | The Umbra | 4 Gloom + 1 Stardust, 20 Shards | The dice on either side of it score 0. What they would have scored goes to your Mult. • The dice on either side of it score 0, and their combined score is added to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Gloom dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Time** | The Clockwork | 4 Moment + 1 Stardust, 20 Shards | Once per round, undo your last reroll and get it back. Unused rerolls carry over, up to +3. • Once per round, Rewind: undo your last reroll and get it back. Unused rerolls carry into the next round, up to +3. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Moment dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Space** | The Expanse | 4 Reach + 1 Stardust, 20 Shards | Its two neighbors and the two end dice all count as neighbors of each other. Always Warp. • Its two neighbors and the two end dice all count as neighbors of each other for reactions. • Mythic: one of each kind per run. It cannot be copied. • Always carries Warp: it does not count toward your dice cap. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Reach dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Chaos** | The Maelstrom | 4 Flux + 1 Stardust, 20 Shards | Every roll it becomes a random die from the whole game, in a random size. • Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Flux dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Void** | The Hollow | 4 Null + 1 Stardust, 20 Shards | Scores nothing. Every empty slot you have gives +1 Mult. • Scores 0. Every empty dice, relic and consumable slot gives +1 Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Null dice and 1 Stardust, once its Warden has taught the recipe. |
+
+**Element fusions (v0.8).** Two different base dice in the Forge's slots. Epic, each in both parents' families. The first time you place a pair, Vesper teaches the recipe (her own line, a toast). A **volatile** fusion collapses into a Dead Star 25% of the time when forged, unless a Catalyst steadies it (the Forge shows the chance before you commit). 10 Shards to forge.
+
+| Die | Made of | Kind | Abilities |
+|---|---|---|---|
+| **Shadow** | Gloom + Glimmer | stable | The die on its left scores 0 and its score goes to Mult; the die on its right never fizzles and counts +1. • The die on its left scores 0 and that score goes to your Mult. The die on its right never fizzles and counts +1. |
+| **Continuum** | Moment + Reach | stable | Joins the two ends of your pool into a ring, and gives +1 reroll every round. • The two ends of your pool count as neighbors (a ring). While it is in your pool: +1 reroll every round. |
+| **Oblivion** | Flux + Null | stable | Each cast it swallows your lowest die (it scores 0) and adds twice its face to Mult. • Each cast it swallows your lowest other die: that die scores 0, and twice its face goes to your Mult. |
+| **Alba** | Glimmer + Moment | stable | No die rolls below 2, and your first reroll each round is free. • No die can show less than 2. Your first reroll each round is free. |
+| **Anomaly** | Flux + Moment | volatile | After every reroll, one random unheld die rolls once more, for free. • After every reroll, one random unheld die rolls once more, for free. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
+| **Singularity** | Glimmer + Null | volatile | Scores nothing. The Base of both its neighbors is doubled. • Scores 0. The dice on both sides of it score double. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
+| **Abyss** | Gloom + Null | volatile | Both its neighbors score 0. Every empty dice slot gives +2 Mult. • The dice on both sides of it score 0. Every empty dice slot gives +2 Mult. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
+| **Dead Star** | (a collapse) | | A fusion that collapsed. Scores nothing; +0.5 Mult for every other die in your pool. • Scores 0. Every other die in your pool gives +0.5 Mult. |
 
 | Die | Rarity | Where | Price | Abilities |
 |---|---|---|---|---|
-| **Chrono** | Legendary | The Horologist's Clockwork only | 30 | Any die that rolls a 1 rewinds time: every unheld die rolls again, and you keep the better pool, repeating until a roll comes up with no 1 (no limit). • When it lands on a 1, every unheld die rolls again for free (it too), and you keep the better pool. Up to 8 times. • Sold only by the Horologist, in the Firmament. |
-| **Entropy** | Mythic | Forge only, once the file has beaten all six Wardens | 300 to forge (Light, Darkness, Time, Space, Chaos, Void and Aether) | Everything at once. Scores its face + 104, and +10 Mult. • Scores its face + 104, and adds +10 to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
+| **Chrono** | Legendary | The Horologist's Clockwork only | 30 | Any die that rolls a 1 rewinds time: every unheld die rolls again, and you keep the better pool. Repeats until a roll comes up with no 1. • When it lands on a 1, every unheld die rolls again for free (it too), and you keep the better pool. Up to 8 times. • Sold only by the Horologist, in the Firmament. |
+| **Entropy** | Mythic | Forge only, once the file has beaten all six Wardens | 300 to forge, four slots: Shadow, Continuum, Oblivion and Aether | Everything at once. Scores its face + 104, and +10 Mult. • Scores its face + 104, and adds +10 to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. |
 
 ### Celestial dice (Alpha v0.7.2; Firmament only)
 Five arcane dice (no element, family "Arcane") sold only past the door: in Firmament Markets and the Astral Exchange, weight 1 each (Quasar 0.4), arriving in the usual sizes. The Astral Exchange always has one Celestial on its shelf. No unlock needed. They work through Masquerade and Chameleon like all arcane dice.
@@ -171,6 +200,10 @@ Hovering or tapping a tag shows its definition. A die's short description shows 
 | #Undo | Takes back your last reroll, and refunds it. |
 | #Shift | Becomes a different random die on every roll. |
 | #Empty | Feeds on the empty slots you have. |
+| #Cosmic | A base element of the Firmament, a family of its own. |
+| #Steady | Keeps the dice beside it from fizzling. |
+| #Volatile | Forging it can collapse into a Dead Star (25%). A Catalyst prevents it. |
+| #Rune | Inscribed on one number of a die: it works only when the die shows that number. |
 
 ### Short descriptions (v0.6.5)
 Shown when you click a die (table, shop, inventory). At most two short sentences with a bit of lore; the flag-by-flag text above is the full description, shown on click and hold and in the Gallery.
@@ -220,6 +253,20 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Bullion** | A bar of stored Mult. It scores nothing, but pays your final Mult in Shards on a clear. | #Payout |
 | **Masquerade** | It wears its neighbor's face. Copies the abilities and score of the die on its left. | #Copy #Mirror |
 | **Chameleon** | Borrows the left die's abilities and the right die's score. | #Copy #Mirror |
+| **Glimmer** | A spark of the first dawn, small enough to hold. It keeps its neighbors from going out. | #Cosmic #Steady |
+| **Gloom** | A little of the night. It eats the die on its right and keeps half of it as Mult. | #Cosmic #Devour |
+| **Moment** | One moment, saved for later. One more reroll every round. | #Cosmic #Undo |
+| **Reach** | A little distance, folded. It reaches the dice two places away. | #Cosmic #Reaction |
+| **Flux** | Never the same element twice. Each roll it is Fire, Water, Earth or Air. | #Cosmic #Shift |
+| **Null** | A small absence. It scores nothing and feeds on your empty dice slots. | #Cosmic #Empty |
+| **Shadow** | Light and dark in one die. It eats its left neighbor and steadies its right one. | #Devour #Steady |
+| **Continuum** | Time that loops through space. Your pool becomes a ring. | #Reaction #Undo |
+| **Oblivion** | It forgets your weakest die, and remembers it as Mult. | #Devour #Empty |
+| **Alba** | The first light of a new day. Nothing rolls below 2, and the first reroll is free. | #Floor #Undo |
+| **Anomaly** | Something that should not happen, happening. After a reroll, one more die rolls again. | #Volatile #Shift |
+| **Singularity** | Everything falls toward it. Its neighbors score double; it scores nothing. | #Volatile #Boost |
+| **Abyss** | A hole in the table. Its neighbors fall in, and empty slots feed it. | #Volatile #Devour #Empty |
+| **Dead Star** | What is left when a fusion collapses. It weighs on everything around it. | #Empty |
 
 ---
 
@@ -272,7 +319,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 
 ---
 
-## 4. Consumables (39 total)
+## 4. Consumables (45 total)
 
 | Consumable | Rarity | Price | Target | Effect |
 |---|---|---|---|---|
@@ -310,15 +357,23 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **The Trio** | Uncommon | 6 | You | Levels Three of a kind: +0.75 Mult per level. Firmament only. |
 | **The Ladder** | Uncommon | 6 | You | Levels Straights: +1 Mult per level. Firmament only. |
 | **Black Hole** | Legendary | 25 | You | One level on all ten at once. Firmament only; weight 0.4. |
-| **Rune of Echo** | Epic | 18 | A die | The die scores twice (after Beacon's boost). |
-| **Rune of Glass** | Rare | 12 | A die | The die's score is doubled, but after every cast it has a 20% chance to shatter and leave your pool (the pool never loses its last die). |
-| **Rune of Kinship** | Rare | 12 | A die | For reactions the die counts as its left neighbor's element (nothing at the left end). |
-| **Rune of Ember** | Uncommon | 8 | A die | The die explodes on its top two faces. |
-| **Rune of Anchor** | Uncommon | 8 | A die | The die never fizzles (and so pays no Kindling). |
+| **Rune of Echo** | Epic | 18 | A die | On its number the die scores twice (after Beacon). |
+| **Rune of Glass** | Rare | 12 | A die | On its number the score is doubled, and after the cast there is a 20% chance the die shatters (the pool never loses its last die). |
+| **Rune of Kinship** | Rare | 12 | A die | On its number the die counts as its left neighbor's element for reactions. |
+| **Rune of Ember** | Uncommon | 8 | A die | Its number is an exploding face (a die that does not explode by itself explodes only there). |
+| **Rune of Anchor** | Uncommon | 8 | A die | On its number the die can't fizzle (and pays no Kindling). |
+| **Weights** | Uncommon | 8 | A die | Apply to a die: its faces below 2 count as 2, for good. |
+| **Honing Oil** | Rare | 12 | A die | Apply to a die: it permanently scores +4 whenever it scores (on top of a Whetstone). |
+| **Graft** | Rare | 12 | A die | Pick a die with a rune, then another die: the rune moves onto it, on the number you choose. |
+| **Solvent** | Uncommon | 8 | A die | Apply to a die: strip every upgrade from it (bonus, runes, Weights) and get 5 Shards back. |
+| **Gem Socket** | Epic | 18 | A die | Apply to a die: a second rune can stack on a number that already has one, instead of replacing it. |
+| **Catalyst** | Rare | 12 | You | In the Forge: one volatile fusion forges 100% safe (it cannot collapse). Used when you forge. Firmament only: Vesper and the Astral Exchange. |
 
 **Constellations (v0.7.5).** Used from a shop or mid-round, they apply at once and need no target; "Buy & use" in a shop spends no slot. Each levels one thing for the rest of the run, up to **level 10**: the seven base reactions (Kindle, Forge, Scald, Mist, Bloom, Dust Devil, Resonance) and the three set types (Pair, Three of a kind, Straight). The bonus is added inside the thing's own ledger line, which reads "Kindle Lv 3". Secret reactions do not level. Levels are saved with the run and listed in Run Info. Black Hole gives every one a level (those at 10 stay). Seren's Observatory sells them (four a visit, duplicates allowed, Black Hole about 2% of offers); other Firmament shops stock them at low weight (a tenth to a twentieth of their items). Using one at level 10 does nothing and keeps it.
 
-**Runes (v0.7.5).** A die holds one rune; applying another replaces it. Not on Mythic dice or Entropy. A small tag on the die shows it, and its popover and full description say what it does. Chisel keeps the rune on both halves, Transmute removes it, Shadow Twin and Mirror Shard copy it. Sold at every Forge (two on its shelf), the Aether Bazaar, the Astral Exchange and in the Firmament Market; nowhere else.
+**Runes (v0.7.5, inscribed on a number since v0.8).** A rune sits on one face (one number) of one die and works only when the die lands on it; a die can carry runes on several faces. Using a rune opens the **Inscribe screen**: the die shown large, turned to a number with the arrow buttons, the left and right keys or a drag (d30 and up also get a plus and minus one and ten stepper); faces that hold a rune are marked. Inscribing on a runed face replaces that rune, unless the die has a **Gem Socket** (then two stack there). The die shows each rune with its number (lit when it shows that face), and its tooltip lists them. Not on Mythic dice or Entropy. **Chisel:** each half keeps the runes; a number the half lacks moves to its top face, and runes that meet there stack for free. **Transmute** removes runes; Shadow Twin and Mirror Shard copy them; **Graft** moves one to another die (pick the giver, then the receiver, then its number). An old save's rune moves to its die's top face. Sold at every Forge (two on its shelf), the Aether Bazaar, the Astral Exchange and in the Firmament Market; nowhere else.
+
+**Die items (v0.8).** Weights, Honing Oil, Graft, Solvent and Gem Socket are in the normal consumable pool (Elementa too); the Catalyst only on Vesper's shelf and in the Astral Exchange.
 
 The Stopwatch, the Time Capsule, the Hourglass, the Pocket Watch, the Metronome and the Almanac are all in the Horologist's pool; the last four are his alone (the Stopwatch and Time Capsule also turn up in other Firmament shops); the Warp Seal turns up in other Firmament shops, very rarely (a quarter of a Legendary's weight). During the Hollow's round no consumable can be used.
 
@@ -517,6 +572,27 @@ Each keeper remembers you per save file. Tiers: stranger (visits 1 to 3), regula
   2. The Black Hole is not a star. It is where the sky keeps what it has not decided about yet.
   3. Atlas draws where the Roads go. I draw why. We do not speak much, the maps get crowded.
 
+### Vesper, the cosmologist (v0.8, drafts)
+Shares Brasa's Forge and the Astral Exchange's forge, past the door only (a second portrait, not a Road stop).
+- **First meeting:** Oh, you made it through the door. Good. I'm Vesper. Don't ask where I'm from, ask what I can make.
+- **Stranger:** Two elements at a time. Three would be rude to the universe.
+- **Stranger:** Brasa does the heat. I do the parts nobody's named yet.
+- **Stranger:** Stardust, fusions, a warning or two. Pick one. Or all of them.
+- **Regular:** You again. I was counting on it. I'm always counting something.
+- **Regular:** I named a star after you. It is very small and a little unstable.
+- **Regular:** If it glows, it is probably fine. If it hums, step back.
+- **Friend:** I could tell you where these elements come from. I could. I will not.
+- **Friend:** Brasa says I talk in riddles. Brasa is a riddle that talks.
+- **Friend:** Sit. The forge can wait. Most things can, except collapse.
+- **After a boss:** A Warden fell. Somewhere a recipe just woke up.
+- **On your last life:** You look like a star near the end. Forge something bright, quickly.
+- **Lore** (told on visits 2, 4, 6):
+  1. Glimmer, Gloom, Moment, Reach, Flux, Null. Small pieces of very big things. The Wardens keep the big ones.
+  2. Stardust is what is left when a star forgets its own name. It remembers how to be a die, though.
+  3. A Dead Star is not a failure. It is a fusion that tried too hard. I have a few at home.
+- **At the Forge:** clash: "Two runes, one number. I can superpose them, {fee} Shards. Or we let the universe pick, and one goes quiet." shrink: "Smaller die, fewer numbers. Any rune that loses its number moves to the top face, the {n}. Physics." volatile: "Volatile. {chance}% it collapses into a Dead Star. I would not, but I am not you." teach: "Oh, I know this pair. {die}. Now you know it too. Careful."
+- **Brasa at the Forge (v0.8):** clash: "Two runes on the same number? I can fold them together for {fee} more Shards. Or I forge it as is, and one of them won't make it." shrink: "This one comes out smaller. A rune on a number it won't have moves to its top face, the {n}." volatile: "That mix is unstable. {chance}% it collapses. Not my favorite odds." teach: "Huh. {die}. Never seen that one."
+
 ### Mote, a speck of the void
 - **First meeting:** ...
 - **Stranger:** ...
@@ -618,13 +694,15 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 | The Eclipse Market Closes | Primordial | Beat Firmament I (the Umbra, the Maelstrom, the Hollow). |
 | Everything, Remembered | Primordial | Beat Firmament II (the Dawn, the Clockwork, the Expanse). |
 
-- **The Mythic dice and Entropy:** each Warden's first defeat on the file unlocks the Mythic die it guards (a toast); all six teach Entropy's recipe (a scene and a toast).
+- **The Mythic dice and Entropy:** beating a Warden in any run teaches the file the recipe of the Mythic die it guards (a toast; v0.8, it used to put the die in the shops); all six teach Entropy's recipe (a scene and a toast).
+- **Stardust (v0.8):** a run resource beside Shards (Run Info, the HUD, the round result, the Forge). Every boss gives 1, a Warden 2. Vesper sells 1 per visit for 30 Shards, and Mote's 120 stock sells 2 for 30. It is spent only on forging a Mythic die.
 
 **Story scenes** (text drafts for Carlos, `data/story.js`). Each plays once per file, can be skipped (Esc) and replayed from the Gallery's Endings tab; Reduced motion shows every line at once; the table and the Clockwork's timer wait while one is open.
 - Before round 15: the Primordial speaks on each path (who it is, why it wants your dice; on the Split path it fights to take them back; on the Primordial path it asks you to bring the four back).
 - The Primordial path: the loan of the Primordial die, then each god before their gauntlet stage.
 - After the first Neutral win: the visions (one page per god, then the Primordial's last words about "the four who broke me"), then the recipes scene (Aether and the four gods, how each is made), which ends with the achievement **Remembering**.
 - The Crossroads, each Warden before its fight, the path follower's arrival (Aeris in her true form, Nix's eclipse market, Tobb), Mote's first words, and Entropy.
+- v0.8: **Pip's crossing** (the first time on a file past the door: the new elements, the Wardens guard the Mythic recipes, Stardust forges them) and **Vesper's first meeting** in a Forge past the door.
 
 ---
 
@@ -635,7 +713,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 | **Market** | Tobb | Dice, relics and consumables. The classic shop. | `shop_market` |
 | **Alchemist** | Vessa | Consumables only, 20% off. Brew two into a stronger one. | `shop_alchemist` |
 | **Relic Vault** | The Curator | Three rarer relics. Shows up after bosses. | `shop_vault` |
-| **Forge** | Brasa | The Fusion Forge and die size upgrades, plus two Runes on the shelf. | `shop_forge` |
+| **Forge** | Brasa (and Vesper past the door) | The Fusion Forge (four slots, see §2) and die size upgrades, plus two Runes on the shelf. Past the door Vesper adds a Catalyst to the shelf and sells 1 Stardust a visit. | `shop_forge`, `shop_vesper` past the door |
 | **Black Market** | Nix | Rare. One risky deal, paid in more than Shards. | `shop_blackmarket` |
 | **Shrine** | Aeris | Rare. A free blessing, or a prophecy of the next boss. | `shop_shrine` |
 | **Aether Bazaar** | The Wanderers | Legendary. Every shop in one, 25% off, with rarer stock. | `shop_bazaar` |
@@ -643,7 +721,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 | **Seren's Observatory** | Seren | The Firmament only. Four Constellations a visit, duplicates allowed (Black Hole rarely). Reroll for 3 and up. | `shop_observatory` |
 | **Atlas's Cartography** | Atlas | The Firmament only. No goods: three services, each once per visit. **Redraw** (6 Shards): the next row of the Road is drawn again (the follower's stop and the legendary shop stay). **Add a path** (5): this stop links to one more shop in the next row. **Peek** (8): learn which Warden waits next; it shows on the Road. | `shop_cartography` |
 | **The Horologist's Clockwork** | The Horologist | The Firmament only. **Six offers a visit, drawn from a pool**: Chrono always, plus one of Pulsar, Zenith and Kairos; three of his six consumables (Stopwatch, Time Capsule, Hourglass, Pocket Watch, Metronome, Almanac); and one of his two relics (Mainspring, Cuckoo Clock). No restock button. | `shop_clockwork` |
-| **Mote's Pantry** | Mote | The Firmament only. Sells nothing: it buys any die, relic or consumable for 150% of its sell value (rounded up), and eats its sell value. Its appetite (on this file, across runs) fills a meter to 400. At **40** its secret stock opens: a **Hollow Pact** for 15 Shards (Mote's, not a Nix pact: no Accord, no effect on Aeris) and a random die as a d6 with Warp (its price +12). At **120**: a **Warp Seal** and one of the file's Mythic dice the run lacks, with Warp (a Chrono if there is none). At 400 it is full (nothing more yet). | `shop_pantry` |
+| **Mote's Pantry** | Mote | The Firmament only. Sells nothing: it buys any die, relic or consumable for 150% of its sell value (rounded up), and eats its sell value. Its appetite (on this file, across runs) fills a meter to 400. At **40** its secret stock opens: a **Hollow Pact** for 15 Shards (Mote's, not a Nix pact: no Accord, no effect on Aeris) and a random die as a d6 with Warp (its price +12). At **120**: a **Warp Seal** and **2 Stardust** for 30 Shards (v0.8; it used to be a Mythic die). At 400 it is full (nothing more yet). | `shop_pantry` |
 | **Camp** | Tobb | Not on the Road. After a missed round (not game over): 3 + half the round number in Shards on arrival (stacks with Steadfast), 2 dice and 2 relics or consumables with rerolls, no Forge. Leaving retries the same round; your next Road stop stays the same. Tobb: "Sit, Caster. Nobody wins every fight. Have some tea, then try again." | `shop_market` |
 
 **How the Road is built:** round 1 is always a Market. The shop right after a boss (rounds 5, 10, 15) is a choice of Relic Vault, Forge, and sometimes Market. The last stop before Primordial always includes the Aether Bazaar. Every other stop is drawn by weight, never two of the same type in one row:

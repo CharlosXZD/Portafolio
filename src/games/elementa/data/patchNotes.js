@@ -12,6 +12,42 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.8',
+    name: L('Cosmic elements', 'Elementos cósmicos'),
+    date: null,
+    highlights: [
+      L(
+        'Six new elements past the door: Glimmer, Gloom, Moment, Reach, Flux and Null. You find them in the Firmament\'s shops, each one its own family.',
+        'Seis elementos nuevos más allá de la puerta: Destello, Penumbra, Instante, Alcance, Flujo y Nulo. Los encuentras en las tiendas del Firmamento, cada uno es su propia familia.',
+      ),
+      L(
+        'The Mythic dice are forged now. Beating a Warden teaches you its recipe: four of the matching element, plus Stardust. Bosses drop Stardust, Wardens drop more.',
+        'Los dados Míticos ahora se forjan. Vencer a un Custodio te enseña su receta: cuatro del elemento que le toca, más Polvo Estelar. Los jefes sueltan Polvo Estelar, los Custodios más.',
+      ),
+      L(
+        'The Forge is rebuilt, in every realm: four slots, you place exactly the dice you want, and a live preview shows what comes out, its size and its cost. The new die\'s size is the average of what you put in, and its upgrades carry over.',
+        'La Forja es nueva, en todos los reinos: cuatro espacios, pones justo los dados que quieres, y una vista previa muestra qué sale, su tamaño y su costo. El tamaño del dado nuevo es el promedio de lo que pusiste, y sus mejoras se conservan.',
+      ),
+      L(
+        'Runes now live on a number. Turn the die to the face you want on the new Inscribe screen; the rune works only when the die lands there. If two runes meet in the Forge, Brasa can make them share, for a fee.',
+        'Las runas ahora viven en un número. Gira el dado hasta la cara que quieras en la nueva pantalla de Inscribir; la runa solo funciona cuando el dado cae ahí. Si dos runas se encuentran en la Forja, Brasa puede hacer que compartan, por una tarifa.',
+      ),
+      L(
+        'Seven element fusions, from Shadow to Abyss. Some are volatile and can collapse into a Dead Star when you forge them, unless a Catalyst steadies them.',
+        'Siete fusiones de elementos, de la Sombra al Abismo. Algunas son volátiles y pueden colapsar en una Estrella Muerta al forjarlas, salvo que un Catalizador las estabilice.',
+      ),
+      L(
+        'Vesper, the Cosmologist, joins Brasa at the Forge past the door. She teaches the fusions, sells Stardust and Catalysts, and never says where she is from.',
+        'Vesper, la Cosmóloga, se une a Brasa en la Forja más allá de la puerta. Enseña las fusiones, vende Polvo Estelar y Catalizadores, y nunca dice de dónde viene.',
+      ),
+      L(
+        'New die items: Weights, Honing Oil, Graft, Solvent and the Gem Socket. Pip has a few words for you the first time you cross the door.',
+        'Objetos nuevos para dados: Pesas, Aceite de Afilar, Injerto, Disolvente y el Engaste. Pip tiene unas palabras para ti la primera vez que cruzas la puerta.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.7.5',
     name: L('Constellations', 'Constelaciones'),
     date: null,

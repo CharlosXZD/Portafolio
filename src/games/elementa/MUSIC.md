@@ -42,6 +42,7 @@ Where each plays, its key, scale, tempo and length (a bar is 16 steps). "pad" me
 | `shop_blackmarket` | Black Market (Nix) | D3 dorian | 100 | 2 | swing, drums |
 | `shop_shrine` | Shrine (Aeris) | F3 pentMajor | 68 | 2 | pad, drums |
 | `shop_bazaar` | Aether Bazaar (every keeper) | C3 lydian | 125 | 2 | pad, drums |
+| `shop_vesper` | A Forge past the door (Vesper and Brasa), and Vesper's first meeting | E3 lydian | 107 | 2 | pad, drums |
 | `shop_cartography` | Atlas's Cartography (the Firmament) | D3 major | 115 | 2 | drums |
 | `shop_clockwork` | The Horologist's Clockwork (the Firmament) | G3 dorian | 125 | 2 | drums |
 | `shop_observatory` | Seren's Observatory (the Firmament) | D4 lydian | 75 | 2 | pad |

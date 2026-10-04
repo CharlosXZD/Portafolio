@@ -487,7 +487,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.7** | The Firmament | **Built.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
 | **v0.7.2** | Firmament depth | **Built.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
 | **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
-| **v0.8** | Cosmic elements | **Ready.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
+| **v0.8** | Cosmic elements | **Built.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
@@ -499,6 +499,16 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.8 "Cosmic elements" (in development, unreleased)
+- **Six base elements** in Firmament shops: Glimmer, Gloom, Moment, Reach, Flux and Null (working names), each its own family.
+- **Mythic dice are forged:** a Warden teaches its recipe (old files' unlocked Mythic dice become known recipes); 4 of the matching base die, 1 Stardust and 20 Shards. They are no longer sold anywhere. A run that holds one keeps it.
+- **Stardust:** a run resource; 1 per boss, 2 per Warden; Vesper sells 1 a visit for 30; Mote's 120 stock sells 2.
+- **The Forge, rebuilt (every Forge):** four slots, the recipe read from what you place, a live preview, a chooser when several match. Size is the average of the absorbed sizes (rounded down, capped at d20 unless it grows big). Bonuses, Warp, Weights and a Gem Socket carry over.
+- **Runes on a number:** the Inscribe screen (arrows, keys, drag, a stepper for big dice). Clashes and shrinks in the Forge: pay 8 per clash to superpose, or a silent seeded 50/50 loss. Chisel moves runes to the new top face; Transmute clears them; Graft moves one.
+- **Seven element fusions** (Shadow, Continuum, Oblivion, Alba stable; Anomaly, Singularity, Abyss volatile, 25% collapse into a Dead Star unless a Catalyst steadies it). Entropy is now Shadow, Continuum, Oblivion and Aether.
+- **Vesper, the Cosmologist**, beside Brasa past the door; her first meeting and Pip's crossing are story scenes; a new song, `shop_vesper`.
+- **Die items:** Weights, Honing Oil, Graft, Solvent, Gem Socket, Catalyst.
 
 ### Alpha v0.7.5 "Constellations" (in development, unreleased)
 - **Seren and her Observatory:** a new Firmament keeper and shop with four Constellations a visit.
@@ -1293,9 +1303,11 @@ Show a small rune glyph on the die, a line in its tooltip, and keywords. Runes c
 
 ## Part K: v0.8 "Cosmic elements" (spec, 2026-10-03, second pass)
 
-**Status: Ready.** Workshopped with Carlos on 2026-10-03 (this is the corrected version after his second pass). Claude fills the gaps with defaults, marked **Default** (Carlos can change any of them after a playtest). The agent reads this, B1 to B4, Part H (H3, H5, H6, H7) and Part J (Runes, which K3b changes). The third realms and the number dice (the old "Rewriting reality") are **not** in this step; they move to the end of the roadmap and need their own workshop.
+**Status: Built** (Alpha v0.8, GDD §40, branch `elementa-v0.6.5`). Workshopped with Carlos on 2026-10-03 (this is the corrected version after his second pass). Every **Default** below was built as written and is listed in GDD §40 and the build report. Claude fills the gaps with defaults, marked **Default** (Carlos can change any of them after a playtest). The agent reads this, B1 to B4, Part H (H3, H5, H6, H7) and Part J (Runes, which K3b changes). The third realms and the number dice (the old "Rewriting reality") are **not** in this step; they move to the end of the roadmap and need their own workshop.
 
 ### K1. Two layers: base elements (shops) and Mythic dice (forged)
+
+**Status: Built** (Alpha v0.8, GDD §40).
 
 - **Six new base elements, found in shops** like Fire, Water, Earth and Air: Light, Dark, Time, Space, Chaos and Void, as weaker dice. Working names so they do not clash with the Mythic dice (**Default**, Carlos can rename): **Glimmer** (Light), **Gloom** (Dark), **Moment** (Time), **Reach** (Space), **Flux** (Chaos), **Null** (Void). Firmament only (they join the shop dice pool the moment you cross the door), rare-ish weight, price 14, sized by round like other shop dice. They need no unlock. Each is a family, like Fire; fusions belong to both parents' families.
 - **Draft abilities (Claude's spec, tune after playtests):**
@@ -1316,11 +1328,15 @@ Show a small rune glyph on the die, a line in its tooltip, and keywords. Runes c
 
 ### K2. Stardust
 
+**Status: Built** (Alpha v0.8, GDD §40).
+
 - A **run resource** beside Shards (`state.stardust`, saved, shown in Run Info and the Forge).
 - **Bosses drop it**: every boss defeated gives **1 Stardust**, and a Warden gives **2** (**Default**). It is spent only by forging a Mythic die.
 - Vesper sells 1 Stardust per visit for 30 Shards (**Default**), so a run is never stuck. Mote's 120-appetite stock gives 2 Stardust instead of a die.
 
 ### K3. The Forge, rebuilt: slots, sizes, carry-over
+
+**Status: Built** (Alpha v0.8, GDD §40).
 
 Applies to **every Forge** (Elementa too).
 
@@ -1332,6 +1348,8 @@ Applies to **every Forge** (Elementa too).
 - The Fusion Spark and discount relics still work; the Forge shows the final cost. A fusion still adds +1 Accord (a Mythic forge adds nothing).
 
 ### K3b. Runes are inscribed on a number
+
+**Status: Built** (Alpha v0.8, GDD §40).
 
 Part J's Runes (Echo, Glass, Kinship, Ember, Anchor) change: **a rune now belongs to one face (one number) of one die**, and works only when the die lands on that number. A die can carry runes on several faces. Data: `die.runes = [{ id, face }]`; migrate an old `die.rune` to `{ id, face: die.sides }` (its top face).
 
@@ -1355,6 +1373,8 @@ When there is a clash or a shrink, **Brasa** (and **Vesper** in the Firmament) s
 
 ### K4. Fusions of the base elements
 
+**Status: Built** (Alpha v0.8, GDD §40).
+
 Only **two-element fusions** (Vesper's rule, K5), made from two **different base dice** placed in the slots. Seven, curated (**Default** list; the other pairs wait):
 
 | Die | Made of | Kind | Draft ability (Claude's spec; tune after playtests) |
@@ -1372,12 +1392,16 @@ Only **two-element fusions** (Vesper's rule, K5), made from two **different base
 
 ### K5. Vesper, the Cosmologist
 
+**Status: Built** (Alpha v0.8, GDD §40).
+
 - A new keeper in the **same Forge shop** (and the Astral Exchange's forge) beside Brasa: a second portrait and her own lines, not a new Road stop. **Firmament only.**
 - **Personality (Carlos):** mysterious, fun, we do not know much about her, and she is smart. Lines (EN and ES, three per visit pattern) playful, a little teasing, always knowing more than she says, never explaining where she is from.
 - **First meeting scene:** she introduces herself, says the new elements are **dangerous**, and that for now she will only combine **two** at a time. She teaches fusions (K4), sells Stardust (K2) and the Catalyst (K6), and shares the rune warnings with Brasa (K3b).
 - Procedural placeholder portrait (no AI art), a Keepers-tab entry, lore lines unlocking with visits.
 
 ### K6. Pip's scene and more die items
+
+**Status: Built** (Alpha v0.8, GDD §40).
 
 - **Pip's scene on crossing the door** (the first time on a file): this is a new realm, there are new elements (Glimmer, Gloom, Moment, Reach, Flux, Null), Wardens guard the recipes of the Mythic dice, Stardust is how you forge them. Two or three short pages, replayable from the Gallery like the other scenes.
 - **More die items** (Carlos: "I've been really grinding for them and it's super fun"). Consumables that modify a die, Uncommon to Epic, sold where Whetstone and Chisel are (Elementa too, except where noted), each with a keyword, sprite and Gallery entry:
@@ -1392,6 +1416,8 @@ Only **two-element fusions** (Vesper's rule, K5), made from two **different base
 | **Catalyst** | Rare | Firmament only (Vesper, the Astral Exchange). Placed in the Forge: one volatile fusion becomes 100% safe. |
 
 ### K7. Data, saves and the rest
+
+**Status: Built** (Alpha v0.8, GDD §40).
 
 - **Profile:** Mythic recipes in `recipes` (migrate `mythics`; keep it read-only for old files).
 - **Run:** `stardust`, `die.runes`, a base-element family per new die. Old saves still load: a run holding Mythic dice keeps them; old `die.rune` migrates (K3b).
@@ -1497,3 +1523,6 @@ Only **two-element fusions** (Vesper's rule, K5), made from two **different base
   - Part H built on branch `elementa-v0.6.5` (GDD §37), with the story scenes of Part G Q4a. Nothing from `IDEAS.md`; no Constellations, Runes, Seren, poker, Joker, sigil or number dice, editable faces, Laws, third realms, fourth place or true ending.
   - Open items built with their defaults: the Neutral Warden sets; Darkness as both neighbors, undivided (`DARKNESS_DIVISOR = 1`); the name "Warp". Claude's defaults are listed in GDD §37 for Carlos to tune.
   - Test saves: `tools/firmamentTestSaves.mjs` writes a backup file (Options > Backup) with three files at round 15, one per path, door open.
+- **2026-10-03 (v0.8 build):**
+  - Part K built on branch `elementa-v0.6.5` (GDD §40). Not built: the third realms, number dice, poker or Joker dice, editable faces beyond runes, Laws, the fourth place, the true ending, anything from `IDEAS.md`.
+  - Every Default built as written (names, Stardust amounts and price, the Mythic forge, the 25% collapse, the 8-Shard rune fee, a shrunk rune moving to the top face, Alba stable, Entropy's four-slot recipe, the Mythic dice out of every shop). Claude's other defaults are in GDD §40.
