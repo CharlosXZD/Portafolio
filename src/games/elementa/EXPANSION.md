@@ -171,10 +171,10 @@ Each Rewriter's target is calibrated to a build that has adapted (the balance bo
 
 ### Q3. The Convergence and the true ending
 
-- **After realm 3** every path reaches the Convergence. **Gating (Draft):** the file must have seen every path's Elementa ending and fed Mote full; otherwise realm 3's own ending closes the run.
+- **After realm 3 every path reaches the Convergence, and anyone who gets there may enter it (Carlos: no gating; the player is rewarded for getting there).** **Reward for arriving (Draft):** a secret achievement (**Where the Roads Meet**), a Convergence completion mark on the loadout, a scene card in the Gallery, and a small permanent gift on the file (Draft: +2 Stardust at the start of every later run). Reaching it does not need Mote full or any ending count.
 - **The Rush (Carlos).** On any difficulty **except the hardest**, the boss rush is: **the Primordial**, then **the four gods in one fight**, then **all six Wardens in two rounds of three (their sets)**, then **the six Rewriters in two rounds of three (their sets)**. On the **hardest difficulty (Cataclysm) every boss is fought one by one**, as separate rounds.
 - **Pip.** After the Rush you beat the "final boss", **Pip**. It is a **bluff**: Pip is a spark of Aether, and the fight is a trick (a small, fair, odd fight; Draft: Pip fields every die you ever forged as a shrinking-pool puzzle).
-- **You.** After Pip comes the **true boss: you**. A snapshot of the player's **best build on this file** (dice and relics of the highest-scoring cast) fights you with a target built from it. **Beating yourself is the true ending, and you become the true boss** (Draft: afterwards, that build is the true boss for the file's later runs; the last winner's ghost). On the **hardest difficulty the true boss has the best-of-the-best loadout** (a curated maximum build), and beating it gives a **secret achievement** for beating the game on the hardest difficulty.
+- **You (Carlos).** After Pip comes the **true boss: you**. **Who it is depends on the difficulty**: **Ember (first): your current build** (the run's own pool and relics, a mirror match); **Blaze (second): your current build with upgrades** (Draft: every die one size tier up and its bonuses doubled); **Inferno (third): your best build on this file** (the dice and relics of your highest-scoring cast, the "ghost"); **Cataclysm (hardest): the best-of-the-best loadout** (a curated maximum build) **and a secret achievement** for beating the game on the hardest difficulty. Each fight's target is built from that build's best cast. **Beating yourself is the true ending, and you become the true boss** (on Inferno the ghost of the last winner is the next true boss).
 
 ### Q4. New elements for realm 3 (fewer than six, new families, new rarities)
 
@@ -190,7 +190,7 @@ Carlos wants bosses and the Arbiter to say things about the player. **A website 
 
 ### Q7. Still open
 
-The Convergence's final-stretch bosses beyond the Rush, Pip and You; the realm's name per path in text and its look; the Arbiter's name; the four elements' abilities and rarity names; each Rewriter's exact target and its prize; the Convergence gating; the ghost mechanic; how long a full run may take (up to round 45 plus the Convergence).
+The Convergence's last three fights are settled (**the Rush, Pip and You**, Carlos); the realm's name per path in text and its look; the Arbiter's name; the four elements' abilities and rarity names; each Rewriter's exact target and its prize; the reward for arriving; the exact upgrades on Blaze; how long a full run may take (up to round 45 plus the Convergence).
 
 ## A6. Realm 3 workshop notes (Carlos, 2026-10-04; in progress, not for building yet)
 
@@ -1818,6 +1818,7 @@ Carlos's idea: the peek shows the future from the current conditions, so a playe
 
 ## Decision log
 
+- **2026-10-04 (Convergence, Carlos):** anyone who gets there may enter and is rewarded; the last three fights are the Rush, Pip and You; the true boss is your current build on Ember, your build with upgrades on Blaze, your best build on file on Inferno, the curated best-of-the-best on Cataclysm.
 - **2026-10-04 (realm 3, Carlos):** one realm with three path flavours; six Rewriters; the Convergence with a boss rush (grouped on normal difficulties, one by one on the hardest), then Pip (a bluff), then the player as the true boss; permission-based fourth-wall lines; fewer realm 3 elements with new rarities: Part Q (draft).
 - **2026-10-04 (the Eye, anti-scum, Carlos):** keep the Greater Eye showing every unheld die; instead, track fishing (6 shifts of the vision between rerolls is an offense), forgive two, and on the third an unarmed god from the third realm (The Arbiter, placeholder) bans altering probability, smites the dice away and takes a life (never the last): Part P5.
 - **2026-10-04 (the Eye, Carlos):** no per-die seeds; the Eye's peek is a dry run of the next reroll from the current conditions and shifts whenever the player holds, locks or reorders; the Greater Eye shows up to three dice (anti-scum default).
