@@ -14,12 +14,15 @@ import { gameReducer, selectors } from '../engine/gameReducer.js'
 import { evaluatePool } from '../engine/scoring.js'
 import { nextChoices } from '../engine/map.js'
 import { ELEMENTS, NEW_DICE_IDS, POKER_DIE_IDS } from '../data/elements.js'
+import { SIGIL_DIE_IDS } from '../data/sigils.js'
 import { DECKS } from '../data/decks.js'
 import { DIFFICULTIES } from '../data/difficulty.js'
 const DIFFICULTIES_BY_ID = (id) => DIFFICULTIES.find((d) => d.id === id)
 
 const diffId = process.argv[2] || 'ember', runs = +(process.argv[3] || 60), maxRound = +(process.argv[4] || 30)
 const aided = process.argv.includes('aided')
+// 'sigils' gives the file every sigil die unlocked, and the bot buys them when a keeper offers one (EXPANSION.md P3).
+const sigils = process.argv.includes('sigils')
 // 'immortal' lets the bot pass a round it missed (the target drops to its score
 // after the ratio is recorded), so it reaches the late rounds and shows how its
 // build scales there. The pass rate then means "would have lived".
@@ -60,6 +63,8 @@ function shop(s) {
       const star = (s.shop?.itemOffers || []).find(STAR_ITEMS)
       if (star) { const n = gameReducer(s, { type: 'BUY_AND_APPLY_CONSUMABLE', consumableId: star.id }); if (n !== s) { s = n; did = true; continue } }
     }
+    // A keeper's sigil die (P3)
+    if (sigils && s.shop?.sigilOffer) { const n = gameReducer(s, { type: 'BUY_SIGIL', elementId: s.shop.sigilOffer }); if (n !== s) { s = n; did = true; continue } }
     // relics, best (priciest) first; the aided bot wants the multipliers first
     const rank = (o) => (aided && LATE_RELICS.includes(o.id) ? 1e6 - LATE_RELICS.indexOf(o.id) : o.cost ?? 0)
     const relics = (s.shop?.itemOffers || []).filter((o) => o.kind === 'relic').sort((a, b) => rank(b) - rank(a))
@@ -163,7 +168,7 @@ const rows = {} // round -> {n, passed, ratios[]}
 let deaths = {}, reached = []
 for (let run = 0; run < runs; run++) {
   const deck = process.env.DECK || DECKS[run % DECKS.length].id
-  let s = gameReducer({ phase: 'title' }, { type: 'START_RUN', deckId: deck, difficultyId: diffId, seed: 'S' + run })
+  let s = gameReducer({ phase: 'title' }, { type: 'START_RUN', deckId: deck, difficultyId: diffId, seed: 'S' + run, ...(sigils ? { file: { sigils: SIGIL_DIE_IDS } } : {}) })
   let last = 0
   for (let step = 0; step < 400; step++) {
     phasesSeen.add(s.phase)

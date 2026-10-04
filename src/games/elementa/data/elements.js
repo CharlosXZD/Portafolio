@@ -5,6 +5,7 @@
 // See ../GDD.md §3 for the design rationale.
 
 import { RARITY } from './relics.js'
+import { SIGIL_SETS, SIGIL_PRICE, SIGIL_GREATER_PRICE } from './sigils.js'
 import { localize, ELEMENTS_ES, FLAG_DESCRIPTIONS_ES } from './i18n.js'
 
 export const FLAGS = {
@@ -55,6 +56,8 @@ export const FLAGS = {
   // EXPANSION.md O3: poker dice.
   POKER: 'poker', // 9 to A; poker hands among the poker dice
   JOKER: 'joker', // a wild seventh face
+  // EXPANSION.md P1: sigil dice, faces of symbols.
+  SIGIL: 'sigil',
   // EXPANSION.md K1: the six base elements of the Firmament.
   GLIMMER: 'glimmer', // Glimmer: its neighbors never fizzle
   GLOOM: 'gloom', // Gloom: the die on its right scores 0, half of it to Mult
@@ -956,6 +959,32 @@ export const ELEMENTS = {
   },
 }
 
+// Sigil dice (EXPANSION.md P1): six faces of symbols, no numbers. The Split's
+// die is Aeris's, the Primordial's Nix's, the Neutral Tobb's; each has a Greater one.
+const SIGIL_TAGLINES = {
+  aeris: 'Sun, Scale and Key, twice each. No numbers: only what the symbols do.',
+  nix: 'Eye, Spiral and Maw, twice each. No numbers: only what the symbols do.',
+  tobb: 'All six symbols, once each. No numbers: only what the symbols do.',
+}
+for (const [set, info] of Object.entries(SIGIL_SETS)) {
+  for (const greater of [false, true]) {
+    const id = greater ? info.greater : info.normal
+    ELEMENTS[id] = {
+      id,
+      name: greater ? info.greaterName.en : info.name.en,
+      tier: TIERS.ARCANE,
+      rarity: greater ? RARITY.LEGENDARY : RARITY.EPIC,
+      price: greater ? SIGIL_GREATER_PRICE : SIGIL_PRICE,
+      greater,
+      sigilSet: set,
+      parents: [],
+      color: info.color,
+      tagline: (greater ? 'Greater: every symbol is stronger. ' : '') + SIGIL_TAGLINES[set],
+      flags: flagSet(FLAGS.SIGIL),
+    }
+  }
+}
+
 export const PURE_ELEMENT_IDS = ['earth', 'fire', 'water', 'air']
 export const DOUBLE_FUSION_IDS = ['lightning', 'ice', 'steel', 'mud', 'steam', 'crystal']
 export const TRIPLE_FUSION_IDS = ['storm', 'obsidian', 'magma', 'monsoon']
@@ -1063,6 +1092,7 @@ export function familiesOf(elementId) {
   if (!def) return []
   if (CELESTIAL_DIE_IDS.includes(elementId)) return ['celestial']
   if (POKER_DIE_IDS.includes(elementId)) return ['poker']
+  if (ELEMENTS[elementId]?.sigilSet) return ['sigil']
   if (def.tier === TIERS.ARCANE) return ['arcane']
   if (def.tier === TIERS.MYTHIC) return ['mythic']
   if (def.tier === TIERS.PURE || def.tier === TIERS.COSMIC) return [elementId]
@@ -1163,6 +1193,7 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.HORIZON]: 'Scores 0. When it shows its highest face it spawns two Black Hole dice, which last the round.',
   [FLAGS.BLACK_HOLE_DIE]: 'Temporary, takes no slot. Every die between the two Black Hole dice gets +50 score.',
   [FLAGS.ENTANGLE]: 'Each roll it picks a random other die and copies its abilities and its score.',
+  [FLAGS.SIGIL]: 'Six faces of symbols, no numbers: it takes no part in sets or reactions and scores no Base, only what the symbol does. One per set.',
   [FLAGS.POKER]: 'Faces 9, 10, J, Q, K and A (the numbers 9 to 14). The poker dice together make poker hands, which add Mult.',
   [FLAGS.JOKER]: 'Its seventh face is wild: any rank for a poker hand, any value for a set. At most 2 Jokers.',
   [FLAGS.BEACON]: 'Both neighbors score x1.5.',

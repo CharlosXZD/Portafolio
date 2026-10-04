@@ -124,6 +124,31 @@ const ICONS = {
     rows: ['.c...c.', 'cc...cc', '.cchcc.', '..chc..', '.cchcc.', 'cc...cc', '.c...c.'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
   },
+  // The sigil dice's six symbols (EXPANSION.md P1).
+  sym_sun: {
+    rows: ['c..c..c', '.c.c.c.', '..hhh..', 'chhhhhc', '..hhh..', '.c.c.c.', 'c..c..c'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  sym_scale: {
+    rows: ['...h...', 'chhhhhc', 'c..h..c', 'c..h..c', 'hhh.hhh', '.h...h.', '.......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  sym_key: {
+    rows: ['.hhh...', 'h...h..', 'h...h..', '.hhh...', '..h....', '..hh...', '..h....'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  sym_eye: {
+    rows: ['.......', '..ccc..', '.chhhc.', 'chhHhhc', '.chhhc.', '..ccc..', '.......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)', H: '#000000' },
+  },
+  sym_spiral: {
+    rows: ['hhhhhhh', 'h.....h', 'h.hhh.h', 'h.h.h.h', 'h.hh..h', 'h.....h', '.hhhhhh'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
+  sym_maw: {
+    rows: ['h.h.h.h', 'hhhhhhh', 'hccccch', 'hccccch', 'hhhhhhh', 'h.h.h.h', '.......'],
+    palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
+  },
   poker: {
     rows: ['.ccccc.', 'cchhhcc', 'chhhhhc', 'chhhhhc', 'cchhhcc', '..chc..', '.ccccc.'],
     palette: { c: 'var(--icon-color)', h: 'var(--icon-hi)' },
@@ -309,6 +334,16 @@ const ICONS = {
   },
 }
 
+
+// A sigil die's mark when it has no face to show: the symbol its set is known for.
+Object.assign(ICONS, {
+  sigil_aeris: ICONS.sym_sun,
+  sigil_aeris_g: ICONS.sym_sun,
+  sigil_nix: ICONS.sym_eye,
+  sigil_nix_g: ICONS.sym_eye,
+  sigil_tobb: ICONS.sym_scale,
+  sigil_tobb_g: ICONS.sym_scale,
+})
 
 export default function PixelIcon({ name, size = 14, color, hi = '#ffffff', className = '', title }) {
   const icon = ICONS[name]

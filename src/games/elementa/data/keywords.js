@@ -50,6 +50,9 @@ export const KEYWORDS = Object.fromEntries(
     K('summon', '#b8a0ff', L('Summon', 'Invoca'), L('Creates a temporary die that lasts the round and takes no slot.', 'Crea un dado temporal que dura la ronda y no ocupa espacio.')),
     K('rerolls', '#ffe08a', L('Rerolls', 'Rerolls'), L('Gives you extra rerolls while it is in your pool.', 'Te da rerolls extra mientras esté en tu reserva.')),
     // The Runes (J3), shown on a die that carries one.
+    K('sigil', '#f4e3a8', L('Sigil', 'Sigilo'), L('Symbols instead of numbers: no sets, no reactions, no Base. Each face does its own thing.', 'Símbolos en lugar de números: sin sets, sin reacciones, sin Base. Cada cara hace lo suyo.')),
+    K('scale', '#f4e3a8', L('Tip the scales', 'Inclina la balanza'), L('Raises your Base to the expected average of your number dice, if it came out lower.', 'Sube tu Base al promedio esperado de tus dados numéricos, si salió menor.')),
+    K('spiral', '#b08cff', L('Spiral', 'Espiral'), L('Rolls again for free; each Spiral in the chain adds Mult.', 'Se tira otra vez gratis; cada Espiral en la cadena suma Mult.')),
     K('law', '#ffd166', L('Law', 'Ley'), L('Rewrites one scoring rule. Only one Law at a time, and it takes no relic slot.', 'Reescribe una regla de puntaje. Solo una Ley a la vez, y no ocupa espacio de reliquia.')),
     K('rune_wild', '#e9dcff', L('Wild', 'Comodín'), L('Rune: on its number, the die counts as any value for sets.', 'Runa: en su número, el dado cuenta como cualquier valor en los sets.')),
     K('rune_gold', '#ffd166', L('Gold', 'Oro'), L('Rune: on its number, the die pays 2 Shards each cast.', 'Runa: en su número, el dado paga 2 Fragmentos por lanzamiento.')),

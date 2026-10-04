@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, Reorder, motion, useAnimationControls } from 'framer-motion'
 import Die from './Die.jsx'
 import TempDie from './TempDie.jsx'
+import EyePanel from './EyePanel.jsx'
 import { CURVE_SECONDS, tickCurve } from '../utils/curveTimer.js'
 import CastLedger from './CastLedger.jsx'
 import { buildCastScript, applyCastStep, finishCastScript } from '../utils/castScript.js'
@@ -671,6 +672,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 </button>
               </div>
             )}
+            <EyePanel state={state} />
             <Reorder.Group
               as="div"
               axis="x"

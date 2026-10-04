@@ -53,6 +53,7 @@ import {
   rollDie,
   rerollPool,
   starChain,
+  SIGIL,
   evaluatePool,
   thresholdForRound,
   shardsEarned,
@@ -89,6 +90,7 @@ import {
 import { firmamentEnding } from '../data/endings.js'
 import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
 import { isPokerId, pokerFaces, JOKER_CAP } from '../data/poker.js'
+import { isSigilId, sigilFaces, sigilSetOf, isGreaterSigil, SIGIL_SETS, SIGIL_SET_IDS, SIGIL_OFFER_CHANCE, SIGIL_PRICE, SIGIL_GREATER_PRICE } from '../data/sigils.js'
 import { TOTEM_CAP, totemLevel, kindlingReroll } from '../data/totems.js'
 import { GLASS_BREAK_CHANCE, RUNE_CLASH_FEE, runesOf, hasActiveRune, migrateDieRunes, fitRunes, faceCap } from '../data/runes.js'
 import { rollContext, settleTide, tideLocks, isGodDie } from './gods.js'
@@ -296,6 +298,8 @@ function applyBossRoundStart(dice, boss) {
 function makeDie(elementId, tierId = STARTING_TIER, edition = null) {
   // A poker die has one fixed size of its own (O3).
   if (isPokerId(elementId)) tierId = elementId
+  // A sigil die has one size of its own, and no number (P1).
+  if (isSigilId(elementId)) tierId = 'sigil'
   const sides = tierById(tierId).sides
   return {
     id: makeId(),
@@ -307,8 +311,9 @@ function makeDie(elementId, tierId = STARTING_TIER, edition = null) {
     held: false,
     locked: false,
     lockedVia: null,
-    value: isPokerId(elementId) ? pokerFaces(elementId)[0] : 1,
-    total: isPokerId(elementId) ? pokerFaces(elementId)[0] : 1,
+    value: isPokerId(elementId) ? pokerFaces(elementId)[0] : isSigilId(elementId) ? 0 : 1,
+    total: isPokerId(elementId) ? pokerFaces(elementId)[0] : isSigilId(elementId) ? 0 : 1,
+    ...(isSigilId(elementId) ? { symbol: sigilFaces(elementId)[0], spirals: 0 } : {}),
     explosions: 0,
     rollId: 0,
   }
@@ -338,7 +343,9 @@ function fitsPool(state, dice) {
     poolSize(dice) <= maxDiceFor(state) &&
     warpCount(dice) <= WARP_CAP &&
     dice.filter(isSlotFree).length <= VOID_CAP &&
-    dice.filter((d) => d.elementId === 'joker').length <= JOKER_CAP
+    dice.filter((d) => d.elementId === 'joker').length <= JOKER_CAP &&
+    // One sigil die per set, the normal or the Greater one (P1).
+    SIGIL_SET_IDS.every((k) => dice.filter((d) => sigilSetOf(d.elementId) === k).length <= 1)
   )
 }
 
@@ -389,6 +396,10 @@ function freshRoundCounters(dice) {
   return {
     driftsUsed: 0,
     lockedThisRound: false,
+    // The Eye (P2, P5): table changes since the last reroll, whether the Eye was struck blind this round, and the warning on screen.
+    eyeShifts: 0,
+    eyeBlind: false,
+    eyeNotice: null,
     // Closed Timelike Curve (N5): its 20-second window has not run out yet.
     ctcExpired: false,
     gustUsed: false,
@@ -1127,6 +1138,23 @@ function campPayout(round) {
   return 3 + Math.floor(round / 2)
 }
 
+/**
+ * The keeper's sigil die on the shelf (P3): Aeris's Shrine, Nix's Black Market
+ * and Tobb's Market sell their set's die, about one visit in four, once the
+ * file has unlocked it and you hold none of that set. No random draw is spent
+ * for a file with nothing unlocked, so old seeds replay the same.
+ */
+function sigilOfferFor(state, type) {
+  const set = SIGIL_SET_IDS.find((k) => SIGIL_SETS[k].shop === type.id)
+  if (!set) return null
+  const unlocked = (state.sigils || []).filter((id) => sigilSetOf(id) === set)
+  if (unlocked.length === 0 || state.dice.some((d) => sigilSetOf(d.elementId) === set)) return null
+  if (random() >= SIGIL_OFFER_CHANCE) return null
+  return unlocked[Math.floor(random() * unlocked.length)]
+}
+
+const sigilCost = (elementId, relics, shop) => applyDiscount(isGreaterSigil(elementId) ? SIGIL_GREATER_PRICE : SIGIL_PRICE, relics, shopCut(shop, 'die'))
+
 function buildShopOffers(state, typeId = 'market') {
   const type = shopTypeById(typeId)
   const stock = rollShopStock(state, type)
@@ -1147,6 +1175,7 @@ function buildShopOffers(state, typeId = 'market') {
     type: type.id,
     ...stock,
     rerollShopUses: 0,
+    sigilOffer: sigilOfferFor(state, type),
     forgeOpen: Boolean(type.forge),
     deals,
     betrayal,
@@ -1327,6 +1356,8 @@ function baseTitleState() {
     // The Law slot (O2): one Law, apart from the relic slots; and the Laws on offer after a boss.
     law: null,
     rewardLaws: [],
+    // Fishing with the Eye (P5): offenses so far this run.
+    eyeStrikes: 0,
     gustUsed: false,
     explosionsThisRound: 0,
     // The Accord (B1): a hidden lean, + toward the Primordial, - toward
@@ -1388,6 +1419,8 @@ function fileFields(file = {}) {
     mythics: [...(file.mythics || [])],
     wardens: [...(file.wardens || [])],
     moteFed: file.mote?.fed || 0,
+    // The sigil dice this file has unlocked (P3).
+    sigils: [...(file.sigils || [])],
   }
 }
 
@@ -2193,9 +2226,114 @@ export function initialState() {
 
 // Restores the seeded generator from the state before each action and saves
 // it back after, so randomness is part of the (saveable) game state.
+// --- Sigil dice: landings, the Eye and the god who bans fishing (EXPANSION.md P2, P5). ---
+
+/** How many table changes between two rerolls make one offense (P5, Default). */
+export const FISHING_LIMIT = 6
+const FISHING_ACTIONS = ['TOGGLE_HELD', 'LOCK_DIE', 'FREEZE_DIE', 'REORDER_DICE']
+
+/** The sigil dice currently showing a symbol: [{ die, symbol, greater }]. */
+function sigilReads(dice) {
+  return dice.filter((d) => isSigilId(d.elementId) && d.symbol).map((d) => ({ die: d, symbol: d.symbol, greater: isGreaterSigil(d.elementId) }))
+}
+
+/** Whether an Eye is open: showing on a sigil die, not struck blind, with a reroll to look at. */
+export function eyeActive(state) {
+  return state.phase === 'rolling' && !state.eyeBlind && sigilReads(state.dice).some((r) => r.symbol === 'eye') && availableRerolls(state) > 0
+}
+
+/** Whether any shown Eye is a Greater one (it shows every unheld die). */
+export const eyeGreater = (state) => sigilReads(state.dice).some((r) => r.symbol === 'eye' && r.greater)
+
+/**
+ * The Eye's look at the future (P2): the dice the next reroll would produce,
+ * from the table as it stands. A dry run of REROLL_UNHELD on a copy, so every
+ * rule is in it; the random generator is put back afterwards, so looking
+ * changes nothing. Returns the dice, or null when no reroll is possible.
+ */
+export function peekReroll(state) {
+  const keep = getRngState()
+  const probe = { ...state, rngState: typeof state.rngState === 'number' ? state.rngState : keep }
+  setRngState(probe.rngState)
+  const out = reduce(probe, { type: 'REROLL_UNHELD' })
+  setRngState(keep)
+  return out === probe ? null : out.dice
+}
+
+const visionKey = (state) => {
+  const dice = peekReroll(state)
+  return dice ? JSON.stringify(dice.filter((d) => !d.held && !d.locked && !d.temp).map((d) => [d.id, d.value, d.symbol ?? null])) : null
+}
+
+/** The next boss is foretold the first time an Eye lands, like the Almanac does (P2). */
+function foretellNextBoss(state) {
+  if (!state.map) return state
+  const bossRound = nextBossRound(state)
+  if (!bossRound || state.map.prophecy?.round === bossRound) return state
+  return { ...state, map: { ...state.map, prophecy: { round: bossRound, boss: pickBossModifier(state, bossRound) } } }
+}
+
+/**
+ * The Key and the Eye resolve the moment they land (P2): once per roll of a
+ * sigil die. A Key gives rerolls and frees locked dice; an Eye foretells.
+ */
+function applyLandings(state) {
+  if (state.phase !== 'rolling') return state
+  const fresh = sigilReads(state.dice).filter((r) => r.die.landed !== r.die.rollId)
+  if (fresh.length === 0) return state
+  let next = state
+  let dice = state.dice
+  let bonus = 0
+  for (const { die, symbol, greater } of fresh) {
+    dice = dice.map((d) => (d.id === die.id ? { ...d, landed: die.rollId } : d))
+    if (symbol === 'key') {
+      bonus += SIGIL.keyRerolls[greater ? 1 : 0]
+      const locked = dice.filter((d) => d.locked)
+      const freed = greater ? locked : locked.slice(0, 1)
+      dice = dice.map((d) => (freed.some((f) => f.id === d.id) ? { ...d, locked: false, held: false, lockedVia: null } : d))
+    }
+    if (symbol === 'eye') next = foretellNextBoss(next)
+  }
+  return { ...next, dice, rerollsBonusThisRound: (next.rerollsBonusThisRound || 0) + bonus }
+}
+
+/** One more table change under a watching Eye. Six make an offense (P5). */
+function countShift(state) {
+  const shifts = (state.eyeShifts || 0) + 1
+  if (shifts < FISHING_LIMIT) return { ...state, eyeShifts: shifts }
+  const strikes = (state.eyeStrikes || 0) + 1
+  const base = { ...state, eyeShifts: 0, eyeStrikes: strikes }
+  if (strikes < 3) return { ...base, eyeNotice: { level: strikes, seq: strikes } }
+  // The third offense and every one after: the Arbiter smites the dice away.
+  const relics = effectiveRelics(base)
+  const dice = settleNewDice(rerollPool(base.dice, relics, { patienceBonus: totemLevel(base.totems, 'earth') }))
+  const left = availableRerolls(base)
+  return {
+    ...base,
+    dice,
+    rerollsUsed: base.rerollsUsed + left,
+    eyeBlind: true,
+    lives: base.lives > 1 ? base.lives - 1 : base.lives,
+    arbiterScene: strikes === 3,
+    eyeNotice: { level: 3, seq: strikes, first: strikes === 3, lostLife: base.lives > 1 },
+  }
+}
+
 export function gameReducer(state, action) {
   if (typeof state.rngState === 'number') setRngState(state.rngState)
+  // An Eye on the table makes the table's shape matter: note what it shows now (P5).
+  const watching = FISHING_ACTIONS.includes(action.type) && state.phase === 'rolling' && eyeActive(state)
+  const before = watching ? visionKey(state) : null
   let next = reduce(state, action)
+  next = applyLandings(next)
+  if (watching && next !== state && next.phase === 'rolling') {
+    const keep = getRngState()
+    const after = visionKey({ ...next, rngState: keep })
+    setRngState(keep)
+    if (before !== after) next = countShift(next)
+  }
+  // A reroll starts the count again, and clears a warning (P5).
+  if (action.type === 'REROLL_UNHELD' || action.type === 'GUST_REROLL') next = next.eyeShifts || next.eyeNotice ? { ...next, eyeShifts: 0, eyeNotice: null } : next
   // Black Hole dice and the Time ghost last only for the round (N5).
   if (next !== state && next.phase && next.phase !== 'rolling' && next.dice?.some(isTempDie)) next = { ...next, dice: withoutTemps(next.dice) }
   if (next !== state && typeof next.rngState === 'number') return { ...next, rngState: getRngState() }
@@ -2677,6 +2815,17 @@ function reduce(state, action) {
           buyableElements: state.shop.buyableElements.filter((id) => id !== action.elementId),
         },
       }
+    }
+
+    // A keeper's sigil die (P3): 20 Shards, the Greater one 40.
+    case 'BUY_SIGIL': {
+      if (state.phase !== 'shop' || !state.shop?.sigilOffer || state.shop.sigilOffer !== action.elementId) return state
+      const die = makeDie(action.elementId)
+      if (!fitsPool(state, [...state.dice, die])) return state
+      const cost = sigilCost(action.elementId, state.relics, state.shop)
+      if (state.shards < cost) return state
+      const ownedElementsEver = state.ownedElementsEver.includes(action.elementId) ? state.ownedElementsEver : [...state.ownedElementsEver, action.elementId]
+      return { ...state, shards: state.shards - cost, dice: [...state.dice, die], ownedElementsEver, shop: { ...state.shop, sigilOffer: null } }
     }
 
     case 'SELL_DIE': {
@@ -3345,6 +3494,10 @@ export const selectors = {
   godCapFor,
   scoreContext,
   driftChargesLeft,
+  eyeActive,
+  eyeGreater,
+  sigilCost,
+  peekReroll,
   aerisCost,
   canPayAeris,
   aerisGone,

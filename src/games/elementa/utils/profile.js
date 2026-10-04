@@ -10,6 +10,7 @@ import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS, WARDENS } from '../data/bossMod
 import { ENDING_IDS } from '../data/endings.js'
 import { SECRET_REACTION_IDS, FIRMAMENT_REACTION_IDS } from '../data/reactions.js'
 import { ACHIEVEMENTS } from '../data/achievements.js'
+import { sigilsFromEndings } from '../data/sigils.js'
 import { readFile, updateProfile, listFiles, emptyProfile } from './saveManager.js'
 
 export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id, ...GOD_TRIALS.map((b) => b.id), ...WARDENS.map((b) => b.id)]
@@ -88,9 +89,12 @@ export function markEnding(slot, ending, deckId) {
   updateProfile(slot, (p) => {
     fresh = !p.endings.includes(ending)
     const marks = p.deckEndings[deckId] || []
+    const endings = fresh ? [...p.endings, ending] : p.endings
     return {
       ...p,
-      endings: fresh ? [...p.endings, ending] : p.endings,
+      endings,
+      // A Firmament ending opens that path's sigil die (P3).
+      sigils: [...new Set([...(p.sigils || []), ...sigilsFromEndings(endings)])],
       deckEndings: deckId && !marks.includes(ending) ? { ...p.deckEndings, [deckId]: [...marks, ending] } : p.deckEndings,
     }
   })

@@ -7,6 +7,13 @@ import DieSprite, { dieNumberY, dieIconY, dieNumberScale } from './DieSprite.jsx
 import ElementFx from './ElementFx.jsx'
 import { isBigTier } from '../data/diceTiers.js'
 import { faceLabel } from '../data/poker.js'
+import { SIGIL_SETS } from '../data/sigils.js'
+
+/** A sigil die's symbol, drawn in its set's two colors (EXPANSION.md P1). */
+export function SigilGlyph({ die, size }) {
+  const set = SIGIL_SETS[ELEMENTS[die.elementId]?.sigilSet]
+  return <PixelIcon name={`sym_${die.symbol}`} size={size} color={set?.color ?? '#fffaf0'} hi={set?.accent ?? '#fffaf0'} />
+}
 
 /** The shape a die is drawn with: its own size, or a Chaos die's current form (H3). */
 export const shapeTier = (die) => die.chaosForm?.tierId ?? die.tierId
@@ -122,7 +129,7 @@ export default function DieToken({ die, size = 48, face = null, ringColor = null
               textShadow: '2px 2px 0 var(--ink)',
             }}
           >
-            {faceLabel(die.elementId, face)}
+            {die.symbol ? <SigilGlyph die={die} size={Math.round(size * 0.42)} /> : faceLabel(die.elementId, face)}
           </span>
         </>
       )}

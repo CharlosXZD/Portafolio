@@ -7,6 +7,7 @@
 import { ELEMENTS, FLAGS, PRIMORDIAL_DIE_ID, inFamily } from '../data/elements.js'
 import { runesOf } from '../data/runes.js'
 import { isPokerId, pokerFaces } from '../data/poker.js'
+import { isSigilId, isGreaterSigil, sigilFaces } from '../data/sigils.js'
 
 /** Every god power in the pool: { god, index, drawback }. */
 export function godPowers(dice) {
@@ -63,7 +64,11 @@ export function rollContext(die, dice, fx, acting = die.elementId) {
   // Varuna's drawback, and her trial: 1s come up 50% more often.
   const oneBias = fx.varunaCurse || powers.some((p) => p.god === 'varuna' && p.drawback) ? 1.5 : 1
   // A poker die (O3) rolls one of its own faces (9 to Ace), by the die itself, not by what it acts as.
-  return { explodeFrom, explodeChance, chainCap, oneBias, runeExplode, explodeFaces, pokerFaces: isPokerId(die.elementId) ? pokerFaces(die.elementId) : null }
+  return { explodeFrom, explodeChance, chainCap, oneBias, runeExplode, explodeFaces, pokerFaces: isPokerId(die.elementId) ? pokerFaces(die.elementId) : null,
+    // A sigil die (P1) rolls one of its symbols; a Spiral chains (P2).
+    sigilFaces: isSigilId(die.elementId) ? sigilFaces(die.elementId) : null,
+    sigilGreater: isGreaterSigil(die.elementId),
+  }
 }
 
 const toFace = (d, value) => ({ ...d, value, total: value, explosions: 0 })

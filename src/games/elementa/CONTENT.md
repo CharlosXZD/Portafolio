@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-04 (Alpha v0.8.1 "Family growth" in development), pulled straight from the data files so it matches the code. Tables for dice, relics, reactions, keywords and short descriptions were regenerated from the data on that date; names are the current ones (Light, Darkness, Time, Space, Chaos, Void for the base elements; Luminance, Obscurity, Tempus, Ouranos, Hundun, Abyss for the Mythic dice; Nadir for Darkness + Void).
+Everything in the game as of 2026-10-04 (Alpha v0.8.6 "Sigils" in development), pulled straight from the data files so it matches the code. Tables for dice, relics, reactions, keywords and short descriptions were regenerated from the data on that date; names are the current ones (Light, Darkness, Time, Space, Chaos, Void for the base elements; Luminance, Obscurity, Tempus, Ouranos, Hundun, Abyss for the Mythic dice; Nadir for Darkness + Void).
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -182,6 +182,31 @@ Eleven arcane dice (no element, family "Celestial"; the first five since v0.7.2,
 - **Poker hands** are read **among the poker dice only**, Jokers included, and the best one adds Mult once: pair +1, two pair +2, three of a kind +3, straight (five in a row) +5, full house +5, four of a kind +8, five of a kind +15. At least two poker dice. The ledger names the hand ("Straight (Poker)").
 - **Gambler loadout** (ninth; unlocks once any other loadout has won): four poker dice and a Joker.
 
+
+### Sigil dice (Alpha v0.8.6; Elementa and the Firmament)
+Six faces of **symbols, no numbers**. A sigil die never takes part in sets, straights or reactions and scores no Base; it only does what its symbol says. Not Charged, no upgrades, no Chisel; a Masquerade or Chameleon beside one copies its cast-time effect. One per set (the normal or the Greater of the same set), and they count toward the dice cap.
+
+| Die | Faces | Where |
+|---|---|---|
+| **Aeris's Sigil** / Greater | Sun, Sun, Scale, Scale, Key, Key | Aeris's Shrine |
+| **Nix's Sigil** / Greater | Eye, Eye, Spiral, Spiral, Maw, Maw | Nix's Black Market |
+| **Tobb's Sigil** / Greater | Sun, Scale, Key, Eye, Spiral, Maw | Tobb's Market |
+
+Unlocked by the path's Firmament endings: **Firmament I** opens the normal die, **Firmament II** the Greater one (a toast; the Gallery keeps them in the Unlocks box until then). The keeper sells it about one visit in four, 20 Shards (Greater 40), in Elementa too, never in other shops.
+
+| Symbol | Normal | Greater |
+|---|---|---|
+| **Sun** | All your dice score +50% Base. | +100% Base. |
+| **Scale** | Tips the scales: Base is raised to the expected average of your number dice, if lower. | The floor is 1.5 times the average. |
+| **Key** | +1 reroll this round, one locked or frozen die released (on landing). | +2 rerolls, every locked or frozen die released. |
+| **Eye** | Shows the next roll of one die you pick, and the next boss; +5 Mult. | Every unheld die; +10 Mult. |
+| **Spiral** | Rolls again for free; each Spiral in the chain +2 Mult, up to 5. | +4 Mult each, up to 8. |
+| **Maw** | Eats your lowest other die; twice its score to Mult. | Eats the two lowest; 3 times their scores. |
+
+**The Eye is a dry run.** It runs the next reroll on a copy of the table as it stands, so Chrono, explosions and every rule are in it, and it is recomputed whenever the table changes (the dice that changed flicker). It costs nothing and changes no random state; the real reroll gives that very result if nothing was changed.
+
+**The god who bans fishing.** While an Eye vision is on screen, every hold, release, lock or reorder that changes the vision counts; six between two rerolls is an offense. The first two only warn ("Someone is counting.", "The odds are not yours to bend."). The third plays the **Arbiter** scene (an unarmed realm-3 god, placeholder name and portrait), rerolls your unheld dice by force, sets the round's rerolls to 0, blinds the Eye for the round and takes a life (never the last). Later offenses repeat the smite with a short line. Strikes are saved with the run.
+
 ### Keyword tags (v0.6.5)
 Hovering or tapping a tag shows its definition. A die's short description shows the first four; the full description lists them all.
 
@@ -226,6 +251,9 @@ Hovering or tapping a tag shows its definition. A die's short description shows 
 | #Charged | Half of its face is also added to your Mult. |
 | #Summon | Creates a temporary die that lasts the round and takes no slot. |
 | #Rerolls | Gives you extra rerolls while it is in your pool. |
+| #Sigil | Symbols instead of numbers: no sets, no reactions, no Base. Each face does its own thing. |
+| #Tip the scales | Raises your Base to the expected average of your number dice, if it came out lower. |
+| #Spiral | Rolls again for free; each Spiral in the chain adds Mult. |
 | #Law | Rewrites one scoring rule. Only one Law at a time, and it takes no relic slot. |
 | #Wild | Rune: on its number, the die counts as any value for sets. |
 | #Gold | Rune: on its number, the die pays 2 Shards each cast. |
@@ -309,6 +337,12 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Singularity** | Everything falls toward it. Its neighbors score double; it scores nothing. | #Volatile #Boost #Charged |
 | **Nadir** | A hole in the table. Its neighbors fall in, and empty slots feed it. | #Volatile #Devour #Empty #Charged |
 | **Dead Star** | What is left when a fusion collapses. It weighs on everything around it. | #Empty #Charged |
+| **Aeris's Sigil** | A mark Aeris keeps for those who finish the Split. Sun, Scale and Key. | #Sigil #Tip the scales |
+| **Greater Sigil of Aeris** | The same mark, bolder. Everything it does, it does more. | #Sigil #Tip the scales |
+| **Nix's Sigil** | A mark Nix files for those who finish the Primordial. Eye, Spiral and Maw. | #Sigil #Spiral |
+| **Greater Sigil of Nix** | The same mark, hungrier. Everything it does, it does more. | #Sigil #Spiral |
+| **Tobb's Sigil** | Tobb sells it with a wink: one of everything. Six symbols, once each. | #Sigil |
+| **Greater Sigil of Tobb** | The same mix, every symbol stronger. | #Sigil |
 
 ---
 
@@ -956,7 +990,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 | **Inferno** | 3 | 2 | 2 | 4 | No |
 | **Cataclysm** | 3 | 3 | 2 | 4 | Yes |
 
-### Achievements (47, 22 public and 25 secret; secret ones show as ??? until earned and do not count toward completion)
+### Achievements (50, 22 public and 28 secret; secret ones show as ??? until earned and do not count toward completion)
 - **First Spark**: Clear your first round.
 - **Keeper of the Circle**: Win a run.
 - **Every Path**: Win with every loadout.
@@ -994,6 +1028,9 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 - **Cartographer of Skies** (secret): Take a Constellation to level 10.
 - **Runesmith** (secret): Own a die with a rune.
 - **Cosmic Alchemist** (secret): Discover every Firmament reaction.
+- **Sigil Bearer** (secret): Hold a sigil die.
+- **The Whole Pantheon** (secret): Hold all three sigil dice at once.
+- **Greater Things** (secret): Hold a Greater sigil die.
 - **Room to Spare** (secret): Own a die with Warp.
 - **Century** (secret): Grow a die to 100 sides.
 - **Stopped Clock** (secret): Own a Chrono die.

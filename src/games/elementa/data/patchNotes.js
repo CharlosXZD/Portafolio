@@ -12,6 +12,27 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.8.6',
+    name: L('Sigils', 'Sigilos'),
+    date: null,
+    highlights: [
+      L(
+        'Six sigil dice, a normal and a Greater one for each path. Their faces are symbols, not numbers: Sun, Scale, Key, Eye, Spiral and Maw. They take no part in sets or reactions; each symbol does its own thing.',
+        'Seis dados de sigilo, uno normal y uno Mayor para cada camino. Sus caras son símbolos, no números: Sol, Balanza, Llave, Ojo, Espiral y Fauces. No entran en sets ni reacciones; cada símbolo hace lo suyo.',
+      ),
+      L(
+        'Finish a Firmament ending to unlock a path\'s sigil die (the second ending unlocks the Greater one). Aeris, Nix and Tobb sell them, in Elementa too, about one visit in four.',
+        'Termina un final del Firmamento para desbloquear el dado de sigilo de un camino (el segundo final desbloquea el Mayor). Aeris, Nix y Tobb los venden, también en Elementa, más o menos una visita de cada cuatro.',
+      ),
+      L(
+        'The Eye shows you the next reroll for the table as it stands. Change the table and the vision shifts. Keep reshaping it to fish for a roll, and someone starts counting.',
+        'El Ojo te muestra el próximo reroll para la mesa tal como está. Cambia la mesa y la visión cambia. Si la rehaces una y otra vez para pescar una tirada, alguien empieza a contar.',
+      ),
+      L('Three new secret achievements.', 'Tres logros secretos nuevos.'),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.8.5',
     name: L('Strange faces', 'Caras extrañas'),
     date: null,

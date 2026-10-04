@@ -2,6 +2,7 @@
 // player has seen, and which achievements a given moment earns. Pure
 // "what should unlock" logic lives here; ElementaGame.jsx calls it and
 // writes the results through utils/profile.js.
+import { isSigilId, isGreaterSigil, SIGIL_SET_IDS, SIGIL_SETS } from '../data/sigils.js'
 import { DECKS } from '../data/decks.js'
 import { runesOf } from '../data/runes.js'
 import { ELEMENTS, TIERS, MYTHIC_DIE_IDS } from '../data/elements.js'
@@ -46,6 +47,10 @@ export function achievementsFromState(state) {
   if (levels.some((l) => l >= 5)) ids.push('stargazer')
   if (levels.some((l) => l >= 10)) ids.push('sky_cartographer')
   if (state.dice.some((d) => runesOf(d).length > 0)) ids.push('runesmith')
+  // Sigil dice (P4).
+  if (state.dice.some((d) => isSigilId(d.elementId))) ids.push('sigil_bearer')
+  if (SIGIL_SET_IDS.every((k) => state.dice.some((d) => d.elementId === SIGIL_SETS[k].normal))) ids.push('whole_pantheon')
+  if (state.dice.some((d) => isGreaterSigil(d.elementId))) ids.push('greater_things')
   if (state.dice.some((d) => d.edition === 'warp')) ids.push('warp_slot')
   if (state.dice.some((d) => d.sides >= 100)) ids.push('century')
   if (state.dice.some((d) => d.elementId === 'chrono')) ids.push('stopped_clock')

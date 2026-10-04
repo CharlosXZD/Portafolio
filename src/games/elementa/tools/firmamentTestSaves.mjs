@@ -38,6 +38,7 @@ import { MYTHIC_DIE_IDS, COSMIC_FUSION_IDS } from '../data/elements.js'
 import { tierById } from '../data/diceTiers.js'
 import { relicById } from '../data/relics.js'
 import { consumableById } from '../data/consumables.js'
+import { sigilsFromEndings } from '../data/sigils.js'
 
 const GODS = ['gaea', 'ognen', 'varuna', 'zephyr']
 const ALL_RECIPES = ['aether', ...GODS, ...MYTHIC_DIE_IDS, ...COSMIC_FUSION_IDS, 'entropy']
@@ -55,9 +56,10 @@ const FILES = [
     familyKit: true,
     lawId: 'law_symmetry',
     pokerDice: ['poker', 'poker', 'poker', 'joker'],
+    sigilDice: [['sigil_nix_g', 'eye'], ['sigil_aeris', 'sun']],
   },
   // File 2 stays in Elementa (the door is not crossed) and holds the v0.8.5 kit (O4): poker dice, a Law, the four new runes.
-  { path: 'split', seed: 'SPLITPTH', deckId: 'tidecaller', endings: ['neutral', 'split'], wardens: [], mythics: [], moteFed: 0, lawId: 'law_greed', pokerDice: ['poker', 'poker', 'poker', 'poker', 'joker'], extraDice: ['air', 'fire'], newRunes: true },
+  { path: 'split', seed: 'SPLITPTH', deckId: 'tidecaller', endings: ['neutral', 'split'], wardens: [], mythics: [], moteFed: 0, lawId: 'law_greed', pokerDice: ['poker', 'poker', 'poker', 'poker', 'joker'], extraDice: ['air', 'fire'], newRunes: true, sigilDice: [['sigil_tobb', 'key']] },
   {
     path: 'primordial',
     seed: 'PRIMPATH',
@@ -71,7 +73,7 @@ const FILES = [
 
 // Walks a run to round 15 with tiny targets, leaning the Accord to `path`
 // just before the final battle locks it.
-function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extraDice, familyKit, lawId, pokerDice, newRunes }) {
+function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extraDice, familyKit, lawId, pokerDice, newRunes, sigilDice }) {
   const file = { endings, wardens, mythics, mote: { fed: moteFed } }
   let s = gameReducer(initialState(), {
     type: 'START_RUN',
@@ -131,6 +133,21 @@ function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extra
     poker[2].runes = [{ id: 'link', face: 11 }]
     poker[3].runes = [{ id: 'double', face: 14 }]
   }
+  // Sigil dice (P1): symbols, no numbers. File 1 holds a Greater Eye.
+  const sigils = (sigilDice || []).map(([elementId, symbol], k) => ({
+    ...extra[0],
+    id: `test-${elementId}-${k}`,
+    elementId,
+    tierId: 'sigil',
+    sides: 6,
+    value: 0,
+    total: 0,
+    symbol,
+    spirals: 0,
+    rollId: 90 + k,
+    landed: 90 + k,
+    runes: [],
+  }))
   const law = lawId ? { law: relicById(lawId) } : {}
   const kit = familyKit
     ? {
@@ -142,7 +159,7 @@ function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extra
         consumables: ['totem_fire', 'totem_water', 'totem_earth'].map((id, k) => ({ ...consumableById(id), instanceId: `test-${id}-${k}` })),
       }
     : {}
-  return { ...s, ...kit, ...law, dice: [...runed, ...extra, ...poker], diceCapBonus: (s.diceCapBonus || 0) + extra.length + poker.length, shards: 300, stardust: 4 }
+  return { ...s, ...kit, ...law, dice: [...runed, ...extra, ...poker, ...sigils], diceCapBonus: (s.diceCapBonus || 0) + extra.length + poker.length + sigils.length, shards: 300, stardust: 4 }
 }
 
 const files = {}
@@ -162,6 +179,8 @@ FILES.forEach((spec, slot) => {
     stats: { runs: 3, wins: 3, bestCast: 0, bestRound: 15 },
     // The Gallery's Firmament reactions show once the file crossed the door.
     achievements: spec.familyKit ? ['through_door'] : [],
+    // All six sigil dice unlocked (P3/P4); the endings that open them.
+    sigils: spec.familyKit ? sigilsFromEndings(['firmament_neutral_1', 'firmament_neutral_2', 'firmament_split_1', 'firmament_split_2', 'firmament_primordial_1', 'firmament_primordial_2']) : [],
     seen: { ...emptyProfile().seen, reactions: spec.familyKit ? ['sunburst', 'rift'] : [] },
   }
   files[slot] = { createdAt: Date.now(), updatedAt: Date.now(), profile, run }

@@ -338,6 +338,23 @@ export const SCENES = {
       ]),
     ],
   },
+  // The god who bans fishing (EXPANSION.md P5). Unarmed, calm, a little bored.
+  // realm 3 god: the name and the portrait are placeholders until that realm is workshopped.
+  arbiter: {
+    title: L('The Arbiter', 'El Árbitro'),
+    color: '#d8d2e8',
+    music: 'scene_crossroads',
+    pages: [
+      page(keeper('arbiter'), L('The Arbiter', 'El Árbitro'), [
+        L('Third time. Please stop.', 'Tercera vez. Por favor, detente.'),
+        L('You have been shaking the future to see what falls out. It is not a pocket. It is not yours.', 'Has estado sacudiendo el futuro para ver qué cae. No es un bolsillo. No es tuyo.'),
+      ]),
+      page(keeper('arbiter'), L('The Arbiter', 'El Árbitro'), [
+        L('Altering the odds by game is forbidden. I am not angry. I have no weapon. I simply do not allow it.', 'Alterar las probabilidades a base de juego está prohibido. No estoy enojado. No tengo armas. Simplemente no lo permito.'),
+        L('Your dice are sent away. Your rerolls are spent. One of your lives is mine. Do try to look less often.', 'Tus dados se van. Tus rerolls se agotan. Una de tus vidas es mía. Intenta mirar con menos frecuencia.'),
+      ]),
+    ],
+  },
   vesper_first: {
     title: L('The Cosmologist', 'La Cosmóloga'),
     color: '#9fb8ff',

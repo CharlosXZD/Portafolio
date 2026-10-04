@@ -27,6 +27,8 @@ const HEADS = {
   // Seren (J2): a cap with a star on it.
   seren: ['.......c......', '......ccc.....', '....kkkckk....', '...khhhhhhk...', '..khhhhhhhhk..'],
   // Vesper (K5): a crescent-moon hairpin over a dark bob.
+  // The Arbiter (P5): a smooth pale veil, an open empty hand's worth of calm. A placeholder for a realm 3 god.
+  arbiter: ['..............', '....cccccc....', '...kccccccck..', '..kccccccccck.', '..kccccccccck.'],
   vesper: ['.........cc...', '....kkkkkc....', '...khhhhhhk...', '..khhhhhhhhk..', '..khhhhhhhhk..'],
 }
 
@@ -42,6 +44,7 @@ const MOUTHS = {
   mote: '..kaaadaaaaak.',
   seren: '..kaaaddaaaak.',
   vesper: '..kaaaadaaaak.',
+  arbiter: '..kaaaaaaaaak.',
 }
 
 const BODY = (mouth) => [
@@ -67,6 +70,7 @@ const PALETTES = {
   horologist: { k: '#120c1a', h: '#5a4a2a', c: '#c9a46b', a: '#d8d0c0', b: '#a89f8c', w: '#fff4d6', e: '#3a2a12', d: '#fff4d6' },
   seren: { k: '#120c1a', h: '#3a3f8a', c: '#ffe9a0', a: '#e6d4c8', b: '#bfa8a0', w: '#ffffff', e: '#1d2260', d: '#9fb8ff' },
   vesper: { k: '#120c1a', h: '#1d2a4a', c: '#e8e0ff', a: '#d8c8e8', b: '#a898c0', w: '#ffffff', e: '#5a4ab8', d: '#9fb8ff' },
+  arbiter: { k: '#1a1a24', h: '#e6e2f0', c: '#d8d2e8', a: '#f4f0fa', b: '#c8c2d8', w: '#ffffff', e: '#8a8aa8', d: '#c8c2d8' },
   mote: { k: '#05030a', h: '#2a2338', c: '#8a7aa8', a: '#1a1424', b: '#120c1a', w: '#ff4fd8', e: '#ffffff', d: '#8a7aa8' },
 }
 

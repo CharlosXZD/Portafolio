@@ -78,6 +78,8 @@ function sceneFor(state, seen) {
   }
   if (live && state.bossModifier?.tier === 4) ids.push(`warden_${state.bossModifier.id}`)
   if (state.phase === 'crossroads') ids.push('crossroads')
+  // The Arbiter, on the third offense of fishing with the Eye (P5).
+  if (live && state.arbiterScene) ids.push('arbiter')
   // Pip on crossing the door (K6), then the follower's arrival.
   if (state.realm === 'firmament' && ['bossReward', 'shop'].includes(state.phase)) ids.push('crossing')
   if (state.phase === 'shop' && state.shop?.firstFirmament) ids.push(`follower_${state.path ?? 'neutral'}`)
@@ -269,6 +271,8 @@ function ElementaGameInner() {
       // ending, for the file and as a completion mark on the loadout.
       if (ending === 'neutral') notify(GOD_IDS.filter((id) => learnRecipe(slot, id)).map((id) => ({ kind: 'recipe', id })))
       if (markEnding(slot, ending, state.deckId)) notify([{ kind: 'ending', id: ending }])
+      // A Firmament ending may have opened a sigil die (P3).
+      notify((readProfile(slot).sigils || []).filter((id) => !(before.sigils || []).includes(id)).map((id) => ({ kind: 'sigil', id })))
       award([...achievementsFromVictory(state, before), ...achievementsFromProfile(readProfile(slot))])
     },
     [slot, state, notify, award],

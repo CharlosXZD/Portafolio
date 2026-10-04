@@ -5,7 +5,8 @@ import { random } from './rng.js'
 import { godPowers, rollContext } from './gods.js'
 import { levelBonus } from '../data/constellations.js'
 import { hasActiveRune } from '../data/runes.js'
-import { isPokerId, JOKER_FACE, bestHand } from '../data/poker.js'
+import { isPokerId, JOKER_FACE, bestHand, pokerFaces } from '../data/poker.js'
+import { isSigilId, isGreaterSigil } from '../data/sigils.js'
 import { totemLevel, tideShare, FIRE_TOTEM_MULT } from '../data/totems.js'
 
 const DEFAULT_EXPLODE_CAP = 10
@@ -23,6 +24,17 @@ export const PULSAR_CAP = 100
 export const PULSAR_STEP = 10
 // Black Hole dice (N5): what every die between a pair gets.
 export const BLACK_HOLE_BONUS = 50
+// The symbols (EXPANSION.md P2), normal / Greater.
+export const SIGIL = {
+  sunFactor: [1.5, 2],
+  scaleFloor: [1, 1.5],
+  keyRerolls: [1, 2],
+  eyeMult: [5, 10],
+  spiralMult: [2, 4],
+  spiralCap: [5, 8],
+  mawEats: [1, 2],
+  mawFactor: [2, 3],
+}
 // What Light, Alba and Shadow add to the dice beside them (N2, N3).
 export const NEIGHBOR_BONUS = 10
 // The sizes Chaos can take (H3).
@@ -30,7 +42,7 @@ const CHAOS_SIZES = ['d3', 'd5', 'd6', 'd10', 'd20']
 // Every die Chaos can become: everything but the gods, the Primordial die
 // and the Mythic dice.
 const CHAOS_FORM_IDS = Object.keys(ELEMENTS).filter(
-  (id) => ![TIERS.GOD, TIERS.PRIMAL, TIERS.MYTHIC].includes(ELEMENTS[id].tier) && !['black_hole_die', 'time_ghost'].includes(id),
+  (id) => ![TIERS.GOD, TIERS.PRIMAL, TIERS.MYTHIC].includes(ELEMENTS[id].tier) && !['black_hole_die', 'time_ghost'].includes(id) && !ELEMENTS[id].sigilSet,
 )
 // What Flux can become each roll (K1): a pure element.
 const FLUX_FORM_IDS = ['earth', 'fire', 'water', 'air']
@@ -111,6 +123,20 @@ export function starChain(dice) {
 }
 
 export function rollDie(elementId, sides, relics = [], ctx = {}) {
+  // Sigil dice (P1, P2): a symbol, no number. A Spiral rolls again for free,
+  // up to the cap, and every Spiral in the chain adds Mult at the cast.
+  if (ctx.sigilFaces) {
+    const cap = SIGIL.spiralCap[ctx.sigilGreater ? 1 : 0]
+    let spirals = 0
+    let symbol = ctx.sigilFaces[randInt(ctx.sigilFaces.length) - 1]
+    const trail = [symbol]
+    while (symbol === 'spiral' && spirals < cap) {
+      spirals += 1
+      symbol = ctx.sigilFaces[randInt(ctx.sigilFaces.length) - 1]
+      trail.push(symbol)
+    }
+    return { value: 0, total: 0, explosions: 0, chain: [0], symbol, spirals, trail, rollId: random() }
+  }
   // Poker dice (O3): one of the faces 9 to Ace (the Joker's seventh is wild).
   if (ctx.pokerFaces) {
     const value = ctx.pokerFaces[randInt(ctx.pokerFaces.length) - 1]
@@ -606,6 +632,15 @@ function evaluateCore(dice, relics = [], ctx = {}) {
 
   const explodeCount = perDie.reduce((sum, d) => sum + (d.explosions || 0), 0)
 
+  // Sigil dice (P1, P2): the symbol each die reads at the cast. A Masquerade
+  // or Chameleon beside a sigil die copies its cast-time effect (Default).
+  const sigil = []
+  perDie.forEach((d, i) => {
+    if (isSigilId(d.elementId)) sigil[i] = { symbol: d.symbol, greater: isGreaterSigil(d.elementId), spirals: d.spirals || 0 }
+    else if (i > 0 && sigil[i - 1] && (hasFlag(d.elementId, FLAGS.MIMIC_LEFT) || hasFlag(d.elementId, FLAGS.MIMIC_SPLIT))) sigil[i] = sigil[i - 1]
+  })
+  const isSigilDie = (i) => Boolean(sigil[i])
+
   let zeroTargets = new Set()
   if (fx.fizzleSpreadsZero) {
     perDie.forEach((d, i) => {
@@ -650,8 +685,9 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     const wildcardCount = wildcardIds.length
 
     const groups = new Map()
-    perDie.forEach((d) => {
-      if (wildcardIds.includes(d.id)) return
+    perDie.forEach((d, i) => {
+      // A sigil die has no number, so it joins no set (P1).
+      if (wildcardIds.includes(d.id) || isSigilDie(i)) return
       groups.set(d.value, (groups.get(d.value) || 0) + 1)
     })
 
@@ -713,7 +749,7 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     const celestialOut = [FLAGS.SATELLITE, FLAGS.QUASAR, FLAGS.HORIZON, FLAGS.BLACK_HOLE_DIE].some((f) => hasFlag(d.actingAs, f))
     // Null, Singularity and the Dead Star score nothing either (K1, K4).
     const cosmicOut = [FLAGS.NIL, FLAGS.SINGULARITY, FLAGS.DEAD_STAR].some((f) => hasFlag(d.actingAs, f))
-    const out = midas || bullion || empty || overexposed || d.swallowed || celestialOut || cosmicOut
+    const out = midas || bullion || empty || overexposed || d.swallowed || celestialOut || cosmicOut || isSigilDie(i)
     // Null and Singularity score nothing by design, but they still react (L5):
     // seven of the new reactions name the Void.
     d.reactsAtZero = cosmicOut && !d.swallowed
@@ -910,6 +946,20 @@ function evaluateCore(dice, relics = [], ctx = {}) {
       if (v > 0) darkLines.push({ kind: 'mythic', id: 'shadow', value: v, dice: [i] })
     }
     if (hasFlag(d.actingAs, FLAGS.ABYSS)) [i - 1, i + 1].forEach(halve)
+    // The Maw (P2) eats the lowest other die (two for the Greater one) and
+    // pays a multiple of what it scored into Mult.
+    if (sigil[i]?.symbol === 'maw') {
+      const g = sigil[i].greater ? 1 : 0
+      for (let k = 0; k < SIGIL.mawEats[g]; k++) {
+        let low = -1
+        perDie.forEach((o, j) => {
+          if (j !== i && !isSigilDie(j) && !o.swallowed && !o.darkened && o.contribution > 0 && (low < 0 || o.contribution < perDie[low].contribution)) low = j
+        })
+        if (low < 0) break
+        const eaten = eat(low)
+        darkLines.push({ kind: 'sigil', id: 'maw', value: eaten * SIGIL.mawFactor[g], dice: [i, low] })
+      }
+    }
     if (hasFlag(d.actingAs, FLAGS.OBLIVION)) {
       let low = -1
       perDie.forEach((o, j) => {
@@ -931,6 +981,28 @@ function evaluateCore(dice, relics = [], ctx = {}) {
   baseLines.push({ kind: 'dice', value: diceSum, op: 'add' })
   let baseValue = diceSum
 
+  // The Scale (P2) tips the scales: the Base is raised to the expected
+  // average of the number dice, if it came out lower. Then the Sun lifts it.
+  const expectedBase = perDie.reduce((sum, d, i) => {
+    if (isSigilDie(i)) return sum
+    const faces = isPokerId(d.elementId) ? pokerFaces(d.elementId) : null
+    return sum + (faces ? faces.reduce((a, b) => a + b, 0) / faces.length : (d.sides + 1) / 2)
+  }, 0)
+  sigil.forEach((sg, i) => {
+    if (sg?.symbol !== 'scale') return
+    const floor = expectedBase * SIGIL.scaleFloor[sg.greater ? 1 : 0]
+    if (baseValue < floor) {
+      baseLines.push({ kind: 'sigil', id: 'scale', value: floor - baseValue, op: 'add', dice: [i] })
+      baseValue = floor
+    }
+  })
+  sigil.forEach((sg, i) => {
+    if (sg?.symbol !== 'sun') return
+    const factor = SIGIL.sunFactor[sg.greater ? 1 : 0]
+    baseValue *= factor
+    baseLines.push({ kind: 'sigil', id: 'sun', value: factor, op: 'mul', dice: [i] })
+  })
+
   if (fx.pureEarthBaseBonusPct && perDie.every((d) => d.elementId === 'earth')) {
     baseValue *= 1 + fx.pureEarthBaseBonusPct
     baseLines.push({ kind: 'relic', id: sourceOf(relics, 'pureEarthBaseBonusPct'), value: 1 + fx.pureEarthBaseBonusPct, op: 'mul' })
@@ -943,11 +1015,11 @@ function evaluateCore(dice, relics = [], ctx = {}) {
 
   // Law of Inversion (O2): the lowest die counts as the highest face.
   if (fx.lawInversion && perDie.length > 1) {
-    const values = perDie.map((d) => d.value)
-    const gain = Math.max(...values) - Math.min(...values)
+    const values = perDie.filter((d, i) => !isSigilDie(i)).map((d) => d.value)
+    const gain = values.length > 1 ? Math.max(...values) - Math.min(...values) : 0
     if (gain > 0) {
       baseValue += gain
-      baseLines.push({ kind: 'relic', id: sourceOf(relics, 'lawInversion'), value: gain, op: 'add', dice: [values.indexOf(Math.min(...values))] })
+      baseLines.push({ kind: 'relic', id: sourceOf(relics, 'lawInversion'), value: gain, op: 'add', dice: [perDie.findIndex((d, i) => !isSigilDie(i) && d.value === Math.min(...values))] })
     }
   }
 
@@ -1065,6 +1137,12 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     multiplier *= 2
     multLines.push({ kind: 'celestial', id: 'timelike_curve', value: 2, op: 'mul', dice: [curve] })
   }
+  // The Eye and the Spiral (P2) pay Mult at the cast.
+  sigil.forEach((sg, i) => {
+    const g = sg?.greater ? 1 : 0
+    if (sg?.symbol === 'eye') addMult({ kind: 'sigil', id: 'eye', value: SIGIL.eyeMult[g], dice: [i] })
+    if (sg?.spirals) addMult({ kind: 'sigil', id: 'spiral', value: SIGIL.spiralMult[g] * sg.spirals, dice: [i] })
+  })
   // Poker hands (O3): read among the poker dice only; the best one adds its Mult.
   const pokerAt = perDie.flatMap((d, i) => (isPokerId(d.elementId) ? [i] : []))
   const hand = bestHand(pokerAt.map((i) => perDie[i].value))

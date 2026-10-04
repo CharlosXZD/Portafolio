@@ -81,6 +81,16 @@ const POKER_TEXT = {
   joker: T('The card nobody counted. Its seventh face is whatever you need.', 'La carta que nadie contó. Su séptima cara es lo que necesites.', ['poker', 'wild']),
 }
 
+// v0.8.6 (EXPANSION.md P1): sigil dice.
+const SIGIL_TEXT = {
+  sigil_aeris: T('A mark Aeris keeps for those who finish the Split. Sun, Scale and Key.', 'Una marca que Aeris guarda para quien termina la División. Sol, Balanza y Llave.', ['sigil', 'scale']),
+  sigil_aeris_g: T('The same mark, bolder. Everything it does, it does more.', 'La misma marca, más audaz. Todo lo que hace, lo hace más.', ['sigil', 'scale']),
+  sigil_nix: T('A mark Nix files for those who finish the Primordial. Eye, Spiral and Maw.', 'Una marca que Nix archiva para quien termina el Primordial. Ojo, Espiral y Fauces.', ['sigil', 'spiral']),
+  sigil_nix_g: T('The same mark, hungrier. Everything it does, it does more.', 'La misma marca, más hambrienta. Todo lo que hace, lo hace más.', ['sigil', 'spiral']),
+  sigil_tobb: T('Tobb sells it with a wink: one of everything. Six symbols, once each.', 'Tobb la vende con un guiño: un poco de todo. Seis símbolos, uno de cada.', ['sigil']),
+  sigil_tobb_g: T('The same mix, every symbol stronger.', 'La misma mezcla, cada símbolo más fuerte.', ['sigil']),
+}
+
 // v0.8.3 (EXPANSION.md N5): the new dice.
 Object.assign(DICE_TEXT, {
   timelike_curve: T('A loop that closes on itself. Be quick, and it pays double.', 'Un bucle que se cierra sobre sí mismo. Sé rápido, y paga el doble.', ['charged', 'loop']),
@@ -93,7 +103,7 @@ Object.assign(DICE_TEXT, {
   entanglement: T('Two dice, one fate. It borrows a stranger\'s whole self.', 'Dos dados, un destino. Toma prestado todo el ser de un desconocido.', ['charged', 'copy']),
 })
 
-Object.assign(DICE_TEXT, POKER_TEXT)
+Object.assign(DICE_TEXT, POKER_TEXT, SIGIL_TEXT)
 
 export function diceText(elementId, lang = 'en') {
   const entry = DICE_TEXT[elementId]

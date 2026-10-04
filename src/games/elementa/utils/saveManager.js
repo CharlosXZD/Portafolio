@@ -7,6 +7,7 @@
 // kept per-slot runs and one shared profile; those are migrated on first
 // read (each old run becomes a file, carrying a copy of the old profile).
 // The six Mythic dice (data/elements.js MYTHIC_DIE_IDS), for the v0.8 migration.
+import { sigilsFromEndings } from '../data/sigils.js'
 const MYTHIC_IDS = ['light', 'darkness', 'time', 'space', 'chaos', 'void']
 const KEY = 'elementa-files-v2'
 const LEGACY_SAVES = 'elementa-saves-v1'
@@ -41,6 +42,8 @@ export function emptyProfile() {
     mote: { fed: 0 },
     // Story scenes already shown (H7); they play once unless replayed.
     scenes: [],
+    // Sigil dice unlocked by the Firmament endings (EXPANSION.md P3).
+    sigils: [],
     // One-time data fixes already applied to this file (a new file needs none).
     migrations: ['kairos'],
   }
@@ -72,6 +75,8 @@ function normalizeProfile(p = {}) {
     wardens: p.wardens || [],
     mote: { fed: p.mote?.fed || 0 },
     scenes: p.scenes || [],
+    // A file that already has the Firmament endings has the sigil dice they unlock.
+    sigils: [...new Set([...(p.sigils || []), ...sigilsFromEndings(p.endings || [])])],
     ...kairosRename(p),
     ...oldVisions(p),
   }

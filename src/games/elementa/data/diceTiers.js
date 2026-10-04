@@ -22,6 +22,8 @@ export const DICE_TIERS = [
 export const POKER_TIERS = [
   { id: 'poker', sides: 14, label: 'POKER', upgradeCost: null, sellValue: 5 },
   { id: 'joker', sides: 15, label: 'JOKER', upgradeCost: null, sellValue: 8 },
+  // Sigil dice (P1): six symbol faces.
+  { id: 'sigil', sides: 6, label: 'SIGIL', upgradeCost: null, sellValue: 10 },
 ]
 
 /** The next size up; `big` lets a die grow past d20 (H5). */

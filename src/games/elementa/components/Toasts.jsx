@@ -37,6 +37,11 @@ function Toast({ item, onDone }) {
     title = t('elementa.toast.mythic')
     name = dieDescriptor(item.id, lang).name
     icon = item.id
+  } else if (item.kind === 'sigil') {
+    // A Firmament ending opened a sigil die (P3).
+    title = t('elementa.toast.sigil')
+    name = dieDescriptor(item.id, lang).name
+    icon = item.id
   } else if (item.kind === 'recipe') {
     const die = dieDescriptor(item.id, lang)
     title = t('elementa.toast.recipe')

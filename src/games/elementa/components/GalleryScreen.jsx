@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { sigilFaces, SYMBOL_INFO, symbolText } from '../data/sigils.js'
+import { SigilGlyph } from './DieToken.jsx'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
@@ -44,6 +46,7 @@ const FAMILY_TEXT = {
     arcane: 'No element and no family. Arcane dice care about where they sit in your row.',
     neutral: 'Not tied to any element.',
     mythic: 'The Firmament\'s dice: no element, one of each per run, each the prize of a Warden.',
+    sigil: 'Symbols instead of numbers. They take no part in sets or reactions; each face does its own thing. Unlocked by the Firmament endings, sold by Aeris, Nix and Tobb.',
     poker: 'Faces 9 to Ace. Poker dice together make poker hands, and a Joker is wild. Sold in Elementa too.',
     celestial: 'Dice of the Firmament sky: no element, sold only past the door. Each bends the rules around it.',
   },
@@ -55,6 +58,7 @@ const FAMILY_TEXT = {
     arcane: 'Sin elemento ni familia. A los dados Arcanos les importa dónde están en tu fila.',
     neutral: 'No está ligado a ningún elemento.',
     mythic: 'Los dados del Firmamento: sin elemento, uno de cada tipo por partida, cada uno el premio de un Custodio.',
+    sigil: 'Símbolos en lugar de números. No entran en sets ni reacciones; cada cara hace lo suyo. Se desbloquean con los finales del Firmamento y los venden Aeris, Nix y Tobb.',
     poker: 'Caras del 9 al As. Los dados de póker juntos forman manos de póker, y un Comodín es salvaje. También se venden en Elementa.',
     celestial: 'Dados del cielo del Firmamento: sin elemento, solo se venden más allá de la puerta. Cada uno dobla las reglas a su alrededor.',
   },
@@ -199,6 +203,8 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
         const locked =
           !seen.dice.has(id) &&
           (['god', 'primal'].includes(def.tier) ||
+            // A sigil die waits in the box until its Firmament ending (P3).
+            (def.sigilSet && !(profile.sigils || []).includes(id)) ||
             ((forgedByRecipe || def.tier === 'quadra') && !knowsRecipe(profile, id)))
         return {
           key: id,
@@ -221,6 +227,19 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
                     ? t('elementa.gallery.recipeUnknown')
                     : `${t('elementa.gallery.fusionOf')} ${parents}`}
                 </div>
+              )}
+              {/* A sigil die's key: what each of its symbols does (P4). */}
+              {def.sigilSet && !locked && (
+                <ul className="flex flex-col gap-1 text-base text-[var(--text-dim)]">
+                  {[...new Set(sigilFaces(id))].map((sym) => (
+                    <li key={sym} className="flex items-start gap-2">
+                      <SigilGlyph die={{ elementId: id, symbol: sym }} size={16} />
+                      <span>
+                        <b className="text-[var(--text)]">{SYMBOL_INFO[sym].name[lang]}:</b> {symbolText(sym, def.greater, lang)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               )}
               {/* The full level of detail (P5 to P9): mechanics and keywords. */}
               <DieDetails elementId={id} />
@@ -325,7 +344,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       })).filter((g) => g.entries.length > 0)
     }
     if (sort === 'family') {
-      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, ...COSMIC_BASE_IDS, 'arcane', 'poker', 'celestial', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral', 'laws']
+      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, ...COSMIC_BASE_IDS, 'arcane', 'poker', 'sigil', 'celestial', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral', 'laws']
       return order
         .map((f) => ({
           key: f,
@@ -338,6 +357,8 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
                   ? t('elementa.gallery.poker')
                   : f === 'laws'
                     ? t('elementa.gallery.laws')
+                    : f === 'sigil'
+                      ? t('elementa.gallery.sigil')
                 : f === 'celestial'
                   ? t('elementa.gallery.celestial')
                 : f === 'neutral'

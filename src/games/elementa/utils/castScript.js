@@ -11,7 +11,7 @@ import { groupLines } from './ledgerGroups.js'
 
 /** Which dice (indices into `result.dice`) a ledger group is about. */
 function litDice(result, kind, lines) {
-  if (kind === 'reaction' || kind === 'mythic' || kind === 'celestial' || kind === 'family' || kind === 'charged' || kind === 'poker' || kind === 'rune') return [...new Set(lines.flatMap((l) => l.dice ?? []))]
+  if (kind === 'reaction' || kind === 'mythic' || kind === 'celestial' || kind === 'family' || kind === 'charged' || kind === 'poker' || kind === 'rune' || kind === 'sigil') return [...new Set(lines.flatMap((l) => l.dice ?? []))]
   if (kind === 'explosions') return result.dice.flatMap((d, i) => ((d.explosions || 0) > 0 ? [i] : []))
   if (kind === 'set') return result.dice.flatMap((d, i) => ((result.setDiceIds ?? []).includes(d.id) ? [i] : []))
   return []

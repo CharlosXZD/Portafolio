@@ -9,6 +9,7 @@ import { ELEMENTS } from '../data/elements.js'
 import { overkillShards } from '../engine/scoring.js'
 import { dealById } from '../data/shops.js'
 import { handById } from '../data/poker.js'
+import { SYMBOL_INFO } from '../data/sigils.js'
 import { runeById } from '../data/runes.js'
 import { groupLines } from '../utils/ledgerGroups.js'
 
@@ -31,6 +32,8 @@ export function useLineLabel(discovered) {
     if (line.kind === 'explosions') return `${t('elementa.cast.explosions')} x${line.count}${lv}`
     // A family's own ability, Tide (L1).
     if (line.kind === 'family') return t(`elementa.cast.${line.id}`) + lv
+    // A sigil die's symbol (P2).
+    if (line.kind === 'sigil') return SYMBOL_INFO[line.id]?.name[lang] ?? '?'
     // Poker hands (O3) and a Rune of Double (O1).
     if (line.kind === 'poker') return `${handById(line.id)?.name[lang] ?? '?'} (${t('elementa.gallery.poker')})`
     if (line.kind === 'rune') return runeById(line.id)?.name[lang] ?? '?'

@@ -492,7 +492,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.2** | Late scaling | **Built.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
 | **v0.8.3** | Crutches for the new dice | **Built.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
 | **v0.8.5** | Strange faces | **Built.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
-| **v0.8.6** | Sigils | **Ready.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. The Eye's peek is a live dry run, no engine change. Run after v0.8.5. |
+| **v0.8.6** | Sigils | **Built.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. The Eye's peek is a live dry run, no engine change. Run after v0.8.5. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
@@ -503,6 +503,13 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.8.6 "Sigils" (in development, unreleased)
+- **Six sigil dice** (a normal and a Greater one for each path): faces of symbols, no numbers. Sun, Scale, Key, Eye, Spiral, Maw.
+- **Unlocked by the Firmament endings** (I opens the normal die, II the Greater) and sold by Aeris, Nix and Tobb, in Elementa too.
+- **The Eye** looks at the next reroll as a live dry run of the table as it stands; it shifts when you change the table.
+- **The Arbiter** watches for fishing: two warnings, then a smite (forced reroll, no rerolls, a life).
+- Three secret achievements.
 
 ### Alpha v0.8.5 "Strange faces" (in development, unreleased)
 - **Four more runes:** Wild (a set wildcard), Gold (2 Shards a cast), Link (reacts as the best element for each neighbor), Double (the score is also Mult).
@@ -1701,7 +1708,7 @@ A **Law** is a Mythic-rarity relic that **rewrites one scoring rule**. There is 
 
 ## Part P: v0.8.6 "Sigils" (spec, 2026-10-04)
 
-**Status: Ready.** Workshopped with Carlos on 2026-10-04. Run after v0.8.5. A sigil die has **symbols, not numbers**: landing on a face triggers that symbol's effect. Three sets, one per path, each with a normal die and a **Greater** one (Carlos: "let's do them now"). Items marked **Default** are Claude's reading; list each in the report.
+**Status: Built** (Alpha v0.8.6, GDD §45; the Defaults were built as written, GDD §45 lists the ones added). Workshopped with Carlos on 2026-10-04. Run after v0.8.5. A sigil die has **symbols, not numbers**: landing on a face triggers that symbol's effect. Three sets, one per path, each with a normal die and a **Greater** one (Carlos: "let's do them now"). Items marked **Default** are Claude's reading; list each in the report.
 
 ### P1. The dice
 

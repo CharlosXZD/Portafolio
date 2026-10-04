@@ -24,7 +24,7 @@ import { LandBurst, ExplosionFx, DriftFx, LockFx } from './RollFx.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import DieSprite, { dieNumberY, dieNumberScale } from './DieSprite.jsx'
 import { mix } from '../utils/color.js'
-import { dieColors, DieMarks, shapeTier } from './DieToken.jsx'
+import { dieColors, DieMarks, shapeTier, SigilGlyph } from './DieToken.jsx'
 
 // Classic: the face flickers in place. Tumble (EXPANSION.md P3): a toss arc
 // with real 3D rotation, two diminishing bounces, a shadow on the ground and
@@ -377,7 +377,7 @@ export default function Die({
           animate={pose}
           transition={{ type: 'spring', bounce: 0.35, duration: 0.3 }}
           aria-pressed={die.held}
-          aria-label={`${elementName} d${die.sides}: ${showFace ? faceLabel(die.elementId, displayValue) : '?'}`}
+          aria-label={`${elementName} d${die.sides}: ${showFace ? die.symbol ?? faceLabel(die.elementId, displayValue) : '?'}`}
           className={`pixel-score relative isolate block ${die.locked || revealing ? 'cursor-default' : 'cursor-pointer'}`}
           style={{
             width: size,
@@ -421,7 +421,7 @@ export default function Die({
               textShadow: '3px 3px 0 var(--ink)',
             }}
           >
-            {showFace ? faceLabel(die.elementId, displayValue) : '?'}
+            {showFace ? die.symbol ? <SigilGlyph die={die} size={Math.round(size * 0.42)} /> : faceLabel(die.elementId, displayValue) : '?'}
           </motion.span>
           </motion.span>
           {!isFrozen && <ElementFx elementId={die.elementId} size={size} />}

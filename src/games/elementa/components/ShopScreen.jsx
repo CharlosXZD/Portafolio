@@ -1,4 +1,5 @@
 import { Children, useEffect, useRef, useState } from 'react'
+import { SIGIL_FACES } from '../data/sigils.js'
 import { AnimatePresence, motion, useDragControls } from 'framer-motion'
 import { ELEMENTS } from '../data/elements.js'
 import { relicById } from '../data/relics.js'
@@ -729,6 +730,32 @@ export default function ShopScreen({ state, dispatch }) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* A keeper's sigil die (EXPANSION.md P3), about one visit in four. */}
+        {shop.sigilOffer && (
+          <OfferShelf title={t('elementa.shop.sigil')} hint={`${t(`elementa.shop.sigilKeeper_${ELEMENTS[shop.sigilOffer].sigilSet}`)} ${t('elementa.shop.sigilHint')}`}>
+            {(() => {
+              const elementId = shop.sigilOffer
+              const cost = selectors.sigilCost(elementId, state.relics, shop)
+              const sigilDie = { id: `offer-${elementId}`, elementId, tierId: 'sigil', sides: 6, symbol: ELEMENTS[elementId].sigilSet && SIGIL_FACES[ELEMENTS[elementId].sigilSet][0] }
+              const fits = selectors.fitsPool(state, [...state.dice, sigilDie])
+              const item = dieDescriptor(elementId, lang)
+              return (
+                <IconSlot
+                  key={elementId}
+                  itemKey={`sigiloffer-${elementId}`}
+                  item={{ ...item, sides: 6 }}
+                  renderIcon={(onClick) => <DieToken die={sigilDie} size={72} onClick={onClick} title={item.name} />}
+                  cost={cost}
+                  affordable={state.shards >= cost}
+                  actions={[{ label: buyLabel(cost), disabled: state.shards < cost || !fits, onClick: () => buy({ type: 'BUY_SIGIL', elementId }) }]}
+                  openKey={openKey}
+                  onOpenChange={setOpenKey}
+                />
+              )
+            })()}
+          </OfferShelf>
+        )}
 
         {type.dice > 0 && (
         <OfferShelf
