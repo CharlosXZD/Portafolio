@@ -507,8 +507,8 @@ export const KEEPERS = {
     loreAt: [2, 4, 6],
     lore: [
       L(
-        'Glimmer, Gloom, Moment, Reach, Flux, Null. Small pieces of very big things. The Wardens keep the big ones.',
-        'Destello, Penumbra, Instante, Alcance, Flujo, Nulo. Pedazos pequeños de cosas muy grandes. Los Custodios guardan las grandes.',
+        'Light, Darkness, Time, Space, Chaos, Void. Small pieces of very big things. The Wardens keep the big ones: Luminance, Obscurity, Tempus, Ouranos, Hundun, Abyss.',
+        'Luz, Oscuridad, Tiempo, Espacio, Caos, Vacío. Pedazos pequeños de cosas muy grandes. Los Custodios guardan las grandes: Luminancia, Obscuridad, Tempus, Ouranos, Hundun, Abismo.',
       ),
       L(
         'Stardust is what is left when a star forgets its own name. It remembers how to be a die, though.',

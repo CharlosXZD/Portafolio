@@ -330,7 +330,7 @@ export const SCENES = {
     pages: [
       page(PIP, L('Pip', 'Pip'), [
         L('Pip flickers, then glows brighter than it ever has. This is not Elementa anymore.', 'Pip parpadea, y luego brilla más que nunca. Esto ya no es Elementa.'),
-        L('Here the elements are new: Glimmer, Gloom, Moment, Reach, Flux and Null. You will find them in the shops.', 'Aquí los elementos son nuevos: Destello, Penumbra, Instante, Alcance, Flujo y Nulo. Los encontrarás en las tiendas.'),
+        L('Here the elements are new: Light, Darkness, Time, Space, Chaos and Void. You will find them in the shops.', 'Aquí los elementos son nuevos: Luz, Oscuridad, Tiempo, Espacio, Caos y Vacío. Los encontrarás en las tiendas.'),
       ]),
       page(PIP, L('Pip', 'Pip'), [
         L('Six Wardens guard the frame. Each one knows the recipe of a Mythic die: beat it, and the recipe is yours.', 'Seis Custodios guardan el marco. Cada uno conoce la receta de un dado Mítico: véncelo, y la receta es tuya.'),

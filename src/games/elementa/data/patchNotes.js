@@ -17,8 +17,8 @@ export const PATCH_NOTES = [
     date: null,
     highlights: [
       L(
-        'Six new elements past the door: Glimmer, Gloom, Moment, Reach, Flux and Null. You find them in the Firmament\'s shops, each one its own family.',
-        'Seis elementos nuevos más allá de la puerta: Destello, Penumbra, Instante, Alcance, Flujo y Nulo. Los encuentras en las tiendas del Firmamento, cada uno es su propia familia.',
+        'Six new elements past the door: Light, Darkness, Time, Space, Chaos and Void. You find them in the Firmament\'s shops, each one its own family.',
+        'Seis elementos nuevos más allá de la puerta: Luz, Oscuridad, Tiempo, Espacio, Caos y Vacío. Los encuentras en las tiendas del Firmamento, cada uno es su propia familia.',
       ),
       L(
         'The Mythic dice are forged now. Beating a Warden teaches you its recipe: four of the matching element, plus Stardust. Bosses drop Stardust, Wardens drop more.',

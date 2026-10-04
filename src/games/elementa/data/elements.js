@@ -508,7 +508,7 @@ export const ELEMENTS = {
   // K1 they are forged, never bought: a Warden teaches the file the recipe.
   light: {
     id: 'light',
-    name: 'Light',
+    name: 'Luminance',
     tier: TIERS.MYTHIC,
     rarity: RARITY.MYTHIC,
     warden: 'dawn',
@@ -524,7 +524,7 @@ export const ELEMENTS = {
   },
   darkness: {
     id: 'darkness',
-    name: 'Darkness',
+    name: 'Obscurity',
     tier: TIERS.MYTHIC,
     rarity: RARITY.MYTHIC,
     warden: 'umbra',
@@ -540,7 +540,7 @@ export const ELEMENTS = {
   },
   time: {
     id: 'time',
-    name: 'Time',
+    name: 'Tempus',
     tier: TIERS.MYTHIC,
     rarity: RARITY.MYTHIC,
     warden: 'clockwork',
@@ -556,7 +556,7 @@ export const ELEMENTS = {
   },
   space: {
     id: 'space',
-    name: 'Space',
+    name: 'Ouranos',
     tier: TIERS.MYTHIC,
     rarity: RARITY.MYTHIC,
     warden: 'expanse',
@@ -572,7 +572,7 @@ export const ELEMENTS = {
   },
   chaos: {
     id: 'chaos',
-    name: 'Chaos',
+    name: 'Hundun',
     tier: TIERS.MYTHIC,
     rarity: RARITY.MYTHIC,
     warden: 'maelstrom',
@@ -588,7 +588,7 @@ export const ELEMENTS = {
   },
   void: {
     id: 'void',
-    name: 'Void',
+    name: 'Abyss',
     tier: TIERS.MYTHIC,
     rarity: RARITY.MYTHIC,
     warden: 'hollow',
@@ -626,7 +626,7 @@ export const ELEMENTS = {
   // missing value.
   glimmer: {
     id: 'glimmer',
-    name: 'Glimmer',
+    name: 'Light',
     tier: TIERS.COSMIC,
     rarity: RARITY.RARE,
     price: 14,
@@ -638,7 +638,7 @@ export const ELEMENTS = {
   },
   gloom: {
     id: 'gloom',
-    name: 'Gloom',
+    name: 'Darkness',
     tier: TIERS.COSMIC,
     rarity: RARITY.RARE,
     price: 14,
@@ -650,7 +650,7 @@ export const ELEMENTS = {
   },
   moment: {
     id: 'moment',
-    name: 'Moment',
+    name: 'Time',
     tier: TIERS.COSMIC,
     rarity: RARITY.RARE,
     price: 14,
@@ -662,7 +662,7 @@ export const ELEMENTS = {
   },
   reach: {
     id: 'reach',
-    name: 'Reach',
+    name: 'Space',
     tier: TIERS.COSMIC,
     rarity: RARITY.RARE,
     price: 14,
@@ -674,7 +674,7 @@ export const ELEMENTS = {
   },
   flux: {
     id: 'flux',
-    name: 'Flux',
+    name: 'Chaos',
     tier: TIERS.COSMIC,
     rarity: RARITY.RARE,
     price: 14,
@@ -686,7 +686,7 @@ export const ELEMENTS = {
   },
   nil: {
     id: 'nil',
-    name: 'Null',
+    name: 'Void',
     tier: TIERS.COSMIC,
     rarity: RARITY.RARE,
     price: 14,
@@ -776,7 +776,7 @@ export const ELEMENTS = {
   },
   abyss: {
     id: 'abyss',
-    name: 'Abyss',
+    name: 'Nadir',
     tier: TIERS.DOUBLE,
     rarity: RARITY.EPIC,
     cosmic: true,

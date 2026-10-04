@@ -166,7 +166,7 @@ export const REACTIONS = [
     color: '#e0c8ff',
     base: 'bothFacesDouble',
     mult: 2,
-    description: 'Light beside Darkness: the sky goes dark at noon. Add both faces twice to Base, +2 Mult.',
+    description: 'Luminance beside Obscurity: the sky goes dark at noon. Add both faces twice to Base, +2 Mult.',
   },
   {
     id: 'event_horizon',
@@ -177,7 +177,7 @@ export const REACTIONS = [
     color: '#7a5cff',
     base: 6,
     mult: 4,
-    description: 'Space beside the Void: nothing comes back out. +6 Base, +4 Mult.',
+    description: 'Ouranos beside Abyss: nothing comes back out. +6 Base, +4 Mult.',
   },
   {
     id: 'paradox',
@@ -188,7 +188,7 @@ export const REACTIONS = [
     color: '#ffb0e0',
     base: 5,
     mult: 3,
-    description: 'Time beside Chaos: the effect arrives before the cause. +5 Base, +3 Mult.',
+    description: 'Tempus beside Hundun: the effect arrives before the cause. +5 Base, +3 Mult.',
   },
   {
     id: 'solar_flare',
@@ -199,7 +199,7 @@ export const REACTIONS = [
     color: '#fff0a0',
     base: 4,
     mult: 1.5,
-    description: 'Light beside a Fire-family die: a flare leaps from the surface. +4 Base, +1.5 Mult.',
+    description: 'Luminance beside a Fire-family die: a flare leaps from the surface. +4 Base, +1.5 Mult.',
   },
   {
     id: 'black_tide',
@@ -210,7 +210,7 @@ export const REACTIONS = [
     color: '#3a4a9a',
     base: 'higherFace',
     mult: 1,
-    description: 'Darkness beside a Water-family die: a tide with no moon. Add the higher face to Base, +1 Mult.',
+    description: 'Obscurity beside a Water-family die: a tide with no moon. Add the higher face to Base, +1 Mult.',
   },
   {
     id: 'sinkhole',
@@ -221,7 +221,7 @@ export const REACTIONS = [
     color: '#8a6a3d',
     base: 'bothFaces',
     mult: 1,
-    description: 'The Void beside an Earth-family die: the ground gives way. Add both faces to Base, +1 Mult.',
+    description: 'Abyss beside an Earth-family die: the ground gives way. Add both faces to Base, +1 Mult.',
   },
   {
     id: 'slipstream',
@@ -232,7 +232,7 @@ export const REACTIONS = [
     color: '#9fe8ff',
     base: 3,
     mult: 2,
-    description: 'Space beside an Air-family die: a short cut through the sky. +3 Base, +2 Mult.',
+    description: 'Ouranos beside an Air-family die: a short cut through the sky. +3 Base, +2 Mult.',
   },
   {
     id: 'frozen_moment',
@@ -243,7 +243,7 @@ export const REACTIONS = [
     color: '#c8f0ff',
     base: 'lowerFace',
     mult: 2,
-    description: 'Time beside Ice: one instant, kept. Add the lower face to Base, +2 Mult.',
+    description: 'Tempus beside Ice: one instant, kept. Add the lower face to Base, +2 Mult.',
   },
   {
     id: 'cascade',
