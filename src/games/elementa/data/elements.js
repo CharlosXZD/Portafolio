@@ -877,6 +877,7 @@ export function inFamily(elementId, family) {
 export function familiesOf(elementId) {
   const def = ELEMENTS[elementId]
   if (!def) return []
+  if (CELESTIAL_DIE_IDS.includes(elementId)) return ['celestial']
   if (def.tier === TIERS.ARCANE) return ['arcane']
   if (def.tier === TIERS.MYTHIC) return ['mythic']
   if (def.tier === TIERS.PURE || def.tier === TIERS.COSMIC) return [elementId]

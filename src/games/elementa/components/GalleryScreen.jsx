@@ -4,11 +4,11 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
 import { ELEMENTS, PURE_ELEMENT_IDS, COSMIC_BASE_IDS, rarityForElement, familiesOf } from '../data/elements.js'
 import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
-import { CONSUMABLES } from '../data/consumables.js'
+import { CONSUMABLES, CONSUMABLE_FAMILIES, consumableFamily } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
 import { REACTIONS } from '../data/reactions.js'
 import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS, WARDENS } from '../data/bossModifiers.js'
-import { ENDINGS } from '../data/endings.js'
+import { ENDINGS, visibleEndingIds } from '../data/endings.js'
 import CompletionMarks from './CompletionMarks.jsx'
 import { EndingCard, EndingArt } from './EndingCards.jsx'
 import { dieDescriptor, relicDescriptor, consumableDescriptor } from '../data/itemDescriptors.js'
@@ -44,6 +44,7 @@ const FAMILY_TEXT = {
     arcane: 'No element and no family. Arcane dice care about where they sit in your row.',
     neutral: 'Not tied to any element.',
     mythic: 'The Firmament\'s dice: no element, one of each per run, each the prize of a Warden.',
+    celestial: 'Dice of the Firmament sky: no element, sold only past the door. Each bends the rules around it.',
   },
   es: {
     fire: 'Fuego y toda fusión hecha con Fuego. Explotan en su cara máxima; los que se apagan con un 1 devuelven un reroll al hacerlo (Yesca).',
@@ -53,6 +54,7 @@ const FAMILY_TEXT = {
     arcane: 'Sin elemento ni familia. A los dados Arcanos les importa dónde están en tu fila.',
     neutral: 'No está ligado a ningún elemento.',
     mythic: 'Los dados del Firmamento: sin elemento, uno de cada tipo por partida, cada uno el premio de un Custodio.',
+    celestial: 'Dados del cielo del Firmamento: sin elemento, solo se venden más allá de la puerta. Cada uno dobla las reglas a su alrededor.',
   },
 }
 
@@ -227,7 +229,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       return RELICS.map((r) => ({ key: r.id, seen: seen.relics.has(r.id), families: [r.element ?? 'neutral'], item: relicDescriptor(r, lang) }))
     }
     if (tab === 'consumables') {
-      return CONSUMABLES.map((c) => ({ key: c.id, seen: seen.consumables.has(c.id), families: [c.element ?? 'neutral'], item: consumableDescriptor(c, lang) }))
+      return CONSUMABLES.map((c) => ({ key: c.id, seen: seen.consumables.has(c.id), families: [consumableFamily(c)], item: consumableDescriptor(c, lang) }))
     }
     if (tab === 'bosses') {
       return [...BOSS_MODIFIERS, PRIMORDIAL, ...GOD_TRIALS, ...WARDENS].map((raw) => {
@@ -309,8 +311,17 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       const named = entries.filter((e) => !e.locked).sort((a, b) => (a.seen ? a.item.name : '~').localeCompare(b.seen ? b.item.name : '~'))
       return [{ key: 'all', entries: named }, ...unlocks]
     }
+    if (sort === 'family' && tab === 'consumables') {
+      return CONSUMABLE_FAMILIES.map((f) => ({
+        key: f.id,
+        title: f.name[lang],
+        color: f.color,
+        note: f.note?.[lang] ?? null,
+        entries: entries.filter((e) => e.families.includes(f.id)).sort(byRarity),
+      })).filter((g) => g.entries.length > 0)
+    }
     if (sort === 'family') {
-      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, ...COSMIC_BASE_IDS, 'arcane', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral']
+      const order = tab === 'dice' ? [...PURE_ELEMENT_IDS, ...COSMIC_BASE_IDS, 'arcane', 'celestial', 'mythic'] : [...PURE_ELEMENT_IDS, 'neutral']
       return order
         .map((f) => ({
           key: f,
@@ -319,6 +330,8 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
               ? t('elementa.gallery.arcane')
               : f === 'mythic'
                 ? t('elementa.gallery.mythic')
+                : f === 'celestial'
+                  ? t('elementa.gallery.celestial')
                 : f === 'neutral'
                 ? t('elementa.gallery.neutral')
                 : `${localize(lang, ELEMENTS[f].name, ELEMENTS_ES, f, 'name')} ${t('elementa.gallery.family')}`,
@@ -354,7 +367,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
     },
     { id: 'reactions', label: t('elementa.gallery.reactions'), count: parts.reactions, total: TOTALS.reactions },
     { id: 'loadouts', label: t('elementa.gallery.loadouts'), count: parts.decks, total: TOTALS.decks },
-    { id: 'endings', label: t('elementa.gallery.endings'), count: parts.endings, total: TOTALS.endings },
+    { id: 'endings', label: t('elementa.gallery.endings'), count: parts.endings, total: null },
     { id: 'achievements', label: t('elementa.achievements.title'), count: parts.achievements, total: TOTALS.achievements },
   ]
 
@@ -430,9 +443,13 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
             className={`el-btn el-btn--sm ${tab === tb.id ? 'el-btn--gold' : ''}`}
           >
             {tb.label}
-            <span className="el-key">
-              {tb.count}/{tb.total}
-            </span>
+            {tb.total != null ? (
+              <span className="el-key">
+                {tb.count}/{tb.total}
+              </span>
+            ) : tb.count > 0 ? (
+              <span className="el-key">{tb.count}</span>
+            ) : null}
           </button>
         ))}
       </div>
@@ -470,7 +487,10 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       ) : tab === 'endings' ? (
         <div className="flex flex-col gap-6">
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {ENDINGS.map((e) =>
+          {!(profile.endings || []).length && (
+            <p className="text-base text-[var(--text-mute)] md:col-span-3">{t('elementa.gallery.endingsNone')}</p>
+          )}
+          {ENDINGS.filter((e) => visibleEndingIds(profile.endings || []).includes(e.id)).map((e) =>
             (profile.endings || []).includes(e.id) ? (
               <EndingCard key={e.id} small color={e.color} title={e.name[lang]} text={e.text[lang]} art={<EndingArt ending={e.id} size={64} />} />
             ) : (

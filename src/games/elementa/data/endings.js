@@ -130,6 +130,23 @@ export const firmamentEnding = (path, set) => `firmament_${path}_${set}`
 
 export const ENDING_IDS = ENDINGS.map((e) => e.id)
 
+/**
+ * Which endings the Gallery and the loadout marks may show (v0.7.1 notes: a
+ * new file must not reveal how many endings there are). None until the first
+ * is reached. Then the ones reached, plus a hint for the next step: the
+ * other two Elementa paths once the Neutral ending is seen, and a path's
+ * Firmament I once its Elementa ending is seen, Firmament II after I.
+ */
+export function visibleEndingIds(reached = []) {
+  if (!reached.length) return []
+  return ENDINGS.filter((e) => {
+    if (reached.includes(e.id)) return true
+    if (!e.id.startsWith('firmament_')) return e.id === 'neutral' || reached.includes('neutral')
+    const [, path, set] = e.id.split('_')
+    return reached.includes(path) && (set === '1' || reached.includes(`firmament_${path}_1`))
+  }).map((e) => e.id)
+}
+
 export function endingById(id) {
   return ENDINGS.find((e) => e.id === id)
 }

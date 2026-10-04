@@ -430,6 +430,7 @@ const strings = {
   'elementa.toast.recipe': { en: 'New recipe', es: 'Nueva receta' },
   'elementa.toast.ending': { en: 'Ending reached', es: 'Final alcanzado' },
   'elementa.gallery.endings': { en: 'Endings', es: 'Finales' },
+  'elementa.gallery.endingsNone': { en: 'Reach an ending and it will be written here.', es: 'Llega a un final y quedará escrito aquí.' },
   'elementa.gallery.endingHint': { en: 'An ending you have not reached yet.', es: 'Un final que aún no alcanzas.' },
   'elementa.gallery.bossGauntlet': { en: 'The gods, stage {n} of 4', es: 'Los dioses, etapa {n} de 4' },
   'elementa.ending.label': { en: 'Ending', es: 'Final' },
@@ -695,6 +696,7 @@ const strings = {
   },
   // --- Elementa: the Firmament (EXPANSION.md Part H) ---
   'elementa.gallery.mythic': { en: 'Mythic', es: 'Mítico' },
+  'elementa.gallery.celestial': { en: 'Celestial', es: 'Celestial' },
   'elementa.gallery.unlocks': { en: 'Unlocks', es: 'Por desbloquear' },
   'elementa.gallery.unlocksNote': { en: 'Dice you have not unlocked yet. Nothing is said about them until you find them.', es: 'Dados que aún no desbloqueas. No se dice nada de ellos hasta que los encuentres.' },
   'elementa.gallery.unlockHint': { en: 'Not unlocked yet. Keep playing.', es: 'Aún sin desbloquear. Sigue jugando.' },

@@ -428,3 +428,34 @@ export function costForConsumable(def, discountPct = 0) {
 export function sellValueForConsumable(def) {
   return Math.max(1, Math.round((def.cost ?? RARITY_COST[def.rarity]) / 2))
 }
+
+// Gallery families for items (v0.7.1 notes): grouped by what they do, not by
+// element. A new consumable falls under 'misc' until it is listed here.
+const L2 = (en, es) => ({ en, es })
+export const CONSUMABLE_FAMILIES = [
+  { id: 'time', name: L2('Rerolls and Time', 'Relanzamientos y Tiempo'), note: L2('Spend or bend your rerolls.', 'Gasta o dobla tus relanzamientos.'), color: '#b9a6ff' },
+  { id: 'craft', name: L2('Die Upgrades', 'Mejoras de Dados'), note: L2('Make one die bigger, sharper or different for good.', 'Hacen un dado más grande, más afilado o distinto para siempre.'), color: '#ffd166' },
+  { id: 'change', name: L2('Transmutation', 'Transmutación'), note: L2('Turn one die into another.', 'Convierten un dado en otro.'), color: '#7ad1ff' },
+  { id: 'rune', name: L2('Runes', 'Runas'), note: L2('Inscribed on one number of a die.', 'Se inscriben en un número de un dado.'), color: '#ff9fd0' },
+  { id: 'stars', name: L2('Constellations', 'Constelaciones'), note: L2('Level a reaction or a set for the whole run.', 'Suben de nivel una reacción o un set toda la partida.'), color: '#d9b8ff' },
+  { id: 'forge', name: L2('Forge and Shop', 'Forja y Tienda'), note: L2('Help the Forge or restock the shop.', 'Ayudan a la Forja o reabastecen la tienda.'), color: '#e8a86b' },
+  { id: 'fortune', name: L2('Life and Fortune', 'Vida y Fortuna'), note: L2('Lives and Shards.', 'Vidas y Fragmentos.'), color: '#6fbf4a' },
+  { id: 'misc', name: L2('Other', 'Otros'), note: null, color: '#a8a0b8' },
+]
+
+const FAMILY_BY_ID = {
+  extra_reroll: 'time', lucky_charm: 'time', stopwatch: 'time', time_capsule: 'time', sand_hourglass: 'time',
+  pocket_watch: 'time', metronome: 'time', almanac: 'time',
+  upgrade_stone: 'craft', whetstone: 'craft', chisel: 'craft', weights: 'craft', honing_oil: 'craft',
+  solvent: 'craft', graft: 'craft', gem_socket: 'craft', warp_seal: 'craft',
+  aether_dust: 'change', arcane_seal: 'change', mirror_shard: 'change',
+  fusion_spark: 'forge', loom_of_fate: 'forge', catalyst: 'forge',
+  shard_pouch: 'fortune', phoenix_feather: 'fortune',
+}
+
+export function consumableFamily(c) {
+  if (c.type === 'rune') return 'rune'
+  if (c.type === 'constellation' || c.type === 'blackhole') return 'stars'
+  if (c.id.startsWith('transmute_')) return 'change'
+  return FAMILY_BY_ID[c.id] ?? 'misc'
+}

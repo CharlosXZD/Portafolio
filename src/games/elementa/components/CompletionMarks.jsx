@@ -1,5 +1,5 @@
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
-import { ENDINGS } from '../data/endings.js'
+import { ENDINGS, visibleEndingIds } from '../data/endings.js'
 
 /**
  * A loadout's completion marks (EXPANSION.md B2), like The Binding of
@@ -9,9 +9,12 @@ import { ENDINGS } from '../data/endings.js'
 export default function CompletionMarks({ profile, deckId, size = 10 }) {
   const { lang } = useLanguage()
   const reached = profile.deckEndings?.[deckId] || []
+  // Only what the file has reached or may hint at (no count of endings on a new file).
+  const shown = new Set(visibleEndingIds(profile.endings || []))
+  reached.forEach((id) => shown.add(id))
   return (
-    <span className="inline-flex items-center gap-1.5">
-      {ENDINGS.map((e) => {
+    <span className="inline-flex flex-wrap items-center justify-end gap-1.5">
+      {ENDINGS.filter((e) => shown.has(e.id)).map((e) => {
         const lit = reached.includes(e.id)
         return (
           <span
