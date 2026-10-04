@@ -143,6 +143,55 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 # Part B: Systems
 
+## Part Q: Realm 3 and the Convergence (workshop draft, 2026-10-04)
+
+**Status: Proposed** (Carlos's decisions are marked; Claude's drafts are marked **Draft**). Nothing here is for building until Carlos marks it Ready. It replaces and extends A6.
+
+### Q1. The run, start to finish
+
+1. **Elementa** (rounds 1 to 15): unchanged.
+2. **The Firmament** (16 to 30): unchanged (Wardens, Set I or II).
+3. **Realm 3** (31 to 45, **Carlos: one realm, the path picks which bosses**): the **Empyrean** (Split), **Pleroma** (Primordial) or **Meridian** (Neutral) are three looks of the same realm; the path decides the Rewriter set. Three Rewriter bosses at 35, 40, 45. Two sets per path (Set I then Set II on a later run), so **two new endings per path**. **Steeper targets** than the Firmament (Carlos). New elements, number dice (sold only here), the Arbiter.
+4. **The Convergence** (the last realm, the fourth place; the paths meet and the endings merge): reached from any path. Its last three fights are **the Rush, Pip and You** (Q3).
+
+### Q2. The six Rewriters (bosses that rewrite the formula) **Draft**
+
+Each Rewriter's target is calibrated to a build that has adapted (the balance bot must prove it), is announced on the boss card with a plain-language hint of the counter, and has a Warden-style Mythic-like prize (Q4). Every one must be **interesting to play around**, not just harder.
+
+| Rewriter | Twist | How to play around it |
+|---|---|---|
+| **The Axiom** | Score is **Base + Mult**, not Base x Mult. | Flat Base wins: big dice, Whetstone and Honing Oil, Gold; multiplier relics do little. |
+| **Zero** | Every face below 3 counts as 0 (and fizzles). | Big dice, Luminance's floor, Alba, Weights, Chrono, rerolls; d3 pools die. |
+| **Infinity** | Nothing is capped (explosions, chains), **but the target grows 10% per reroll used and 5% per explosion**. | Few rerolls, big bursts, cast early; Ognen and Comet shine. |
+| **The Observer** | A die's face is **hidden until you hover or tap it**; casting reveals all. | Luminance keeps faces visible, the sigil Eye, holding by feel, fewer, bigger dice. |
+| **Floating Point** | **No decimals**: Base and Mult round down at every step. | Whole-number sources, flat Mult, Tide; all the 0.5 and 1.5 bonuses vanish. |
+| **Deadlock** | **You can hold or lock at most one die** at a time. | Reroll-everything builds, Chrono, Alba, steady high floors, explosions. |
+
+**Sets (Draft):** Split and Neutral (Neutral shares the Split's, as in the Firmament): Set I = Axiom, Zero, Floating Point; Set II = Infinity, Observer, Deadlock. Primordial: reversed.
+
+### Q3. The Convergence and the true ending
+
+- **After realm 3** every path reaches the Convergence. **Gating (Draft):** the file must have seen every path's Elementa ending and fed Mote full; otherwise realm 3's own ending closes the run.
+- **The Rush (Carlos).** On any difficulty **except the hardest**, the boss rush is: **the Primordial**, then **the four gods in one fight**, then **all six Wardens in two rounds of three (their sets)**, then **the six Rewriters in two rounds of three (their sets)**. On the **hardest difficulty (Cataclysm) every boss is fought one by one**, as separate rounds.
+- **Pip.** After the Rush you beat the "final boss", **Pip**. It is a **bluff**: Pip is a spark of Aether, and the fight is a trick (a small, fair, odd fight; Draft: Pip fields every die you ever forged as a shrinking-pool puzzle).
+- **You.** After Pip comes the **true boss: you**. A snapshot of the player's **best build on this file** (dice and relics of the highest-scoring cast) fights you with a target built from it. **Beating yourself is the true ending, and you become the true boss** (Draft: afterwards, that build is the true boss for the file's later runs; the last winner's ghost). On the **hardest difficulty the true boss has the best-of-the-best loadout** (a curated maximum build), and beating it gives a **secret achievement** for beating the game on the hardest difficulty.
+
+### Q4. New elements for realm 3 (fewer than six, new families, new rarities)
+
+**Carlos:** fewer than six; **new families and rarities, not Mythic.** **Draft:** four base elements, themed on numbers and logic: **Zero**, **One**, **Infinity** and **Negation** (0, 1, infinity, minus one). New rarity ladder: realm 3's base elements and fusions are **Abstract** (above Mythic), their forged dice **Absolute** (the top). Fusions (two-element, as in the Firmament, **Draft** list of four): **Bit** (Zero + One), **Limit** (Zero + Infinity), **Parity** (One + Negation), **Divergence** (Infinity + Negation). Recipes are taught by Rewriters (Zero teaches Zero, the Axiom teaches One, Infinity teaches Infinity, the Observer teaches Negation; Floating Point and Deadlock teach a fusion each). Abilities, prices and the rarity names are still open. The number dice (B12) are sold only here.
+
+### Q5. The Arbiter (Carlos)
+
+**An** Arbiter, not "the" one, with a name of its own. **For you or against you** depending on the run. **He talks to the player like Pip**, on each visit. He is the god who bans fishing with the Eye (Part P5) and the realm's voice. Unarmed.
+
+### Q6. The fourth wall (Carlos)
+
+Carlos wants bosses and the Arbiter to say things about the player. **A website cannot read other cookies or the player's files** (browsers block it), so the plan is: ask **permission** (an honest prompt the first time the Arbiter appears, and a setting in Options), explain plainly that some of the game **reads** details the browser shares with the page (local time, timezone, language, operating system, browser, screen size, session length, whether the player switched tabs, runs on this file) and that **it never sends anything anywhere**. Opting out changes nothing about how the game plays; the lines just stay generic. Bosses may also **bluff** about private things as a joke ("I know what's in your Downloads folder"), clearly never read.
+
+### Q7. Still open
+
+The Convergence's final-stretch bosses beyond the Rush, Pip and You; the realm's name per path in text and its look; the Arbiter's name; the four elements' abilities and rarity names; each Rewriter's exact target and its prize; the Convergence gating; the ghost mechanic; how long a full run may take (up to round 45 plus the Convergence).
+
 ## A6. Realm 3 workshop notes (Carlos, 2026-10-04; in progress, not for building yet)
 
 **Status: Proposed.** Decided so far:
@@ -1769,6 +1818,7 @@ Carlos's idea: the peek shows the future from the current conditions, so a playe
 
 ## Decision log
 
+- **2026-10-04 (realm 3, Carlos):** one realm with three path flavours; six Rewriters; the Convergence with a boss rush (grouped on normal difficulties, one by one on the hardest), then Pip (a bluff), then the player as the true boss; permission-based fourth-wall lines; fewer realm 3 elements with new rarities: Part Q (draft).
 - **2026-10-04 (the Eye, anti-scum, Carlos):** keep the Greater Eye showing every unheld die; instead, track fishing (6 shifts of the vision between rerolls is an offense), forgive two, and on the third an unarmed god from the third realm (The Arbiter, placeholder) bans altering probability, smites the dice away and takes a life (never the last): Part P5.
 - **2026-10-04 (the Eye, Carlos):** no per-die seeds; the Eye's peek is a dry run of the next reroll from the current conditions and shifts whenever the player holds, locks or reorders; the Greater Eye shows up to three dice (anti-scum default).
 - **2026-10-04 (v0.8.6 workshop, Carlos):** sigil dice have no numbers; Scale tips the scales (a floor at the pool's expected average); the Eye shows the next roll of a die; the Neutral die is a mix of all six; a Greater tier now: Part P.
