@@ -167,6 +167,10 @@ Each Rewriter's target is calibrated to a build that has adapted (the balance bo
 | **Floating Point** | **No decimals**: Base and Mult round down at every step. | Whole-number sources, flat Mult, Tide; all the 0.5 and 1.5 bonuses vanish. |
 | **Deadlock** | **You can hold or lock at most one die** at a time. | Reroll-everything builds, Chrono, Alba, steady high floors, explosions. |
 
+**Voices (Draft, one line each):** the Axiom: *"I state it; therefore it is."* Zero: a whisper that never finishes. Infinity: *"and then, and then, and then"*. The Observer: *"I am only here if you look."* Floating Point: *"approximately."* Deadlock: *"One at a time, please."*
+
+**Targets:** each Rewriter's target is the score an **adapted** build should reach under its rule, found by running `tools/balanceSim.mjs` with the rule and scaling to about **1.1 times** the bot's median that has the counter-play (steeper than the Firmament, Carlos). The boss card states the rule, the target and a one-line hint at the counter.
+
 **Sets (Draft):** Split and Neutral (Neutral shares the Split's, as in the Firmament): Set I = Axiom, Zero, Floating Point; Set II = Infinity, Observer, Deadlock. Primordial: reversed.
 
 ### Q3. The Convergence and the true ending
@@ -176,9 +180,22 @@ Each Rewriter's target is calibrated to a build that has adapted (the balance bo
 - **Pip.** After the Rush you beat the "final boss", **Pip**. It is a **bluff**: Pip is a spark of Aether, and the fight is a trick (a small, fair, odd fight; Draft: Pip fields every die you ever forged as a shrinking-pool puzzle).
 - **You (Carlos).** After Pip comes the **true boss: you**. **Who it is depends on the difficulty**: **Ember (first): your current build** (the run's own pool and relics, a mirror match); **Blaze (second): your current build with upgrades** (Draft: every die one size tier up and its bonuses doubled); **Inferno (third): your best build on this file** (the dice and relics of your highest-scoring cast, the "ghost"); **Cataclysm (hardest): the best-of-the-best loadout** (a curated maximum build) **and a secret achievement** for beating the game on the hardest difficulty. Each fight's target is built from that build's best cast. **Beating yourself is the true ending, and you become the true boss** (on Inferno the ghost of the last winner is the next true boss).
 
-### Q4. New elements for realm 3 (fewer than six, new families, new rarities)
+### Q4. New elements for realm 3 (fewer than six, new families, new rarities) **Draft**
 
-**Carlos:** fewer than six; **new families and rarities, not Mythic.** **Draft:** four base elements, themed on numbers and logic: **Zero**, **One**, **Infinity** and **Negation** (0, 1, infinity, minus one). New rarity ladder: realm 3's base elements and fusions are **Abstract** (above Mythic), their forged dice **Absolute** (the top). Fusions (two-element, as in the Firmament, **Draft** list of four): **Bit** (Zero + One), **Limit** (Zero + Infinity), **Parity** (One + Negation), **Divergence** (Infinity + Negation). Recipes are taught by Rewriters (Zero teaches Zero, the Axiom teaches One, Infinity teaches Infinity, the Observer teaches Negation; Floating Point and Deadlock teach a fusion each). Abilities, prices and the rarity names are still open. The number dice (B12) are sold only here.
+**Carlos:** fewer than six; **new families and rarities, not Mythic.** Four base elements, themed on numbers and logic, each its own family, sold in realm 3's shops like the Firmament's (Rare-feel price, sized by round, arriving at your level): rarity **Abstract**.
+
+| Element | Ability (draft) |
+|---|---|
+| **Zero** | Scores nothing. The dice either side of it **ignore the round's boss twist** (a counter-play tool against the Rewriters). |
+| **One** | **Wild:** counts as any face for sets. Scores 1 Base **per die in your pool**. |
+| **Infinity** | Its explosions have **no chain cap**, and **each explosion adds +1 Mult for the rest of the run**. |
+| **Negation** | The dice either side of it count **the better of their face and its opposite** (a 1 on a d6 counts as 6, a 2 as 5); this finally cures the pile of 1s. |
+
+**Fusions** (two-element, as in the Firmament; Abstract; four): **Bit** (Zero + One): neighbors ignore boss twists and count as any face. **Limit** (Zero + Infinity): scores nothing; each explosion this round gives +1 Mult, up to +20. **Parity** (One + Negation): every even face in the pool scores double. **Divergence** (Infinity + Negation): a die that shows its lowest face gets a free reroll, and each time that happens +1 Mult.
+
+**Forged dice, rarity Absolute** (the top; 4 base dice of the element plus Stardust, like the Mythic dice; mythic-style names): **Nun** (Zero): every die ignores the boss twist. **Monad** (One): every die counts as any face for sets, and its score is multiplied by your dice count. **Apeiron** (Infinity): nothing is capped for you, and each explosion adds +2 Mult for good. **Janus** (Negation): every die counts the better of its face and its opposite. One of each held at a time.
+
+**Who teaches what (Draft):** Zero teaches **Nun**, the Axiom **Monad**, Infinity **Apeiron**, the Observer **Janus**; Floating Point and Deadlock each leave a **legendary relic** instead (Floating Point: **Epsilon**, your Mult is never rounded down and +2 Mult; Deadlock: **Release**, you can hold one more die than any limit). The number dice (B12) are sold only here.
 
 ### Q5. The Arbiter (Carlos)
 
