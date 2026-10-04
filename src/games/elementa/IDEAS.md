@@ -177,6 +177,10 @@ The Umbra (a swallowed die scores 0 and Darkness-like) was fun and hard to beat,
 - **Crossing into the Firmament** plays a scene where **Pip explains the new elements**, that this is a new realm, and what changes.
 - **Whether the volatile fusions gate the true ending:** parked. Carlos is not sure how the story ends yet.
 
+- **The six Mythic dice become the new base elements** (Carlos, 2026-10-03): Light, Darkness, Time, Space, Chaos and Void are elements "just like earth, air, water and fire". There is no separate set of weaker base dice (Glimmer, Gloom and the rest are dropped). They are **bought in shops**, no special forging recipe; only *fusions* are made at the Forge.
+- **Renames:** Paradox is now **Anomaly** (Chaos + Time); Dawn is now **Alba** (Light + Time), also because a Warden is called The Dawn.
+- **The Cosmologist** is mysterious, fun and clever; we do not know much about her. Her name is still open.
+
 #### Claude's proposal for the workshop (2026-10-03)
 
 **Recommendation: Configuration 2, curated.** Six base elements and 12 new dice instead of 21: the six base dice, the three opposed pairs, and three more chosen for flavor. The other pair-fusions wait for later. Mythic dice stay as they are.
