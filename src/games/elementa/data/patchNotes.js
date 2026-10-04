@@ -12,6 +12,38 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.8.1',
+    name: L('Family growth', 'Las familias crecen'),
+    date: null,
+    highlights: [
+      L(
+        'Water gets Tide: a locked Water die also sends half of its score to your Mult. Held dice do not count, only locked ones.',
+        'El Agua tiene Marea: un dado de Agua bloqueado también manda la mitad de su puntaje a tu Mult. Los dados guardados no cuentan, solo los bloqueados.',
+      ),
+      L(
+        'Air gets stronger: Drift can now push a die all the way to its top face. It will not explode, but it scores that face.',
+        'El Aire se fortalece: la Deriva ahora puede llevar un dado hasta su cara máxima. No explotará, pero anota esa cara.',
+      ),
+      L(
+        'Five new relics: Deep Current (the first lock each round gives +10 Mult), Spring Tide (+2 Mult per locked Water die), Gale Seal (a drifted die also scores its whole score as Mult), Second Wind (+1 Drift charge) and Standing Stones (Patience gives +3).',
+        'Cinco reliquias nuevas: Corriente Profunda (el primer bloqueo de cada ronda da +10 Mult), Marea Viva (+2 Mult por dado de Agua bloqueado), Sello del Vendaval (un dado movido por la Deriva también suma su puntaje al Mult), Segundo Aliento (+1 carga de Deriva) y Piedras Erguidas (la Paciencia da +3).',
+      ),
+      L(
+        'Four Totems level a family for the rest of the run, up to level 5: Fire (explosions pay more, Kindling gives more rerolls), Water (Tide grows to all of the score), Earth (Patience grows faster) and Air (more Drift charges). Seren sells them, other Firmament shops too, and the Elementa Market now and then.',
+        'Cuatro Tótems suben una familia por el resto de la partida, hasta el nivel 5: Fuego (las explosiones pagan más, la Yesca da más rerolls), Agua (la Marea crece hasta todo el puntaje), Tierra (la Paciencia crece más rápido) y Aire (más cargas de Deriva). Seren los vende, otras tiendas del Firmamento también, y el Mercado de Elementa de vez en cuando.',
+      ),
+      L(
+        'The six new elements now react: 27 secret reactions between them and the old four, with their own section in the Gallery. Fusions bring both parents, so one die can start several.',
+        'Los seis elementos nuevos ahora reaccionan: 27 reacciones secretas entre ellos y los cuatro de siempre, con su propia sección en la Galería. Las fusiones traen a sus dos padres, así que un dado puede activar varias.',
+      ),
+      L(
+        'A new secret achievement, Cosmic Alchemist, for finding every one of them.',
+        'Un logro secreto nuevo, Alquimista Cósmico, por encontrarlas todas.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.8',
     name: L('Cosmic elements', 'Elementos cósmicos'),
     date: null,
@@ -33,8 +65,8 @@ export const PATCH_NOTES = [
         'Las runas ahora viven en un número. Gira el dado hasta la cara que quieras en la nueva pantalla de Inscribir; la runa solo funciona cuando el dado cae ahí. Si dos runas se encuentran en la Forja, Brasa puede hacer que compartan, por una tarifa.',
       ),
       L(
-        'Seven element fusions, from Shadow to Abyss. Some are volatile and can collapse into a Dead Star when you forge them, unless a Catalyst steadies them.',
-        'Siete fusiones de elementos, de la Sombra al Abismo. Algunas son volátiles y pueden colapsar en una Estrella Muerta al forjarlas, salvo que un Catalizador las estabilice.',
+        'Seven element fusions, from Shadow to Nadir. Some are volatile and can collapse into a Dead Star when you forge them, unless a Catalyst steadies them.',
+        'Siete fusiones de elementos, de la Sombra al Nadir. Algunas son volátiles y pueden colapsar en una Estrella Muerta al forjarlas, salvo que un Catalizador las estabilice.',
       ),
       L(
         'Vesper, the Cosmologist, joins Brasa at the Forge past the door. She teaches the fusions, sells Stardust and Catalysts, and never says where she is from.',

@@ -192,15 +192,15 @@ export const SHOP_TYPES = {
     horologist: true,
     reroll: false,
   },
-  // Seren's Observatory (EXPANSION.md J2): four Constellations a visit, drawn
-  // by weight (Black Hole rarely), duplicates allowed. Firmament only.
+  // Seren's Observatory (EXPANSION.md J2, L4): four Constellations or Totems a
+  // visit, drawn by weight (Black Hole rarely), duplicates allowed. Firmament only.
   observatory: {
     id: 'observatory',
     keeper: 'seren',
     name: L("Seren's Observatory", 'El Observatorio de Seren'),
     blurb: L(
-      'Four Constellations a visit. Each one permanently levels a reaction or a set type.',
-      'Cuatro Constelaciones por visita. Cada una sube para siempre una reacción o un tipo de set.',
+      'Four Constellations or Totems a visit. Each one permanently levels a reaction, a set type or a family.',
+      'Cuatro Constelaciones o Tótems por visita. Cada uno sube para siempre una reacción, un tipo de set o una familia.',
     ),
     color: '#9fb8ff',
     music: 'shop_observatory',

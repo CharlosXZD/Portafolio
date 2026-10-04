@@ -488,7 +488,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.7.2** | Firmament depth | **Built.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
 | **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
 | **v0.8** | Cosmic elements | **Built.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
-| **v0.8.1** | Family growth | **Ready.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
+| **v0.8.1** | Family growth | **Built.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
@@ -501,13 +501,21 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
 
+### Alpha v0.8.1 "Family growth" (in development, unreleased)
+- **Water's Tide:** a locked Water-family die also sends half its final score to Mult (its own ledger line). Held dice do not count.
+- **Drift to the top:** the nudge can go to a die's top face (a third button). It scores that face and does not explode.
+- **Five relics:** Deep Current, Spring Tide (the spec's "Undertow", renamed because Undertow exists), Gale Seal, Second Wind, Standing Stones.
+- **Four Totems** (Fire, Water, Earth, Air; level 5 at most): in Seren's Observatory, the Firmament shops and Elementa's Market (low weight); their own Gallery family.
+- **27 reactions for the six new elements** (12 with the classic four, 15 between themselves), all secret, with a Gallery section of their own and the secret achievement Cosmic Alchemist. Master Alchemist stays for the classic secrets.
+- **CONTENT.md regenerated** with the current names.
+
 ### Alpha v0.8 "Cosmic elements" (in development, unreleased)
-- **Six base elements** in Firmament shops: Glimmer, Gloom, Moment, Reach, Flux and Null (working names), each its own family.
+- **Six base elements** in Firmament shops: Light, Darkness, Time, Space, Chaos and Void (renamed after the first build; the ids are still glimmer, gloom, moment, reach, flux, nil), each its own family.
 - **Mythic dice are forged:** a Warden teaches its recipe (old files' unlocked Mythic dice become known recipes); 4 of the matching base die, 1 Stardust and 20 Shards. They are no longer sold anywhere. A run that holds one keeps it.
 - **Stardust:** a run resource; 1 per boss, 2 per Warden; Vesper sells 1 a visit for 30; Mote's 120 stock sells 2.
 - **The Forge, rebuilt (every Forge):** four slots, the recipe read from what you place, a live preview, a chooser when several match. Size is the average of the absorbed sizes (rounded down, capped at d20 unless it grows big). Bonuses, Warp, Weights and a Gem Socket carry over.
 - **Runes on a number:** the Inscribe screen (arrows, keys, drag, a stepper for big dice). Clashes and shrinks in the Forge: pay 8 per clash to superpose, or a silent seeded 50/50 loss. Chisel moves runes to the new top face; Transmute clears them; Graft moves one.
-- **Seven element fusions** (Shadow, Continuum, Oblivion, Alba stable; Anomaly, Singularity, Abyss volatile, 25% collapse into a Dead Star unless a Catalyst steadies it). Entropy is now Shadow, Continuum, Oblivion and Aether.
+- **Seven element fusions** (Shadow, Continuum, Oblivion, Alba stable; Anomaly, Singularity, Nadir volatile, 25% collapse into a Dead Star unless a Catalyst steadies it). Entropy is now Shadow, Continuum, Oblivion and Aether.
 - **Vesper, the Cosmologist**, beside Brasa past the door; her first meeting and Pip's crossing are story scenes; a new song, `shop_vesper`.
 - **Die items:** Weights, Honing Oil, Graft, Solvent, Gem Socket, Catalyst.
 
@@ -1433,7 +1441,7 @@ Only **two-element fusions** (Vesper's rule, K5), made from two **different base
 
 ## Part L: v0.8.1 "Family growth" (spec, 2026-10-04)
 
-**Status: Ready.** Carlos (2026-10-04): "fire is super strong, the ability to explode is something else", so Water and Air grow to match, new relics and items push the families, and the six new elements get reactions. Claude's numbers are **Defaults** (tune after playtests). Do not nerf Fire. Everything here is Elementa-compatible except where it says Firmament.
+**Status: Built** (Alpha v0.8.1, GDD §41, branch `elementa-v0.6.5`; every Default below was built as written and is listed in GDD §41 and the build report). Carlos (2026-10-04): "fire is super strong, the ability to explode is something else", so Water and Air grow to match, new relics and items push the families, and the six new elements get reactions. Claude's numbers are **Defaults** (tune after playtests). Do not nerf Fire. Everything here is Elementa-compatible except where it says Firmament.
 
 ### L1. Water: Tide
 

@@ -580,6 +580,10 @@ const strings = {
   'elementa.gallery.bossHint': { en: 'Not faced yet. Bosses appear every fifth round.', es: 'Aún sin enfrentar. Los jefes aparecen cada cinco rondas.' },
   'elementa.gallery.anyFusion': { en: 'any fusion', es: 'cualquier fusión' },
   'elementa.gallery.secretReactions': { en: 'Secret reactions', es: 'Reacciones secretas' },
+  'elementa.gallery.secretHintFirmament': {
+    en: 'A secret reaction between the new elements and the dice beside them. Line them up to find it.',
+    es: 'Una reacción secreta entre los elementos nuevos y los dados a su lado. Alinéalos para encontrarla.',
+  },
   'elementa.gallery.firmamentReactions': { en: 'Firmament reactions', es: 'Reacciones del Firmamento' },
   'elementa.gallery.firmamentReactionsIntro': {
     en: 'The new elements react with the old four and with each other. Every one is secret until a cast triggers it, and fusions bring both parents.',

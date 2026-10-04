@@ -6,6 +6,11 @@
 //           Maelstrom and the Hollow, and beating Set I teaches the rest.
 //           The run also holds base-element dice (four Glimmer, a Flux, a
 //           Moment, a Null) to try every kind of forge past the door.
+//           Since v0.8.1 (EXPANSION.md L6) it also holds Water, Air, Earth and
+//           Fire dice, the five family relics, all four Totems at level 1 or
+//           2 plus one of each in the bag, and has seen two Firmament
+//           reactions, so Tide, Drift, Totems and the Gallery's new section
+//           can be tried at once.
 //   File 2: Split path.
 //   File 3: Primordial path, in the gods' gauntlet. Mote has eaten 35 Shards
 //           of goods, so a little more makes it speak.
@@ -27,6 +32,8 @@ import { nextChoices } from '../engine/map.js'
 import { emptyProfile } from '../utils/saveManager.js'
 import { MYTHIC_DIE_IDS, COSMIC_FUSION_IDS } from '../data/elements.js'
 import { tierById } from '../data/diceTiers.js'
+import { relicById } from '../data/relics.js'
+import { consumableById } from '../data/consumables.js'
 
 const GODS = ['gaea', 'ognen', 'varuna', 'zephyr']
 const ALL_RECIPES = ['aether', ...GODS, ...MYTHIC_DIE_IDS, ...COSMIC_FUSION_IDS, 'entropy']
@@ -40,7 +47,8 @@ const FILES = [
     wardens: ['expanse', 'maelstrom', 'hollow'],
     mythics: ['space', 'chaos', 'void'],
     moteFed: 0,
-    extraDice: ['glimmer', 'glimmer', 'glimmer', 'glimmer', 'flux', 'moment', 'nil'],
+    extraDice: ['glimmer', 'glimmer', 'glimmer', 'glimmer', 'flux', 'moment', 'nil', 'water', 'ice', 'air', 'lightning'],
+    familyKit: true,
   },
   { path: 'split', seed: 'SPLITPTH', deckId: 'tidecaller', endings: ['neutral', 'split'], wardens: [], mythics: [], moteFed: 0 },
   {
@@ -56,7 +64,7 @@ const FILES = [
 
 // Walks a run to round 15 with tiny targets, leaning the Accord to `path`
 // just before the final battle locks it.
-function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extraDice }) {
+function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extraDice, familyKit }) {
   const file = { endings, wardens, mythics, mote: { fed: moteFed } }
   let s = gameReducer(initialState(), {
     type: 'START_RUN',
@@ -96,7 +104,14 @@ function runTo15({ path, seed, deckId, endings, wardens, mythics, moteFed, extra
     rollId: k,
     runes: [],
   }))
-  return { ...s, dice: [...runed, ...extra], diceCapBonus: (s.diceCapBonus || 0) + extra.length, shards: 300, stardust: 4 }
+  const kit = familyKit
+    ? {
+        relics: ['deep_current', 'spring_tide', 'gale_seal', 'second_wind', 'standing_stones'].map((id) => relicById(id)),
+        totems: { fire: 1, water: 2, earth: 1, air: 1 },
+        consumables: ['totem_fire', 'totem_water', 'totem_earth'].map((id, k) => ({ ...consumableById(id), instanceId: `test-${id}-${k}` })),
+      }
+    : {}
+  return { ...s, ...kit, dice: [...runed, ...extra], diceCapBonus: (s.diceCapBonus || 0) + extra.length, shards: 300, stardust: 4 }
 }
 
 const files = {}
@@ -114,6 +129,9 @@ FILES.forEach((spec, slot) => {
     mythics: spec.mythics,
     mote: { fed: spec.moteFed },
     stats: { runs: 3, wins: 3, bestCast: 0, bestRound: 15 },
+    // The Gallery's Firmament reactions show once the file crossed the door.
+    achievements: spec.familyKit ? ['through_door'] : [],
+    seen: { ...emptyProfile().seen, reactions: spec.familyKit ? ['sunburst', 'rift'] : [] },
   }
   files[slot] = { createdAt: Date.now(), updatedAt: Date.now(), profile, run }
 })

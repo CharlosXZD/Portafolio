@@ -1,6 +1,6 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-03 (Alpha v0.8 "Cosmic elements" in development), pulled straight from the data files so it matches the code.
+Everything in the game as of 2026-10-04 (Alpha v0.8.1 "Family growth" in development), pulled straight from the data files so it matches the code. Tables for dice, relics, reactions, keywords and short descriptions were regenerated from the data on that date; names are the current ones (Light, Darkness, Time, Space, Chaos, Void for the base elements; Luminance, Obscurity, Tempus, Ouranos, Hundun, Abyss for the Mythic dice; Nadir for Darkness + Void).
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
@@ -12,15 +12,15 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 
 - **Score = Base x Mult.** Base is the sum of every die's contribution plus flat bonuses and reactions. Mult starts at 1.
 - **Die contribution** is its face (plus explosion chain), then per-die modifiers in this order: fizzle/ban zeroes it, Gravity Well halves faces over 4, Bedrock x1.5 (pure Earth), Double-on-set x2, Sapling growth, Whetstone bonus, Fusion Crucible x1.5, Glacier Heart x2 (locked), Tide Chart +3 (locked), Loaded Die +3 (max face). Then placement: Mirror copies, Beacon x1.5 neighbors, Bookends +4, Heart of the Circle x2 middle, The Pillar zeroes the best die.
-- **Explosions:** max face rolls again and adds, chaining up to 10 times. Each explosion is also **+0.5 Mult**.
+- **Explosions:** max face rolls again and adds, chaining up to 10 times. Each explosion is also **+0.5 Mult** (+0.1 more per Fire Totem level).
 - **Sets:** only count if at least one die in the pool "enables sets" (Air family). Grouped by face: pair **+1 Mult**, three of a kind **+2**, straight of 4 consecutive faces **+3**.
-- **Reactions:** two side-by-side dice react if between them they cover a reaction's two elements, and both actually scored (a fizzled die doesn't react). Fusions bring every parent element, so one link can fire several reactions.
+- **Reactions:** two side-by-side dice react if between them they cover a reaction's two elements, and both actually scored (a fizzled die doesn't react; The Void die (id `nil`) and Singularity score nothing by design but still react). Fusions bring every parent element, so one link can fire several reactions.
 - **Families:** a family is the pure element plus every fusion containing it. Water-family relics look for the free-lock ability; Earth relics currently only count **pure** Earth (see §12).
 - **Family abilities** (v0.4), shared by the whole family; a fusion gets one per family it belongs to (Lightning has Kindling and Drift):
-  - **Fire, Kindling:** a die that fizzles on a 1 after a reroll grants +1 reroll this round, with no cap (only dice that can fizzle, so not Steel, Obsidian or Magma).
-  - **Water:** free locks that refund a reroll (unchanged).
-  - **Earth, Patience:** +2 for every reroll it sits out (held or locked) this round. Unlike Sapling, it keeps the bonus if it is rerolled later in the round.
-  - **Air, Drift:** once per round (one charge total), nudge one Air-family die up or down by 1, free. Landing on the max face doesn't explode; frozen dice can't drift.
+  - **Fire, Kindling:** a die that fizzles on a 1 after a reroll grants +1 reroll this round, with no cap (only dice that can fizzle, so not Steel, Obsidian or Magma). Fire Totem levels add +1 reroll per fizzle every 2 levels, and +0.1 Mult per explosion per level.
+  - **Water, Tide (v0.8.1):** a **locked** Water-family die also sends **half** of its final score to Mult (its own "Tide" ledger line; held but unlocked dice do not count). Water Totem levels raise the share by 10% each (60%, 70%... 100% at level 5). Free locks that refund a reroll are unchanged.
+  - **Earth, Patience:** +2 for every reroll it sits out (held or locked) this round (+3 with Standing Stones, +1 more per Earth Totem level). Unlike Sapling, it keeps the bonus if it is rerolled later in the round.
+  - **Air, Drift (v0.8.1):** one charge a round (+1 with Second Wind, +1 per Air Totem level); each charge nudges one Air-family die up or down by 1, **or all the way to its top face**, free. The die then scores that face. Landing on the max face doesn't explode; frozen dice can't drift. Gale Seal sends the nudged die's whole score to Mult too.
 - **Score reveal (v0.6.5):** before you cast, the Score reads "?" and the target bar sits empty (Options, Display, "Show live total before casting" brings the old live number back). Base, Mult and the Cast ledger always show. On cast the score is added up step by step (see the next bullet).
 - **Cast ledger (v0.6.5):** repeated lines from one source are grouped ("Kindle x6 +6"), with an arrow to show each line and an "Expand all / Compact" switch. The cast reveal takes one step per group.
 - **Cast choreography (v0.6.7):** the cast follows the ledger's order. Each step lights its source (a die lifts, a reaction draws a line between its two dice, a set is outlined and named, a relic or pact bounces), pops a number (blue Base, red Mult, a bigger red multiplier) that flies into the Base or Mult box, and shows a caption ("Kindle: Fire + Air, +1 Mult"). Steps tick higher through the cast; multipliers hit heavier. Instant skips it; Reduced motion drops the flying and shaking.
@@ -109,40 +109,40 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 ### The Firmament's dice (v0.7, reworked in v0.8)
 Every die from Elementa still shows up in the Firmament's shops.
 
-**Base elements (v0.8, Firmament only).** Six new elements sold in Firmament shops like Fire or Water: Rare, 14 Shards, sized by round like other shop dice, no unlock. Each is its own family. Working names (Carlos can rename them):
+**Base elements (v0.8, Firmament only).** Six new elements sold in Firmament shops like Fire or Water: Rare, 14 Shards, sized by round like other shop dice, no unlock. Each is its own family and its own element for reactions (v0.8.1, see §5). Their ids keep the old working names (`glimmer`, `gloom`, `moment`, `reach`, `flux`, `nil`):
 
-| Die (stands for) | Abilities |
+| Die | Abilities |
 |---|---|
-| **Glimmer** (Light) | A little light, kept warm. Its neighbors never fizzle. • The dice on both sides of it never fizzle. • A base element of the Firmament: sold only past the door. |
-| **Gloom** (Dark) | The die on its right scores 0, and half of that score goes to your Mult. • The die on its right scores 0, and half of what it would have scored goes to your Mult. • A base element of the Firmament: sold only past the door. |
-| **Moment** (Time) | While it is in your pool: +1 reroll every round. • While it is in your pool: +1 reroll every round. • A base element of the Firmament: sold only past the door. |
-| **Reach** (Space) | Reacts with the dice two places away, as well as its neighbors. • Reacts with the dice two places away on each side, as well as its neighbors. • A base element of the Firmament: sold only past the door. |
-| **Flux** (Chaos) | Every roll it becomes a random pure element (Fire, Water, Earth or Air). • Every roll it becomes a random pure element, keeping its size. Locking keeps its current element. • A base element of the Firmament: sold only past the door. |
-| **Null** (Void) | Scores nothing. +0.5 Mult for every empty dice slot. • Scores 0. Every empty dice slot gives +0.5 Mult. • A base element of the Firmament: sold only past the door. |
+| **Light** (`glimmer`) | A little light, kept warm. Its neighbors never fizzle. • The dice on both sides of it never fizzle. • A base element of the Firmament: sold only past the door. |
+| **Darkness** (`gloom`) | The die on its right scores 0, and half of that score goes to your Mult. • The die on its right scores 0, and half of what it would have scored goes to your Mult. • A base element of the Firmament: sold only past the door. |
+| **Time** (`moment`) | While it is in your pool: +1 reroll every round. • While it is in your pool: +1 reroll every round. • A base element of the Firmament: sold only past the door. |
+| **Space** (`reach`) | Reacts with the dice two places away, as well as its neighbors. • Reacts with the dice two places away on each side, as well as its neighbors. • A base element of the Firmament: sold only past the door. |
+| **Chaos** (`flux`) | Every roll it becomes a random pure element (Fire, Water, Earth or Air). • Every roll it becomes a random pure element, keeping its size. Locking keeps its current element. • A base element of the Firmament: sold only past the door. |
+| **Void** (`nil`) | Scores nothing. +0.5 Mult for every empty dice slot. • Scores 0. Every empty dice slot gives +0.5 Mult. • A base element of the Firmament: sold only past the door. |
 
 **Mythic dice** (a rarity after Divine): no element, one of each held at a time (Mirror Shard, Shadow Twin and the Chisel can't copy them). **Since v0.8 they are forged, never sold:** beating a Warden in any run teaches the file that Mythic die's recipe; the Forge then makes it from 4 of the matching base die plus 1 Stardust and 20 Shards. A run that already holds a Mythic die from v0.7 keeps it.
 
 | Die | Recipe taught by | Forge | Abilities |
 |---|---|---|---|
-| **Light** | The Dawn | 4 Glimmer + 1 Stardust, 20 Shards | No die can score below its face. Fizzles are cancelled, and faces stay visible. • No die can score below its face: lower faces rise to it, and nothing fizzles. Faces stay visible under Eclipse. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Glimmer dice and 1 Stardust, once its Warden has taught the recipe. |
-| **Darkness** | The Umbra | 4 Gloom + 1 Stardust, 20 Shards | The dice on either side of it score 0. What they would have scored goes to your Mult. • The dice on either side of it score 0, and their combined score is added to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Gloom dice and 1 Stardust, once its Warden has taught the recipe. |
-| **Time** | The Clockwork | 4 Moment + 1 Stardust, 20 Shards | Once per round, undo your last reroll and get it back. Unused rerolls carry over, up to +3. • Once per round, Rewind: undo your last reroll and get it back. Unused rerolls carry into the next round, up to +3. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Moment dice and 1 Stardust, once its Warden has taught the recipe. |
-| **Space** | The Expanse | 4 Reach + 1 Stardust, 20 Shards | Its two neighbors and the two end dice all count as neighbors of each other. Always Warp. • Its two neighbors and the two end dice all count as neighbors of each other for reactions. • Mythic: one of each kind per run. It cannot be copied. • Always carries Warp: it does not count toward your dice cap. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Reach dice and 1 Stardust, once its Warden has taught the recipe. |
-| **Chaos** | The Maelstrom | 4 Flux + 1 Stardust, 20 Shards | Every roll it becomes a random die from the whole game, in a random size. • Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Flux dice and 1 Stardust, once its Warden has taught the recipe. |
-| **Void** | The Hollow | 4 Null + 1 Stardust, 20 Shards | Scores nothing. Every empty slot you have gives +1 Mult. • Scores 0. Every empty dice, relic and consumable slot gives +1 Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Null dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Luminance** (`light`) | The Dawn | 4 Light + 1 Stardust, 20 Shards | No die can score below its face. Fizzles are cancelled, and faces stay visible. • No die can score below its face: lower faces rise to it, and nothing fizzles. Faces stay visible under Eclipse. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Light dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Obscurity** (`darkness`) | The Umbra | 4 Darkness + 1 Stardust, 20 Shards | The dice on either side of it score 0. What they would have scored goes to your Mult. • The dice on either side of it score 0, and their combined score is added to your Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Darkness dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Tempus** (`time`) | The Clockwork | 4 Time + 1 Stardust, 20 Shards | Once per round, undo your last reroll and get it back. Unused rerolls carry over, up to +3. • Once per round, Rewind: undo your last reroll and get it back. Unused rerolls carry into the next round, up to +3. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Time dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Ouranos** (`space`) | The Expanse | 4 Space + 1 Stardust, 20 Shards | Its two neighbors and the two end dice all count as neighbors of each other. Always Warp. • Its two neighbors and the two end dice all count as neighbors of each other for reactions. • Mythic: one of each kind per run. It cannot be copied. • Always carries Warp: it does not count toward your dice cap. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Space dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Hundun** (`chaos`) | The Maelstrom | 4 Chaos + 1 Stardust, 20 Shards | Every roll it becomes a random die from the whole game, in a random size. • Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Chaos dice and 1 Stardust, once its Warden has taught the recipe. |
+| **Abyss** (`void`) | The Hollow | 4 Void + 1 Stardust, 20 Shards | Scores nothing. Every empty slot you have gives +1 Mult. • Scores 0. Every empty dice, relic and consumable slot gives +1 Mult. • Mythic: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Void dice and 1 Stardust, once its Warden has taught the recipe. |
 
 **Element fusions (v0.8).** Two different base dice in the Forge's slots. Epic, each in both parents' families. The first time you place a pair, Vesper teaches the recipe (her own line, a toast). A **volatile** fusion collapses into a Dead Star 25% of the time when forged, unless a Catalyst steadies it (the Forge shows the chance before you commit). 10 Shards to forge.
 
 | Die | Made of | Kind | Abilities |
 |---|---|---|---|
-| **Shadow** | Gloom + Glimmer | stable | The die on its left scores 0 and its score goes to Mult; the die on its right never fizzles and counts +1. • The die on its left scores 0 and that score goes to your Mult. The die on its right never fizzles and counts +1. |
-| **Continuum** | Moment + Reach | stable | Joins the two ends of your pool into a ring, and gives +1 reroll every round. • The two ends of your pool count as neighbors (a ring). While it is in your pool: +1 reroll every round. |
-| **Oblivion** | Flux + Null | stable | Each cast it swallows your lowest die (it scores 0) and adds twice its face to Mult. • Each cast it swallows your lowest other die: that die scores 0, and twice its face goes to your Mult. |
-| **Alba** | Glimmer + Moment | stable | No die rolls below 2, and your first reroll each round is free. • No die can show less than 2. Your first reroll each round is free. |
-| **Anomaly** | Flux + Moment | volatile | After every reroll, one random unheld die rolls once more, for free. • After every reroll, one random unheld die rolls once more, for free. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
-| **Singularity** | Glimmer + Null | volatile | Scores nothing. The Base of both its neighbors is doubled. • Scores 0. The dice on both sides of it score double. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
-| **Abyss** | Gloom + Null | volatile | Both its neighbors score 0. Every empty dice slot gives +2 Mult. • The dice on both sides of it score 0. Every empty dice slot gives +2 Mult. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
-| **Dead Star** | (a collapse) | | A fusion that collapsed. Scores nothing; +0.5 Mult for every other die in your pool. • Scores 0. Every other die in your pool gives +0.5 Mult. |
+| **Shadow** (`shadow`) | Darkness + Light | stable | The die on its left scores 0 and its score goes to Mult; the die on its right never fizzles and counts +1. • The die on its left scores 0 and that score goes to your Mult. The die on its right never fizzles and counts +1. |
+| **Continuum** (`continuum`) | Time + Space | stable | Joins the two ends of your pool into a ring, and gives +1 reroll every round. • The two ends of your pool count as neighbors (a ring). While it is in your pool: +1 reroll every round. |
+| **Oblivion** (`oblivion`) | Chaos + Void | stable | Each cast it swallows your lowest die (it scores 0) and adds twice its face to Mult. • Each cast it swallows your lowest other die: that die scores 0, and twice its face goes to your Mult. |
+| **Alba** (`alba`) | Light + Time | stable | No die rolls below 2, and your first reroll each round is free. • No die can show less than 2. Your first reroll each round is free. |
+| **Anomaly** (`anomaly`) | Chaos + Time | volatile | After every reroll, one random unheld die rolls once more, for free. • After every reroll, one random unheld die rolls once more, for free. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
+| **Singularity** (`singularity`) | Light + Void | volatile | Scores nothing. The Base of both its neighbors is doubled. • Scores 0. The dice on both sides of it score double. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
+| **Nadir** (`abyss`) | Darkness + Void | volatile | Both its neighbors score 0. Every empty dice slot gives +2 Mult. • The dice on both sides of it score 0. Every empty dice slot gives +2 Mult. • Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it. |
+| **Dead Star** (`dead_star`) | (a collapse) | | A fusion that collapsed. Scores nothing; +0.5 Mult for every other die in your pool. • Scores 0. Every other die in your pool gives +0.5 Mult. |
 
 | Die | Rarity | Where | Price | Abilities |
 |---|---|---|---|---|
@@ -172,7 +172,8 @@ Hovering or tapping a tag shows its definition. A die's short description shows 
 | #Explodes | Rolling its top face rolls again and adds the new roll, chaining. |
 | #Fizzles | A die that rolls a 1 scores nothing this round. |
 | #Kindling | A Fire-family die that fizzles pays back +1 reroll. |
-| #Drift | Once per round, nudge an Air-family die up or down by 1, for free. |
+| #Drift | Once per round, nudge an Air-family die up or down by 1, or to its top face, for free. |
+| #Tide | A locked Water-family die also sends half its score to Mult. |
 | #Patience | An Earth-family die gains +2 for every reroll it sits out this round. |
 | #FreeLock | Can lock its face in place without spending a reroll. |
 | #Refund | Locking it gives you +1 reroll back. |
@@ -187,14 +188,10 @@ Hovering or tapping a tag shows its definition. A die's short description shows 
 | #Payout | Scores nothing, but pays Shards when you clear the round. |
 | #Rewind | A rolled 1 rolls again until it is no longer a 1. |
 | #Boost | Raises the score of the dice beside it. |
-| #Burst | Scores its whole total twice when it explodes. |
-| #Pulse | Gains Base for every reroll made this round. |
-| #Flare | Its face goes to Mult instead of Base. |
-| #Rerolls | Gives you extra rerolls while it is in your pool. |
 | #Doubles | Counts double when it is part of a matching set. |
 | #Mythic | No element. One of each kind per run, and it cannot be copied. |
 | #Warp | Does not count toward your dice cap. At most 3 Warp dice at once. |
-| #Loop | A 1 rerolls every unheld die for free, and the better pool stays. |
+| #Loop | Any 1 rerolls every unheld die for free, and the better pool stays. |
 | #Floor | No die can score below this face. |
 | #Devour | Its neighbors score 0, and their score becomes Mult. |
 | #Undo | Takes back your last reroll, and refunds it. |
@@ -204,6 +201,15 @@ Hovering or tapping a tag shows its definition. A die's short description shows 
 | #Steady | Keeps the dice beside it from fizzling. |
 | #Volatile | Forging it can collapse into a Dead Star (25%). A Catalyst prevents it. |
 | #Rune | Inscribed on one number of a die: it works only when the die shows that number. |
+| #Burst | Scores its whole total twice when it explodes. |
+| #Pulse | Gains Base for every reroll made this round. |
+| #Flare | Its face goes to Mult instead of Base. |
+| #Rerolls | Gives you extra rerolls while it is in your pool. |
+| #Echo | Rune: on its number, the die scores twice. |
+| #Glass | Rune: on its number, doubled score, but it may shatter after the cast. |
+| #Kinship | Rune: on its number, counts as its left neighbor's element for reactions. |
+| #Ember | Rune: its number is an exploding face. |
+| #Anchor | Rune: on its number, the die cannot fizzle. |
 
 ### Short descriptions (v0.6.5)
 Shown when you click a die (table, shop, inventory). At most two short sentences with a bit of lore; the flag-by-flag text above is the full description, shown on click and hold and in the Gallery.
@@ -212,19 +218,19 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 |---|---|---|
 | **Earth** | Dependable as the ground itself. Waiting a reroll out makes it stronger. | #Patience |
 | **Fire** | A spark from the first Split. It explodes on its top face, but a 1 burns it out. | #Explodes #Fizzles #Kindling |
-| **Water** | It remembers every shape it has held. It locks for free and gives a reroll back. | #FreeLock #Refund |
+| **Water** | It remembers every shape it has held. It locks for free and gives a reroll back. | #FreeLock #Refund #Tide |
 | **Air** | A breath no Caster could bind. It calls matching sets, and you can nudge it. | #Sets #Drift |
 | **Lightning** | A Storm's first word. It explodes like Fire and calls sets like Air. | #Explodes #Fizzles #Sets #Kindling #Drift |
-| **Ice** | Water that held its breath. It locks for free, refunds the reroll, and calls sets. | #FreeLock #Refund #Sets #Drift |
+| **Ice** | Water that held its breath. It locks for free, refunds the reroll, and calls sets. | #FreeLock #Refund #Sets #Drift #Tide |
 | **Steel** | Fire hardened on Earth's anvil. It explodes and never burns out. | #Explodes #Patience |
-| **Mud** | Water that sank into the soil. Lock it and its neighbor locks too, for free. | #Chain #FreeLock #Refund #Patience |
-| **Steam** | Fire and Water in one breath. It explodes, and a reroll may copy it onto another die. | #Explodes #Fizzles #Copy #Kindling |
+| **Mud** | Water that sank into the soil. Lock it and its neighbor locks too, for free. | #Chain #FreeLock #Refund #Patience #Tide |
+| **Steam** | Fire and Water in one breath. It explodes, and a reroll may copy it onto another die. | #Explodes #Fizzles #Copy #Kindling #Tide |
 | **Crystal** | Earth that learned the wind. Inside a set, it counts double. | #Doubles #Sets #Drift #Patience |
-| **Storm** | Fire, Water and Air in one temper. It explodes, locks for free, and calls sets. | #Explodes #FreeLock #Sets #Fizzles #Refund #Kindling #Drift |
-| **Obsidian** | Fire that Water cooled into glass. It explodes without burning out, and can copy itself. | #Explodes #Copy #Patience |
+| **Storm** | Fire, Water and Air in one temper. It explodes, locks for free, and calls sets. | #Explodes #FreeLock #Sets #Fizzles #Refund #Kindling #Drift #Tide |
+| **Obsidian** | Fire that Water cooled into glass. It explodes without burning out, and can copy itself. | #Explodes #Copy #Patience #Tide |
 | **Magma** | Fire pressed under Earth. It explodes, and inside a set it counts double. | #Explodes #Doubles #Sets #Drift #Patience |
-| **Monsoon** | A season with a memory. Lock it and its neighbor locks too, and both feed sets. | #Chain #FreeLock #Sets #Refund #Drift #Patience |
-| **Aether** | Every piece of the Split, whole again. It carries every mechanic, one per run. | #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience |
+| **Monsoon** | A season with a memory. Lock it and its neighbor locks too, and both feed sets. | #Chain #FreeLock #Sets #Refund #Drift #Patience #Tide |
+| **Aether** | Every piece of the Split, whole again. It carries every mechanic, one per run. | #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience #Tide |
 | **Gilded** | Not made for scoring. Clear the round and it pays its face in Shards. | #Payout |
 | **Sapling** | A seed the Casters forgot. Held through rerolls, it grows. | #Grows |
 | **Mirror** | It shows what stands beside it. Copies the score of the die to its left. | #Mirror |
@@ -234,92 +240,117 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **Prism** | It splits one light into four. Reacts as every element at once. | #Reaction |
 | **Gaea** | The Earth god, bound into a die. Adds the faces of her whole family, and weighs them down. | #Divine #Wild #Patience |
 | **Ognen** | The Fire god, bound into a die. Burns on any high face and goes out on a low one. | #Divine #Explodes #Fizzles |
-| **Varuna** | The Water god, bound into a die. Any die can lock for free, but the tide pulls every roll toward 1. | #Divine #FreeLock #Refund |
+| **Varuna** | The Water god, bound into a die. Any die can lock for free, but the tide pulls every roll toward 1. | #Divine #FreeLock #Refund #Tide |
 | **Zephyr** | The Air god, bound into a die. Every set rises a step, but Fire burns less. | #Divine #Wild #Sets #Drift |
-| **Primordial** | The dreamer's own die, lent to you. Every Aether power, and a share of each god's. | #Divine #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience |
-| **Chrono** | Time itself, wound tight. A 1 rewinds the whole table, and you keep the better roll. | #Loop |
+| **Primordial** | The dreamer's own die, lent to you. Every Aether power, and a share of each god's. | #Divine #Explodes #FreeLock #Chain #Copy #Sets #Doubles #Fizzles #Refund #Kindling #Drift #Patience #Tide |
+| **Bullion** | A bar of stored Mult. It scores nothing, but pays your final Mult in Shards on a clear. | #Payout |
+| **Masquerade** | It wears its neighbor's face. Copies the abilities and score of the die on its left. | #Copy #Mirror |
+| **Chameleon** | Borrows the left die's abilities and the right die's score. | #Copy #Mirror |
+| **Chrono** | Time itself, wound tight. Any 1 rewinds the whole table, again and again, and you keep the better roll. | #Loop |
 | **Comet** | A star that burned out long ago and is still falling. Its biggest rolls blaze, and count twice. | #Explodes #Burst |
 | **Pulsar** | A dead star that ticks like a clock. Every reroll makes it hit harder. | #Pulse |
 | **Satellite** | It scores nothing and lifts everyone near it. | #Boost |
 | **Quasar** | The brightest thing in the sky, and all of it goes to Mult. Only one can shine. | #Flare |
 | **Zenith** | The highest point the Casters ever reached. Holding it buys you more time. | #Rerolls |
-| **Light** | The first dawn, kept in a die. Nothing near it falls below its face. | #Mythic #Floor |
-| **Darkness** | What the light leaves behind. It swallows its neighbors and turns them into Mult. | #Mythic #Devour |
-| **Time** | A moment you can take back. Undo a reroll once a round, and save the rest for later. | #Mythic #Undo |
-| **Space** | The distance between things, folded. Its neighbors and both ends all touch. | #Mythic #Reaction #Warp |
-| **Chaos** | Never the same die twice. Every roll it becomes something else. | #Mythic #Shift |
-| **Void** | Absence with an appetite. It scores nothing, and every empty slot feeds your Mult. | #Mythic #Empty |
+| **Luminance** | The first dawn, kept in a die. Nothing near it falls below its face. | #Mythic #Floor |
+| **Obscurity** | What the light leaves behind. It swallows its neighbors and turns them into Mult. | #Mythic #Devour |
+| **Tempus** | A moment you can take back. Undo a reroll once a round, and save the rest for later. | #Mythic #Undo |
+| **Ouranos** | The distance between things, folded. Its neighbors and both ends all touch. | #Mythic #Reaction #Warp |
+| **Hundun** | Never the same die twice. Every roll it becomes something else. | #Mythic #Shift |
+| **Abyss** | Absence with an appetite. It scores nothing, and every empty slot feeds your Mult. | #Mythic #Empty |
 | **Entropy** | Every Mythic die and Aether, forged into the end of all things. | #Mythic |
-| **Bullion** | A bar of stored Mult. It scores nothing, but pays your final Mult in Shards on a clear. | #Payout |
-| **Masquerade** | It wears its neighbor's face. Copies the abilities and score of the die on its left. | #Copy #Mirror |
-| **Chameleon** | Borrows the left die's abilities and the right die's score. | #Copy #Mirror |
-| **Glimmer** | A spark of the first dawn, small enough to hold. It keeps its neighbors from going out. | #Cosmic #Steady |
-| **Gloom** | A little of the night. It eats the die on its right and keeps half of it as Mult. | #Cosmic #Devour |
-| **Moment** | One moment, saved for later. One more reroll every round. | #Cosmic #Undo |
-| **Reach** | A little distance, folded. It reaches the dice two places away. | #Cosmic #Reaction |
-| **Flux** | Never the same element twice. Each roll it is Fire, Water, Earth or Air. | #Cosmic #Shift |
-| **Null** | A small absence. It scores nothing and feeds on your empty dice slots. | #Cosmic #Empty |
+| **Light** | A spark of the first dawn, small enough to hold. It keeps its neighbors from going out. | #Cosmic #Steady |
+| **Darkness** | A little of the night. It eats the die on its right and keeps half of it as Mult. | #Cosmic #Devour |
+| **Time** | One moment, saved for later. One more reroll every round. | #Cosmic #Undo |
+| **Space** | A little distance, folded. It reaches the dice two places away. | #Cosmic #Reaction |
+| **Chaos** | Never the same element twice. Each roll it is Fire, Water, Earth or Air. | #Cosmic #Shift |
+| **Void** | A small absence. It scores nothing and feeds on your empty dice slots. | #Cosmic #Empty |
 | **Shadow** | Light and dark in one die. It eats its left neighbor and steadies its right one. | #Devour #Steady |
 | **Continuum** | Time that loops through space. Your pool becomes a ring. | #Reaction #Undo |
 | **Oblivion** | It forgets your weakest die, and remembers it as Mult. | #Devour #Empty |
 | **Alba** | The first light of a new day. Nothing rolls below 2, and the first reroll is free. | #Floor #Undo |
 | **Anomaly** | Something that should not happen, happening. After a reroll, one more die rolls again. | #Volatile #Shift |
 | **Singularity** | Everything falls toward it. Its neighbors score double; it scores nothing. | #Volatile #Boost |
-| **Abyss** | A hole in the table. Its neighbors fall in, and empty slots feed it. | #Volatile #Devour #Empty |
+| **Nadir** | A hole in the table. Its neighbors fall in, and empty slots feed it. | #Volatile #Devour #Empty |
 | **Dead Star** | What is left when a fusion collapses. It weighs on everything around it. | #Empty |
 
 ---
 
-## 3. Relics (45 total)
+## 3. Relics (50 total)
 
 ### Fire family
 | Relic | Rarity | Price | Effect |
 |---|---|---|---|
 | **Molten Core** | Common | 5 | Every explosion adds +2 flat Base Value. |
+| **Glass Cannon** | Epic | 18 | Explosions add double value, but a die that fizzles on a 1 also zeroes one random other die. |
+| **Wildfire** | Rare | 12 | Each explosion has a 20% chance to also trigger an explosion on another Fire-family die. |
 | **Ember Heart** | Uncommon | 8 | Each die that explodes adds +1 Multiplier. |
 | **Heat** | Uncommon | 8 | Each explosion this round gives every Fire-family die +1 for the rest of the round. |
 | **Chain Break** | Epic | 18 | Fire-family dice explode on their top two faces, not just the max. Ognen's chain has no cap. Offered only once the god recipes are known. |
-| **Wildfire** | Rare | 12 | Each explosion has a 20% chance to also trigger an explosion on another Fire-family die. |
-| **Glass Cannon** | Epic | 18 | Explosions add double value, but a die that fizzles on a 1 also zeroes one random other die. |
 
 ### Water family
 | Relic | Rarity | Price | Effect |
 |---|---|---|---|
 | **Riverstone** | Common | 5 | Locking a Water-family die grants +2 rerolls instead of +1. |
-| **Tide Chart** | Common | 5 | Each locked or frozen die adds +3 Base. |
 | **Undertow** | Uncommon | 8 | Locking a free-lock die also rerolls one random unheld die for free. |
 | **Tidal Pool** | Uncommon | 8 | The set bonus is doubled if every die in the matching set is Water-family. |
+| **Tide Chart** | Common | 5 | Each locked or frozen die adds +3 Base. |
 | **Glacier Heart** | Rare | 12 | Locked and frozen dice score double. |
+| **Deep Current** | Epic | 18 | The first lock each round gives +10 Mult. |
+| **Spring Tide** | Rare | 12 | Each locked Water-family die gives +2 Mult. |
 
 ### Earth family
 | Relic | Rarity | Price | Effect |
 |---|---|---|---|
 | **Bedrock** | Common | 5 | Pure Earth dice contribute ×1.5 to Base Value. |
 | **Groundswell** | Uncommon | 8 | If the entire pool is pure Earth dice, Base Value is +50%. |
-| **Steady** | Uncommon | 8 | Earth-family dice never roll below 3. |
-| **Keystone** | Uncommon | 8 | +1 Multiplier if no die scores 0 this roll. |
 | **Fossil** | Rare | 12 | Earth dice are wildcards for the set bonus: they match any face value. |
+| **Keystone** | Uncommon | 8 | +1 Multiplier if no die scores 0 this roll. |
+| **Steady** | Uncommon | 8 | Earth-family dice never roll below 3. |
+| **Standing Stones** | Rare | 12 | Patience gives +3 for every reroll a die sits out, instead of +2. |
 
 ### Air family
 | Relic | Rarity | Price | Effect |
 |---|---|---|---|
-| **Feather Charm** | Common | 5 | Pairs grant +1 extra Multiplier. |
 | **Stormcaller** | Uncommon | 8 | Straight bonus grants +1 additional Multiplier. |
-| **Gust** | Rare | 12 | Once per round, reroll a single chosen die for free. |
 | **Static Charge** | Legendary | 28 | Explosion chains no longer have an iteration cap. |
+| **Feather Charm** | Common | 5 | Pairs grant +1 extra Multiplier. |
+| **Gust** | Rare | 12 | Once per round, reroll a single chosen die for free. |
+| **Gale Seal** | Epic | 18 | When you use Drift, the nudged die's whole score also goes to Mult. |
+| **Second Wind** | Rare | 12 | +1 Drift charge every round. |
 
 ### Neutral (no element)
 | Relic | Rarity | Price | Effect |
-|
-| **Pantheon** | Legendary | 28 | You can hold a second god die. Sold only in the Aether Bazaar, once the god recipes are known. |
-| **Mainspring** | Epic | 18 | Rerolls you do not use are banked for the next round, up to 3 (the same rerolls never count twice with Time). Sold only by the Horologist, in the Firmament. |
-| **Cuckoo Clock** | Epic | 18 | Clear a round with 0 rerolls left: +5 Shards and +1 Mult on the next round's cast. Sold only by the Horologist, in the Firmament. |
-
----|---|---|---|
+|---|---|---|---|
+| **Petrify** | Rare | 12 | Once per round, freeze any single die’s face for free, regardless of element. |
+| **Momentum** | Epic | 18 | Beating the target by 2x or more grants +1 permanent reroll for the rest of the run. |
+| **Shard Vault** | Rare | 12 | Interest cap raised from +5 to +8 Shards per round. |
+| **Discount Merchant** | Rare | 12 | All shop prices are reduced by 10%. |
+| **Overclock** | Epic | 18 | +1 max reroll per round, but each die has a 10% chance to reset to its minimum face when rerolled. |
+| **Fusion Catalyst** | Epic | 18 | Forging a fusion die at the Forge costs 2 fewer Shards. |
+| **Deep Pockets** | Common | 5 | Rerolling the shop’s offers costs 1 fewer Shard. |
+| **Windfall** | Uncommon | 8 | Interest is earned per 2 unspent Shards instead of per 3. |
+| **Hoarder** | Common | 5 | Selling a die or relic returns +1 extra Shard. |
+| **Steadfast** | Epic | 18 | Missing the target still grants +3 Shards as a consolation. |
+| **Safety Net** | Legendary | 28 | The first time you would run out of lives, survive with 1 instead. |
+| **Loaded Die** | Common | 5 | Dice showing their highest face add +3 Base. |
+| **Lucky Coin** | Common | 5 | Clearing a round grants +1 Shard for every explosion in the winning roll. |
+| **Patient Hourglass** | Uncommon | 8 | +0.5 Multiplier for each reroll you did not use when you cast. |
+| **Prism Lens** | Rare | 12 | +0.5 Multiplier for each different element in your pool. |
+| **Fusion Crucible** | Epic | 18 | Fusion dice score x1.5. |
+| **Aether Crown** | Legendary | 28 | Your final Multiplier is x1.5. |
+| **Alchemist's Table** | Uncommon | 8 | Every reaction also adds +2 Base. |
+| **Bookends** | Uncommon | 8 | Your first and last dice each score +4. |
+| **Catalyst Stone** | Rare | 12 | Reactions that give Mult give +0.5 more. |
+| **Heart of the Circle** | Rare | 12 | The middle die (or two) of your pool scores double. |
+| **Ley Line** | Epic | 18 | Your first and last dice count as neighbors, so they can react. |
+| **Pantheon** | Legendary | 28 | Every god die you hold gives +2 Mult. Sold only in the Aether Bazaar. Offered only once the god recipes are known. |
+| **Mainspring** | Epic | 18 | Rerolls you do not use are banked for the next round, up to 3. Sold only by the Horologist, in the Firmament. |
+| **Cuckoo Clock** | Epic | 18 | Clear a round with 0 rerolls left: +5 Shards and +1 Mult on the next round. Sold only by the Horologist, in the Firmament. |
 
 ---
 
-## 4. Consumables (45 total)
+## 4. Consumables (49 total)
 
 | Consumable | Rarity | Price | Target | Effect |
 |---|---|---|---|---|
@@ -357,6 +388,10 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 | **The Trio** | Uncommon | 6 | You | Levels Three of a kind: +0.75 Mult per level. Firmament only. |
 | **The Ladder** | Uncommon | 6 | You | Levels Straights: +1 Mult per level. Firmament only. |
 | **Black Hole** | Legendary | 25 | You | One level on all ten at once. Firmament only; weight 0.4. |
+| **Fire Totem** | Uncommon | 8 | You | Levels Fire: every explosion adds +0.1 Mult more per level, and every 2 levels Kindling pays +1 reroll more. Max level 5. |
+| **Water Totem** | Uncommon | 8 | You | Levels Water: Tide sends 10% more of a locked die's score to Mult per level (50% at level 0, 100% at level 5). |
+| **Earth Totem** | Uncommon | 8 | You | Levels Earth: Patience gives +1 more per reroll sat out, per level. Max level 5. |
+| **Air Totem** | Uncommon | 8 | You | Levels Air: +1 Drift charge a round per level (each charge nudges one die). Max level 5. |
 | **Rune of Echo** | Epic | 18 | A die | On its number the die scores twice (after Beacon). |
 | **Rune of Glass** | Rare | 12 | A die | On its number the score is doubled, and after the cast there is a 20% chance the die shatters (the pool never loses its last die). |
 | **Rune of Kinship** | Rare | 12 | A die | On its number the die counts as its left neighbor's element for reactions. |
@@ -371,6 +406,8 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 
 **Constellations (v0.7.5).** Used from a shop or mid-round, they apply at once and need no target; "Buy & use" in a shop spends no slot. Each levels one thing for the rest of the run, up to **level 10**: the seven base reactions (Kindle, Forge, Scald, Mist, Bloom, Dust Devil, Resonance) and the three set types (Pair, Three of a kind, Straight). The bonus is added inside the thing's own ledger line, which reads "Kindle Lv 3". Secret reactions do not level. Levels are saved with the run and listed in Run Info. Black Hole gives every one a level (those at 10 stay). Seren's Observatory sells them (four a visit, duplicates allowed, Black Hole about 2% of offers); other Firmament shops stock them at low weight (a tenth to a twentieth of their items). Using one at level 10 does nothing and keeps it.
 
+**Totems (v0.8.1).** The same idea as Constellations, for the four families: each Totem levels one family's ability for the run, up to **level 5**, applies at once with no target and can be "Buy & use". Levels live in `state.totems` ({ fire, water, earth, air }), appear in Run Info and on the ledger ("Tide Lv 2", "Explosions x3 Lv 2"). Uncommon, 8 Shards, weight 0.3 in the normal consumable pool. Unlike Constellations they are **not Firmament-only**: every Firmament shop and Elementa's Market stock them (no other Elementa shop), and Seren's Observatory has them at weight 0.6 next to the Constellations. They have their own Gallery family, "Totems".
+
 **Runes (v0.7.5, inscribed on a number since v0.8).** A rune sits on one face (one number) of one die and works only when the die lands on it; a die can carry runes on several faces. Using a rune opens the **Inscribe screen**: the die shown large, turned to a number with the arrow buttons, the left and right keys or a drag (d30 and up also get a plus and minus one and ten stepper); faces that hold a rune are marked. Inscribing on a runed face replaces that rune, unless the die has a **Gem Socket** (then two stack there). The die shows each rune with its number (lit when it shows that face), and its tooltip lists them. Not on Mythic dice or Entropy. **Chisel:** each half keeps the runes; a number the half lacks moves to its top face, and runes that meet there stack for free. **Transmute** removes runes; Shadow Twin and Mirror Shard copy them; **Graft** moves one to another die (pick the giver, then the receiver, then its number). An old save's rune moves to its die's top face. Sold at every Forge (two on its shelf), the Aether Bazaar, the Astral Exchange and in the Firmament Market; nowhere else.
 
 **Die items (v0.8).** Weights, Honing Oil, Graft, Solvent and Gem Socket are in the normal consumable pool (Elementa too); the Catalyst only on Vesper's shelf and in the Astral Exchange.
@@ -383,13 +420,15 @@ Any consumable can also be **Buy & use**: applied on the spot without taking a s
 
 ## 5. Reactions
 
+Two side-by-side dice react when between them they cover a reaction's two elements, and both score. A fusion brings every parent. The six Firmament elements (Light, Darkness, Time, Space, Chaos, Void) have their own element, so they react too (v0.8.1). Constellations level only the basic reactions and the sets.
+
 ### Basic (7)
 | Reaction | Trigger (adjacent dice) | Reward |
 |---|---|---|
 | **Resonance** | Two identical dice | +2 Base. |
 | **Kindle** | Fire + Air | +1 Mult. |
 | **Forge** | Fire + Earth | add the lower of the two faces to Base. |
-| **Scald** | Fire + Water | +3 Base and +0.5 Mult. |
+| **Scald** | Fire + Water | +3 Base, +0.5 Mult. |
 | **Mist** | Water + Air | +0.5 Mult. |
 | **Bloom** | Water + Earth | add the higher of the two faces to Base. |
 | **Dust Devil** | Earth + Air | +4 Base. |
@@ -397,14 +436,69 @@ Any consumable can also be **Buy & use**: applied on the spot without taking a s
 ### Secret (8, shown as ??? until found)
 | Reaction | Trigger (adjacent dice) | Reward |
 |---|---|---|
-| **Thunderhead** | Lightning + Steam | a storm cloud forms. +2 Mult. |
-| **Superconductor** | Lightning + Ice | current with no resistance. +5 Base, +1.5 Mult. |
-| **Thermal Shock** | Ice + Magma | stone cracks apart. Add both faces to Base, +1 Mult. |
-| **Geode** | Mud + Crystal | a hidden geode. Add both faces twice to Base. |
-| **Railgun** | Steel + Lightning | magnetic launch. +3 Mult. |
-| **Hurricane** | Storm + Monsoon | the sky breaks. +8 Base, +3 Mult. |
-| **Caldera** | Obsidian + Magma | the volcano collapses. Add both faces twice to Base, +1 Mult. |
-| **Ascension** | Aether + any double or triple fusion | the elements remember they were one. +10 Base, +3 Mult. |
+| **Thunderhead** | Lightning + Steam | +2 Mult. |
+| **Superconductor** | Lightning + Ice | +5 Base, +1.5 Mult. |
+| **Thermal Shock** | Ice + Magma | add both faces to Base, +1 Mult. |
+| **Geode** | Mud + Crystal | add both faces twice to Base. |
+| **Railgun** | Steel + Lightning | +3 Mult. |
+| **Hurricane** | Storm + Monsoon | +8 Base, +3 Mult. |
+| **Caldera** | Obsidian + Magma | add both faces twice to Base, +1 Mult. |
+| **Ascension** | Aether + any double or triple fusion | +10 Base, +3 Mult. |
+
+### Mythic (9, secret, v0.7)
+Mythic dice have no element, so these name them. They fire even when the Mythic die scores nothing.
+
+| Reaction | Trigger (adjacent dice) | Reward |
+|---|---|---|
+| **Eclipse** | Luminance + Obscurity | add both faces twice to Base, +2 Mult. |
+| **Event Horizon** | Ouranos + Abyss | +6 Base, +4 Mult. |
+| **Paradox** | Tempus + Hundun | +5 Base, +3 Mult. |
+| **Solar Flare** | Luminance + any Fire-family die | +4 Base, +1.5 Mult. |
+| **Black Tide** | Obscurity + any Water-family die | add the higher of the two faces to Base, +1 Mult. |
+| **Sinkhole** | Abyss + any Earth-family die | add both faces to Base, +1 Mult. |
+| **Slipstream** | Ouranos + any Air-family die | +3 Base, +2 Mult. |
+| **Frozen Moment** | Tempus + Ice | add the lower of the two faces to Base, +2 Mult. |
+| **Cascade** | Entropy + any Mythic die | +10 Base, +5 Mult. |
+
+### Firmament reactions (v0.8.1, 27, all secret)
+Their own section in the Gallery, shown once the file has crossed the door. The Void die (id `nil`) and Singularity score nothing, but still react. The Cosmic Alchemist achievement needs all 27.
+
+**New with classic (12).**
+
+| Reaction | Trigger (adjacent dice) | Reward |
+|---|---|---|
+| **Sunburst** | Light + Fire | +2 Mult. |
+| **Rainbow** | Light + Air | +3 Base, +1 Mult. |
+| **Ink** | Darkness + Water | add the higher of the two faces to Base. |
+| **Cavern** | Darkness + Earth | +4 Base. |
+| **Erosion** | Time + Earth | +1.5 Mult. |
+| **Burnout** | Time + Fire | +4 Base. |
+| **Horizon** | Space + Air | +3 Base, +1 Mult. |
+| **Orbit** | Space + Earth | add the lower of the two faces to Base, +1 Mult. |
+| **Wildfire** | Chaos + Fire | +2 Mult. |
+| **Whirlwind** | Chaos + Air | +4 Base, +0.5 Mult. |
+| **Drain** | Void + Water | +1.5 Mult. |
+| **Hollow Ground** | Void + Earth | add both faces to Base. |
+
+**New with new (15, every pair of the six).**
+
+| Reaction | Trigger (adjacent dice) | Reward |
+|---|---|---|
+| **Twilight** | Light + Darkness | add both faces to Base, +1.5 Mult. |
+| **Spacetime** | Time + Space | +3 Base, +2 Mult. |
+| **Maw** | Chaos + Void | +2 Mult. |
+| **Daybreak** | Light + Time | +4 Base, +1 Mult. |
+| **Glitch** | Chaos + Time | +2.5 Mult. |
+| **Blackout** | Darkness + Void | +5 Base. |
+| **Pinhole** | Light + Void | +2 Mult. |
+| **Starlight** | Light + Space | +4 Base, +1 Mult. |
+| **Dusk** | Darkness + Time | +1.5 Mult. |
+| **Rift** | Chaos + Space | +3 Mult. |
+| **Flicker** | Chaos + Light | +3 Base, +1 Mult. |
+| **Corruption** | Chaos + Darkness | +2 Mult. |
+| **Stasis** | Time + Void | +2 Mult. |
+| **Vacuum** | Space + Void | +3 Mult. |
+| **Eclipse Shade** | Space + Darkness | +3 Base, +1 Mult. |
 
 ---
 
@@ -587,7 +681,7 @@ Shares Brasa's Forge and the Astral Exchange's forge, past the door only (a seco
 - **After a boss:** A Warden fell. Somewhere a recipe just woke up.
 - **On your last life:** You look like a star near the end. Forge something bright, quickly.
 - **Lore** (told on visits 2, 4, 6):
-  1. Glimmer, Gloom, Moment, Reach, Flux, Null. Small pieces of very big things. The Wardens keep the big ones.
+  1. Light, Darkness, Time, Space, Chaos, Void. Small pieces of very big things. The Wardens keep the big ones: Luminance, Obscurity, Tempus, Ouranos, Hundun, Abyss.
   2. Stardust is what is left when a star forgets its own name. It remembers how to be a die, though.
   3. A Dead Star is not a failure. It is a fusion that tried too hard. I have a few at home.
 - **At the Forge:** clash: "Two runes, one number. I can superpose them, {fee} Shards. Or we let the universe pick, and one goes quiet." shrink: "Smaller die, fewer numbers. Any rune that loses its number moves to the top face, the {n}. Physics." volatile: "Volatile. {chance}% it collapses into a Dead Star. I would not, but I am not you." teach: "Oh, I know this pair. {die}. Now you know it too. Careful."
@@ -710,7 +804,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 
 | Shop | Keeper | What it does | Music |
 |---|---|---|---|
-| **Market** | Tobb | Dice, relics and consumables. The classic shop. | `shop_market` |
+| **Market** | Tobb | Dice, relics and consumables. The classic shop. Elementa's Market is the only Elementa shop that also stocks Totems (low weight). | `shop_market` |
 | **Alchemist** | Vessa | Consumables only, 20% off. Brew two into a stronger one. | `shop_alchemist` |
 | **Relic Vault** | The Curator | Three rarer relics. Shows up after bosses. | `shop_vault` |
 | **Forge** | Brasa (and Vesper past the door) | The Fusion Forge (four slots, see §2) and die size upgrades, plus two Runes on the shelf. Past the door Vesper adds a Catalyst to the shelf and sells 1 Stardust a visit. | `shop_forge`, `shop_vesper` past the door |
@@ -718,7 +812,7 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 | **Shrine** | Aeris | Rare. A free blessing, or a prophecy of the next boss. | `shop_shrine` |
 | **Aether Bazaar** | The Wanderers | Legendary. Every shop in one, 25% off, with rarer stock. | `shop_bazaar` |
 | **Astral Exchange** | The Wanderers | The Firmament's legendary shop: the Aether Bazaar's stock and prices, with one Celestial die always on the shelf. Always the stop before the round-30 Warden. | `shop_bazaar` |
-| **Seren's Observatory** | Seren | The Firmament only. Four Constellations a visit, duplicates allowed (Black Hole rarely). Reroll for 3 and up. | `shop_observatory` |
+| **Seren's Observatory** | Seren | The Firmament only. Four Constellations or Totems a visit, duplicates allowed (Black Hole rarely; a Totem is about one offer in five). Reroll for 3 and up. | `shop_observatory` |
 | **Atlas's Cartography** | Atlas | The Firmament only. No goods: three services, each once per visit. **Redraw** (6 Shards): the next row of the Road is drawn again (the follower's stop and the legendary shop stay). **Add a path** (5): this stop links to one more shop in the next row. **Peek** (8): learn which Warden waits next; it shows on the Road. | `shop_cartography` |
 | **The Horologist's Clockwork** | The Horologist | The Firmament only. **Six offers a visit, drawn from a pool**: Chrono always, plus one of Pulsar, Zenith and Kairos; three of his six consumables (Stopwatch, Time Capsule, Hourglass, Pocket Watch, Metronome, Almanac); and one of his two relics (Mainspring, Cuckoo Clock). No restock button. | `shop_clockwork` |
 | **Mote's Pantry** | Mote | The Firmament only. Sells nothing: it buys any die, relic or consumable for 150% of its sell value (rounded up), and eats its sell value. Its appetite (on this file, across runs) fills a meter to 400. At **40** its secret stock opens: a **Hollow Pact** for 15 Shards (Mote's, not a Nix pact: no Accord, no effect on Aeris) and a random die as a d6 with Warp (its price +12). At **120**: a **Warp Seal** and **2 Stardust** for 30 Shards (v0.8; it used to be a Mythic die). At 400 it is full (nothing more yet). | `shop_pantry` |
@@ -805,10 +899,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 | **Inferno** | 3 | 2 | 2 | 4 | No |
 | **Cataclysm** | 3 | 3 | 2 | 4 | Yes |
 
-### Achievements
-- **Stargazer** (secret): Own a Constellation at level 5.
-- **Cartographer of Skies** (secret): Take a Constellation to level 10.
-- **Runesmith** (secret): Own a die with a rune.
+### Achievements (47, 22 public and 25 secret; secret ones show as ??? until earned and do not count toward completion)
 - **First Spark**: Clear your first round.
 - **Keeper of the Circle**: Win a run.
 - **Every Path**: Win with all 8 loadouts.
@@ -818,7 +909,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 - **Overkill**: Clear a round at 5x the target.
 - **Chain Reaction**: Trigger 5 reactions in one cast.
 - **Hidden Chemistry**: Discover a secret reaction.
-- **Master Alchemist**: Discover every secret reaction.
+- **Master Alchemist**: Discover every classic secret reaction (the Mythic ones included; not the Firmament's 27).
 - **Quintessence**: Own an Aether die.
 - **Collector**: Fill every relic slot.
 - **Dragon's Hoard**: Hold 100 Shards at once.
@@ -827,7 +918,34 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 - **Thanks, Ermal**: Face Ermal the Unbothered.
 - **Bestiary**: Face every boss.
 - **Archivist**: Discover every die, relic, and consumable.
-- **Remembering**: Learn the recipes of Aether and the four gods (the scene after the visions). Files that knew them before v0.7 have it.
+- **Remembering**: Learn the recipes of Aether and the four gods.
+- **Beyond the Scale**: Score 100,000 in a single cast.
+- **Bad Company**: Take 3 of Nix's pacts in one run.
+- **Thrice Blessed**: Take 3 of Aeris's blessings in one run.
+- **Divine Spark** (secret): Forge a god die.
+- **Made Whole** (secret): Win on the Primordial path.
+- **Kept Apart** (secret): Win on the Split path.
+- **Three Roads** (secret): See the Elementa ending of all three paths.
+- **Through the Door** (secret): Step into the Firmament.
+- **Deep Sky** (secret): Reach round 25.
+- **First Warden** (secret): Defeat a Warden.
+- **Wardens Fallen** (secret): Defeat all six Wardens.
+- **Myth Made Real** (secret): Learn a Mythic recipe.
+- **The Six Unspoken** (secret): Learn all six Mythic recipes.
+- **Pantheon of Nothing** (secret): Hold three Mythic dice at once.
+- **Stargazer** (secret): Own a Constellation at level 5.
+- **Cartographer of Skies** (secret): Take a Constellation to level 10.
+- **Runesmith** (secret): Own a die with a rune.
+- **Cosmic Alchemist** (secret): Discover every Firmament reaction.
+- **Room to Spare** (secret): Own a die with Warp.
+- **Century** (secret): Grow a die to 100 sides.
+- **Stopped Clock** (secret): Own a Chrono die.
+- **Heat Death** (secret): Own an Entropy die.
+- **Beyond Chemistry** (secret): Discover a Mythic reaction.
+- **First Course** (secret): Feed Mote until its secret stock opens.
+- **Never Full** (secret): Fill Mote's appetite.
+- **The Other Side** (secret): Reach an ending in the Firmament.
+- **Every Last Word** (secret): See every ending.
 - **Trinity** (secret): Complete all three save files to 100%.
 
 ---
@@ -946,3 +1064,6 @@ These are places where the code and the text disagree. Tell me which way to go.
 5. **Two taglines promise more than the code does:** Lightning's "chained explosions re-check the set bonus mid-roll" and Ice's "locked faces count toward sets" describe nothing extra (every die already counts toward sets). Either give them those abilities or reword them.
 6. **Wider circle ignores Inferno's 4-die cap** (it adds a fifth slot). Fine as a reward, or should the Inferno and Cataclysm cap be hard?
 7. **Glass Cannon doubles only the extra explosion rolls,** not the first face. The text "Explosions add double value" matches, just flagging it.
+8. **A new relic took the name "Spring Tide".** The v0.8.1 spec called it "Undertow", but Undertow already exists (a Water relic that rerolls a die on lock). The new one (+2 Mult per locked Water die) was renamed; tell me if you would rather rename the old one.
+9. **The Void die (id `nil`) and Singularity react even though they score nothing.** Seven of the 27 Firmament reactions name the Void, and without this a lone Void die could never trigger any of them. A Darkness-eaten or swallowed die still does not react.
+10. **Nadir zeroes both neighbors, so it hardly ever reacts.** Its neighbors score 0, and a reaction needs both dice to score. It can still react across a ring (Continuum, Ley Line) or at range (Space).

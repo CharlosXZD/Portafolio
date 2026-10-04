@@ -406,7 +406,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
         <div className="pixel-heading text-[10px]" style={{ color: hidden ? 'var(--text-mute)' : r.color }}>
           {hidden ? '???' : r.name}
         </div>
-        <div className="text-base leading-snug text-[var(--text)]">{hidden ? t('elementa.gallery.secretHint') : r.description}</div>
+        <div className="text-base leading-snug text-[var(--text)]">{hidden ? t(raw.firmament ? 'elementa.gallery.secretHintFirmament' : 'elementa.gallery.secretHint') : r.description}</div>
       </div>
     )
   }
