@@ -478,7 +478,7 @@ function newDieCost(elementId, dice, relics, shop, sizeId = SHOP_DIE_TIER) {
       ? 4 + owned
       : tier === 'arcane'
         ? ELEMENTS[elementId].price ?? ARCANE_DIE_COST_BY_RARITY[rarityForElement(elementId)]
-        : DIE_BASE_COST_BY_TIER[tier]
+        : ELEMENTS[elementId].price ?? DIE_BASE_COST_BY_TIER[tier]
   // Bigger dice cost more: a d3 is the base price. A Mythic die is a d6 at
   // its own price, and a Warp offer costs more (H3).
   const premium = isMythic(elementId) ? 0 : SHOP_DIE_SIZES.find((x) => x.id === sizeId)?.premium ?? 0
@@ -2046,6 +2046,9 @@ function reduce(state, action) {
       // Older saves predate seeds: give them a generator state so the rest
       // of the run is still saved and reproducible from here on.
       const save = migrateRuns(renameChrono(action.save))
+      // A NaN purse (a bug in v0.8's first build priced the new base dice at
+      // NaN) is repaired to a small float so the run can go on.
+      if (!Number.isFinite(save.shards)) save.shards = 30
       return {
         ...save,
         // Past the door the gods' gauntlet is long over (H1).
