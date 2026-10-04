@@ -491,7 +491,8 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.1** | Family growth | **Built.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
 | **v0.8.2** | Late scaling | **Built.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
 | **v0.8.3** | Crutches for the new dice | **Ready.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
-| **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 poker, Joker and sigil dice (Carlos 2026-10-04: poker and Joker dice merged in here). Face-bound runes (v0.8) already cover part of editable faces, so scope the rest in a workshop first. |
+| **v0.8.5** | Strange faces | **Ready.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
+| **v0.8.6** | Sigils | Sigil dice by path (sun, scale, key; eye, spiral, maw), unlocked by finishing each path's Firmament ending. Needs a short workshop for the effects first. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
@@ -1642,8 +1643,52 @@ Sold in Firmament Markets and the Astral Exchange like the other Celestial dice 
 - Patch notes "Alpha 0.8.3 Crutches for the new dice" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; mark Part N Built.
 - Tests: Node scripts for the Charged line, every changed ability, the Time Ghost, the Void cap and slot rule, Chaos picking the best element, the Non-Euclidean cap at sides, Event Horizon's spawn and the +50 between the two Black Holes (including a reordered row), Quantum Entanglement with a seeded pick, Shooting and Neutron Star chains, Closed Timelike Curve's window (with a fake clock), arrival sizes at three pool medians, the apprentice discount. Then run `tools/balanceSim.mjs` (teach the bot to buy these dice) and report the table. Browser pass on a Firmament test save, **muted**.
 
+## Part O: v0.8.5 "Strange faces" (spec, 2026-10-04)
+
+**Status: Ready.** Workshopped with Carlos on 2026-10-04: four more runes, Laws, and poker and Joker dice, **all in Elementa as well as the Firmament**. Sigil dice move to **v0.8.6** (their own step; not in this one). Run after v0.8.3. Items marked **Default** are Claude's reading; list each in the report.
+
+### O1. Four more runes (face-bound, like the other five)
+
+Same rules as Part K3b (a rune is inscribed on one number of a die, with the Inscribe screen; they work only when the die shows that number; the Forge keeps them; Gem Socket superposes). Sold exactly where the other runes are (Forges and Markets, Elementa too).
+
+| Rune | Rarity | Effect on its number |
+|---|---|---|
+| **Wild** | Epic | When the die shows this number it counts as any value for sets (a pair, three of a kind, a straight). |
+| **Gold** | Uncommon | When the die shows this number it pays **2 Shards** each cast. |
+| **Link** | Rare | When the die shows this number it reacts with both neighbors as if it were the element that makes the best reaction with each (**Default**: the best available for each neighbor). |
+| **Double** | Rare | When the die shows this number its score is **also added to Mult**, once per cast (**Default**). |
+
+### O2. Laws
+
+A **Law** is a Mythic-rarity relic that **rewrites one scoring rule**. There is **one Law slot** (**Default**), separate from the relic slots, so picking a Law is a choice; a second Law replaces the first (no refund). Laws appear in Elementa's Vault and Aether Bazaar, in the Firmament's Astral Exchange and Seren's Observatory, and as a third option after a Warden or a round-10 boss reward (**Default**). Price 40. Each has a sprite (existing procedural sprites), a Gallery entry under Relics (a "Laws" group), a ledger line when it acts, and EN and ES text.
+
+| Law | Effect |
+|---|---|
+| **Law of Inversion** | Your lowest die counts as your highest face for scoring. |
+| **Law of Unity** | Every reaction also counts as a Resonance (+2 Base each). |
+| **Law of Symmetry** | If your pool's faces read the same forwards and backwards, Mult x2. |
+| **Law of Greed** | Each 10 Shards you hold adds +1 Mult. |
+| **Law of Echo** | Your highest-scoring die counts twice (**Default**; the first idea, "first cast counts twice", has no meaning with one cast per round). |
+| **Law of Small Things** | Your d3 dice score x3 and your d5 dice x2, as if they were d10s (**Default**). |
+
+### O3. Poker dice and the Joker
+
+- **Poker die:** six faces, **9, 10, J, Q, K, A** (each is also a number, 9 to 14, so existing scoring still reads a value; the face shows the rank, not the number). Fixed at six faces: Upgrade Stones and Chisel do not touch it (**Default**). Family "Poker" (its own tag and Gallery group). Rare, 10 Shards, sold from round 3 in Elementa Markets and in every Firmament shop.
+- **Joker:** a poker die with a seventh face "Joker" that is **wild**: for poker hands it counts as any rank, for sets any value. Epic, 20 Shards. A pool holds at most 2 Jokers (**Default**).
+- **Poker hands** are read **among the poker dice only** (Jokers included) and add Mult: pair +1, two pair +2, three of a kind +3, straight (five in a row) +5, full house +5, four of a kind +8, five of a kind +15 (**Default** numbers; only the best hand counts). Needs at least two poker dice. Show the hand's name and a ledger line in the cast.
+- **New loadout, "Gambler"**: starts with **five poker dice** (**Default**: four poker and one Joker). Unlocked by winning a run with any other loadout. It takes the next place in the loadout grid and the completion marks as normal (no ending changes).
+- Rendering: rank letters on the die token, sprite, tooltips, shop cards and the Gallery; Masquerade and Chameleon copy a poker die like any other.
+
+### O4. Also in this step
+
+- Gallery and `TOTALS` (new runes, six Laws, two dice, one loadout); Spanish text; keywords (**Wild**, **Poker**, **Law**).
+- Test saves: a Firmament save and an Elementa save that hold poker dice, a Law and each new rune.
+- Patch notes "Alpha 0.8.5 Strange faces" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; mark Part O Built.
+- Tests: Node scripts for every rune on its number (including Link's best pick and Double once per cast), each Law, every poker hand with and without Jokers, a pool of mixed poker and number dice, the Gambler loadout start, the Law replace rule, old saves loading. Run `tools/balanceSim.mjs` and report the table (teach the bot to buy poker dice). Browser pass on both test saves, **muted**.
+
 ## Decision log
 
+- **2026-10-04 (v0.8.5 workshop, Carlos):** four more runes, a Law slot with six Laws, poker dice and the Joker with a Gambler loadout, all in Elementa as well; sigil dice move to v0.8.6: Part O.
 - **2026-10-04 (curve and new dice, Carlos):** the start gets harder (x1.75, growth 1.37 to round 10, built by Claude) and eases after round 15 as planned; the new dice get crutches (Part N); Carlos's table and seven new die ideas are folded in, with his answers (Time Ghost, Void without a slot, Charged tag, 20 s Closed Timelike Curve on the Clockwork's timer, Non-Euclidean capped at its sides, Event Horizon's Black Hole dice as a +50 bracket).
 - **2026-10-04 (late scaling, Carlos):** after his round-25 run (79k against about 86k) and Claude's simulation (a modest bot falls from 2.2 times the target at round 3 to 0.8 by round 16), Carlos wants a late scaler and a slightly easier curve: Part M.
 - **2026-10-04 (closing the questions, Carlos):** Neutral faces the same Warden sets as the Split; Obscurity's neighbors score half instead of 0 (their whole score still goes to Mult); Part K's defaults are confirmed as built; poker and Joker dice merge into v0.8.5 (no separate v0.7.6).
