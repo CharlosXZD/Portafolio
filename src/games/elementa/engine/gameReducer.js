@@ -546,9 +546,11 @@ function knowsGods(state) {
   return GOD_IDS.every((id) => state.recipes?.includes(id))
 }
 
-// One god at a time; the Pantheon relic allows a second (B4).
-function godCapFor(state) {
-  return relicEffects(state.relics).godCap || 1
+// The four gods may share a pool (Carlos, 2026-10-04: the old "one god at a
+// time" is lifted); each is still one of a kind (`holdsKind`). The Pantheon
+// relic now pays for a full house instead (a Mult per god held).
+function godCapFor() {
+  return GOD_IDS.length
 }
 
 function godCount(dice) {

@@ -740,6 +740,11 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
       value: fx.multPerDistinctElement * new Set(perDie.map((d) => d.elementId)).size,
     })
   }
+  // Pantheon: Mult for every god die held, scoring or not.
+  if (fx.godMult) {
+    const gods = perDie.filter((d) => ELEMENTS[d.elementId]?.tier === TIERS.GOD).length
+    addMult({ kind: 'relic', id: sourceOf(relics, 'godMult'), value: fx.godMult * gods })
+  }
   if (fx.multPerUnusedReroll && ctx.rerollsLeft > 0) {
     addMult({ kind: 'relic', id: sourceOf(relics, 'multPerUnusedReroll'), value: fx.multPerUnusedReroll * ctx.rerollsLeft })
   }

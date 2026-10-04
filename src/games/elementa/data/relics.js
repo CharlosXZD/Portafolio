@@ -499,8 +499,8 @@ export const RELICS = [
     needsGods: true,
     bazaarOnly: true,
     itemConcept: 'a tiny temple with four empty pedestals',
-    description: 'You can hold a second god die.',
-    effects: { godCap: 2 },
+    description: 'Every god die you hold gives +2 Mult.',
+    effects: { godMult: 2 },
   },
   // --- The Horologist's relics (EXPANSION.md I2): sold only by him, in the
   // Firmament (`horologistOnly`). ---

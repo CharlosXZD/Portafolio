@@ -99,7 +99,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 | **Varuna** | 4 Water | 24 | Any die can lock for free, and those locks refund a reroll. After every roll, every die showing a 1 takes her face. | 1s come up 50% more often, on every die. |
 | **Zephyr** | 4 Air | 24 | Sets go up one tier (pair counts as three, three as a straight). His face is a set wildcard. | Fire-family dice explode half as often. |
 
-- **One god at a time** (Pantheon allows two). Gods can't be cloned or copied by Shadow Twin. They count as their element's family, and holding one at round 15 pushes the Accord -3.
+- **One of each god** (the four can share a pool since v0.8.1; Pantheon gives +2 Mult per god held). Gods can't be cloned or copied by Shadow Twin. They count as their element's family, and holding one at round 15 pushes the Accord -3.
 - **The recipes** are learned from the visions after a Neutral win (see §7a).
 
 **The Primordial die** (Divine, d20): lent on the Primordial path for round 15 only, outside the dice cap, never sold. Every Aether mechanic, plus the ability of each god defeated in the gauntlet, without the drawback.

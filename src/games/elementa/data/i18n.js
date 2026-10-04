@@ -245,7 +245,7 @@ export const RELICS_ES = {
     name: 'Cadena Rota',
     description: 'Los dados de la familia Fuego explotan con sus dos caras más altas. La cadena de Ognen no tiene límite.',
   },
-  pantheon: { name: 'Panteón', description: 'Puedes tener un segundo dado dios.' },
+  pantheon: { name: 'Panteón', description: 'Cada dado dios que tengas da +2 Multiplicador.' },
   mainspring: { name: 'Resorte Maestro', description: 'Los rerolls que no uses se guardan para la próxima ronda, hasta 3.' },
   cuckoo_clock: {
     name: 'Reloj de Cuco',

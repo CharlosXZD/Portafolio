@@ -1040,7 +1040,7 @@ const GOD_TEXT = {
     varuna: ['Any die can lock for free, and those locks refund a reroll. Every die showing a 1 takes her face.', 'Drawback: 1s come up 50% more often, on every die.'],
     zephyr: ["Sets go up one tier (a pair counts as three, three as a straight). Zephyr's face is a wildcard.", 'Drawback: Fire-family dice explode half as often.'],
     primordial_die: ['Gains each defeated god\'s ability, without the drawback.'],
-    oneGod: 'Only one god die at a time.',
+    oneGod: 'One of each god die; the four can share a pool.',
   },
   es: {
     gaea: ['También anota la cara de cada otro dado de la familia Tierra. Los dados de Tierra son comodines de set.', 'Desventaja: los dados de la familia Tierra anotan -5 (-10 con un 1).'],
@@ -1048,7 +1048,7 @@ const GOD_TEXT = {
     varuna: ['Cualquier dado se puede bloquear gratis, y esos bloqueos devuelven un reroll. Cada dado que muestra un 1 toma su cara.', 'Desventaja: los 1 salen un 50% más seguido, en todos los dados.'],
     zephyr: ['Los sets suben un nivel (un par cuenta como trío, un trío como escalera). La cara de Zephyr es comodín.', 'Desventaja: los dados de la familia Fuego explotan la mitad de las veces.'],
     primordial_die: ['Gana la habilidad de cada dios derrotado, sin la desventaja.'],
-    oneGod: 'Solo un dado dios a la vez.',
+    oneGod: 'Uno de cada dado dios; los cuatro pueden compartir reserva.',
   },
 }
 
