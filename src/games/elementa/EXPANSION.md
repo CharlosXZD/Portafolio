@@ -489,6 +489,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) merge into v0.8.5. |
 | **v0.8** | Cosmic elements | **Built.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
 | **v0.8.1** | Family growth | **Built.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
+| **v0.8.2** | Late scaling | **Ready.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 poker, Joker and sigil dice (Carlos 2026-10-04: poker and Joker dice merged in here). Face-bound runes (v0.8) already cover part of editable faces, so scope the rest in a workshop first. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
@@ -1526,8 +1527,46 @@ The six shop elements (Light, Darkness, Time, Space, Chaos, Void, ids `glimmer`,
 - Patch notes "Alpha 0.8.1 Family growth" in Part D and `data/patchNotes.js`; CONTENT.md (regenerate it fully, it still has pre-rename names); GDD section; mark Part L Built.
 - Tests: Node scripts for Tide at half and at each Totem level, Drift to the top (and that it does not explode), each relic, each Totem level, every one of the 27 reactions in the ledger, fusions triggering several, the achievements, old saves loading. Browser pass on a test save, **muted**.
 
+## Part M: v0.8.2 "Late scaling" (spec, 2026-10-04)
+
+**Status: Ready.** Carlos's playtest (2026-10-04): at round 25 he scored about 79,000 against a target near 86,000 with good dice (some dice scored 200), and agreed with Claude's simulation: the start is easy, but from round 15 the targets (x1.45 every round) outgrow what builds can do. He asked for **a late scaler and a slightly easier curve**. All numbers are **Defaults** (tune after playtests). The goal: a good build should sit near **1.0 to 1.3 times the target at every round up to 30**, a mediocre one falls behind slowly, and the first 15 rounds stay as easy as they are.
+
+### M1. The curve after round 15
+
+`thresholdForRound` (engine/scoring.js): rounds 1 to 15 unchanged. **After round 15 the growth is x1.40 per round instead of x1.45** (**Default**): round 20 is about 7,800 (was 9,313), round 24 about 30,000 (was 41,167), round 25 about 42,000 (was 59,693), round 30 about 227,000 (was 382,615) on Ember. The Warden multipliers (1.0, 1.1, 1.25) and every difficulty multiplier stay. Runs already saved keep their stored target. Print the new table in the report.
+
+### M2. Every die can grow past d20 in the Firmament
+
+Today only Aether, the Mythic dice and Entropy grow big (d30 to d100). **In the Firmament any die can** (`canGrowBig` becomes true past the door): the upgrade tiers and costs already exist in `data/diceTiers.js` (d30 for 30 Shards, up to d100). This is the main late lever: faces scale linearly, so a d50 beats a d20 by far. The Upgrade Stone and every upgrade shop follow it. Chisel still splits one size down (a d30 splits into two d20).
+
+### M3. Four multiplying relics (the first x-Mult sources)
+
+Firmament and Elementa Markets both sell them from round 15 (round-gated by rarity as usual; the Legendary ones are Firmament-only). `multMult` effects multiply the final Mult, shown as one ledger line each.
+
+| Relic | Rarity | Effect |
+|---|---|---|
+| **Crown of Ages** | Legendary | Mult x(1 + round / 20): x1.75 at round 15, x2.25 at round 25, x2.5 at round 30. |
+| **Heart of the Forge** | Epic | Every fusion or element-fusion die in your pool multiplies Mult by x1.15. |
+| **Starmap** | Epic | Mult x(1 + 0.05 per Constellation level you own, all ten added up). Pairs with Seren. |
+| **Echo Chamber** | Legendary | The best reaction of the cast (by Mult) triggers twice. |
+
+### M4. Constellation milestones
+
+A Constellation at **level 5** doubles the Mult of that reaction (or the set tier's Mult); at **level 10** it triples it. Black Hole counts for every one of them. Show a small marker on a milestone level in Run Info.
+
+### M5. Verify with the simulator
+
+`tools/balanceSim.mjs` (committed, 2026-10-04) runs a modest bot and prints the pass rate and the median (score / target) for every round. The bot buys relics, dice and upgrades but does **not** use Constellations, Totems, consumables or the new elements, so it is a floor. Before and after the changes, run it for Ember, 60 runs, rounds up to 30, and include both tables in the report. **Extend the bot** (in the same file) to also buy the new relics and to upgrade dice past d20 in the Firmament, then check: a bot that takes these should hold a median ratio near 1.0 through round 25, and the unaided bot should still fall behind slowly (so choices matter). If a number is off, adjust the Defaults and say what you changed.
+
+### M6. Also in this step
+
+- Patch notes "Alpha 0.8.2 Late scaling" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; mark Part M Built.
+- Gallery, Spanish text, sprites (existing procedural sprites), `itemConcept` for each relic.
+- Tests: Node scripts for the threshold table, a die growing past d20 and scoring, each relic in the ledger, the milestones at levels 4, 5, 9, 10, an old save loading. Browser pass on a Firmament test save, **muted**.
+
 ## Decision log
 
+- **2026-10-04 (late scaling, Carlos):** after his round-25 run (79k against about 86k) and Claude's simulation (a modest bot falls from 2.2 times the target at round 3 to 0.8 by round 16), Carlos wants a late scaler and a slightly easier curve: Part M.
 - **2026-10-04 (closing the questions, Carlos):** Neutral faces the same Warden sets as the Split; Obscurity's neighbors score half instead of 0 (their whole score still goes to Mult); Part K's defaults are confirmed as built; poker and Joker dice merge into v0.8.5 (no separate v0.7.6).
 - **2026-10-04 (families, Carlos):** Fire is strong, so lift the others: Water's locked dice add half their score to Mult, Drift can jump a die to its top face (once a round), five relics, four Totems (relics and items both), and reactions between the new elements, the old ones and each other: Part L.
 - **2026-10-04 (gods, Carlos):** the four gods may share a pool; the old one-god-at-a-time cap is lifted, one of each remains. The Pantheon relic, which only raised the cap, now gives +2 Mult per god die held (Claude's proposal).
