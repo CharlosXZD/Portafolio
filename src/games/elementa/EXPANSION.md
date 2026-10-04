@@ -571,8 +571,11 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.3** | Crutches for the new dice | **Built.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
 | **v0.8.5** | Strange faces | **Built.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
 | **v0.8.6** | Sigils | **Built.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. The Eye's peek is a live dry run, no engine change. Run after v0.8.5. |
-| **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
-| **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
+| **v0.9** | Realm 3 | **Ready.** Part R: rounds 31 to 45 (Empyrean, Pleroma or Meridian by path), six Rewriters, four Abstract elements with fusions and four Absolute forged dice, the number dice, two endings per path. Run after v0.8.6. |
+| **v0.9.2** | The Arbiter | **Ready.** Part S: the realm's god who talks like Pip, for or against you, and the opt-in fourth-wall lines. |
+| **v0.9.5** | The Convergence | The Rush, Pip, you as the true boss per difficulty (Part Q3). Spec after v0.9 is built. |
+| **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
+| **(old)** | Rewriting reality | Became v0.9 (Realm 3) and v0.9.5 (Convergence). |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
 | **Beta v0.1** | Cinematics and depth | Part G Q4b: full animated cinematics, 3D-style item sprites like the dice, and more interesting items and synergies. The beta starts after Alpha v1.0. |
 
@@ -1832,6 +1835,61 @@ Carlos's idea: the peek shows the future from the current conditions, so a playe
 - Test saves with all six unlocked and a couple of sigil dice in the pool; Gallery `TOTALS`; EN and ES text; keywords (**Sigil**, **Tip the scales**, **Spiral**).
 - Patch notes "Alpha 0.8.6 Sigils" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; mark Part P Built.
 - Tests: Node scripts for each symbol, normal and Greater (including Scale's floor against the expected average, Spiral's chain cap, Maw eating one and two dice), the per-die seed (the peek equal to the real next reroll for the current table, the vision changing after a hold, a lock and a reorder, and recomputed after each, old saves loading and replays of old seeds unchanged), the unlock rules and the keepers' shops, the hold-one-per-set rule. Run `tools/balanceSim.mjs`, report the table. Browser pass on a test save, **muted**.
+
+## Part R: v0.9 "Realm 3" (spec, 2026-10-04)
+
+**Status: Ready.** From Part Q (Carlos's decisions and the drafts he approved on 2026-10-04: "I love all of it"). Run after v0.8.6. **This step builds realm 3 only**; the Arbiter's scenes and the fourth-wall lines are Part S (v0.9.2), and the Convergence, the Rush, Pip and the true boss are v0.9.5 (spec after this is built). Items marked **Default** are Claude's reading; list each in the report.
+
+### R1. The realm and the door
+
+- **Rounds 31 to 45**, a continuation of the same run after the Firmament (like the Firmament after round 15). A Crossroads at round 30 mirrors the one at 15: rest (the run ends with the Firmament ending) or walk through. **Door rule (Default):** the door opens once the file has seen that path's **Firmament I** ending (`firmament_<path>_1`).
+- **One realm, three looks.** The path picks the name and look: **the Empyrean** (Split: strict, grid-like, ordered), **the Pleroma** (Primordial: merging, dissolving edges), **the Meridian** (Neutral: swinging between the two). Look = palette, backdrop and a light CSS or canvas "reality glitch" layer, no AI art, respecting Reduced motion (static). The path also picks the Rewriter sets (R2).
+- **Targets (Carlos: steeper):** growth **x1.45 per round** from round 31 (the Firmament is x1.40). Make sure numbers in the tens of millions format cleanly (K, M, B) on every screen; check `AnimatedNumber` and the cast reveal.
+- **Endings:** two new per path: `realm3_<path>_1` and `realm3_<path>_2` (draft text, bilingual, marked as drafts for Carlos), Realm I after Set I's last Rewriter, Realm II after Set II's, like `firmamentSets`. Six new ending cards, hints that follow the "reveal step by step" rule (a Realm hint only after that path's Firmament I ending is seen), completion marks.
+- **Shops past the door:** Market, Forge (Brasa and Vesper), Black Market, Shrine, Vault, Observatory, Cartography, Clockwork, Pantry and the legendary shop all appear as in the Firmament, with Tobb in the Market as always. The legendary shop is named per path (Part A1 proposals, Default): Empyrean **The Ledger**, Pleroma **Cornucopia**, Meridian **Equinox Market**.
+
+### R2. The six Rewriters (bosses at 35, 40, 45)
+
+Same machinery as the Wardens (`WARDENS`, a boss's `effects`, a boss card, a Gallery entry, Atlas's peek, a music theme, an intro scene of three short lines in each Rewriter's voice from Part Q2 with Pip's reaction). **Sets:** Split and Neutral: Set I = the Axiom, Zero, Floating Point; Set II = Infinity, the Observer, Deadlock. Primordial: reversed.
+
+| Rewriter | Rule while it is the round's boss |
+|---|---|
+| **The Axiom** | Score is **Base + Mult**, not Base x Mult. |
+| **Zero** | Every face below 3 counts as 0 and fizzles. |
+| **Infinity** | Nothing is capped (explosions, chains, Ognen) but the **target rises 10% per reroll used and 5% per explosion** this round. Show the live target. |
+| **The Observer** | A die's face is hidden ("?") until the player **hovers or taps** it; casting reveals all. Keyboard: a key reveals the focused die. Dice held or locked stay hidden too. Luminance and the Eye still work. |
+| **Floating Point** | **No decimals:** Base and Mult are rounded down at every step of the ledger (show it in the ledger as "Floating Point: -0.5"). |
+| **Deadlock** | The player can **hold or lock at most one die** at a time. |
+
+- **Targets:** calibrate each with `tools/balanceSim.mjs` extended with the rule: run the bot with the counter-play (Axiom: flat Base and big dice; Zero: big dice and floors; Infinity: low rerolls; Observer: Luminance or the Eye; Floating Point: whole-number sources; Deadlock: reroll-everything) and set the target to about **1.1 times** that bot's median, never above what a strong build reaches. Report the table. The boss card states the rule, the target and a one-line hint at the counter (EN and ES).
+- **Prizes:** Zero teaches the recipe of **Nun**, the Axiom **Monad**, Infinity **Apeiron**, the Observer **Janus** (R3); Floating Point leaves the relic **Epsilon** (your Mult is never rounded down and +2 Mult; Legendary), Deadlock the relic **Release** (you can hold one more die than any limit; Legendary). Stardust drops as for every boss (2 for a Rewriter).
+
+### R3. New elements, fusions, forged dice (all in realm 3's shops and Forge)
+
+Exactly as Part Q4 (Draft approved), built the way the Firmament's were (Part K: base elements bought, forged dice made at the Forge from 4 of the element plus Stardust and Shards with the recipe taught by a boss, fusions two-element, Vesper teaches a fusion the first time its parents sit in her slots). Rarities **Abstract** (base elements and fusions) and **Absolute** (forged dice) are new entries in the rarity ladder (above Mythic) with their own colors, labels, Gallery groups and EN and ES names. Four base elements (Zero, One, Infinity, Negation), four fusions (Bit, Limit, Parity, Divergence), four forged dice (Nun, Monad, Apeiron, Janus), all with the abilities in Q4. **Charged** (Part N) does **not** apply. They need their own reactions with the other elements (**Draft**: a curated set of ten, one per element pair with the four classic elements and the four realm 3 elements' pairs, all secret like the Firmament's; Claude's agent writes names and effects in the same spirit as Part L5 and lists them).
+
+### R4. The number dice (B12), sold only here
+
+Build the four dice **exactly as B12 decided**: Two's Complement, Reversed Bits (Carlos's decision (b): reversal within each die's own bit width), Rolling Joke, Undivisible. Sold only in realm 3's Markets and legendary shop (Default prices: 16 for Epic, 30 for Legendary). Read B12 in full first; where it is silent, build the simplest reading and list it.
+
+### R5. Also in this step
+
+- **Achievements (secret):** one per Rewriter beaten, **Rewritten** (all six), one per Abstract and Absolute die forged, **Out of Order** (reach round 45).
+- Test saves: a save at round 30 with the door open on each path, and one in realm 3 holding some of the new dice.
+- Patch notes "Alpha 0.9 Realm 3" in Part D and `data/patchNotes.js`; CONTENT.md (regenerate the new sections); GDD section; mark Part R Built.
+- Tests: Node scripts for each Rewriter's rule (including Floating Point's rounding at every ledger step, the Axiom's addition, Infinity's rising target, Deadlock's hold limit, Zero's faces), each new die and fusion, the number dice, the door rule and the sets, the ending ids, number formatting up to round 45, an old save loading. Run the extended balance simulator and report the Rewriter table. Browser pass on the test saves, **muted**.
+
+## Part S: v0.9.2 "The Arbiter" (spec, 2026-10-04)
+
+**Status: Ready.** Run after v0.9. The god of realm 3 and the fourth-wall lines. Items marked **Default** are Claude's reading.
+
+- **The Arbiter** (Carlos: **an** Arbiter, not "the" one; unarmed; **for you or against you; talks to the player like Pip**). A recurring voice in realm 3: a short line at the start of every round of realm 3 and at each shop, in the same speech-bubble style as Pip's tips (EN and ES, three to five lines per situation, so it rarely repeats). **For or against (Default):** a hidden `favor` value on the run: it rises when the player plays cleanly (clears rounds without the Eye-fishing offenses, without Nix betrayals) and falls with offenses; at a high favor the lines are warm and he sometimes gives a tiny gift (+1 reroll for one round); at a low favor they are cold and he may add a small hindrance (a hold removed). Never lethal, never random.
+- **His name (Default):** `Arbiter` in the data until Carlos names him; one place to change it; a procedural portrait (an open empty hand), a Gallery entry, a Keepers-like page.
+- **Part P5 integration:** the god who bans fishing **is** this Arbiter (the realm 3 cameo becomes his first line in realm 3); keep P5's scene and mechanics, but its speaker is now "an Arbiter".
+- **The fourth wall (Part Q6):** a **permission prompt the first time he appears** (and a setting in Options: "The Arbiter may notice details about your device"), plain words: some lines **read** details your browser shares with the page and **never send them anywhere**; declining changes nothing about play, the lines just stay generic. Stored in localStorage (`elementa-fourthwall` = `yes` or `no`; asked once; in backups). **Only what the page can lawfully see without asking:** local time of day, timezone, language, operating system and browser (from the user agent), screen size, session length, whether the tab was left and returned, runs and wins on this file. **No cookies are read, nothing is sent, no network calls.** Also **bluffs** as jokes, clearly invented ("I know what is in your Downloads folder"), shown with a wink the player can recognize.
+- **Lines:** each Rewriter gets two fourth-wall lines (when permission is yes) and the Arbiter ten, with placeholders like `{hour}`, `{timezone}`, `{os}`, `{language}`, `{screen}`, `{returned}`, `{runs}`. Draft text by the agent, marked as drafts for Carlos to rewrite. If a detail is unavailable, the line is skipped.
+- **Tests:** permission yes and no (no network, no cookie reads: add a test that greps the code for `document.cookie` and `fetch` use in these files), favor going up and down, lines without a placeholder when a value is missing, the opt-in appearing once, backups carrying the setting.
+- Patch notes "Alpha 0.9.2 The Arbiter"; CONTENT.md; GDD; mark Part S Built.
 
 ## Decision log
 
