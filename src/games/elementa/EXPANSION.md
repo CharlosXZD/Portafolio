@@ -490,6 +490,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8** | Cosmic elements | **Built.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
 | **v0.8.1** | Family growth | **Built.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
 | **v0.8.2** | Late scaling | **Ready.** Part M: targets grow x1.40 instead of x1.45 after round 15, any die grows past d20 in the Firmament, four multiplying relics, Constellation milestones, checked with the committed balance simulator. |
+| **v0.8.3** | Crutches for the new dice | **Ready.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
 | **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 poker, Joker and sigil dice (Carlos 2026-10-04: poker and Joker dice merged in here). Face-bound runes (v0.8) already cover part of editable faces, so scope the rest in a workshop first. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
@@ -1564,8 +1565,79 @@ A Constellation at **level 5** doubles the Mult of that reaction (or the set tie
 - Gallery, Spanish text, sprites (existing procedural sprites), `itemConcept` for each relic.
 - Tests: Node scripts for the threshold table, a die growing past d20 and scoring, each relic in the ledger, the milestones at levels 4, 5, 9, 10, an old save loading. Browser pass on a Firmament test save, **muted**.
 
+## Part N: v0.8.3 "Crutches for the new dice" (spec, 2026-10-04)
+
+**Status: Ready.** Carlos's problem: the Firmament's new dice try to compete with dice that were upgraded for 15 rounds. So they are made **powerful on purpose**, arrive at the player's level, and grow cheaper. His workshop table and new die ideas are in `IDEAS.md` ("Workshop new Die"); this is the build spec. **Only the dice listed here** (the six base elements, the seven element fusions, the Dead Star, the five Celestial dice, and the seven new dice below); the Mythic dice, Entropy, Chrono, Kairos and every older die are untouched. Carlos's answers on 2026-10-04 are folded in. Items marked **Default** are Claude's reading of something Carlos did not spell out; list each in the report.
+
+### N1. The "Charged" tag: face to Mult
+
+Every die in this part carries a tag, **Charged**: **half of its face value is also added to Mult** (a ledger line "Charged +N Mult" per die; the half is rounded to one decimal; a die that scores 0 for any reason still adds it unless it was swallowed). Where a die below says "face to Mult (full)", it adds the whole face instead. The tag is a keyword, shown on the card and in the Gallery, in EN and ES.
+
+### N2. The six base elements (Carlos's table)
+
+| Die | Final ability |
+|---|---|
+| **Light** | Its neighbors never fizzle, and each neighbor counts **+10 Base**. |
+| **Darkness** | The die on its right scores half, and the other half goes to Mult. |
+| **Time** | **+2 rerolls** every round. It **can be locked** like a Water die. **It summons a Time Ghost**: after every reroll a temporary ghost die appears holding **the score the pool had before that reroll** (Default: the whole previous round score of that die row, shown on a ghost die that adds it to Base once, and vanishes at the end of the round). The ghost never counts toward the dice cap. |
+| **Space** | Reacts with dice **three places away** on each side, and bridges the space between dice so the dice either side of it react with each other. |
+| **Chaos** | Each roll it becomes the **pure element that makes the best reaction with a neighbor** (a seeded pick among ties), and every reaction it takes part in gets +1 Mult. |
+| **Void** | Scores nothing. Its **face goes to Mult in full**, plus **+1 Mult per empty slot** (was +0.5). **It does not occupy a dice slot** (like Warp: it does not count toward the dice cap; Default: at most 3 Void dice at once, the Warp cap). |
+
+### N3. Their fusions inherit the upgrades (Carlos: yes)
+
+A fusion keeps what it did and also takes each parent's upgraded ability. Final abilities (**Default** wording; one sentence each in the Gallery):
+
+| Die | Final ability |
+|---|---|
+| **Shadow** (Darkness + Light) | The die on its left scores half (the other half to Mult); the die on its right never fizzles and counts +10 Base. |
+| **Continuum** (Time + Space) | The two ends of the pool form a ring, +2 rerolls a round, it can be locked, and it reacts three places away. |
+| **Oblivion** (Chaos + Void) | Each cast it swallows your lowest other die and adds **3 times** its face to Mult; it takes the best reacting element each roll; it takes no dice slot (counts toward the Void cap of 3). |
+| **Alba** (Light + Time) | No die rolls below **a quarter of its own size** (rounded up, at least 2); your first reroll each round is free; its neighbors count +10 Base. |
+| **Anomaly** (Chaos + Time) | After every reroll, **two** random unheld dice roll once more for free and you keep the better outcome; +2 rerolls a round. |
+| **Singularity** (Light + Void) | Scores nothing; its neighbors' Base is **tripled**; its face goes to Mult in full; it takes no dice slot (Void cap). |
+| **Nadir** (Darkness + Void) | Its neighbors score half; every empty slot gives **+3 Mult**; it takes no dice slot (Void cap). |
+| **Dead Star** | Scores nothing; **+1 Mult** for every other die in your pool. |
+
+Every one of these carries the **Charged** tag (the Dead Star too).
+
+### N4. The Celestial dice (Carlos's numbers)
+
+- **Comet:** Charged only (explosions unchanged).
+- **Pulsar:** **+10 Base per reroll** this round (the cap goes up to +100; resets next round).
+- **Satellite:** the dice on both sides count their face **+15% of that die's own size** (rounded up, at least +1).
+- **Quasar:** its whole score goes to Mult **doubled**.
+- **Zenith:** **+2 rerolls** a round (and the old bonuses at rounds 20 and 25 stay), Charged.
+
+### N5. Seven new dice (all Firmament only, Charged unless it says otherwise)
+
+Sold in Firmament Markets and the Astral Exchange like the other Celestial dice (weight 1, arriving in the usual sizes, subject to N6); price 16 Epic, 30 Legendary. Family: Celestial. Procedural placeholder art and a Gallery entry each. These are **not** Fire-family dice, so Fire relics do not touch them (Carlos: "we want them to be powerful").
+
+| Die | Rarity | Rule |
+|---|---|---|
+| **Closed Timelike Curve** | Epic | If you cast within **20 seconds** of the round starting, Mult **x2** (a ledger line). It uses the Clockwork's timer (a visible countdown, running only while the table is live, paused by menus), so Reduced motion keeps it. It does not force a cast at 0; the bonus just ends. |
+| **Shooting Star** | Epic | Explodes on its **top three faces**; and **if any other die explodes, it explodes too**. |
+| **Neutron Star** | Epic | As Shooting Star, and **it also explodes when it shows the same face as another die**. |
+| **Non-Euclidean Die** | Legendary | Placement does not matter: it makes every die react with every other, but **each die can react with at most as many other dice as it has sides** (a d6 up to 6 reactions), so size upgrades it. |
+| **Event Horizon** | Legendary | Scores nothing. **When it shows its highest face it spawns two Black Hole dice** (below). Not Charged. |
+| **Black Hole die** | not sold | **Never in a shop**: only Event Horizon makes it, temporary (it vanishes at the end of the round), takes no dice slot and cannot be held or sold. Scores nothing. **Every die strictly between the two Black Hole dice gets +50 score.** Diagram: `BH D D D D BH D D` means the four inside dice get +50 each and the two outside do not. The two spawn on either side of the Event Horizon and the player can drag them anywhere in the row. (The Constellation "Black Hole" is renamed **The Great Attractor** so the names do not clash; **Default**.) |
+| **Quantum Entanglement** | Legendary | At cast, it picks a **random other die** (seeded) and copies its abilities and its score, like a Masquerade that chooses for you. |
+
+### N6. The crutches (new dice only)
+
+- **They arrive at your level.** In the Firmament, a shop offer for **any die in this part** is sized from your pool: draw the tier from **(your pool's median tier index minus 1) to (median plus 1)**, capped at d20 (d100 for dice that can grow big), instead of the usual round weights. Price stays base price plus the size premium. Older dice keep the round weights.
+- **Apprentice discount.** A die in this part that you bought **in the last two shop visits** has its **next two upgrades at half price** (a `fresh` counter on the die; it ends after two upgrades or two visits). Show a small "fresh" mark and a line in the upgrade button.
+- **The Charged tag and the stronger abilities above are the third crutch.**
+
+### N7. Also in this step
+
+- Update the test saves so a Firmament save holds some of these dice; gallery totals; `reactionElementsOf` and the reaction engine for the Non-Euclidean cap.
+- Patch notes "Alpha 0.8.3 Crutches for the new dice" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; mark Part N Built.
+- Tests: Node scripts for the Charged line, every changed ability, the Time Ghost, the Void cap and slot rule, Chaos picking the best element, the Non-Euclidean cap at sides, Event Horizon's spawn and the +50 between the two Black Holes (including a reordered row), Quantum Entanglement with a seeded pick, Shooting and Neutron Star chains, Closed Timelike Curve's window (with a fake clock), arrival sizes at three pool medians, the apprentice discount. Then run `tools/balanceSim.mjs` (teach the bot to buy these dice) and report the table. Browser pass on a Firmament test save, **muted**.
+
 ## Decision log
 
+- **2026-10-04 (curve and new dice, Carlos):** the start gets harder (x1.75, growth 1.37 to round 10, built by Claude) and eases after round 15 as planned; the new dice get crutches (Part N); Carlos's table and seven new die ideas are folded in, with his answers (Time Ghost, Void without a slot, Charged tag, 20 s Closed Timelike Curve on the Clockwork's timer, Non-Euclidean capped at its sides, Event Horizon's Black Hole dice as a +50 bracket).
 - **2026-10-04 (late scaling, Carlos):** after his round-25 run (79k against about 86k) and Claude's simulation (a modest bot falls from 2.2 times the target at round 3 to 0.8 by round 16), Carlos wants a late scaler and a slightly easier curve: Part M.
 - **2026-10-04 (closing the questions, Carlos):** Neutral faces the same Warden sets as the Split; Obscurity's neighbors score half instead of 0 (their whole score still goes to Mult); Part K's defaults are confirmed as built; poker and Joker dice merge into v0.8.5 (no separate v0.7.6).
 - **2026-10-04 (families, Carlos):** Fire is strong, so lift the others: Water's locked dice add half their score to Mult, Drift can jump a die to its top face (once a round), five relics, four Totems (relics and items both), and reactions between the new elements, the old ones and each other: Part L.
