@@ -5,7 +5,14 @@ import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 // run is autosaved (utils/saveManager.js), so reloading loses nothing but the
 // current screen. "Try again" re-renders in place; "Reload" starts the page over.
 function Fallback({ error, onRetry }) {
-  const { lang } = useLanguage()
+  // The crash may be the language provider itself (a hot reload can lose
+  // it): the fallback must still draw, so it falls back to the page's lang.
+  let lang = typeof document !== 'undefined' && document.documentElement.lang === 'es' ? 'es' : 'en'
+  try {
+    lang = useLanguage().lang
+  } catch {
+    // no provider: keep the page's language
+  }
   const es = lang === 'es'
   return (
     <div className="elementa-root relative flex min-h-screen w-full items-center justify-center p-6">

@@ -316,7 +316,7 @@ export const SCENES = {
     pages: [
       page(die('entropy'), L('Entropy', 'Entropía'), [
         L('Six Wardens have fallen. Six corners of the frame stand open.', 'Seis Custodios han caído. Seis esquinas del marco están abiertas.'),
-        L('Light, Darkness, Time, Space, Chaos and Void, with Aether at the center: the Forge can make them one.', 'Luz, Oscuridad, Tiempo, Espacio, Caos y Vacío, con el Éter al centro: la Forja puede volverlos uno.'),
+        L('Shadow, Continuum and Oblivion, with Aether at the center: four slots in the Forge, and they become one.', 'Sombra, Continuo y Olvido, con el Éter al centro: cuatro espacios en la Forja, y se vuelven uno.'),
         L('Entropy. It even makes sense, if you squint.', 'Entropía. Hasta tiene sentido, si entrecierras los ojos.'),
       ]),
     ],

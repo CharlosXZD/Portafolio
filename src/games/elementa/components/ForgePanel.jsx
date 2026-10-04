@@ -248,7 +248,9 @@ export default function ForgePanel({ state, dispatch }) {
               {plan.volatile && (
                 <>
                   <p className="text-base text-[var(--text)]">
-                    {line('volatile').replace('{chance}', Math.round((hasCatalyst && useCatalyst ? 0 : selectors.collapseChance) * 100))}
+                    {plan.catalyst
+                      ? t('elementa.forge.steadied')
+                      : line('volatile').replace('{chance}', Math.round(selectors.collapseChance * 100))}
                   </p>
                   {hasCatalyst && (
                     <label className="flex items-center gap-2 text-sm text-[var(--text-dim)]">

@@ -667,7 +667,8 @@ function forgePlan(state, dieIds, opts = {}) {
   const fee = runes.clashes * RUNE_CLASH_FEE
   const cost = forgeCostFor(state, def)
   const stardust = def.stardust || 0
-  const catalyst = Boolean(opts.catalyst) && state.consumables.some((c) => c.type === 'catalyst')
+  // A Catalyst is only ever spent on a volatile fusion (K6).
+  const catalyst = Boolean(opts.catalyst) && Boolean(def.volatile) && state.consumables.some((c) => c.type === 'catalyst')
   const collapseChance = def.volatile && !catalyst ? COLLAPSE_CHANCE : 0
   const total = cost + (opts.superpose ? fee : 0)
   const rest = state.dice.filter((d) => !dieIds.includes(d.id))

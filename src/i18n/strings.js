@@ -788,6 +788,7 @@ const strings = {
   'elementa.forge.collapsed': { en: 'The {die} collapsed into a Dead Star.', es: '{die} colapsó en una Estrella Muerta.' },
   'elementa.forge.lost': { en: 'Lost: {runes}.', es: 'Se perdió: {runes}.' },
   'elementa.forge.superposed': { en: 'The runes were superposed.', es: 'Las runas se superpusieron.' },
+  'elementa.forge.steadied': { en: 'The Catalyst steadies it: this forge cannot collapse.', es: 'El Catalizador lo estabiliza: esta forja no puede colapsar.' },
 }
 
 export default strings
