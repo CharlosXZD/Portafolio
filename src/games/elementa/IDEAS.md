@@ -48,7 +48,7 @@ A boss beaten many times on a save file gets a harder variant.
 ### Daily seed run
 One shared seed per day.
 
-### Mythic elements: base forms and pairs (Carlos, 2026-10-03)
+### Mythic elements: base forms and pairs (Carlos, 2026-10-03) [moved into EXPANSION.md Part K, v0.8]
 Carlos: use the systems we already have to make Time, Space, Void, Chaos, Dark and Light into *elements* too. Each keeps its Mythic die as it is (found through Wardens), and also gets a weaker **base die**, a new element in its own right, obtained the way the god dice are (a recipe learned on the file, then forged). The base forms could then fuse with each other like the four classic elements do, producing more new elements. Claude's first thoughts, for the workshop: keep it to three opposed pairs (Light/Dark, Time/Space, Chaos/Void) so there are 6 base dice, 3 pair-fusions and the 6 Mythics (15 dice) instead of every combination; give each a family tag with its own reactions (the nine Mythic reactions are a start); Entropy stays the top of the tree. Open: how a base die is forged (four of a pure die like the gods? two fusions of opposed elements?), what its ability is, whether it needs an unlock, and which version it ships in (it fits v0.8 "Rewriting reality" well).
 
 ### The Umbra, readable on the lowest difficulty (Carlos, 2026-10-03)
