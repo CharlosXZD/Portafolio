@@ -172,6 +172,11 @@ The Umbra (a swallowed die scores 0 and Darkness-like) was fun and hard to beat,
 
 
 
+#### Decided in the v0.8 workshop (Carlos, 2026-10-03)
+- **The Cosmologist** is a new character in the **same Forge shop** (not a new shop on the Road). She introduces herself the first time, explains that the new elements are dangerous, so **for now only two new elements can be combined** (two-element fusions only).
+- **Crossing into the Firmament** plays a scene where **Pip explains the new elements**, that this is a new realm, and what changes.
+- **Whether the volatile fusions gate the true ending:** parked. Carlos is not sure how the story ends yet.
+
 #### Claude's proposal for the workshop (2026-10-03)
 
 **Recommendation: Configuration 2, curated.** Six base elements and 12 new dice instead of 21: the six base dice, the three opposed pairs, and three more chosen for flavor. The other pair-fusions wait for later. Mythic dice stay as they are.
