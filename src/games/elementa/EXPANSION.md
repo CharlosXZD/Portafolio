@@ -143,6 +143,18 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 # Part B: Systems
 
+## A6. Realm 3 workshop notes (Carlos, 2026-10-04; in progress, not for building yet)
+
+**Status: Proposed.** Decided so far:
+- **One realm, three flavours.** Realm 3 is a single realm; the path (Split, Primordial or Neutral) decides which Rewriter bosses you face and how it looks (Empyrean rigid and ordered, Pleroma merging and dissolving, Meridian swinging between). Like the Firmament, a path has a Set I and a Set II of three, so two runs and **two new endings per path** (Realm I and Realm II).
+- **Six Rewriters** (bosses that rewrite the scoring formula): the Axiom, Zero, Infinity, the Observer, plus **Floating Point** (no decimals: Base and Mult round down) and **Deadlock** (you can hold only one die). Carlos: "make the bosses difficult and interesting to play around."
+- **The number dice** (B12) are sold **only in realm 3**.
+- **New elements for realm 3:** the same system as the Firmament (six base elements bought in shops, six Mythic dice forged after a boss teaches the recipe, fusions in the Forge). Names and rules open.
+- **The Arbiter:** Carlos wants him to be **an Arbiter**, not "the" one; **for you or against you**, and **he talks to the player like Pip** each visit. He bans altering probability (Part P5), and is the realm's god.
+- **Steeper targets** than the Firmament, with hard, readable bosses.
+- **The Convergence (Carlos's idea, to confirm):** at the end of the realm the three paths converge; the endings merge; **the last three bosses** belong to the last realm (the fourth place). The **true ending** is a boss rush: you re-face **every major boss back to back to back** to face a greater power.
+- **Fourth wall (Carlos's idea):** bosses and the Arbiter say things about the player. See the safe plan in the workshop reply: only what the browser lawfully shows to the page, opt-in, never sent anywhere.
+
 ## B1. The three paths
 
 **Status: Built** (v0.5 recording, v0.6 live paths). Carlos agreed the design on 2026-10-02; Claude's specs fill the remaining details.
