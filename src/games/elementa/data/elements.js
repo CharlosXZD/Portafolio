@@ -535,7 +535,7 @@ export const ELEMENTS = {
     forgeCost: 20,
     parents: [],
     color: '#6a4fb8',
-    tagline: 'The dice on either side of it score 0. What they would have scored goes to your Mult.',
+    tagline: 'The dice on either side of it score half. What they would have scored goes to your Mult.',
     flags: flagSet(FLAGS.DARKNESS),
   },
   time: {
@@ -946,7 +946,7 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.KAIROS]: 'A 1 rerolls itself for free until it is no longer a 1.',
   [FLAGS.CHRONO]: 'When it lands on a 1, every unheld die rolls again for free (it too), and you keep the better pool. Up to 8 times.',
   [FLAGS.LIGHT]: "No die can score below its face: lower faces rise to it, and nothing fizzles. Faces stay visible under Eclipse.",
-  [FLAGS.DARKNESS]: 'The dice on either side of it score 0, and their combined score is added to your Mult.',
+  [FLAGS.DARKNESS]: 'The dice on either side of it score half, and their whole combined score is added to your Mult.',
   [FLAGS.TIME]: 'Once per round, Rewind: undo your last reroll and get it back. Unused rerolls carry into the next round, up to +3.',
   [FLAGS.SPACE]: 'Its two neighbors and the two end dice all count as neighbors of each other for reactions.',
   [FLAGS.CHAOS]: 'Every roll it becomes a random die from the whole game, in a random size. Locking keeps its current form.',

@@ -486,10 +486,10 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.6.7** | Showtime | Part G Q5: Balatro-style scoring choreography. **Built.** |
 | **v0.7** | The Firmament | **Built.** Part H: the Firmament (rounds 16 to 30, Wardens at 20, 25, 30, six Wardens in two sets), the Mythic dice and the Warp tag, Chrono and Kairos, Entropy and the d100 path, the Firmament keepers (Atlas, the Horologist, Mote) and the path followers, the Crossroads door, and the story scenes of Part G Q4a. |
 | **v0.7.2** | Firmament depth | **Built.** Part I: five Celestial dice, the Horologist's rotating pool (six offers per visit, three new consumables, two relics). |
-| **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) move to v0.7.6. |
+| **v0.7.5** | Constellations | **Built.** Part J: Seren and the Observatory, the ten Constellations plus Black Hole, five Runes. Poker and Joker dice (B11) merge into v0.8.5. |
 | **v0.8** | Cosmic elements | **Built.** Part K: six base elements in shops, the six Mythic dice forged with Stardust (bosses drop it) after a Warden teaches the recipe, the Forge rebuilt with slots and size-by-average, runes inscribed on a number by rotating the die, seven element fusions with volatile collapse (Dead Star), Vesper the Cosmologist, Pip's crossing scene, six new die items. |
 | **v0.8.1** | Family growth | **Built.** Part L: Water's Tide (half the locked score to Mult), Drift to the top face, five relics, four Totems, 27 reactions for the new elements. |
-| **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 sigil dice. |
+| **v0.8.5** | Strange faces | B9 editable die faces and Laws; B11 poker, Joker and sigil dice (Carlos 2026-10-04: poker and Joker dice merged in here). Face-bound runes (v0.8) already cover part of editable faces, so scope the rest in a workshop first. |
 | **v0.9** | Echoes | Ideas Carlos promotes from `IDEAS.md`; the fourth place and the true-ending groundwork (A5). |
 | **Later** | Rewriting reality | The third realms (Empyrean, Pleroma, Meridian), formula-rewriting bosses, B10 number dice. Moved out of v0.8 (2026-10-03); needs its own workshop first. |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
@@ -1528,6 +1528,7 @@ The six shop elements (Light, Darkness, Time, Space, Chaos, Void, ids `glimmer`,
 
 ## Decision log
 
+- **2026-10-04 (closing the questions, Carlos):** Neutral faces the same Warden sets as the Split; Obscurity's neighbors score half instead of 0 (their whole score still goes to Mult); Part K's defaults are confirmed as built; poker and Joker dice merge into v0.8.5 (no separate v0.7.6).
 - **2026-10-04 (families, Carlos):** Fire is strong, so lift the others: Water's locked dice add half their score to Mult, Drift can jump a die to its top face (once a round), five relics, four Totems (relics and items both), and reactions between the new elements, the old ones and each other: Part L.
 - **2026-10-04 (gods, Carlos):** the four gods may share a pool; the old one-god-at-a-time cap is lifted, one of each remains. The Pantheon relic, which only raised the cap, now gives +2 Mult per god die held (Claude's proposal).
 - **2026-10-04 (names, Carlos):** the six shop elements are now **Light, Darkness, Time, Space, Chaos, Void** (families take the same names; they were Glimmer, Gloom, Moment, Reach, Flux, Null). The six Mythic dice are **Luminance (Light), Obscurity (Darkness), Tempus (Time), Ouranos (Space), Hundun (Chaos), Abyss (Void)**; Entropy stays the top. The fusion that was called Abyss is now **Nadir** (Darkness + Void), proposed by Claude. Only display names changed; internal ids are the same (the base elements are `glimmer`, `gloom`, `moment`, `reach`, `flux`, `nil`; the Mythic dice are `light`, `darkness`, `time`, `space`, `chaos`, `void`).

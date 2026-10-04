@@ -66,7 +66,7 @@ export const ELEMENTS_ES = {
   // The Firmament (EXPANSION.md H3 to H5).
   chrono: { name: 'Crono', tagline: 'Cualquier 1 rebobina el tiempo: todo dado no guardado vuelve a tirarse, y te quedas con la mejor reserva. Se repite hasta que una tirada no tenga ningún 1.' },
   light: { name: 'Luminancia', tagline: 'Ningún dado puede anotar menos que su cara. Nada se apaga y las caras siguen visibles.' },
-  darkness: { name: 'Obscuridad', tagline: 'Los dados a sus lados anotan 0. Lo que habrían anotado va a tu Multiplicador.' },
+  darkness: { name: 'Obscuridad', tagline: 'Los dados a sus lados anotan la mitad. Lo que habrían anotado va a tu Multiplicador.' },
   time: { name: 'Tempus', tagline: 'Una vez por ronda, deshaz tu último reroll y recupéralo. Los rerolls sin usar pasan a la siguiente ronda, hasta +3.' },
   space: { name: 'Ouranos', tagline: 'Sus dos vecinos y los dos dados de los extremos cuentan como vecinos entre sí. Siempre Warp.' },
   chaos: { name: 'Hundun', tagline: 'En cada tirada se vuelve un dado al azar de todo el juego, de un tamaño al azar.' },
@@ -107,7 +107,7 @@ export const FLAG_DESCRIPTIONS_ES = {
   kairos: 'Un 1 se vuelve a tirar gratis hasta que deja de ser 1.',
   chronoLoop: 'Cuando saca un 1, todo dado no guardado vuelve a tirarse gratis (él también), y te quedas con la mejor reserva. Hasta 8 veces.',
   lightFloor: 'Ningún dado puede anotar menos que su cara: las caras menores suben hasta ella, y nada se apaga. Las caras siguen visibles bajo el Eclipse.',
-  darkness: 'Los dados a sus lados anotan 0, y su puntaje combinado se suma a tu Multiplicador.',
+  darkness: 'Los dados a sus lados anotan la mitad, y todo su puntaje combinado se suma a tu Multiplicador.',
   timeRewind: 'Una vez por ronda, Rebobinar: deshaz tu último reroll y recupéralo. Los rerolls sin usar pasan a la siguiente ronda, hasta +3.',
   spaceLink: 'Sus dos vecinos y los dos dados de los extremos cuentan como vecinos entre sí para las reacciones.',
   chaos: 'En cada tirada se vuelve un dado al azar de todo el juego, de un tamaño al azar. Bloquearlo conserva su forma.',

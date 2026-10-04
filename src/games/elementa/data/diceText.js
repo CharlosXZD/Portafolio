@@ -46,7 +46,7 @@ export const DICE_TEXT = {
   // The Firmament (EXPANSION.md H3 to H5).
   chrono: T('Time itself, wound tight. Any 1 rewinds the whole table, again and again, and you keep the better roll.', 'El tiempo mismo, bien tenso. Cualquier 1 rebobina toda la mesa, una y otra vez, y te quedas con la mejor tirada.', ['loop']),
   light: T('The first dawn, kept in a die. Nothing near it falls below its face.', 'El primer amanecer, guardado en un dado. Nada a su alrededor cae por debajo de su cara.', ['mythic', 'floor']),
-  darkness: T('What the light leaves behind. It swallows its neighbors and turns them into Mult.', 'Lo que la luz deja atrás. Se traga a sus vecinos y los vuelve Multiplicador.', ['mythic', 'devour']),
+  darkness: T('What the light leaves behind. It halves its neighbors and turns all they would have scored into Mult.', 'Lo que la luz deja atrás. Reduce a la mitad a sus vecinos y vuelve Multiplicador todo lo que habrían anotado.', ['mythic']),
   time: T('A moment you can take back. Undo a reroll once a round, and save the rest for later.', 'Un momento que puedes recuperar. Deshaz un reroll una vez por ronda, y guarda el resto para después.', ['mythic', 'undo']),
   space: T('The distance between things, folded. Its neighbors and both ends all touch.', 'La distancia entre las cosas, doblada. Sus vecinos y ambos extremos se tocan.', ['mythic', 'reaction', 'warp']),
   chaos: T('Never the same die twice. Every roll it becomes something else.', 'Nunca el mismo dado dos veces. En cada tirada se vuelve otra cosa.', ['mythic', 'shift']),

@@ -231,9 +231,10 @@ export const WARDEN_SETS = {
     ['umbra', 'maelstrom', 'hollow'],
     ['dawn', 'clockwork', 'expanse'],
   ],
+  // Neutral faces the same sets as the Split (Carlos, 2026-10-04).
   neutral: [
-    ['dawn', 'umbra', 'clockwork'],
-    ['expanse', 'maelstrom', 'hollow'],
+    ['dawn', 'clockwork', 'expanse'],
+    ['umbra', 'maelstrom', 'hollow'],
   ],
 }
 

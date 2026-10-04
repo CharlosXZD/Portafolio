@@ -11,6 +11,9 @@ const DEFAULT_EXPLODE_CAP = 10
 // Darkness (EXPANSION.md H3) adds its neighbors' score to Mult divided by
 // this. Carlos asked for it undivided; one constant so it is easy to tune.
 export const DARKNESS_DIVISOR = 1
+// Obscurity (Darkness, Carlos 2026-10-04): its neighbors keep this share of
+// their score (half) instead of scoring 0; their whole score still goes to Mult.
+export const DARKNESS_KEEP = 0.5
 // Chrono (H4) has no gameplay limit; this only stops a pool that can never
 // leave 1 from looping forever.
 export const CHRONO_SAFETY_STOP = 2000
@@ -637,8 +640,8 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     })
     perDie[best].contribution = 0
   }
-  // Darkness (H3): the dice on either side score 0, and what they scored
-  // goes to Mult (divided by DARKNESS_DIVISOR, 1 for now).
+  // Darkness (H3): the dice on either side score half (DARKNESS_KEEP), and
+  // what they scored goes to Mult (divided by DARKNESS_DIVISOR, 1 for now).
   const darkLines = []
   perDie.forEach((d, i) => {
     if (!hasFlag(d.actingAs, FLAGS.DARKNESS)) return
@@ -646,7 +649,7 @@ export function evaluatePool(dice, relics = [], ctx = {}) {
     for (const j of [i - 1, i + 1]) {
       if (!perDie[j]) continue
       eaten += perDie[j].contribution
-      perDie[j].contribution = 0
+      perDie[j].contribution *= DARKNESS_KEEP
       perDie[j].darkened = true
     }
     if (eaten > 0) darkLines.push({ kind: 'mythic', id: 'darkness', value: eaten / DARKNESS_DIVISOR, dice: [i] })
