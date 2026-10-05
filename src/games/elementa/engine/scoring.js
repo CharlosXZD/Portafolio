@@ -14,6 +14,11 @@ import { totemLevel, tideShare, FIRE_TOTEM_MULT } from '../data/totems.js'
 const DEFAULT_EXPLODE_CAP = 10
 // Darkness (EXPANSION.md H3) adds its neighbors' score to Mult divided by
 // this. Carlos asked for it undivided; one constant so it is easy to tune.
+// A hard stop for explosion chains (found by tools/bestBuild.mjs): with no
+// cap and a die that explodes on every face (a Rune of Ember on each number of
+// a d3, say) the chain never ends and the tab hangs. 500 is never reached by a
+// real chain (each step is a coin flip or worse).
+export const EXPLODE_SAFETY_STOP = 500
 export const DARKNESS_DIVISOR = 1
 // Obscurity (Darkness, Carlos 2026-10-04): its neighbors keep this share of
 // their score (half) instead of scoring 0; their whole score still goes to Mult.
@@ -176,7 +181,7 @@ export function rollDie(elementId, sides, relics = [], ctx = {}) {
     let current = value
     // A Rune of Ember (K3b) makes its own number an exploding face.
     const runeFaces = ctx.explodeFaces ?? []
-    while ((current >= from || runeFaces.includes(current)) && explosions < cap) {
+    while ((current >= from || runeFaces.includes(current)) && explosions < Math.min(cap, EXPLODE_SAFETY_STOP)) {
       if (chance < 1 && random() >= chance) break
       const next = rollFace(sides, bias)
       const addValue = fx.fireExplodeDouble ? next * 2 : next
