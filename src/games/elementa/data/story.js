@@ -9,6 +9,8 @@
 // All text here is a DRAFT for Carlos to rewrite. Keep each scene short
 // enough to read in about 20 seconds.
 
+import { ARBITER } from './arbiter.js'
+
 const L = (en, es) => ({ en, es })
 const page = (portrait, speaker, lines) => ({ portrait, speaker, lines })
 // Portraits: { kind: 'boss' | 'keeper' | 'die' | 'pip', id }.
@@ -18,6 +20,8 @@ const die = (id) => ({ kind: 'die', id })
 const PIP = { kind: 'pip' }
 
 const PRIMORDIAL = L('The Primordial', 'El Primordial')
+// The god who bans fishing is an Arbiter (Part S); his name lives in data/arbiter.js.
+const ARBITER_SPEAKER = ARBITER.article
 
 export const SCENES = {
   // --- Before the Primordial, on each path (Q4a, 1). ---
@@ -430,17 +434,17 @@ export const SCENES = {
     ],
   },
   // The god who bans fishing (EXPANSION.md P5). Unarmed, calm, a little bored.
-  // realm 3 god: the name and the portrait are placeholders until that realm is workshopped.
+  // He is an Arbiter of realm 3 (Part S); the name and the portrait are placeholders.
   arbiter: {
-    title: L('The Arbiter', 'El Árbitro'),
+    title: L('An Arbiter', 'Un Árbitro'),
     color: '#d8d2e8',
     music: 'scene_crossroads',
     pages: [
-      page(keeper('arbiter'), L('The Arbiter', 'El Árbitro'), [
+      page(keeper('arbiter'), ARBITER_SPEAKER, [
         L('Third time. Please stop.', 'Tercera vez. Por favor, detente.'),
         L('You have been shaking the future to see what falls out. It is not a pocket. It is not yours.', 'Has estado sacudiendo el futuro para ver qué cae. No es un bolsillo. No es tuyo.'),
       ]),
-      page(keeper('arbiter'), L('The Arbiter', 'El Árbitro'), [
+      page(keeper('arbiter'), ARBITER_SPEAKER, [
         L('Altering the odds by game is forbidden. I am not angry. I have no weapon. I simply do not allow it.', 'Alterar las probabilidades a base de juego está prohibido. No estoy enojado. No tengo armas. Simplemente no lo permito.'),
         L('Your dice are sent away. Your rerolls are spent. One of your lives is mine. Do try to look less often.', 'Tus dados se van. Tus rerolls se agotan. Una de tus vidas es mía. Intenta mirar con menos frecuencia.'),
       ]),

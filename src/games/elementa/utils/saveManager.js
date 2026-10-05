@@ -46,6 +46,8 @@ export function emptyProfile() {
     scenes: [],
     // Sigil dice unlocked by the Firmament endings (EXPANSION.md P3).
     sigils: [],
+    // An Arbiter (Part S): whether he has appeared on this file, and the deepest realm 3 round seen with him.
+    arbiter: { met: false, deepest: 0 },
     // One-time data fixes already applied to this file (a new file needs none).
     migrations: ['kairos'],
   }
@@ -78,6 +80,7 @@ function normalizeProfile(p = {}) {
     rewriters: p.rewriters || [],
     mote: { fed: p.mote?.fed || 0 },
     scenes: p.scenes || [],
+    arbiter: { met: Boolean(p.arbiter?.met), deepest: p.arbiter?.deepest || 0 },
     // A file that already has the Firmament endings has the sigil dice they unlock.
     sigils: [...new Set([...(p.sigils || []), ...sigilsFromEndings(p.endings || [])])],
     ...kairosRename(p),

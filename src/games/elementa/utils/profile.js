@@ -123,6 +123,19 @@ export const unlockMythics = (slot, ids) => addToList(slot, 'mythics', ids)
 /** Story scenes already shown on this file (H7). */
 export const markScenes = (slot, ids) => addToList(slot, 'scenes', ids)
 
+/**
+ * An Arbiter has appeared on this file (Part S). `round` is the realm 3 round
+ * he spoke in (0 outside realm 3); the Gallery reveals his lore by the deepest.
+ */
+export function markArbiter(slot, round = 0) {
+  if (slot == null) return
+  updateProfile(slot, (p) => {
+    const was = p.arbiter ?? { met: false, deepest: 0 }
+    if (was.met && round <= was.deepest) return p
+    return { ...p, arbiter: { met: true, deepest: Math.max(was.deepest || 0, round) } }
+  })
+}
+
 /** Mote's appetite only ever grows (H6). */
 export function setMoteFed(slot, fed) {
   if (slot == null) return

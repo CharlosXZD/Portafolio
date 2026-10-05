@@ -95,6 +95,7 @@ import {
 import { firmamentEnding } from '../data/endings.js'
 import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
 import { isPokerId, pokerFaces, JOKER_CAP } from '../data/poker.js'
+import { clampFavor, arbiterRound, FAVOR_CLEAN, FAVOR_WARNING, FAVOR_SMITE, FAVOR_BETRAYAL } from '../data/arbiter.js'
 import { REWRITER_ROUNDS, rewriterFor, REWRITER_SETS, REWRITER_TARGET, rewriterById, realm3Ending, REALM3_END } from '../data/realm3.js'
 import { isSigilId, sigilFaces, sigilSetOf, isGreaterSigil, SIGIL_SETS, SIGIL_SET_IDS, SIGIL_OFFER_CHANCE, SIGIL_PRICE, SIGIL_GREATER_PRICE } from '../data/sigils.js'
 import { TOTEM_CAP, totemLevel, kindlingReroll } from '../data/totems.js'
@@ -1389,6 +1390,10 @@ function baseTitleState() {
     rewardLaws: [],
     // Fishing with the Eye (P5): offenses so far this run.
     eyeStrikes: 0,
+    // An Arbiter's hidden favor (Part S), and his mood for the round.
+    favor: 0,
+    arbiterRound: null,
+    arbiterOffense: false,
     // Realm 3 (R1): whether the run has walked through the second door, and which Rewriter set; the Rewriters beaten on this file;
     // Mult kept from Infinity's explosions; rerolls made this run for the Rolling Joke.
     realm3: false,
@@ -1587,12 +1592,24 @@ function enterRoundBase(state, round) {
     dice,
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
-    rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
+    ...arbiterAtRoundStart(state, round, bossModifier),
     nextRoundRerollBonus: 0,
     freezeChargesUsed: 0,
     shop: null,
     lastResult: null,
   }
+}
+
+/**
+ * An Arbiter's mood for a realm 3 round (Part S): a warm one gives one reroll
+ * every third round, a cold one lets a hold slip once on the first reroll. The
+ * rest of the run has no Arbiter, so these fields stay clear.
+ */
+function arbiterAtRoundStart(state, round, bossModifier) {
+  const bonus = state.nextRoundRerollBonus || 0
+  if (!state.realm3) return { rerollsBonusThisRound: bonus, arbiterRound: null, arbiterOffense: false }
+  const mood = arbiterRound(state.favor || 0, round, bossModifier?.tier === 5)
+  return { rerollsBonusThisRound: bonus + (mood.gift ? 1 : 0), arbiterRound: mood, arbiterOffense: false }
 }
 
 /**
@@ -1675,7 +1692,8 @@ function retryRound(state) {
     dice,
     ...freshRoundCounters(dice),
     rerollsUsed: 0,
-    rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
+    rerollsBonusThisRound: (state.nextRoundRerollBonus || 0) + (state.arbiterRound?.gift ? 1 : 0),
+    arbiterRound: state.arbiterRound ? { ...state.arbiterRound, used: false } : null,
     nextRoundRerollBonus: 0,
     freezeChargesUsed: 0,
     shop: null,
@@ -2465,7 +2483,14 @@ function countShift(state) {
   const shifts = (state.eyeShifts || 0) + 1
   if (shifts < FISHING_LIMIT) return { ...state, eyeShifts: shifts }
   const strikes = (state.eyeStrikes || 0) + 1
-  const base = { ...state, eyeShifts: 0, eyeStrikes: strikes }
+  // An Arbiter takes note (Part S): a warning costs a little favor, the smite more.
+  const base = {
+    ...state,
+    eyeShifts: 0,
+    eyeStrikes: strikes,
+    arbiterOffense: true,
+    favor: clampFavor((state.favor || 0) + (strikes < 3 ? FAVOR_WARNING : FAVOR_SMITE)),
+  }
   if (strikes < 3) return { ...base, eyeNotice: { level: strikes, seq: strikes } }
   // The third offense and every one after: the Arbiter smites the dice away.
   const relics = effectiveRelics(base)
@@ -2666,6 +2691,9 @@ function reduce(state, action) {
     case 'REROLL_UNHELD': {
       if (state.phase !== 'rolling') return state
       if (availableRerolls(state) <= 0) return state
+      // A cold Arbiter lets one hold slip, once in the round (Part S). Never a lock.
+      const slipped = state.arbiterRound?.cold && !state.arbiterRound.used ? state.dice.find((d) => d.held && !d.locked && !d.temp) : null
+      if (slipped) state = { ...state, dice: state.dice.map((d) => (d.id === slipped.id ? { ...d, held: false } : d)), arbiterRound: { ...state.arbiterRound, used: true } }
       const fx = relicEffects(effectiveRelics(state))
       // An Hourglass reroll (I2) is free: no reroll used, no tax.
       const free = (state.freeRerolls || 0) > 0
@@ -2821,6 +2849,8 @@ function reduce(state, action) {
       // Infinity, the Rewriter (R2), raises the target for every reroll and explosion.
       const target = effectiveThreshold(state)
       const passed = result.roundScore >= target
+      // A realm 3 round cleared without an Eye offense earns an Arbiter's favor (Part S).
+      if (passed && state.realm3 && !state.arbiterOffense) state = { ...state, favor: clampFavor((state.favor || 0) + FAVOR_CLEAN) }
       // Runes of Gold (O1) pay on every cast, cleared or not.
       if (result.goldShards) state = { ...state, shards: state.shards + result.goldShards }
       // The Maelstrom only lent your dice their elements (H2): give them back.
@@ -3471,6 +3501,8 @@ function reduce(state, action) {
         boons: addBoon(state, deal.id, 'nix', deal.relicId ?? deal.elementId ?? deal.shards ?? null),
       }
       next = addAccord(applyDeal(next, deal), betrayal ? 'betrayal' : 'pact')
+      // An Arbiter does not like betrayals (Part S).
+      if (betrayal) next = { ...next, favor: clampFavor((next.favor || 0) + FAVOR_BETRAYAL) }
       return settleShrines(next, before)
     }
 
