@@ -572,7 +572,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.5** | Strange faces | **Built.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
 | **v0.8.6** | Sigils | **Built.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. The Eye's peek is a live dry run, no engine change. Run after v0.8.5. |
 | **v0.9** | Realm 3 | **Built.** Part R: rounds 31 to 45 (Empyrean, Pleroma or Meridian by path), six Rewriters, four Abstract elements with fusions and four Absolute forged dice, the number dice, two endings per path. Run after v0.8.6. |
-| **v0.9.2** | The Arbiter | **Ready.** Part S: the realm's god who talks like Pip, for or against you, and the opt-in fourth-wall lines. |
+| **v0.9.2** | The Arbiter | **Built.** Part S: the realm's god who talks like Pip, for or against you, and the opt-in fourth-wall lines. |
 | **v0.9.5** | The Convergence | The Rush, Pip, you as the true boss per difficulty (Part Q3). Spec after v0.9 is built. |
 | **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
 | **(old)** | Rewriting reality | Became v0.9 (Realm 3) and v0.9.5 (Convergence). |
@@ -584,6 +584,13 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.9.2 "The Arbiter" (in development, unreleased)
+- **An Arbiter** speaks in realm 3: a line at the start of every round and at every shop, three to five lines per mood so they rarely repeat. The god who bans fishing is this Arbiter; his portrait is an open, empty hand.
+- **A hidden favor:** clean rounds raise it, Eye-fishing and Nix betrayals lower it. A warm Arbiter sometimes gives a reroll; a cold one sometimes lets a hold slip. Never random, never lethal.
+- **The first time he appears he asks** whether he may notice small details about your device (local time, timezone, language, system, window size, how long you have played). It is only read to fill in a sentence: nothing is stored or sent. Change it any time in Options.
+- Two lines for each Rewriter and ten for the Arbiter use those details; a few are bluffs, with a wink.
+- A Gallery page for him.
 
 ### Alpha v0.9 "Realm 3" (in development, unreleased)
 - **A second door at round 30** (open once the file has seen the path's Firmament I ending) into rounds 31 to 45: the Empyrean, the Pleroma or the Meridian by path, targets x1.45 a round, numbers from a million shown as K, M, B.
@@ -1886,7 +1893,7 @@ Build the four dice **exactly as B12 decided**: Two's Complement, Reversed Bits 
 
 ## Part S: v0.9.2 "The Arbiter" (spec, 2026-10-04)
 
-**Status: Ready.** Run after v0.9. The god of realm 3 and the fourth-wall lines. Items marked **Default** are Claude's reading.
+**Status: Built** (Alpha v0.9.2, GDD §47; the Defaults were built as written, GDD §47 lists them). Run after v0.9. The god of realm 3 and the fourth-wall lines. Items marked **Default** are Claude's reading.
 
 - **The Arbiter** (Carlos: **an** Arbiter, not "the" one; unarmed; **for you or against you; talks to the player like Pip**). A recurring voice in realm 3: a short line at the start of every round of realm 3 and at each shop, in the same speech-bubble style as Pip's tips (EN and ES, three to five lines per situation, so it rarely repeats). **For or against (Default):** a hidden `favor` value on the run: it rises when the player plays cleanly (clears rounds without the Eye-fishing offenses, without Nix betrayals) and falls with offenses; at a high favor the lines are warm and he sometimes gives a tiny gift (+1 reroll for one round); at a low favor they are cold and he may add a small hindrance (a hold removed). Never lethal, never random.
 - **His name (Default):** `Arbiter` in the data until Carlos names him; one place to change it; a procedural portrait (an open empty hand), a Gallery entry, a Keepers-like page.

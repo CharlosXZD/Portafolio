@@ -12,6 +12,27 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.2',
+    name: L('The Arbiter', 'El Árbitro'),
+    date: null,
+    highlights: [
+      L(
+        'An Arbiter keeps watch over realm 3 and has a word at every round and every shop. The god who dislikes your Eye-fishing was him all along.',
+        'Un Árbitro vigila el reino 3 y tiene algo que decir en cada ronda y en cada tienda. El dios al que no le gusta que pesques con el Ojo era él desde el principio.',
+      ),
+      L(
+        'He keeps a private opinion of you. Play cleanly and he may slip you an extra reroll; cross him and a hold may slip away. Never lethal, never random.',
+        'Se forma una opinión privada de ti. Juega limpio y puede regalarte un reroll extra; crúzalo y un bloqueo puede soltarse. Nunca letal, nunca al azar.',
+      ),
+      L(
+        'The first time he appears he asks whether he may notice small details about your device, like the time or your window size, for a few lines. Nothing is stored or sent, and you can change your mind in Options.',
+        'La primera vez que aparece pregunta si puede fijarse en pequeños detalles de tu dispositivo, como la hora o el tamaño de tu ventana, para algunas líneas. Nada se guarda ni se envía, y puedes cambiar de opinión en Opciones.',
+      ),
+      L('A new Gallery page, and a voice for each Rewriter.', 'Una página nueva en la Galería, y una voz para cada Reescritor.'),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9',
     name: L('Realm 3', 'Reino 3'),
     date: null,

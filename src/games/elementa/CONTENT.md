@@ -999,6 +999,91 @@ Set I (Split and Neutral): the Axiom, Zero, Floating Point. Set II: Infinity, th
 - **Both Faces**: Forge a Janus.
 - **Out of Order**: Reach round 45.
 
+## 7d. An Arbiter (v0.9.2, drafts)
+
+The voice of realm 3 and the god who bans fishing (Part P5). His name (`Arbiter`, "an Arbiter") and portrait (an open, empty hand) are placeholders defined in `data/arbiter.js` and `components/ArbiterParts.jsx`. All text is a draft for Carlos.
+
+### Favor (hidden)
+
+A number on the run, from -10 to 10. **Up:** +1 for each realm 3 round cleared without an Eye-fishing offense. **Down:** -1 for each of the first two fishing warnings, -2 for the smite and every one after, -1 for a Nix betrayal pact (any time in the run). **Warm** (3 or more): warm lines, and +1 reroll on rounds 32, 35, 38, 41, 44. **Cold** (-3 or less): cold lines, and on rounds 33, 36, 39, 42 (never on a Rewriter's round) the first held die slips free on the first reroll. Deterministic, never random, never lethal; locked dice are never released.
+
+### Round lines
+
+| Mood | English | Spanish |
+|---|---|---|
+| neutral | Another round. Do keep the numbers honest. | Otra ronda. Procura que los números sean honestos. |
+| neutral | I am only here to watch. I will pretend I am not. | Solo estoy aquí para mirar. Fingiré que no. |
+| neutral | Whatever happens next was always going to happen. Roll anyway. | Lo que pase a continuación siempre iba a pasar. Tira igual. |
+| neutral | No weapons, no tricks. Only a polite eye on the table. | Sin armas, sin trucos. Solo un ojo cortés sobre la mesa. |
+| neutral | Carry on. I will tell you if it matters. | Sigue. Te diré si importa. |
+| warm | You play cleanly. It is a pleasure to watch. | Juegas con limpieza. Da gusto mirarte. |
+| warm | Go on. I have a good feeling about this one. | Adelante. Tengo buena espina con esta. |
+| warm | I do not usually say so, but I am on your side today. | No suelo decirlo, pero hoy estoy de tu lado. |
+| warm | Take your time. The numbers can wait for you. | Tómate tu tiempo. Los números pueden esperarte. |
+| cold | I remember what you did. I am not angry. I just remember. | Recuerdo lo que hiciste. No estoy enojado. Solo recuerdo. |
+| cold | Play on. I will be here, unimpressed. | Sigue jugando. Estaré aquí, sin impresionarme. |
+| cold | You are on a short list. It is not a good list. | Estás en una lista corta. No es una buena lista. |
+| cold | Do be careful with the table today. | Ten cuidado con la mesa hoy. |
+
+### Shop lines
+
+| Mood | English | Spanish |
+|---|---|---|
+| neutral | Buy what you like. I do not tax. I only observe. | Compra lo que quieras. No cobro impuestos. Solo observo. |
+| neutral | A shop in a realm of numbers. The prices are, at least, honest. | Una tienda en un reino de números. Los precios, al menos, son honestos. |
+| neutral | Everything here is for sale except me. | Aquí todo está en venta menos yo. |
+| neutral | Take your time. The next round is not going anywhere. | Tómate tu tiempo. La próxima ronda no se va a ninguna parte. |
+| warm | Spend well. You have earned a good shelf. | Gasta bien. Te has ganado un buen estante. |
+| warm | If anyone asks, I did not recommend anything. | Si alguien pregunta, yo no recomendé nada. |
+| warm | You are welcome here. I wanted you to know. | Eres bienvenido aquí. Quería que lo supieras. |
+| warm | A fine pool, this. Do keep it. | Una buena reserva, esta. Consérvala. |
+| cold | Spend what you like. It will not change my mind. | Gasta lo que quieras. No cambiará mi opinión. |
+| cold | I see you looking at the shelves. I see the whole shop. | Te veo mirar los estantes. Yo veo toda la tienda. |
+| cold | Buy something sensible. For once. | Compra algo sensato. Por una vez. |
+| cold | The merchants may smile at you. I do not have to. | Los comerciantes pueden sonreírte. Yo no tengo por qué. |
+
+### First line in realm 3, gift, slipped hold
+
+| Situation | English | Spanish |
+|---|---|---|
+| first (new) | Hello. I am an Arbiter. I have no weapons and no opinions. Yet. Play on. | Hola. Soy un Árbitro. No tengo armas ni opiniones. Todavía. Sigue jugando. |
+| first (already met) | We have met. You shook the future and I took a life. No hard feelings. Mostly. | Ya nos conocemos. Sacudiste el futuro y me llevé una vida. Sin rencores. Casi. |
+| gift | A small gift: one more reroll, only for today. | Un pequeño regalo: un reroll más, solo por hoy. |
+| gift | Have a reroll. Do not tell the others. | Toma un reroll. No se lo digas a los demás. |
+| gift | One extra reroll. Think of it as a nod. | Un reroll extra. Considéralo un gesto. |
+| slipped hold | One hand slipped. It happens to those I remember. | Una mano se soltó. Les pasa a quienes recuerdo. |
+| slipped hold | I let go of one of your holds. Only one. I am not cruel. | Solté uno de tus bloqueos. Solo uno. No soy cruel. |
+| slipped hold | A hold, taken back. You will manage. | Un bloqueo, recuperado. Te las arreglarás. |
+
+### Fourth-wall lines (only when the player said yes)
+
+Placeholders: `{hour}`, `{timezone}`, `{os}`, `{browser}`, `{language}`, `{screen}`, `{minutes}`, `{returned}`, `{runs}`, `{wins}`. A line whose value is unavailable is skipped. A bluff is an invented joke, shown with a wink.
+
+| Who | English | Spanish | Bluff |
+|---|---|---|---|
+| Arbiter | It is {hour} in {timezone}. I never judge when people play. I only notice. | Son las {hour} en {timezone}. Nunca juzgo cuándo juega la gente. Solo me fijo. |  |
+| Arbiter | {browser} on {os}. A tidy place to be counted from. | {browser} en {os}. Un lugar ordenado desde el cual contarte. |  |
+| Arbiter | {runs} runs started on this file. I have been around for fewer. I make up for it by paying attention. | {runs} partidas empezadas en este archivo. Yo he estado en menos. Lo compenso prestando atención. |  |
+| Arbiter | You left and came back {returned} times. I waited. I am very good at waiting. | Te fuiste y volviste {returned} veces. Esperé. Se me da muy bien esperar. |  |
+| Arbiter | A {screen} window, and the whole realm fits through it. Impressive, in its way. | Una ventana de {screen}, y todo el reino cabe por ella. Impresionante, a su modo. |  |
+| Arbiter | I see you speak {language}. I will keep my sentences short. | Veo que hablas {language}. Mantendré mis frases cortas. |  |
+| Arbiter | {minutes} minutes in this sitting. Drink some water. That is advice, not surveillance. | {minutes} minutos en esta sesión. Toma agua. Eso es un consejo, no vigilancia. |  |
+| Arbiter | {wins} wins on this file. I would not call it a habit. I would call it a pattern. | {wins} victorias en este archivo. No lo llamaría un hábito. Lo llamaría un patrón. |  |
+| Arbiter | I know what is in your Downloads folder. Do not worry. It is mostly numbers. | Sé lo que hay en tu carpeta de Descargas. No te preocupes. Son sobre todo números. | yes |
+| Arbiter | I did not read your messages. I did read the one you drafted and never sent. | No leí tus mensajes. Sí leí el que redactaste y nunca enviaste. | yes |
+| axiom | It is {hour}. I measure everything by sums, and this hour adds up to a long night. | Son las {hour}. Mido todo con sumas, y esta hora suma una noche larga. |  |
+| axiom | Your {screen} screen holds exactly as many pixels as I allow. Add them yourself. | Tu pantalla de {screen} tiene exactamente los píxeles que yo permito. Súmalos tú. |  |
+| zero | Nothing is as quiet as {timezone} at this hour. I am almost at home. | Nada es tan silencioso como {timezone} a esta hora. Casi me siento en casa. |  |
+| zero | I counted your unread notifications. The answer was zero. Then I counted again. | Conté tus notificaciones sin leer. La respuesta fue cero. Luego volví a contar. | yes |
+| infinity | {minutes} minutes so far. I have been here forever. The ratio is rude. | {minutes} minutos hasta ahora. Yo llevo aquí para siempre. La proporción es grosera. |  |
+| infinity | {runs} runs. I would offer you infinitely many more, but you would take them. | {runs} partidas. Te ofrecería infinitas más, pero las aceptarías. |  |
+| observer | A {os} user. I see you looking at me looking at you. | Un usuario de {os}. Te veo mirarme mirándote. |  |
+| observer | You left and came back {returned} times. I was only here when you looked. | Te fuiste y volviste {returned} veces. Yo solo estaba aquí cuando mirabas. |  |
+| floating | {language}. Approximately. I round everything, including you. | {language}. Aproximadamente. Redondeo todo, tú incluido. |  |
+| floating | Your battery is at roughly 63 percent. Roughly. I round. | Tu batería está en unos 63 por ciento. Más o menos. Yo redondeo. | yes |
+| deadlock | It is {hour}, and you will not hold more than one thing. Try holding your breath instead. | Son las {hour}, y no sostendrás más de una cosa. Mejor prueba a contener la respiración. |  |
+| deadlock | {wins} wins and still only one hand. How do you manage? | {wins} victorias y aún una sola mano. ¿Cómo lo logras? |  |
+
 ## 7. Shops and the Road
 
 | Shop | Keeper | What it does | Music |
