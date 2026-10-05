@@ -207,6 +207,68 @@ Light: neighbors never fizzle. Dark: the die on its right scores 0 and half of t
 **Open:** names for the base dice (Dark and Darkness would clash), how each base die is forged, and whether volatile fusions can also gate the true ending.
 
 
+#### Workshop new Die: 
+
+Here's every die in the game, then the new ones with a power-up for each. The "new dice" are everything added since the Firmament.
+
+**Older dice (not changing)**
+- **Pure:** Earth, Fire, Water, Air.
+- **Double fusions:** Lightning, Ice, Steel, Mud, Steam, Crystal.
+- **Triple fusions:** Storm, Obsidian, Magma, Monsoon.
+- **Quadra fusion:** Aether.
+- **Gods:** Gaea, Ognen, Varuna, Zephyr, plus the Primordial die.
+- **Arcane:** Gilded, Sapling, Mirror, Conduit, Kairos, Beacon, Prism, Bullion, Masquerade, Chameleon.
+
+**New dice, with what I'd add.** "Face to Mult" is your idea, so the die's face value also goes into Mult.
+
+| Die | Today | Power-up |
+|---|---|---|
+| **Light** | Neighbours never fizzle | Face to Mult (half); neighbours also count +10 |
+| **Darkness** | Right neighbour scores half, half goes to Mult | Face to Mult (half) |
+| **Time** | +1 reroll a round, It can get locked, it summons its past score. | +2 rerolls; face to Mult (half) |
+| **Space** | Reacts two places away, it bridges the space between dice and makes them React. | Reacts three places away; face to Mult (half) |
+| **Chaos** | Random pure element each roll, it can react with everything and strengthen the reaction. | Picks the element that makes the best reaction with a neighbour; face to Mult (half) |
+| **Void** | Scores nothing; +5 Mult per empty slot | Face to Mult (full); +1 per empty slot, it dosnt ocupy space as a die. |
+| **Shadow** | Left neighbour to Mult; right never fizzles | Face to Mult (half) |
+| **Continuum** | Ring, +1 reroll | +2 rerolls; face to Mult (half) |
+| **Oblivion** | Eats the lowest die for 2× its face | Eats it for 3×; face to Mult |
+| **Alba** | No face below 2; first reroll free | No face below a quarter of the die's size, so it matters on big dice |
+| **Anomaly** | A random die rerolls once more | Two dice reroll, and you keep the better outcome |
+| **Singularity** | Scores nothing; neighbours' Base ×2 | Neighbours' Base ×3; face to Mult (full) |
+| **Nadir** | Neighbours score 0; +2 Mult per empty slot | Neighbours score half; +3 per empty slot |
+| **Dead Star** | Scores nothing; +0.5 Mult per other die | +1 Mult per other die, so a collapse is a fair consolation |
+| **Comet** | Explodes on top two faces | Face to Mult (half) |
+| **Pulsar** | +5 Base per reroll | +10 Base per reroll |
+| **Satellite** | Neighbours' faces +5 | Neighbours' faces +15% of that die's size |
+| **Quasar** | Its score goes to Mult | Its score goes to Mult, doubled |
+| **Zenith** | +1 reroll, more at rounds 20 and 25 | +2 reroll; face to Mult (half) |
+
+
+##### New Die Ideas: 
+
+| **Closed Timelike Curve** | If you cast on the first 15s of the round x2 Mult | x2 Mult |
+| **Shooting Star** | Explodes on top three faces, if another Die explodes it explodes too | Face to Mult (half) |
+| **Neutron Star** | Explodes on top three faces, if another Die explodes it explodes too, it also explodes if it has the same face as another die | Face to Mult (half) |
+| **Non-Euclidean Die** | Warps space arround it | Every die can react with each other. their placement dosnt matter.|
+| **Event Horizon** | It creates 2 Balack Hole Dice when it scores its highest face.| Scores Nothing |
+| **Balck Hole Die** | Anything inside a Black Hole gets +50 score.| Scores Nothing|
+| **Quantum Entanglement** | Chooses a die at random and copies its hablities and its score.| |
+
+All firmament dice in this list have the inherit *Firmament* buff, Face to Mult (half). 
+
+**Combining the crutches you picked:**
+- **Arrive at your level:** Firmament shop dice are sized around your pool's median instead of the round's odds.
+- **Apprentice discount:** a die you just bought gets its next two upgrades at half price.
+- **Stronger abilities:** the table above. Mult from the face grows with the die's size, so these dice get better as you upgrade them, and the flat bonuses help even a d3.
+
+**Where I need your call:**
+1. **Face to Mult at half or full?** I used half for most dice and full for the ones that score nothing, like Void, Singularity and Quasar. Fine?
+2. **Which dice are in?** I included the six elements, the seven fusions, the Celestial dice and the Dead Star. Should the Horologist's dice be in too?
+3. **Anything too strong or too boring?** Tell me what to cut or push, and I'll write it up as v0.8.3 with the prompt.
+
+
+
+
 ---
 
 ## Template

@@ -573,7 +573,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.6** | Sigils | **Built.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. The Eye's peek is a live dry run, no engine change. Run after v0.8.5. |
 | **v0.9** | Realm 3 | **Built.** Part R: rounds 31 to 45 (Empyrean, Pleroma or Meridian by path), six Rewriters, four Abstract elements with fusions and four Absolute forged dice, the number dice, two endings per path. Run after v0.8.6. |
 | **v0.9.2** | The Arbiter | **Built.** Part S: the realm's god who talks like Pip, for or against you, and the opt-in fourth-wall lines. |
-| **v0.9.5** | The Convergence | The Rush, Pip, you as the true boss per difficulty (Part Q3). Spec after v0.9 is built. |
+| **v0.9.5** | The Convergence | **Proposed.** Part T: the Rush (one boss at a time, shops between except on Cataclysm), Pip's callback fight, the ghost duel (multi-cast, it steals and interferes), the Cataclysm best build, new loadouts (Climate, Lottery, Quintessence). Becomes Ready after the best-build result. |
 | **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
 | **(old)** | Rewriting reality | Became v0.9 (Realm 3) and v0.9.5 (Convergence). |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
@@ -1903,8 +1903,52 @@ Build the four dice **exactly as B12 decided**: Two's Complement, Reversed Bits 
 - **Tests:** permission yes and no (no network, no cookie reads: add a test that greps the code for `document.cookie` and `fetch` use in these files), favor going up and down, lines without a placeholder when a value is missing, the opt-in appearing once, backups carrying the setting.
 - Patch notes "Alpha 0.9.2 The Arbiter"; CONTENT.md; GDD; mark Part S Built.
 
+## Part T: v0.9.5 "The Convergence" (workshop draft, 2026-10-05)
+
+**Status: Proposed.** Carlos's decisions are marked; Claude's drafts are **Draft**. Becomes Ready after Carlos confirms and the best-build search is read (T6). Builds on Part Q (3 and 4).
+
+### T1. The place
+
+After round 45's Rewriter, every path reaches **the Convergence** (the fourth place; working name **The Unwritten**, from A5; Carlos has not named it). Anyone who arrives may enter and gets the arrival reward of Q3. Its fights are, in order, **the Rush, Pip, and You.**
+
+### T2. The Rush (Carlos: no stacking)
+
+The bosses are fought **one at a time**, in this order: **the Primordial; the four gods** (the existing god gauntlet of four stages, as one block, no shops inside it, **Draft**); **the six Wardens** (Set I then Set II); **the six Rewriters** (Set I then Set II). **On every difficulty except Cataclysm there is a shop between fights** (Carlos: "pop shops in between"); **on Cataclysm there are none.** That is about 14 fights.
+
+**Targets (Draft):** a fixed round number would be too small for a late build, so each Rush fight's target is the player's own power: **0.6 x the best cast of this run so far, times the boss's own factor** (Primordial 1.0, gods their gauntlet factors, Wardens 1.0, 1.1 and 1.25 by order, Rewriters their calibrated `REWRITER_TARGET` factors applied to the same base). Each boss keeps its own rules, music, scene (a single new line, a callback) and Gallery entry. Losing a fight costs a life as usual; no life, run over.
+
+### T3. Pip's fight (Carlos: "I like the Pip fight")
+
+A **bluff**. Pip announces itself as the final boss. **The fight is a callback: Pip repeats your very first cast** (it "rolls" the starting loadout of this run, with the same faces as the first cast of the run), the easiest fight of the game (a target a fraction of your best cast). After the first exchange Pip stops and says that the real one is behind it: **its master** (Carlos: "the real one is his master"), who is **you**. A scene before and after (EN and ES, drafts for Carlos to rewrite).
+
+### T4. The true boss: the ghost duel (Carlos)
+
+**A race against a ghost, over several casts** (Carlos: "multi cast, not just one cast"), and **the ghost interferes, fights with you and steals dice** (Carlos: "a fun final fight").
+
+- **Who the ghost is (by difficulty, Carlos):** **Ember:** your current build (the pool and relics of this run now). **Blaze:** your current build with upgrades (**Draft:** every die one size tier up and its bonuses doubled). **Inferno:** the best build on this file (the dice and relics of the highest cast ever recorded on the file; a new profile field `bestBuild`, updated on every cast that beats it, saved with its dice and relics). **Cataclysm:** a curated best-of-the-best loadout (T6), and a **secret achievement** for beating it.
+- **The race (Draft):** both sides cast in **exchanges**, up to **six**. The ghost's score each exchange is **rolled from its own build through the real engine** (seeded, so it varies), not a fixed number. The first to reach a running total of **3 x the ghost build's best cast** wins. You cast first. If the ghost gets there first you lose a life and rematch (its total resets); with no life left the run ends.
+- **The ghost's moves (Draft):** before each exchange it **announces one move** (a line of text, so you can play around it): **it steals your highest unheld die for that exchange** (a held die is safe, which makes holding a real decision; the die comes back after), **it rewinds** (your best die rerolls), **it borrows one of your relics** against you for the exchange, **it shuffles your row**, **it locks one of your dice**. Later exchanges use two moves. It never kills a die for good and never takes a relic for good.
+- **When you win:** beating yourself is the **true ending**; **you become the true boss**: the winning build is saved as `profile.ghost` and is the next Inferno true boss. The true ending card (draft text), a Gallery scene, and the achievements below.
+- **Achievements (secret):** **Where the Roads Meet** (arrive), **The Rush** (finish it), **Pip's Master** (reach the duel), **Beat Yourself** (win it), **Final Form** (win it on Cataclysm).
+
+### T5. New loadouts (Carlos)
+
+- **Drop "Avatar"** (a trademark worry). Draft: rename it **Quintessence** (starts with two Earth and an Aether, same unlock). Carlos to confirm the name.
+- **Climate** (Carlos: master of the climate phenomena): starts with **Magma, Storm and Monsoon**.
+- **Lottery** (Carlos: a random one): starts with **three dice drawn at random from the whole shop pool** (seeded per run, never gods, Mythic, sigil or Absolute dice; all at the starting size).
+- More combinations are welcome; candidates for Carlos to pick from are in the workshop reply.
+
+### T6. The best build (Cataclysm's ghost)
+
+Carlos: "run bots on the best dice and see which is the best." **`tools/bestBuild.mjs`** (committed 2026-10-05) hill-climbs ten dice at top size and five relics for the highest mean best-of-five round score. It ranks raw power, ignoring cost and how a die is obtained, so Claude reads the result with Carlos before any build is chosen. The Cataclysm ghost is then a **fixed list** (checked into data, not computed live).
+
+### T7. Open
+
+The place's name; the exact exchange count and win line; the ghost's moves and how hard they hit; whether a Rush shop is a free choice of type or a Market; the Cataclysm build; the loadout list and the Avatar rename; the Rush targets (a factor of 0.6 on the best cast is a first guess, to be run in the balance simulator).
+
 ## Decision log
 
+- **2026-10-05 (Convergence, Carlos):** no stacking: the Rush is one boss at a time with shops between on every difficulty but Cataclysm; Pip's fight is a callback and the real boss is its master (you); the true fight is a multi-cast race against a ghost that steals and interferes; the Cataclysm best build comes from running bots; realm 3 growth eased to x1.40; new loadouts (Climate, Lottery), Avatar dropped: Part T.
 - **2026-10-04 (Convergence, Carlos):** anyone who gets there may enter and is rewarded; the last three fights are the Rush, Pip and You; the true boss is your current build on Ember, your build with upgrades on Blaze, your best build on file on Inferno, the curated best-of-the-best on Cataclysm.
 - **2026-10-04 (realm 3, Carlos):** one realm with three path flavours; six Rewriters; the Convergence with a boss rush (grouped on normal difficulties, one by one on the hardest), then Pip (a bluff), then the player as the true boss; permission-based fourth-wall lines; fewer realm 3 elements with new rarities: Part Q (draft).
 - **2026-10-04 (the Eye, anti-scum, Carlos):** keep the Greater Eye showing every unheld die; instead, track fishing (6 shifts of the vision between rerolls is an offense), forgive two, and on the third an unarmed god from the third realm (The Arbiter, placeholder) bans altering probability, smites the dice away and takes a life (never the last): Part P5.

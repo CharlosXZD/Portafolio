@@ -1313,7 +1313,7 @@ export function thresholdForRound(round, difficulty) {
   else {
     const fifteenth = tenth * Math.pow(difficulty.thresholdGrowth, 5)
     base = round <= 15 ? tenth * Math.pow(difficulty.thresholdGrowth, round - 10) : fifteenth * Math.pow(LATE_GROWTH, Math.min(round, 30) - 15)
-    // Realm 3 is steeper: x1.45 a round from round 31 (R1).
+    // Realm 3: x1.40 a round from round 31 (it was x1.45; eased 2026-10-05).
     if (round > 30) base *= Math.pow(REALM3_GROWTH, round - 30)
   }
   return Math.round(base * (difficulty.thresholdMultiplier ?? 1))

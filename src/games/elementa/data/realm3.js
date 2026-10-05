@@ -6,8 +6,8 @@ const L = (en, es) => ({ en, es })
 
 export const REALM3_START = 31
 export const REALM3_END = 45
-/** The same growth the Firmament has, steeper: x1.45 a round from round 31 (R1). */
-export const REALM3_GROWTH = 1.45
+/** Realm 3 grows x1.40 a round from round 31, the same as the Firmament (Carlos, 2026-10-05: better too easy than too hard; it was x1.45). */
+export const REALM3_GROWTH = 1.4
 
 /** The realm's name and look for each path. */
 export const REALM3 = {
