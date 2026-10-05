@@ -28,6 +28,8 @@ import { juicyHover } from '../utils/motionPresets.js'
 import DieToken from './DieToken.jsx'
 import BoonsList from './BoonsList.jsx'
 import { shopNameIn } from '../data/realm3.js'
+import { ArbiterSays } from './ArbiterParts.jsx'
+import { useArbiter } from '../utils/useArbiter.js'
 import { shopTypeById, dealById, blessingById, PROPHECY, ATLAS_SERVICES, MOTE_STAGES, MOTE_FULL } from '../data/shops.js'
 import BossAvatar from './BossAvatar.jsx'
 import { bossById } from '../data/bossModifiers.js'
@@ -473,6 +475,8 @@ function OfferCard({ title, body, color, button, disabled, done, onClick, art })
 
 export default function ShopScreen({ state, dispatch }) {
   const { t, lang } = useLanguage()
+  // An Arbiter has a word at every realm 3 shop (Part S).
+  const arbiterShop = useArbiter(state, 'shop')
   const shop = state.shop
   const [openKey, setOpenKey] = useState(null)
   const [armedConsumable, setArmedConsumable] = useState(null)
@@ -702,6 +706,7 @@ export default function ShopScreen({ state, dispatch }) {
       <div className="flex flex-col items-center gap-6">
         <ShopBanner label={shopNameIn(state, type, lang)} color={type.color} />
         <KeeperGreeting state={state} type={type} />
+        {arbiterShop && <ArbiterSays text={arbiterShop.text} tone={arbiterShop.tone} />}
         {/* Vesper works beside Brasa past the door (EXPANSION.md K5). */}
         {selectors.vesperHere(state) && <KeeperGreeting state={state} type={{ ...type, keeper: 'vesper', color: '#9fb8ff' }} />}
 

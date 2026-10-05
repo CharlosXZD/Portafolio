@@ -13,6 +13,10 @@ import { selectors } from '../engine/gameReducer.js'
 import { ELEMENTS, FLAGS, inFamily, actingElementIds } from '../data/elements.js'
 import { reactionById } from '../data/reactions.js'
 import { bossById } from '../data/bossModifiers.js'
+import { ArbiterSays } from './ArbiterParts.jsx'
+import { useArbiter } from '../utils/useArbiter.js'
+import { useFourthWall } from '../utils/useFourthWall.js'
+import { gatherDetails, rewriterFourthWall } from '../utils/fourthWall.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { localize, ELEMENTS_ES, RELICS_ES, localizeBossModifier, localizeReaction } from '../data/i18n.js'
 import { relicById } from '../data/relics.js'
@@ -203,6 +207,18 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const rerollTax = fx.rerollShardCost || 0
   const canReroll = availableRerolls > 0 && state.shards >= rerollTax
   const boss = localizeBossModifier(state.bossModifier, lang)
+  // An Arbiter speaks at the start of every realm 3 round (Part S).
+  const arbiterSays = useArbiter(state, 'round')
+  const [fourthPermission] = useFourthWall()
+  // A Rewriter's own fourth-wall line, only when the player said yes (Part S).
+  const rewriterWall = useMemo(
+    () =>
+      boss?.tier === 5 && fourthPermission === 'yes'
+        ? rewriterFourthWall(boss.id, { permission: fourthPermission, details: gatherDetails({ lang, profile: readProfile(state.activeSlot) }), lang, seed: state.seed, round: state.round })
+        : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [boss?.id, boss?.tier, fourthPermission, lang, state.round, state.seed],
+  )
   // Infinity raises the target as rerolls and explosions pile up (R2).
   const target = selectors.effectiveThreshold(state)
   const showHint = state.round === 1 && state.rerollsUsed === 0
@@ -570,6 +586,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                   <div className="pixel-heading text-[10px] text-[#ffb0b0]">{bossTitle}</div>
                   <div className="text-base text-[#ffd0d0]/80">{bossLine}</div>
                   {boss.hint && <div className="text-sm italic text-[#ffd0d0]/60">{boss.hint}</div>}
+                  {rewriterWall && <div className="mt-1 text-base italic text-[#ffe0e0]">{rewriterWall}</div>}
                   {primordialSays && <div className="mt-1 text-base italic text-[#ffe0e0]">{primordialSays}</div>}
                 </div>
               </motion.div>
@@ -593,6 +610,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 {t('elementa.boss.fallen').replace('{god}', fallen)}
               </motion.p>
             )}
+            {arbiterSays && !revealing && (state.rerollsUsed === 0 || arbiterSays.kind) && <ArbiterSays text={arbiterSays.text} tone={arbiterSays.tone} />}
             {pipSays && (
               <div className="el-panel flex items-center gap-3 px-4 py-2 text-left" style={{ '--edge': '#c8b6ff' }}>
                 <Pip size={36} />

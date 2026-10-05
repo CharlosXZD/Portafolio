@@ -26,6 +26,7 @@ import RichText from './RichText.jsx'
 import StarSticker from './StarSticker.jsx'
 import { DieDetails } from './DieInfo.jsx'
 import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
+import { ARBITER, ARBITER_LORE } from '../data/arbiter.js'
 import { keeperMemory } from '../utils/keepers.js'
 import { SCENES, SCENE_IDS } from '../data/story.js'
 import StoryScene from './StoryScene.jsx'
@@ -166,6 +167,9 @@ function Group({ title, color, note, entries, selectedKey, onSelect }) {
  * discovered or not, grouped by rarity or family, plus loadouts and
  * achievements. `slot` is the save file whose discoveries to show.
  */
+// The realm 3 rounds at which more of an Arbiter's lore is told (Part S).
+const LORE_ROUNDS = [31, 38, 45]
+
 export default function GalleryScreen({ slot, onBack, embedded = false }) {
   const { t, lang } = useLanguage()
   const [profile] = useState(() => readProfile(slot))
@@ -286,7 +290,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       })
     }
     if (tab === 'keepers') {
-      return KEEPER_IDS.map((id) => {
+      const keeperEntries = KEEPER_IDS.map((id) => {
         const k = KEEPERS[id]
         const mem = keeperMemory(profile, id)
         const met = mem.visits > 0
@@ -321,6 +325,38 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
           hint: t('elementa.gallery.keeperUnmet'),
         }
       })
+      // An Arbiter (Part S) gets a page once he has appeared on the file. His mood is not shown.
+      if (profile.arbiter?.met) {
+        const deepest = profile.arbiter.deepest || 0
+        const told = ARBITER_LORE.filter((_, i) => deepest >= LORE_ROUNDS[i])
+        keeperEntries.push({
+          key: 'arbiter',
+          seen: true,
+          tile: (
+            <span className="el-well flex h-16 items-center justify-center px-1" style={{ minWidth: 64 }}>
+              <KeeperSprite id="arbiter" size={48} />
+            </span>
+          ),
+          art: <KeeperSprite id="arbiter" size={72} />,
+          item: { name: ARBITER.article[lang].replace(/^./, (c) => c.toUpperCase()), description: t('elementa.gallery.arbiterNote') },
+          extra: (
+            <div className="flex flex-col gap-2">
+              <div className="el-label">{t('elementa.gallery.keeperLore')}</div>
+              {told.length ? (
+                <ul className="flex flex-col gap-2 text-base text-[var(--text-dim)]">
+                  {told.map((line) => (
+                    <li key={line.en}>{line[lang]}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-base text-[var(--text-mute)]">{t('elementa.gallery.keeperNoLore')}</p>
+              )}
+            </div>
+          ),
+          hint: '',
+        })
+      }
+      return keeperEntries
     }
     return []
   }, [tab, lang, seen, t, profile])

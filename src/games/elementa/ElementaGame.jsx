@@ -54,6 +54,9 @@ import RunInfo from './components/RunInfo.jsx'
 import Toasts from './components/Toasts.jsx'
 import Crossroads from './components/Crossroads.jsx'
 import StoryScene from './components/StoryScene.jsx'
+import { FourthWallPrompt } from './components/ArbiterParts.jsx'
+import { useFourthWall } from './utils/useFourthWall.js'
+import { markArbiter } from './utils/profile.js'
 import { sceneById } from './data/story.js'
 import { realm3For } from './data/realm3.js'
 import { GOD_TRIALS } from './data/bossModifiers.js'
@@ -115,6 +118,15 @@ function ElementaGameInner() {
     setSeenScenes(slot == null ? [] : readProfile(slot).scenes || [])
   }, [slot])
   const story = slot == null ? null : sceneFor(state, seenScenes)
+  // The first time an Arbiter appears, in realm 3 or at the Eye's smite, the player is asked once
+  // whether he may notice details about their device (Part S).
+  const [fourthWall, chooseFourthWall] = useFourthWall()
+  const arbiterHere = Boolean(state.arbiterScene) || (state.realm3 && ['rolling', 'shop', 'bossReward'].includes(state.phase))
+  const askFourthWall = slot != null && arbiterHere && fourthWall === null
+  // He is met (for the Gallery) the first time he appears on this file.
+  useEffect(() => {
+    if (slot != null && arbiterHere) markArbiter(slot, state.realm3 ? state.round : 0)
+  }, [slot, arbiterHere, state.realm3, state.round])
   const storyRef = useRef(null)
   storyRef.current = story
   const finishScene = useCallback(
@@ -460,7 +472,8 @@ function ElementaGameInner() {
 
       {inRun && <Tutorial state={state} paused={paused || showRunInfo || Boolean(story)} onActiveChange={setTutorialActive} />}
 
-      {story && <StoryScene key={story} id={story} onDone={() => finishScene(story)} />}
+      {story && !askFourthWall && <StoryScene key={story} id={story} onDone={() => finishScene(story)} />}
+      {askFourthWall && <FourthWallPrompt onChoose={chooseFourthWall} />}
 
       {showRunInfo && inRun && <RunInfo state={state} initialTab={showRunInfo} onClose={() => setShowRunInfo(false)} />}
 

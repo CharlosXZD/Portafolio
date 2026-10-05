@@ -14,6 +14,7 @@ import Modal from './Modal.jsx'
 import BackupControls from './BackupControls.jsx'
 import { resetTutorial } from '../utils/tutorial.js'
 import PatchNotesScreen from './PatchNotesScreen.jsx'
+import { useFourthWall } from '../utils/useFourthWall.js'
 
 function Segmented({ options, value, onChange }) {
   return (
@@ -91,6 +92,7 @@ function Section({ title, children }) {
  */
 export default function OptionsScreen({ onClose, onNotesSeen }) {
   const { lang, setLang, t } = useLanguage()
+  const [fourthWall, chooseFourthWall] = useFourthWall()
   const {
     crtEffect,
     setCrtEffect,
@@ -180,6 +182,9 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
             { value: 'instant', label: t('elementa.options.speedInstant') },
           ]}
         />
+        {/* The Arbiter's fourth wall (Part S): asked once when he first appears; changeable here. */}
+        <Toggle label={t('elementa.options.fourthwall')} checked={fourthWall === 'yes'} onChange={(v) => chooseFourthWall(v ? 'yes' : 'no')} />
+        <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.options.fourthwallNote')}</p>
       </Section>
 
       <Section title={t('elementa.options.display')}>
