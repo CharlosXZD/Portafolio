@@ -12,6 +12,30 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9',
+    name: L('Realm 3', 'Reino 3'),
+    date: null,
+    highlights: [
+      L(
+        'A second door at round 30. Past it lies a realm of numbers, rounds 31 to 45: the Empyrean, the Pleroma or the Meridian, by path. Targets climb 1.45 times a round, and the big ones now read as K, M and B.',
+        'Una segunda puerta en la ronda 30. Más allá hay un reino de números, rondas 31 a 45: el Empíreo, el Pleroma o el Meridiano, según tu camino. Los objetivos suben 1.45 veces por ronda, y los grandes ahora se leen en K, M y B.',
+      ),
+      L(
+        'Six Rewriters wait at rounds 35, 40 and 45, each changing how a score is counted: the Axiom, Zero, Infinity, the Observer, Floating Point and Deadlock. Each card tells you the rule, and hints at the counter.',
+        'Seis Reescritores esperan en las rondas 35, 40 y 45, cada uno cambia cómo se cuenta un puntaje: el Axioma, Cero, Infinito, el Observador, Punto Flotante y Bloqueo Mortal. Cada carta te dice la regla y da una pista del contraataque.',
+      ),
+      L(
+        'Four Abstract elements (Zero, One, Infinity, Negation), four Abstract fusions, four Absolute dice taught by the Rewriters, and four number dice that only the realm sells. Ten new secret reactions to find.',
+        'Cuatro elementos Abstractos (Cero, Uno, Infinito, Negación), cuatro fusiones Abstractas, cuatro dados Absolutos que enseñan los Reescritores y cuatro dados de números que solo vende el reino. Diez reacciones secretas nuevas por encontrar.',
+      ),
+      L(
+        'Six new endings, one pair for each path, and a legendary relic for beating Floating Point and Deadlock. Sixteen new secret achievements, and more.',
+        'Seis finales nuevos, un par por camino, y una reliquia legendaria por vencer a Punto Flotante y a Bloqueo Mortal. Dieciséis logros secretos nuevos, y más.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.8.6',
     name: L('Sigils', 'Sigilos'),
     date: null,

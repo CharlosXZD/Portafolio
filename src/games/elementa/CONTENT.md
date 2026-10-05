@@ -890,6 +890,115 @@ Rounds 20, 25 and 30 past the door. Targets: the round's normal target x1 (20), 
 
 ---
 
+## 7c. Realm 3 (v0.9, drafts)
+
+Rounds 31 to 45, past a second door at round 30 (open once the file has seen that path's Firmament I ending). Targets grow x1.45 a round from round 31; numbers from a million read as K, M, B. All text is a draft for Carlos.
+
+### The three looks
+
+| Path | Realm | Legendary shop |
+|---|---|---|
+| split | The Empyrean | The Ledger |
+| primordial | The Pleroma | Cornucopia |
+| neutral | The Meridian | Equinox Market |
+
+### The Rewriters (bosses at rounds 35, 40, 45)
+
+Set I (Split and Neutral): the Axiom, Zero, Floating Point. Set II: Infinity, the Observer, Deadlock. The Primordial path has them reversed. Target = the round's normal target x the factor below (calibrated with `node tools/balanceSim.mjs ember 80 45 rewriters`).
+
+| Rewriter | Round | Rule | Target factor | Hint | Prize |
+|---|---|---|---|---|---|
+| **The Axiom** | 35 | Your score is Base + Mult, not Base x Mult. | x0.0008 | Flat Base wins: big dice, Whetstone, Honing Oil, Gold. Multipliers do little. | recipe: Monad, 2 Stardust |
+| **Zero** | 40 | Every face below 3 counts as 0, and fizzles. | x0.373 | Big dice, Luminance, Alba, Weights and rerolls. A pool of d3s will not survive. | recipe: Nun, 2 Stardust |
+| **Infinity** | 35 | Nothing is capped, but the target rises 10% for every reroll used and 5% for every explosion this round. | x1.314 | Few rerolls, big bursts, cast early. Ognen and Comet shine. | recipe: Apeiron, 2 Stardust |
+| **The Observer** | 40 | A die's face is hidden until you hover over it, tap it or focus it. Casting shows them all. | x0.423 | Luminance keeps faces visible, and so does the sigil Eye. Fewer, bigger dice are easier to read by feel. | recipe: Janus, 2 Stardust |
+| **Floating Point** | 45 | No decimals: Base and Mult are rounded down at every step of the ledger. | x0.074 | Whole-number sources, flat Mult, Tide. Every 0.5 and 1.5 bonus vanishes. | relic: Epsilon, 2 Stardust |
+| **Deadlock** | 45 | You can hold or lock at most one die at a time. | x0.045 | Reroll-everything builds, Chrono, Alba and high floors. Let the explosions carry you. | relic: Release, 2 Stardust |
+
+### Relics from the Rewriters
+
+- **Epsilon** (legendary): Your Mult is never rounded down, and +2 Mult.
+- **Release** (legendary): You can hold one more die than any limit allows.
+
+### Abstract base elements (bought in realm 3 shops)
+
+| Die | Abilities |
+|---|---|
+| **Zero** (`abs_zero`) | Scores nothing. The dice either side of it ignore the round's boss twist. • A base element of realm 3: sold only there. Two of them forge an Abstract fusion. |
+| **One** (`abs_one`) | Wild: counts as any face for sets. Scores 1 Base for every die in your pool. • A base element of realm 3: sold only there. Two of them forge an Abstract fusion. |
+| **Infinity** (`abs_infinity`) | Its explosions have no chain cap, and each explosion adds +1 Mult for the rest of the run. • A base element of realm 3: sold only there. Two of them forge an Abstract fusion. |
+| **Negation** (`abs_negation`) | The dice either side of it count the better of their face and its opposite. • A base element of realm 3: sold only there. Two of them forge an Abstract fusion. |
+
+### Abstract fusions (Vesper's Forge, two parents)
+
+| Die | Made of | Abilities |
+|---|---|---|
+| **Bit** (`bit`) | Zero + One | Its neighbors ignore boss twists and count as any face for sets. |
+| **Limit** (`limit`) | Zero + Infinity | Scores nothing. Each explosion this round gives +1 Mult, up to +20. |
+| **Parity** (`parity`) | One + Negation | Every even face in your pool scores double. |
+| **Divergence** (`divergence`) | Infinity + Negation | A die that shows its lowest face gets a free reroll, and each time that happens +1 Mult. |
+
+### Absolute dice (forged: 4 of the element + Stardust + 30 Shards; one per run)
+
+| Die | Made of | Taught by | Abilities |
+|---|---|---|---|
+| **Nun** (`nun`) | 4 Zero | Zero | Every die ignores the boss twist. • Absolute: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Zero dice and 1 Stardust, once a Rewriter has taught the recipe. |
+| **Monad** (`monad`) | 4 One | The Axiom | Every die counts as any face for sets, and its score is multiplied by your dice count. • Absolute: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 One dice and 1 Stardust, once a Rewriter has taught the recipe. |
+| **Apeiron** (`apeiron`) | 4 Infinity | Infinity | Nothing is capped for you, and each explosion adds +2 Mult for good. • Absolute: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Infinity dice and 1 Stardust, once a Rewriter has taught the recipe. |
+| **Janus** (`janus`) | 4 Negation | The Observer | Every die counts the better of its face and its opposite. • Absolute: one of each kind per run. It cannot be copied. • Can grow past d20 in the Firmament, up to d100. • Forged from 4 Negation dice and 1 Stardust, once a Rewriter has taught the recipe. |
+
+### Number dice (sold only in realm 3 Markets and the legendary shop)
+
+| Die | Rarity | Price | Abilities |
+|---|---|---|---|
+| **Two's Complement** (`twos_complement`) | epic | 16 | If its face is even: doubles the score of both neighbors, and +2 Mult. |
+| **Reversed Bits** (`reversed_bits`) | legendary | 30 | Scores nothing. Every die that rolls has its face bit-reversed within its own bit width (a 1 on a d6 becomes a 4). |
+| **Rolling Joke** (`rolling_joke`) | epic | 16 | Scores its face + 1 for every reroll you have made this run (shop rerolls count too). |
+| **Undivisible** (`undivisible`) | legendary | 30 | If its face is prime: its score is the square minus one (a 19 on a d20 is 360). |
+
+### Realm 3 reactions (ten, secret; drafts)
+
+| Reaction | Trigger (adjacent dice) | Reward |
+|---|---|---|
+| **Absolute Zero** | Zero + Water | +2 Mult |
+| **Pilot Light** | Zero + Fire | +4 Base |
+| **Bedrock** | Zero + Earth | add the lower face to Base, +1 Mult |
+| **Pinpoint** | One + Fire | +3 Base, +1 Mult |
+| **Monotone** | One + Air | +1.5 Mult |
+| **Runaway** | Infinity + Fire | +2.5 Mult |
+| **Endless Gale** | Infinity + Air | +4 Base, +1 Mult |
+| **Undertow** | Negation + Water | add the higher face to Base, +1 Mult |
+| **Cold Flame** | Negation + Fire | add both faces to Base |
+| **Binary** | Zero + One | +5 Base, +2 Mult |
+
+### Endings (drafts)
+
+- **Between Two Edges** (`realm3_neutral_1`): The Axiom, Zero and Floating Point could not agree on what a number is, and neither could you. The Meridian swings, and for a moment you are sure of nothing. That was the point.
+- **The Pendulum Rests** (`realm3_neutral_2`): Infinity ran out of road, the Observer looked away, and Deadlock let go one hand at a time. Between the Empyrean and the Pleroma the Meridian finds its middle. Something in the margin makes a note.
+- **A Place for Every Number** (`realm3_split_1`): In the Empyrean every line is straight and every sum comes out. You answered the Axiom with big, honest numbers, and it had to agree. Aeris keeps a ledger now, and your name is in the first column.
+- **The Last Straight Line** (`realm3_split_2`): Infinity, the Observer and Deadlock were the last things that wanted the pieces to blur. You kept them sharp, one at a time. The Split will outlast every number it was counted in.
+- **The Sum of All Things** (`realm3_primordial_1`): In the Pleroma the edges dissolve and the numbers pour into each other. Infinity, the Observer and Deadlock all become one answer, and Nix writes it down with a smile you do not trust.
+- **One Number, Finally** (`realm3_primordial_2`): The Axiom, Zero and Floating Point fold into each other until only one number is left, and it is not quite whole. Approximately, says a voice that is not quite there. Not yet.
+
+### Achievements (all secret)
+
+- **Axiomatic**: Beat the Axiom.
+- **Nothing Left**: Beat Zero.
+- **Unending**: Beat Infinity.
+- **Seen**: Beat the Observer.
+- **Close Enough**: Beat Floating Point.
+- **Unlocked**: Beat Deadlock.
+- **Rewritten**: Beat all six Rewriters.
+- **Bit by Bit**: Forge a Bit.
+- **At the Limit**: Forge a Limit.
+- **Even Odds**: Forge a Parity.
+- **Diverged**: Forge a Divergence.
+- **Nothing Applies**: Forge a Nun.
+- **One of a Kind**: Forge a Monad.
+- **No Edge**: Forge an Apeiron.
+- **Both Faces**: Forge a Janus.
+- **Out of Order**: Reach round 45.
+
 ## 7. Shops and the Road
 
 | Shop | Keeper | What it does | Music |
@@ -990,7 +1099,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 | **Inferno** | 3 | 2 | 2 | 4 | No |
 | **Cataclysm** | 3 | 3 | 2 | 4 | Yes |
 
-### Achievements (50, 22 public and 28 secret; secret ones show as ??? until earned and do not count toward completion)
+### Achievements (66, 22 public and 44 secret; secret ones show as ??? until earned and do not count toward completion)
 - **First Spark**: Clear your first round.
 - **Keeper of the Circle**: Win a run.
 - **Every Path**: Win with every loadout.

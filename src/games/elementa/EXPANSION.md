@@ -571,7 +571,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.3** | Crutches for the new dice | **Built.** Part N: the Charged tag (half the face to Mult), Carlos's upgraded base elements and their fusions, Celestial numbers, seven new dice (Closed Timelike Curve, Shooting and Neutron Star, Non-Euclidean, Event Horizon with its Black Hole dice, Quantum Entanglement), dice that arrive at your level, an apprentice discount. Run after v0.8.2. |
 | **v0.8.5** | Strange faces | **Built.** Part O: four more runes (Wild, Gold, Link, Double), six Laws in one Law slot, poker dice and the Joker with the Gambler loadout, all in Elementa too. Run after v0.8.3. |
 | **v0.8.6** | Sigils | **Built.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. The Eye's peek is a live dry run, no engine change. Run after v0.8.5. |
-| **v0.9** | Realm 3 | **Ready.** Part R: rounds 31 to 45 (Empyrean, Pleroma or Meridian by path), six Rewriters, four Abstract elements with fusions and four Absolute forged dice, the number dice, two endings per path. Run after v0.8.6. |
+| **v0.9** | Realm 3 | **Built.** Part R: rounds 31 to 45 (Empyrean, Pleroma or Meridian by path), six Rewriters, four Abstract elements with fusions and four Absolute forged dice, the number dice, two endings per path. Run after v0.8.6. |
 | **v0.9.2** | The Arbiter | **Ready.** Part S: the realm's god who talks like Pip, for or against you, and the opt-in fourth-wall lines. |
 | **v0.9.5** | The Convergence | The Rush, Pip, you as the true boss per difficulty (Part Q3). Spec after v0.9 is built. |
 | **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
@@ -584,6 +584,11 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.9 "Realm 3" (in development, unreleased)
+- **A second door at round 30** (open once the file has seen the path's Firmament I ending) into rounds 31 to 45: the Empyrean, the Pleroma or the Meridian by path, targets x1.45 a round, numbers from a million shown as K, M, B.
+- **Six Rewriters** at rounds 35, 40, 45 (the Axiom, Zero, Infinity, the Observer, Floating Point, Deadlock) in two sets per path, each with an intro scene, a card with its rule and a hint, a calibrated target and a prize (Nun, Monad, Apeiron or Janus recipe; the Epsilon or Release relic; 2 Stardust).
+- **Four Abstract elements, four Abstract fusions, four Absolute forged dice** and **four number dice** (Two's Complement, Reversed Bits, Rolling Joke, Undivisible), ten new secret reactions, six new endings, sixteen secret achievements.
 
 ### Alpha v0.8.6 "Sigils" (in development, unreleased)
 - **Six sigil dice** (a normal and a Greater one for each path): faces of symbols, no numbers. Sun, Scale, Key, Eye, Spiral, Maw.
@@ -1838,7 +1843,7 @@ Carlos's idea: the peek shows the future from the current conditions, so a playe
 
 ## Part R: v0.9 "Realm 3" (spec, 2026-10-04)
 
-**Status: Ready.** From Part Q (Carlos's decisions and the drafts he approved on 2026-10-04: "I love all of it"). Run after v0.8.6. **This step builds realm 3 only**; the Arbiter's scenes and the fourth-wall lines are Part S (v0.9.2), and the Convergence, the Rush, Pip and the true boss are v0.9.5 (spec after this is built). Items marked **Default** are Claude's reading; list each in the report.
+**Status: Built** (Alpha v0.9, GDD §46; the Defaults were built as written, GDD §46 lists them). From Part Q (Carlos's decisions and the drafts he approved on 2026-10-04: "I love all of it"). Run after v0.8.6. **This step builds realm 3 only**; the Arbiter's scenes and the fourth-wall lines are Part S (v0.9.2), and the Convergence, the Rush, Pip and the true boss are v0.9.5 (spec after this is built). Items marked **Default** are Claude's reading; list each in the report.
 
 ### R1. The realm and the door
 
