@@ -52,7 +52,43 @@ const SCENES = {
   },
 }
 
+// Realm 3's three looks (EXPANSION.md R1): the same realm drawn strict
+// (the Empyrean, a grid), dissolving (the Pleroma, soft drifting motes) or
+// swinging (the Meridian, bands that trade places). Each adds a light
+// "reality glitch" layer that Reduced motion leaves still.
+SCENES.empyrean = {
+  sky: ['#0a1020', '#101c36', '#183052', '#24466e', '#3a6690', '#6a98b8', '#a8c8d8'],
+  ridges: null,
+  stars: 0.3,
+  motes: 18,
+  moteKinds: ['rune'],
+  circle: true,
+  grid: '#9fd8ff',
+  glitch: 'shift',
+}
+SCENES.pleroma = {
+  sky: ['#12060e', '#220a1c', '#3a102e', '#5a1a44', '#7e2a5c', '#a84a78', '#d078a0'],
+  ridges: ['#2a0d22', '#16060f'],
+  stars: 0.4,
+  motes: 70,
+  moteKinds: ['blur'],
+  circle: true,
+  glitch: 'smear',
+}
+SCENES.meridian = {
+  sky: ['#10100a', '#262210', '#463a16', '#62521c', '#3a5a5a', '#2a7480', '#4a9aa8'],
+  ridges: ['#1c2a2a', '#0e1818'],
+  stars: 0.4,
+  motes: 40,
+  moteKinds: ['rune', 'blur'],
+  circle: true,
+  grid: '#ffd166',
+  glitch: 'shift',
+}
+
 const MOTE_STYLE = {
+  rune: { colors: ['#e8f4ff', '#9fd8ff'], vy: -0.2, sway: 0.15 },
+  blur: { colors: ['#ffc8e0', '#c08cff'], vy: -0.3, sway: 1.1 },
   fire: { colors: ['#ff7a45', '#ffc15a'], vy: -0.55, sway: 0.25 },
   water: { colors: ['#4aa3ff', '#9fd4ff'], vy: -0.25, sway: 0.5 },
   air: { colors: ['#dff2f7', '#a8d8e6'], vy: -0.35, sway: 0.9 },
@@ -99,6 +135,15 @@ function drawStatic(ctx, W, H, scene) {
     }
   }
   ctx.putImageData(img, 0, 0)
+
+  // The Empyrean's grid: straight, evenly spaced lines (R1).
+  if (scene.grid) {
+    ctx.globalAlpha = 0.07
+    ctx.fillStyle = scene.grid
+    for (let x = 0; x < W; x += 12) ctx.fillRect(x, 0, 1, H)
+    for (let y = 0; y < H; y += 12) ctx.fillRect(0, y, W, 1)
+    ctx.globalAlpha = 1
+  }
 
   if (scene.ridges) {
     const rand = rng(7)
@@ -252,6 +297,15 @@ export default function PixelBackdrop({ scene = 'menu', anchor = '[data-backdrop
       ctx.globalAlpha = 1
 
       if (cfg.circle) drawCircle(ctx, W, H, time, scene === 'boss', anchorPos)
+
+      // The reality glitch (R1): now and then a strip of the picture slips
+      // sideways for a moment. Reduced motion never draws it.
+      if (cfg.glitch && !reducedMotion && Math.floor(time * 2) % 5 === 0 && time % 0.5 < 0.2) {
+        const y = Math.floor(((Math.floor(time * 2) * 37) % 100) / 100 * H)
+        const h = 2 + (Math.floor(time * 2) % 4)
+        const dx = cfg.glitch === 'smear' ? 3 : 6
+        ctx.drawImage(canvas, 0, y, W, h, dx, y, W, h)
+      }
 
       for (const m of motes) {
         const style = MOTE_STYLE[m.kind]

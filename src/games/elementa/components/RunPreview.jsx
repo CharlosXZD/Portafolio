@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { compactNumber } from '../utils/formatNumber.js'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { playClick } from '../utils/sound.js'
@@ -159,7 +160,7 @@ export default function RunPreview({ state, dispatch }) {
           <div className="grid grid-cols-2 gap-3">
             <Stat label={t('elementa.runPreview.round')}>{state.round}</Stat>
             <Stat label={t('elementa.hud.target')} accent="var(--gold-1)">
-              {state.threshold}
+              {compactNumber(state.threshold)}
             </Stat>
           </div>
           <div className="el-well flex items-center justify-between px-3 py-3">

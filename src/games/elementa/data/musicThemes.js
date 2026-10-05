@@ -489,6 +489,81 @@ export const MUSIC_THEMES = {
     perc: '. . . . . . . . . . . . z . . .',
     voices: { lead: 'sine', bass: 'sine' },
   },
+  // --- The Rewriters of realm 3 (EXPANSION.md R2), one theme each. Drafts. ---
+  // The Axiom: square, certain, a major line that never wavers.
+  boss_axiom: {
+    root: 48,
+    scale: 'major',
+    step: 0.12,
+    lead: '0 . 0 . 4 . 4 . 7 . 7 . 4 . 2 . 0 . 0 . 4 . 4 . 7 . 9 . 7 . . .',
+    bass: '0 . . . 0 . . . 4 . . . 3 . . .',
+    perc: 'k . . . s . . . k . . . s . . .',
+    voices: { lead: 'square', bass: 'square' },
+  },
+  // Zero: almost nothing, a note that never quite finishes.
+  boss_zero: {
+    root: 36,
+    scale: 'minor',
+    step: 0.22,
+    lead: '0 - - - . . . . -2 - - . . . . . 0 - . . . . . . . . . . . . . .',
+    bass: '0 - - - - - - - - - - - - - - -',
+    perc: '. . . . . . . . . . . . . . . z',
+    voices: { lead: 'sine', bass: 'sine' },
+  },
+  // Infinity: a phrase that keeps climbing and starts over a step higher.
+  boss_infinity: {
+    root: 50,
+    scale: 'lydian',
+    step: 0.09,
+    lead: '0 1 2 3 4 5 6 7 1 2 3 4 5 6 7 8 2 3 4 5 6 7 8 9 3 4 5 6 7 8 9 10',
+    bass: '0 . . 0 . . 0 . 1 . . 1 . . 1 .',
+    perc: 'h h h h h h h h h h h h h h h h',
+    voices: { lead: 'triangle', bass: 'triangle' },
+  },
+  // The Observer: sparse, notes appear only on some steps, as if looked at.
+  boss_observer: {
+    root: 45,
+    scale: 'dorian',
+    step: 0.16,
+    lead: '. . 4 . . . . 2 . . . . 5 . . . . 0 . . . . 4 . . . . . 2 . . .',
+    bass: '0 - - - - - - - . . . . . . . .',
+    perc: '. . . . . . . . z . . . . . . .',
+    voices: { lead: 'sine', bass: 'sawtooth' },
+  },
+  // Floating Point: a line of half-steps that never lands on a whole one.
+  boss_floating: {
+    root: 52,
+    scale: 'harmonicMinor',
+    step: 0.1,
+    lead: '0 1 . 0 1 . 2 3 . 2 3 . 4 5 . 4 5 . 6 7 . 6 . 4 . 2 . 0 . . .',
+    bass: '0 . 1 . 0 . 1 . 3 . 2 . 3 . 2 .',
+    perc: 'k . h . s . h . k . h . s . h h',
+    voices: { lead: 'triangle', bass: 'sawtooth' },
+  },
+  // Deadlock: one note held until it hurts, then the next.
+  boss_deadlock: {
+    root: 40,
+    scale: 'phrygian',
+    step: 0.2,
+    lead: '0 - - - - - - - 1 - - - - - - - 0 - - - - - - - 3 - - - - - - -',
+    bass: '0 - - - - - - - 0 - - - - - - -',
+    perc: 'k . . . . . . . k . . . . . . .',
+    voices: { lead: 'square', bass: 'sine' },
+  },
+  // Realm 3 itself: a quiet crossing for the door and the scenes.
+  scene_realm3: {
+    root: 46,
+    scale: 'wholeTone',
+    step: 0.24,
+    lead: '0 - - - 2 - - - 4 - - - 2 - - - 0 - - - -2 - - - 0 - - - . . . .',
+    bass: '0 - - - - - - - . . . . . . . .',
+    pad: [
+      [0, 2, 4],
+      [1, 3, 5],
+    ],
+    perc: '. . . . . . . . . . . . . . . .',
+    voices: { lead: 'sine', bass: 'sine', pad: 'triangle' },
+  },
 }
 
 /** Which theme fits the current game state. */

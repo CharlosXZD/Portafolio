@@ -35,6 +35,13 @@ const COLORS = {
   expanse: '#5a7cff',
   maelstrom: '#ff3fa4',
   hollow: '#6b5a8a',
+  // The Rewriters of realm 3 (EXPANSION.md R2).
+  axiom: '#ffe9a0',
+  zero: '#9a9ab0',
+  infinity: '#8ad0ff',
+  observer: '#ff9ad0',
+  floating: '#d8d8f0',
+  deadlock: '#c9a46b',
 }
 
 function rng(seedStr) {

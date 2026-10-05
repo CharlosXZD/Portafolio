@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { compactNumber } from '../utils/formatNumber.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 
 const SEGMENTS = 20
@@ -15,7 +16,7 @@ export default function TargetBar({ score, target, unknown = false }) {
       <div className="mb-2 flex items-center justify-between">
         <span className="el-label">{t('elementa.targetBar.target')}</span>
         <span className={`pixel-score text-[10px] ${met ? 'text-[var(--good)]' : 'text-[var(--text-dim)]'}`}>
-          {unknown ? '?' : score} / {target}
+          {unknown ? '?' : compactNumber(score)} / {compactNumber(target)}
         </span>
       </div>
       <div

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { compactNumber } from '../utils/formatNumber.js'
 import { AnimatePresence } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import AnimatedNumber from './AnimatedNumber.jsx'
@@ -10,6 +11,7 @@ import { localizeDifficulty } from '../data/i18n.js'
 import { selectors } from '../engine/gameReducer.js'
 import KeeperSprite from './KeeperSprite.jsx'
 import { shopTypeById } from '../data/shops.js'
+import { shopNameIn } from '../data/realm3.js'
 import { currentNode, nodeById } from '../engine/map.js'
 import BoonsList from './BoonsList.jsx'
 import TriggerPulse from './TriggerPulse.jsx'
@@ -128,7 +130,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
       <div className="grid grid-cols-2 gap-3">
         <Stat label={t('elementa.hud.round')}>{state.round}</Stat>
         <Stat label={t('elementa.hud.target')} accent="var(--gold-1)">
-          {state.threshold}
+          {compactNumber(selectors.effectiveThreshold(state))}
         </Stat>
       </div>
 
@@ -152,7 +154,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
           <span className="flex flex-col leading-tight">
             <span className="el-label">{t('elementa.hud.nextStop')}</span>
             <span className="text-base" style={{ color: nextShop.color }}>
-              {nextShop.name[lang]}
+              {shopNameIn(state, nextShop, lang)}
             </span>
           </span>
         </div>
@@ -174,7 +176,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
                     title={type.blurb[lang]}
                   >
                     <KeeperSprite id={type.keeper} size={16} />
-                    <span style={{ color: type.color }}>{type.name[lang]}</span>
+                    <span style={{ color: type.color }}>{shopNameIn(state, type, lang)}</span>
                   </button>
                 )
               })}

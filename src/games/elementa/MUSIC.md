@@ -71,6 +71,13 @@ Where each plays, its key, scale, tempo and length (a bar is 16 steps). "pad" me
 | `boss_expanse` | Warden: The Expanse (the Firmament) | A2 pentMajor | 107 | 2 | pad, drums |
 | `boss_maelstrom` | Warden: The Maelstrom (the Firmament) | B2 harmonicMinor | 176 | 2 | drums |
 | `boss_hollow` | Warden: The Hollow (the Firmament) | G2 wholeTone | 75 | 2 | drums |
+| `boss_axiom` | Rewriter: The Axiom (realm 3) | C3 major | 125 | 2 | drums |
+| `boss_zero` | Rewriter: Zero (realm 3) | C2 minor | 68 | 2 | none |
+| `boss_infinity` | Rewriter: Infinity (realm 3) | D3 lydian | 165 | 2 | hats |
+| `boss_observer` | Rewriter: The Observer (realm 3) | A2 dorian | 94 | 2 | sparse |
+| `boss_floating` | Rewriter: Floating Point (realm 3) | E3 harmonicMinor | 150 | 2 | drums |
+| `boss_deadlock` | Rewriter: Deadlock (realm 3) | E2 phrygian | 75 | 2 | kick |
+| `scene_realm3` | Realm 3: the door and the scenes | A#2 wholeTone | 62 | 3 | pad |
 
 The game picks a song for every screen with `themeForState` at the bottom of `data/musicThemes.js`. Names follow a pattern: `shop_<shop type>` for shops, `boss_<boss id>` for bosses (the Wardens too), `scene_<name>` for story scenes. A story scene picks its song in `data/story.js` (its `music`), often an existing theme; while it is open it replaces the screen's song. A song that does not exist falls back to the menu theme.
 

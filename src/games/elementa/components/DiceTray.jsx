@@ -5,7 +5,7 @@ import TempDie from './TempDie.jsx'
 import EyePanel from './EyePanel.jsx'
 import { CURVE_SECONDS, tickCurve } from '../utils/curveTimer.js'
 import CastLedger from './CastLedger.jsx'
-import { buildCastScript, applyCastStep, finishCastScript } from '../utils/castScript.js'
+import { buildCastScript, applyCastStep, finishCastScript, revealScore } from '../utils/castScript.js'
 import CastStage, { CastCaption, useStepCaption } from './CastStage.jsx'
 import { TRIGGER_EVENT } from '../utils/useTriggerPulses.js'
 import { evaluatePool, lightFloor } from '../engine/scoring.js'
@@ -203,6 +203,8 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const rerollTax = fx.rerollShardCost || 0
   const canReroll = availableRerolls > 0 && state.shards >= rerollTax
   const boss = localizeBossModifier(state.bossModifier, lang)
+  // Infinity raises the target as rerolls and explosions pile up (R2).
+  const target = selectors.effectiveThreshold(state)
   const showHint = state.round === 1 && state.rerollsUsed === 0
   const narrow = useNarrow()
   const draggingRef = useRef(false)
@@ -259,7 +261,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   useEffect(() => {
     if (!reveal) return
     if (reveal.index >= reveal.steps.length) {
-      celebrate(reveal.result.roundScore / state.threshold)
+      celebrate(reveal.result.roundScore / target)
       const id = setTimeout(() => dispatch({ type: 'SUBMIT_ROUND' }), timing.pause)
       return () => clearTimeout(id)
     }
@@ -408,7 +410,16 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
 
   // Eclipse hides every face (and so the score) until you cast. Light keeps
   // them visible (EXPANSION.md H3).
-  const hidden = Boolean(fx.hideFaces) && !revealing && lightFloor(state.dice) === 0
+  // The Observer (R2): each die shows "?" until hovered, tapped or focused;
+  // casting reveals all. Luminance still lights every face. A new roll hides them again.
+  const [peeked, setPeeked] = useState(() => new Set())
+  const rollSignature = state.dice.map((d) => `${d.id}:${d.value}`).join('|')
+  useEffect(() => setPeeked(new Set()), [rollSignature])
+  const observed = Boolean(fx.observerHide) && !revealing && lightFloor(state.dice) === 0
+  const peek = (id) => setPeeked((prev) => (prev.has(id) ? prev : new Set(prev).add(id)))
+  const veiled = (id) => observed && !peeked.has(id)
+  const hidden =
+    (Boolean(fx.hideFaces) && !revealing && lightFloor(state.dice) === 0) || (observed && state.dice.some((d) => !peeked.has(d.id)))
   // Time's Rewind (H3), and how often Chrono rewound the last roll (H4).
   const canRewind = selectors.canRewind(state) && !revealing
   const shown = revealing ? reveal.result : preview
@@ -425,7 +436,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const litDice = new Set(currentStep?.lit ?? [])
   const baseShown = hidden ? '?' : fmt(revealing ? reveal.base : preview.baseValue)
   const multShown = hidden ? '?' : fmt(revealing ? reveal.mult : preview.multiplier)
-  const liveScore = revealing ? Math.round(reveal.base * reveal.mult) : preview.roundScore
+  const liveScore = revealing ? revealScore(reveal) : preview.roundScore
   // P10: before the cast the Score reads "?" unless the player turned
   // "Show live total" on. Base, Mult and the ledger stay visible.
   const scoreHidden = hidden || (!display.liveTotal && !revealing)
@@ -547,7 +558,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 <BossAvatar id={boss.id} size={48} />
                 <span className="el-chip shrink-0 bg-[#ff5a5a] text-[var(--ink)]">
                   {stageLabel ??
-                    (boss.tier === 4
+                    (boss.tier === 5
+                      ? t('elementa.diceTray.rewriter')
+                      : boss.tier === 4
                       ? t('elementa.diceTray.warden')
                       : boss.tier >= 3
                         ? t('elementa.diceTray.finalBoss')
@@ -556,6 +569,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 <div className="text-left">
                   <div className="pixel-heading text-[10px] text-[#ffb0b0]">{bossTitle}</div>
                   <div className="text-base text-[#ffd0d0]/80">{bossLine}</div>
+                  {boss.hint && <div className="text-sm italic text-[#ffd0d0]/60">{boss.hint}</div>}
                   {primordialSays && <div className="mt-1 text-base italic text-[#ffe0e0]">{primordialSays}</div>}
                 </div>
               </motion.div>
@@ -626,7 +640,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
             <CastCaption caption={caption} stepKey={reveal?.index} section={currentStep?.section} />
 
             <div data-tut="target" className="flex w-full justify-center">
-              <TargetBar score={scoreHidden ? 0 : liveScore} target={state.threshold} unknown={scoreHidden} />
+              <TargetBar score={scoreHidden ? 0 : liveScore} target={target} unknown={scoreHidden} />
             </div>
 
             {/* The verdict slams in once the math is done. */}
@@ -638,9 +652,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                     animate={{ opacity: 1, scale: 1, rotate: 0 }}
                     transition={{ type: 'spring', bounce: 0.5, duration: 0.45 }}
                     className="pixel-heading text-base"
-                    style={{ color: liveScore >= state.threshold ? 'var(--good)' : 'var(--bad)' }}
+                    style={{ color: liveScore >= target ? 'var(--good)' : 'var(--bad)' }}
                   >
-                    {liveScore >= state.threshold ? t('elementa.cast.cleared') : t('elementa.cast.missed')}
+                    {liveScore >= target ? t('elementa.cast.cleared') : t('elementa.cast.missed')}
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -694,6 +708,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                     dragListener={!revealing}
                     onDragStart={() => (draggingRef.current = true)}
                     onDragEnd={() => setTimeout(() => (draggingRef.current = false), 80)}
+                    onPointerEnter={observed ? () => peek(die.id) : undefined}
+                    onPointerDown={observed ? () => peek(die.id) : undefined}
+                    onFocusCapture={observed ? () => peek(die.id) : undefined}
                     className="touch-none"
                   >
                     {die.temp ? (
@@ -704,7 +721,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                       hotkey={i < 9 ? i + 1 : null}
                       index={i}
                       size={size}
-                      hidden={hidden}
+                      hidden={Boolean(fx.hideFaces && hidden) || veiled(die.id)}
                       lockBlocked={Boolean(fx.noFreeLock)}
                       linkColors={links[i] ?? null}
                       linkGap={gap}
@@ -866,7 +883,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
             reveal={reveal}
             hidden={hidden}
             scoreHidden={scoreHidden}
-            target={state.threshold}
+            target={target}
             discovered={discovered}
             expanded={display.ledgerExpanded}
             onToggleExpanded={() => updateDisplay({ ledgerExpanded: !display.ledgerExpanded })}

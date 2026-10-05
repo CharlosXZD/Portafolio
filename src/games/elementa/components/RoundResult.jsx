@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { compactNumber } from '../utils/formatNumber.js'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import AnimatedNumber from './AnimatedNumber.jsx'
@@ -61,7 +62,7 @@ export default function RoundResult({ state, dispatch, compact = false }) {
       </h2>
       <div className="flex items-baseline gap-2">
         <AnimatedNumber value={r.roundScore} className={`pixel-score text-[var(--gold-1)] ${compact ? 'text-base' : 'text-3xl'}`} />
-        <span className="pixel-score text-[10px] text-[var(--text-mute)]">/ {r.threshold}</span>
+        <span className="pixel-score text-[10px] text-[var(--text-mute)]">/ {compactNumber(r.threshold)}</span>
       </div>
       {!compact && (
         <span className="text-base text-[var(--text-mute)]">

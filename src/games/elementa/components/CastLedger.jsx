@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { revealScore } from '../utils/castScript.js'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { relicById } from '../data/relics.js'
@@ -39,6 +40,8 @@ export function useLineLabel(discovered) {
     if (line.kind === 'rune') return runeById(line.id)?.name[lang] ?? '?'
     // The Charged tag (N1).
     if (line.kind === 'charged') return t('elementa.cast.charged')
+    // Floating Point's rounding (R2): "Floating Point: -0.5".
+    if (line.kind === 'rounding') return t('elementa.cast.rounding')
     if (line.kind === 'set') return (SET_TIER_LABEL[lang][line.tier] ?? line.tier) + lv
     if (line.kind === 'reaction') {
       const r = reactionById(line.id)
@@ -190,7 +193,7 @@ export default function CastLedger({
 
   const base = reveal ? reveal.base : result.baseValue
   const mult = reveal ? reveal.mult : result.multiplier
-  const score = reveal ? Math.round(reveal.base * reveal.mult) : result.roundScore
+  const score = reveal ? revealScore(reveal) : result.roundScore
   const diff = score - target
   const finished = reveal && reveal.index >= reveal.steps.length
   const canExpand = [...baseGroups, ...multGroups].some((g) => g.count > 1)

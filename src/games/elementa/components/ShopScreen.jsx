@@ -1,4 +1,5 @@
 import { Children, useEffect, useRef, useState } from 'react'
+import { compactNumber } from '../utils/formatNumber.js'
 import { SIGIL_FACES } from '../data/sigils.js'
 import { AnimatePresence, motion, useDragControls } from 'framer-motion'
 import { ELEMENTS } from '../data/elements.js'
@@ -26,6 +27,7 @@ import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { juicyHover } from '../utils/motionPresets.js'
 import DieToken from './DieToken.jsx'
 import BoonsList from './BoonsList.jsx'
+import { shopNameIn } from '../data/realm3.js'
 import { shopTypeById, dealById, blessingById, PROPHECY, ATLAS_SERVICES, MOTE_STAGES, MOTE_FULL } from '../data/shops.js'
 import BossAvatar from './BossAvatar.jsx'
 import { bossById } from '../data/bossModifiers.js'
@@ -698,7 +700,7 @@ export default function ShopScreen({ state, dispatch }) {
 
       {/* Center: everything for sale. */}
       <div className="flex flex-col items-center gap-6">
-        <ShopBanner label={type.name[lang]} color={type.color} />
+        <ShopBanner label={shopNameIn(state, type, lang)} color={type.color} />
         <KeeperGreeting state={state} type={type} />
         {/* Vesper works beside Brasa past the door (EXPANSION.md K5). */}
         {selectors.vesperHere(state) && <KeeperGreeting state={state} type={{ ...type, keeper: 'vesper', color: '#9fb8ff' }} />}
@@ -915,7 +917,7 @@ export default function ShopScreen({ state, dispatch }) {
           <Stat label={t('elementa.shop.round')}>{state.round}</Stat>
           {/* At camp you retry this round, so show its target. */}
           <Stat label={camp ? t('elementa.hud.target') : t('elementa.shop.nextTarget')} accent="var(--gold-1)">
-            {camp ? state.threshold : nextTarget}
+            {compactNumber(camp ? state.threshold : nextTarget)}
           </Stat>
         </div>
 
@@ -938,7 +940,7 @@ export default function ShopScreen({ state, dispatch }) {
               {pending || choices.length === 1 ? (
                 <>
                   <span style={{ color: shopTypeById((pending ?? choices[0]).type).color }}>
-                    {shopTypeById((pending ?? choices[0]).type).name[lang]}
+                    {shopNameIn(state, shopTypeById((pending ?? choices[0]).type), lang)}
                   </span>
                   {': '}
                   {shopTypeById((pending ?? choices[0]).type).blurb[lang]}

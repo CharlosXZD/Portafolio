@@ -35,6 +35,7 @@ import {
   updateStats,
   allFilesComplete,
   markWardens,
+  markRewriters,
   setMoteFed,
   markScenes,
 } from './utils/profile.js'
@@ -54,6 +55,7 @@ import Toasts from './components/Toasts.jsx'
 import Crossroads from './components/Crossroads.jsx'
 import StoryScene from './components/StoryScene.jsx'
 import { sceneById } from './data/story.js'
+import { realm3For } from './data/realm3.js'
 import { GOD_TRIALS } from './data/bossModifiers.js'
 import { LATEST_VERSION } from './data/patchNotes.js'
 import { GOD_IDS, MYTHIC_DIE_IDS } from './data/elements.js'
@@ -77,7 +79,9 @@ function sceneFor(state, seen) {
     if (state.gauntlet) ids.push('loan', `trial_${GOD_TRIALS[state.gauntlet.stage].id}`)
   }
   if (live && state.bossModifier?.tier === 4) ids.push(`warden_${state.bossModifier.id}`)
-  if (state.phase === 'crossroads') ids.push('crossroads')
+  if (live && state.bossModifier?.tier === 5) ids.push(`rewriter_${state.bossModifier.id}`)
+  if (state.realm3 && ['bossReward', 'shop'].includes(state.phase)) ids.push('realm3')
+  if (state.phase === 'crossroads' && state.round === 15) ids.push('crossroads')
   // The Arbiter, on the third offense of fishing with the Eye (P5).
   if (live && state.arbiterScene) ids.push('arbiter')
   // Pip on crossing the door (K6), then the follower's arrival.
@@ -207,6 +211,7 @@ function ElementaGameInner() {
   useEffect(() => {
     if (slot == null || !(AUTOSAVE_PHASES.has(state.phase) || state.phase === 'victory')) return
     markWardens(slot, state.wardens || [])
+    markRewriters(slot, state.rewriters || [])
     // Recipes learned during the run (a Warden's Mythic die, Entropy, an
     // element fusion Vesper teaches, K1, K4) go to the file with a toast.
     notify(
@@ -215,7 +220,7 @@ function ElementaGameInner() {
         .map((id) => ({ kind: MYTHIC_DIE_IDS.includes(id) ? 'mythic' : 'recipe', id })),
     )
     setMoteFed(slot, state.moteFed || 0)
-  }, [state.phase, state.wardens, state.recipes, state.moteFed, slot, notify])
+  }, [state.phase, state.wardens, state.rewriters, state.recipes, state.moteFed, slot, notify])
 
   // Each new cast result: discover secret reactions, record bests, and
   // check cast achievements.
@@ -283,10 +288,11 @@ function ElementaGameInner() {
   const crossedRef = useRef(null)
   useEffect(() => {
     if (slot == null || state.phase !== 'crossroads') return
-    const key = `${state.seed}-${state.path}`
+    const key = `${state.seed}-${state.path}-${state.ending}`
     if (crossedRef.current === key) return
     crossedRef.current = key
-    recordWin(state.path || 'neutral')
+    // The ending reached at this door: Elementa's, or the Firmament's at the second one (R1).
+    recordWin(state.ending || state.path || 'neutral')
   }, [state.phase, state.seed, state.path, slot, recordWin])
 
   const endedRef = useRef(null)
@@ -317,7 +323,8 @@ function ElementaGameInner() {
     }
   }, [state, slot, award, notify, recordWin])
 
-  const scene =
+  // Realm 3 wears the look of its path (R1); everywhere else the usual scene.
+  const base =
     state.phase === 'shop' || state.phase === 'bossReward'
       ? 'shop'
       : state.phase === 'rolling' || state.phase === 'missed'
@@ -325,6 +332,7 @@ function ElementaGameInner() {
           ? 'boss'
           : 'table'
         : 'menu'
+  const scene = state.realm3 && (base === 'table' || base === 'shop') ? realm3For(state.path).id : base
   // The in-run screens lay themselves out edge to edge (sidebar + table,
   // or the shop's three columns); menus stay a centered column.
   const inRun = PAUSABLE_PHASES.has(state.phase)

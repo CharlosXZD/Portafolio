@@ -5,6 +5,7 @@ import { playClick } from '../utils/sound.js'
 import { selectors } from '../engine/gameReducer.js'
 import { endingById } from '../data/endings.js'
 import { WARDEN_SETS, bossById } from '../data/bossModifiers.js'
+import { REWRITER_SETS, REWRITER_ROUNDS, realm3For } from '../data/realm3.js'
 import { localizeBossModifier } from '../data/i18n.js'
 import BossAvatar from './BossAvatar.jsx'
 import { EndingArt } from './EndingCards.jsx'
@@ -22,8 +23,13 @@ export default function Crossroads({ state, dispatch }) {
   const { reducedMotion } = useGameSettings()
   const path = state.path ?? 'neutral'
   const color = PATH_COLOR[path]
-  const sets = selectors.firmamentSets(state)
-  const ending = endingById(path)
+  // At round 30 the door leads to realm 3 (EXPANSION.md R1); at 15 to the Firmament.
+  const deep = state.round >= 30
+  const sets = deep ? selectors.realm3Sets(state) : selectors.firmamentSets(state)
+  const ending = endingById(deep ? state.ending : path)
+  const bosses = deep ? REWRITER_SETS : WARDEN_SETS
+  const rounds = deep ? REWRITER_ROUNDS : [20, 25, 30]
+  const realm = realm3For(path)
 
   return (
     <motion.div
@@ -35,24 +41,26 @@ export default function Crossroads({ state, dispatch }) {
     >
       <span className="el-label">{t('elementa.crossroads.label')}</span>
       <h2 className="el-logo text-xl">{t('elementa.crossroads.title')}</h2>
-      <p className="max-w-xl text-lg leading-snug text-[var(--text-dim)]">{t(`elementa.crossroads.door.${path}`)}</p>
+      <p className="max-w-xl text-lg leading-snug text-[var(--text-dim)]">
+        {deep ? `${realm.name[lang]}: ${realm.blurb[lang]}` : t(`elementa.crossroads.door.${path}`)}
+      </p>
 
       <div className="grid w-full grid-cols-1 gap-5 sm:grid-cols-[1fr_auto]">
         <div className="flex flex-col gap-4">
           {sets.map((set) => (
             <div key={set} className="el-well flex flex-col items-center gap-3 px-4 py-4" style={{ '--edge': color }}>
               <span className="pixel-heading text-[11px]" style={{ color }}>
-                {t('elementa.crossroads.firmament').replace('{n}', ROMAN[set])}
+                {deep ? `${realm.name[lang]} ${ROMAN[set]}` : t('elementa.crossroads.firmament').replace('{n}', ROMAN[set])}
               </span>
               <div className="flex items-end justify-center gap-4">
-                {WARDEN_SETS[path][set - 1].map((id, i) => {
+                {bosses[path][set - 1].map((id, i) => {
                   const warden = localizeBossModifier(bossById(id), lang)
                   return (
                     <span key={id} className="flex flex-col items-center gap-1" title={warden.description}>
                       <BossAvatar id={id} size={40} />
                       <span className="text-sm text-[var(--text-dim)]">{warden.name}</span>
                       <span className="pixel-score text-[7px] text-[var(--text-mute)]">
-                        {t('elementa.hud.round')} {[20, 25, 30][i]}
+                        {t('elementa.hud.round')} {rounds[i]}
                       </span>
                     </span>
                   )
@@ -62,11 +70,11 @@ export default function Crossroads({ state, dispatch }) {
                 type="button"
                 onClick={() => {
                   playClick()
-                  dispatch({ type: 'ENTER_FIRMAMENT', set })
+                  dispatch({ type: deep ? 'ENTER_REALM3' : 'ENTER_FIRMAMENT', set })
                 }}
                 className="el-btn el-btn--arcane el-btn--lg min-w-[240px]"
               >
-                {t('elementa.crossroads.enter')}
+                {deep ? `${t('elementa.crossroads.enterRealm3')} ${realm.name[lang]}` : t('elementa.crossroads.enter')}
                 {sets.length > 1 ? ` ${ROMAN[set]}` : ''}
               </button>
             </div>
@@ -74,7 +82,7 @@ export default function Crossroads({ state, dispatch }) {
         </div>
 
         <div className="el-well flex flex-col items-center justify-center gap-3 px-5 py-4">
-          <EndingArt ending={path} size={56} />
+          <EndingArt ending={deep ? state.ending : path} size={56} />
           <span className="pixel-heading text-[10px]" style={{ color: ending?.color }}>
             {ending?.name[lang]}
           </span>
@@ -91,7 +99,7 @@ export default function Crossroads({ state, dispatch }) {
           <span className="max-w-[14rem] text-sm text-[var(--text-mute)]">{t('elementa.crossroads.restHint')}</span>
         </div>
       </div>
-      <p className="text-sm text-[var(--text-mute)]">{t('elementa.crossroads.keep')}</p>
+      <p className="text-sm text-[var(--text-mute)]">{t(deep ? 'elementa.crossroads.keep3' : 'elementa.crossroads.keep')}</p>
     </motion.div>
   )
 }

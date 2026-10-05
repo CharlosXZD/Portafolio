@@ -9,8 +9,8 @@ import RichText from './RichText.jsx'
 import { useFloating, arrowStyle } from './useFloating.js'
 
 export const RARITY_LABEL = {
-  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic' },
-  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino', mythic: 'Mítico' },
+  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic', abstract: 'Abstract', absolute: 'Absolute' },
+  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino', mythic: 'Mítico', abstract: 'Abstracto', absolute: 'Absoluto' },
 }
 
 /**

@@ -8,7 +8,7 @@ import { ELEMENTS, PURE_ELEMENT_IDS, COSMIC_BASE_IDS, rarityForElement, families
 import { RELICS, RARITY_ORDER, RARITY_GLOW } from '../data/relics.js'
 import { CONSUMABLES, CONSUMABLE_FAMILIES, consumableFamily } from '../data/consumables.js'
 import { DECKS } from '../data/decks.js'
-import { REACTIONS, FIRMAMENT_REACTION_IDS, CLASSIC_SECRET_IDS } from '../data/reactions.js'
+import { REACTIONS, FIRMAMENT_REACTION_IDS, CLASSIC_SECRET_IDS, REALM3_REACTION_IDS } from '../data/reactions.js'
 import { BOSS_MODIFIERS, PRIMORDIAL, GOD_TRIALS, WARDENS } from '../data/bossModifiers.js'
 import { ENDINGS, visibleEndingIds } from '../data/endings.js'
 import CompletionMarks from './CompletionMarks.jsx'
@@ -31,8 +31,8 @@ import { SCENES, SCENE_IDS } from '../data/story.js'
 import StoryScene from './StoryScene.jsx'
 
 const RARITY_LABEL = {
-  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic' },
-  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino', mythic: 'Mítico' },
+  en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic', abstract: 'Abstract', absolute: 'Absolute' },
+  es: { common: 'Común', uncommon: 'Poco común', rare: 'Raro', epic: 'Épico', legendary: 'Legendario', divine: 'Divino', mythic: 'Mítico', abstract: 'Abstracto', absolute: 'Absoluto' },
 }
 
 // An element "family" is the pure element plus every fusion made from it.
@@ -188,6 +188,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
   )
   const classicSeen = CLASSIC_SECRET_IDS.filter((id) => seen.reactions.has(id)).length
   const firmamentSeen = FIRMAMENT_REACTION_IDS.filter((id) => seen.reactions.has(id)).length
+  const realm3Seen = REALM3_REACTION_IDS.filter((id) => seen.reactions.has(id)).length
 
   const entries = useMemo(() => {
     if (tab === 'dice') {
@@ -509,7 +510,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
           <h3 className="el-label text-center text-[var(--arcane-hi)]">
             {t('elementa.gallery.secretReactions')} {classicSeen}/{CLASSIC_SECRET_IDS.length}
           </h3>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => r.secret && !r.firmament).map(reactionCard)}</div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => r.secret && !r.firmament && !r.realm3).map(reactionCard)}</div>
           {/* The Firmament's reactions (EXPANSION.md L5), once the file has crossed the door. */}
           {crossedDoor(profile) && (
             <>
@@ -520,6 +521,15 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => r.firmament).map(reactionCard)}</div>
             </>
           )}
+          {/* Realm 3's reactions (R3), once the file has walked through the second door. */}
+          {(profile.endings || []).some((id) => id.startsWith('realm3_')) || realm3Seen > 0 || (profile.achievements || []).includes('out_of_order') ? (
+            <>
+              <h3 className="el-label text-center text-[var(--arcane-hi)]">
+                {t('elementa.gallery.realm3Reactions')} {realm3Seen}/{REALM3_REACTION_IDS.length}
+              </h3>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{REACTIONS.filter((r) => r.realm3).map(reactionCard)}</div>
+            </>
+          ) : null}
         </div>
       ) : tab === 'achievements' ? (
         <AchievementsList profile={profile} />

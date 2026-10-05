@@ -42,6 +42,13 @@ const WHERE = {
   boss_expanse: L('Warden: The Expanse (rounds 20 to 30)', 'Custodio: La Extensión (rondas 20 a 30)'),
   boss_maelstrom: L('Warden: The Maelstrom (rounds 20 to 30)', 'Custodio: La Vorágine (rondas 20 a 30)'),
   boss_hollow: L('Warden: The Hollow (rounds 20 to 30)', 'Custodio: El Hueco (rondas 20 a 30)'),
+  boss_axiom: L('Rewriter: The Axiom (realm 3)', 'Reescritor: El Axioma (reino 3)'),
+  boss_zero: L('Rewriter: Zero (realm 3)', 'Reescritor: Cero (reino 3)'),
+  boss_infinity: L('Rewriter: Infinity (realm 3)', 'Reescritor: Infinito (reino 3)'),
+  boss_observer: L('Rewriter: The Observer (realm 3)', 'Reescritor: El Observador (reino 3)'),
+  boss_floating: L('Rewriter: Floating Point (realm 3)', 'Reescritor: Punto Flotante (reino 3)'),
+  boss_deadlock: L('Rewriter: Deadlock (realm 3)', 'Reescritor: Bloqueo Mortal (reino 3)'),
+  scene_realm3: L('Realm 3: the door and the scenes', 'Reino 3: la puerta y las escenas'),
 }
 
 const TEXT = {

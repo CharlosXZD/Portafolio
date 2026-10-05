@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { compactNumber } from '../utils/formatNumber.js'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 
 const prefersReducedMotion =
@@ -22,5 +23,5 @@ export default function AnimatedNumber({ value, className }) {
     return unsubscribe
   }, [spring])
 
-  return <motion.span className={className}>{display}</motion.span>
+  return <motion.span className={className}>{compactNumber(display)}</motion.span>
 }
