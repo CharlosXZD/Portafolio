@@ -120,6 +120,85 @@ export const ENDINGS = [
     ),
     hint: L('Beat the Firmament on the Primordial path a second time.', 'Vence al Firmamento en el camino Primordial por segunda vez.'),
   },
+  // --- Realm 3 (R1): beat the round-45 Rewriter of a path's set. Drafts. ---
+  {
+    id: 'realm3_neutral_1',
+    path: 'neutral',
+    set: 1,
+    color: '#ffe08a',
+    boss: 'floating',
+    name: L('Between Two Edges', 'Entre Dos Bordes'),
+    text: L(
+      'The Axiom, Zero and Floating Point could not agree on what a number is, and neither could you. The Meridian swings, and for a moment you are sure of nothing. That was the point.',
+      'El Axioma, Cero y Punto Flotante no se pusieron de acuerdo en qué es un número, y tú tampoco. El Meridiano oscila, y por un momento no estás seguro de nada. Ese era el punto.',
+    ),
+    hint: L('Go through the Neutral door at round 30 and beat the first three Rewriters.', 'Cruza la puerta Neutral en la ronda 30 y vence a los tres primeros Reescritores.'),
+  },
+  {
+    id: 'realm3_neutral_2',
+    path: 'neutral',
+    set: 2,
+    color: '#fff1c0',
+    boss: 'deadlock',
+    name: L('The Pendulum Rests', 'El Péndulo Descansa'),
+    text: L(
+      'Infinity ran out of road, the Observer looked away, and Deadlock let go one hand at a time. Between the Empyrean and the Pleroma the Meridian finds its middle. Something in the margin makes a note.',
+      'Infinito se quedó sin camino, el Observador miró a otro lado, y Bloqueo Mortal soltó una mano a la vez. Entre el Empíreo y el Pleroma, el Meridiano encuentra su centro. Algo en el margen toma nota.',
+    ),
+    hint: L('Beat the other three Rewriters on the Neutral path.', 'Vence a los otros tres Reescritores en el camino Neutral.'),
+  },
+  {
+    id: 'realm3_split_1',
+    path: 'split',
+    set: 1,
+    color: '#bfe7ff',
+    boss: 'axiom',
+    name: L('A Place for Every Number', 'Un Lugar para Cada Número'),
+    text: L(
+      'In the Empyrean every line is straight and every sum comes out. You answered the Axiom with big, honest numbers, and it had to agree. Aeris keeps a ledger now, and your name is in the first column.',
+      'En el Empíreo cada línea es recta y cada suma sale. Respondiste al Axioma con números grandes y honestos, y tuvo que darte la razón. Aeris lleva un libro mayor ahora, y tu nombre está en la primera columna.',
+    ),
+    hint: L('Go through the Split door at round 30 and beat the first three Rewriters.', 'Cruza la puerta de la División en la ronda 30 y vence a los tres primeros Reescritores.'),
+  },
+  {
+    id: 'realm3_split_2',
+    path: 'split',
+    set: 2,
+    color: '#e6f6ff',
+    boss: 'deadlock',
+    name: L('The Last Straight Line', 'La Última Línea Recta'),
+    text: L(
+      'Infinity, the Observer and Deadlock were the last things that wanted the pieces to blur. You kept them sharp, one at a time. The Split will outlast every number it was counted in.',
+      'Infinito, el Observador y Bloqueo Mortal eran lo último que quería que los pedazos se difuminaran. Los mantuviste nítidos, de uno en uno. La División durará más que todos los números en los que se contó.',
+    ),
+    hint: L('Beat the other three Rewriters on the Split path.', 'Vence a los otros tres Reescritores en el camino de la División.'),
+  },
+  {
+    id: 'realm3_primordial_1',
+    path: 'primordial',
+    set: 1,
+    color: '#ff9aae',
+    boss: 'deadlock',
+    name: L('The Sum of All Things', 'La Suma de Todas las Cosas'),
+    text: L(
+      'In the Pleroma the edges dissolve and the numbers pour into each other. Infinity, the Observer and Deadlock all become one answer, and Nix writes it down with a smile you do not trust.',
+      'En el Pleroma los bordes se disuelven y los números se vierten unos en otros. Infinito, el Observador y Bloqueo Mortal se vuelven una sola respuesta, y Nix la anota con una sonrisa en la que no confías.',
+    ),
+    hint: L('Go through the Primordial door at round 30 and beat the first three Rewriters.', 'Cruza la puerta Primordial en la ronda 30 y vence a los tres primeros Reescritores.'),
+  },
+  {
+    id: 'realm3_primordial_2',
+    path: 'primordial',
+    set: 2,
+    color: '#ffc8d2',
+    boss: 'floating',
+    name: L('One Number, Finally', 'Un Solo Número, por Fin'),
+    text: L(
+      'The Axiom, Zero and Floating Point fold into each other until only one number is left, and it is not quite whole. Approximately, says a voice that is not quite there. Not yet.',
+      'El Axioma, Cero y Punto Flotante se pliegan unos sobre otros hasta que solo queda un número, y no está del todo entero. Aproximadamente, dice una voz que no está del todo ahí. Todavía no.',
+    ),
+    hint: L('Beat the other three Rewriters on the Primordial path.', 'Vence a los otros tres Reescritores en el camino Primordial.'),
+  },
 ]
 
 /** The Firmament ending for a path and set (H1). */
@@ -141,8 +220,10 @@ export function visibleEndingIds(reached = []) {
   if (!reached.length) return []
   return ENDINGS.filter((e) => {
     if (reached.includes(e.id)) return true
+    const [kind, path, set] = e.id.split('_')
+    // Realm 3's hints wait for the path's Firmament I ending; Realm II for Realm I (R1).
+    if (kind === 'realm3') return reached.includes(`firmament_${path}_1`) && (set === '1' || reached.includes(`realm3_${path}_1`))
     if (!e.id.startsWith('firmament_')) return e.id === 'neutral' || reached.includes('neutral')
-    const [, path, set] = e.id.split('_')
     return reached.includes(path) && (set === '1' || reached.includes(`firmament_${path}_1`))
   }).map((e) => e.id)
 }

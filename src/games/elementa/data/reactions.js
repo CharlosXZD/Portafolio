@@ -558,6 +558,117 @@ export const REACTIONS = [
     mult: 1,
     description: 'Darkness falls across Space: +3 Base, +1 Mult.',
   },
+  // --- v0.9 (EXPANSION.md R3): realm 3's reactions, a curated ten. All secret, DRAFT names. ---
+  {
+    id: 'absolute_zero',
+    name: 'Absolute Zero',
+    secret: true,
+    realm3: true,
+    elements: ['abs_zero', 'water'],
+    color: '#bfe8ff',
+    base: 0,
+    mult: 2,
+    description: 'Nothing left to move the Water: +2 Mult.',
+  },
+  {
+    id: 'pilot_light',
+    name: 'Pilot Light',
+    secret: true,
+    realm3: true,
+    elements: ['abs_zero', 'fire'],
+    color: '#ffb070',
+    base: 4,
+    mult: 0,
+    description: 'A flame with nothing to burn: +4 Base.',
+  },
+  {
+    id: 'bedrock',
+    name: 'Bedrock',
+    secret: true,
+    realm3: true,
+    elements: ['abs_zero', 'earth'],
+    color: '#8a7a6a',
+    base: 'lowerFace',
+    mult: 1,
+    description: 'Nothing beneath the Earth: add the lower face to Base, +1 Mult.',
+  },
+  {
+    id: 'pinpoint',
+    name: 'Pinpoint',
+    secret: true,
+    realm3: true,
+    elements: ['abs_one', 'fire'],
+    color: '#ffe08a',
+    base: 3,
+    mult: 1,
+    description: 'One bright point of Fire: +3 Base, +1 Mult.',
+  },
+  {
+    id: 'monotone',
+    name: 'Monotone',
+    secret: true,
+    realm3: true,
+    elements: ['abs_one', 'air'],
+    color: '#e0e8f0',
+    base: 0,
+    mult: 1.5,
+    description: 'One steady note on the Air: +1.5 Mult.',
+  },
+  {
+    id: 'runaway',
+    name: 'Runaway',
+    secret: true,
+    realm3: true,
+    elements: ['abs_infinity', 'fire'],
+    color: '#ff8a5a',
+    base: 0,
+    mult: 2.5,
+    description: 'Fire with no ceiling: +2.5 Mult.',
+  },
+  {
+    id: 'endless_gale',
+    name: 'Endless Gale',
+    secret: true,
+    realm3: true,
+    elements: ['abs_infinity', 'air'],
+    color: '#9fe0ff',
+    base: 4,
+    mult: 1,
+    description: 'A wind that never ends: +4 Base, +1 Mult.',
+  },
+  {
+    id: 'undertow',
+    name: 'Undertow',
+    secret: true,
+    realm3: true,
+    elements: ['abs_negation', 'water'],
+    color: '#4a7ac0',
+    base: 'higherFace',
+    mult: 1,
+    description: 'The Water pulls the other way: add the higher face to Base, +1 Mult.',
+  },
+  {
+    id: 'cold_flame',
+    name: 'Cold Flame',
+    secret: true,
+    realm3: true,
+    elements: ['abs_negation', 'fire'],
+    color: '#8ad0ff',
+    base: 'bothFaces',
+    mult: 0,
+    description: 'Fire turned inside out: add both faces to Base.',
+  },
+  {
+    id: 'binary',
+    name: 'Binary',
+    secret: true,
+    realm3: true,
+    elements: ['abs_zero', 'abs_one'],
+    color: '#e8e8ff',
+    base: 5,
+    mult: 2,
+    description: 'Zero beside One: everything is either. +5 Base, +2 Mult.',
+  },
 ]
 
 export const SECRET_REACTION_IDS = REACTIONS.filter((r) => r.secret).map((r) => r.id)
@@ -565,7 +676,9 @@ export const SECRET_REACTION_IDS = REACTIONS.filter((r) => r.secret).map((r) => 
 // Mythic ones included): Master Alchemist needs the second group, Cosmic
 // Alchemist the first.
 export const FIRMAMENT_REACTION_IDS = REACTIONS.filter((r) => r.firmament).map((r) => r.id)
-export const CLASSIC_SECRET_IDS = REACTIONS.filter((r) => r.secret && !r.firmament).map((r) => r.id)
+export const CLASSIC_SECRET_IDS = REACTIONS.filter((r) => r.secret && !r.firmament && !r.realm3).map((r) => r.id)
+// Realm 3's ten (R3).
+export const REALM3_REACTION_IDS = REACTIONS.filter((r) => r.realm3).map((r) => r.id)
 
 export function reactionById(id) {
   return REACTIONS.find((r) => r.id === id)

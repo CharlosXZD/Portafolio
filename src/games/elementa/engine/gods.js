@@ -60,7 +60,9 @@ export function rollContext(die, dice, fx, acting = die.elementId) {
   if (fire && powers.some((p) => p.god === 'zephyr' && p.drawback)) explodeChance *= 0.5
   if (fire && fx.fireExplodeHalf) explodeChance *= 0.5
   // Ognen chains up to 10, or without a cap under Chain Break.
-  const chainCap = ognen ? (fx.ognenUncapped ? Infinity : 10) : undefined
+  // Infinity and the Apeiron (R3) leave explosions uncapped; so does the Rewriter Infinity (R2).
+  const uncapped = ELEMENTS[acting]?.flags[FLAGS.ABS_INFINITY] || dice.some((d) => ELEMENTS[d.elementId]?.flags[FLAGS.APEIRON])
+  const chainCap = uncapped ? Infinity : ognen ? (fx.ognenUncapped ? Infinity : 10) : undefined
   // Varuna's drawback, and her trial: 1s come up 50% more often.
   const oneBias = fx.varunaCurse || powers.some((p) => p.god === 'varuna' && p.drawback) ? 1.5 : 1
   // A poker die (O3) rolls one of its own faces (9 to Ace), by the die itself, not by what it acts as.

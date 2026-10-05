@@ -39,6 +39,8 @@ export function emptyProfile() {
     // (each Warden's prize), Wardens beaten, and how much Mote has eaten.
     mythics: [],
     wardens: [],
+    // Rewriters beaten in realm 3 (EXPANSION.md R2).
+    rewriters: [],
     mote: { fed: 0 },
     // Story scenes already shown (H7); they play once unless replayed.
     scenes: [],
@@ -73,6 +75,7 @@ function normalizeProfile(p = {}) {
     cataclysmDice: p.cataclysmDice || [],
     mythics: p.mythics || [],
     wardens: p.wardens || [],
+    rewriters: p.rewriters || [],
     mote: { fed: p.mote?.fed || 0 },
     scenes: p.scenes || [],
     // A file that already has the Firmament endings has the sigil dice they unlock.

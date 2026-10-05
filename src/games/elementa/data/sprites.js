@@ -506,6 +506,9 @@ export const ITEM_ART = {
   rune_gold: ['stone', '#ffd166', '#ffffff'],
   rune_link: ['stone', '#8fe8d0', '#ffffff'],
   rune_double: ['stone', '#ff9ad9', '#ffffff'],
+  // Realm 3's prizes (R2).
+  epsilon: ['gem', '#d8d8f0', '#ffffff'],
+  release: ['anchor', '#c9a46b', '#ffffff'],
   // Laws (O2).
   law_inversion: ['scroll', '#c8b6ff', '#ffd166'],
   law_unity: ['ring', '#ffd166', '#c8b6ff'],

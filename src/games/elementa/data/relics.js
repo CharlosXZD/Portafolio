@@ -22,6 +22,9 @@ export const RARITY = {
   DIVINE: 'divine',
   // The Mythic dice of the Firmament (EXPANSION.md H3): one of each per run.
   MYTHIC: 'mythic',
+  // Realm 3 (EXPANSION.md R3): the base elements and fusions, and the forged dice above Mythic.
+  ABSTRACT: 'abstract',
+  ABSOLUTE: 'absolute',
 }
 
 // Order matters: used for round-gating (index into RARITY_UNLOCK_ROUND) and
@@ -34,6 +37,8 @@ export const RARITY_ORDER = [
   RARITY.LEGENDARY,
   RARITY.DIVINE,
   RARITY.MYTHIC,
+  RARITY.ABSTRACT,
+  RARITY.ABSOLUTE,
 ]
 
 export const RARITY_COST = {
@@ -44,6 +49,8 @@ export const RARITY_COST = {
   [RARITY.LEGENDARY]: 28,
   [RARITY.DIVINE]: 40,
   [RARITY.MYTHIC]: 45,
+  [RARITY.ABSTRACT]: 50,
+  [RARITY.ABSOLUTE]: 60,
 }
 
 // The glow color behind an item's icon, in the shop row and in the
@@ -57,6 +64,8 @@ export const RARITY_GLOW = {
   [RARITY.LEGENDARY]: '#eab308',
   [RARITY.DIVINE]: '#fff1c1',
   [RARITY.MYTHIC]: '#ff4fd8',
+  [RARITY.ABSTRACT]: '#7affd8',
+  [RARITY.ABSOLUTE]: '#fffbe0',
 }
 
 // A Law (O2): a Mythic relic with its own slot, a flat price of 40.
@@ -627,6 +636,30 @@ export const RELICS = [
   law('law_greed', 'Law of Greed', 'each 10 Shards you hold adds +1 Mult.', { lawGreed: true }, 'a scale whose pan is forever heavier than the weights'),
   law('law_echo', 'Law of Echo', 'your highest-scoring die counts twice.', { lawEcho: true }, 'a bell that rings once and answers itself'),
   law('law_small', 'Law of Small Things', 'your d3 dice score x3 and your d5 dice x2, as if they were d10s.', { lawSmall: true }, 'a thimble holding a whole ocean'),
+  // --- Realm 3's prizes (EXPANSION.md R2): left by Floating Point and Deadlock,
+  // never sold. ---
+  {
+    id: 'epsilon',
+    name: 'Epsilon',
+    kind: 'relic',
+    rarity: RARITY.LEGENDARY,
+    element: null,
+    bossPrize: true,
+    itemConcept: 'a tiny silver epsilon, the smallest number that is still a number',
+    description: 'Your Mult is never rounded down, and +2 Mult.',
+    effects: { neverRoundMult: true },
+  },
+  {
+    id: 'release',
+    name: 'Release',
+    kind: 'relic',
+    rarity: RARITY.LEGENDARY,
+    element: null,
+    bossPrize: true,
+    itemConcept: 'a brass latch standing open, the padlock beside it cut cleanly in two',
+    description: 'You can hold one more die than any limit allows.',
+    effects: { holdLimitBonus: 1 },
+  },
   // --- The Horologist's relics (EXPANSION.md I2): sold only by him, in the
   // Firmament (`horologistOnly`). ---
   {

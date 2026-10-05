@@ -1,3 +1,4 @@
+import { rewriterById } from './realm3.js'
 // Boss round twists (GDD §16, §24). Deliberately modeled as objects shaped
 // exactly like a relic (an `effects` bag) rather than a new system: the
 // scoring engine and reducer already read relic effects via relicEffects(),
@@ -252,7 +253,7 @@ export function wardenFor(path, set, round) {
 }
 
 export function bossById(id) {
-  return BOSS_MODIFIERS.find((b) => b.id === id) ?? GOD_TRIALS.find((b) => b.id === id) ?? WARDENS.find((b) => b.id === id)
+  return BOSS_MODIFIERS.find((b) => b.id === id) ?? GOD_TRIALS.find((b) => b.id === id) ?? WARDENS.find((b) => b.id === id) ?? rewriterById(id)
 }
 
 export function isBossRound(round, difficulty) {

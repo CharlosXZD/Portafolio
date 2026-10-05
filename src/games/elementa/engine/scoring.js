@@ -7,6 +7,8 @@ import { levelBonus } from '../data/constellations.js'
 import { hasActiveRune } from '../data/runes.js'
 import { isPokerId, JOKER_FACE, bestHand, pokerFaces } from '../data/poker.js'
 import { isSigilId, isGreaterSigil } from '../data/sigils.js'
+import { REALM3_GROWTH } from '../data/realm3.js'
+import { LIMIT_MULT_CAP } from '../data/abstract.js'
 import { totemLevel, tideShare, FIRE_TOTEM_MULT } from '../data/totems.js'
 
 const DEFAULT_EXPLODE_CAP = 10
@@ -55,6 +57,12 @@ function randInt(max) {
 // and friends): display only, for the cast choreography's captions.
 function noteBoost(d, boost) {
   d.boosts = [...(d.boosts ?? []), boost]
+}
+
+function isPrime(n) {
+  if (n < 2) return false
+  for (let k = 2; k * k <= n; k++) if (n % k === 0) return false
+  return true
 }
 
 function hasFlag(elementId, flag) {
@@ -548,6 +556,8 @@ function fizzles(d, ctx, fx = {}) {
     ELEMENTS[d.elementId]?.god === 'ognen' ? 3 : 0,
     fx.fireFizzleUpTo && inFamily(d.elementId, 'fire') ? fx.fireFizzleUpTo : 0,
   )
+  // Zero, the Rewriter (R2): every face below 3 counts as 0 and fizzles.
+  if (fx.zeroBelow && d.value < fx.zeroBelow) return true
   return (hasFlag(d.actingAs ?? d.elementId, FLAGS.ZERO_ON_MIN) && d.value === 1) || d.value <= upTo
 }
 
@@ -606,11 +616,19 @@ function evaluateWithTemps(row, relics, ctx) {
 }
 
 function evaluateCore(dice, relics = [], ctx = {}) {
-  const fx = relicEffects(relics)
+  let fx = relicEffects(relics)
   // `actingAs`: the element whose abilities a die uses (itself, unless it
   // is a Masquerade or Chameleon borrowing from its left neighbor, or a
   // Chaos die wearing its form).
   const acting = actingElementIds(dice)
+  // The boss twist is every effect that is not a relic. Nun (R3) makes every
+  // die ignore it; Zero and Bit (R3) do so for the dice beside them.
+  const isRelic = (r) => r.kind === 'relic'
+  if (acting.some((id) => hasFlag(id, FLAGS.NUN))) {
+    relics = relics.filter(isRelic)
+    fx = relicEffects(relics)
+  }
+  const fxClean = relicEffects(relics.filter(isRelic))
   // Light (H3): no face below Light's, and nothing fizzles. A lifted die
   // keeps its explosions on top. The Dawn (H2) still reads the rolled face.
   const floor = lightFloor(dice)
@@ -620,7 +638,18 @@ function evaluateCore(dice, relics = [], ctx = {}) {
   const perDie = dice.map((d, i) => {
     const dieFloor = Math.max(floor, hasAlba ? Math.max(2, Math.ceil(d.sides / 4)) : 0, d.weights ? 2 : 0)
     const lift = dieFloor > d.value ? dieFloor - d.value : 0
-    return { ...d, actingAs: acting[i], rolledFace: d.value, value: d.value + lift, total: d.total + lift }
+    let value = d.value + lift
+    let total = d.total + lift
+    // Negation beside it, or a Janus anywhere (R3): the better of the face and its opposite.
+    const negated = acting.some((id) => hasFlag(id, FLAGS.JANUS)) || hasFlag(acting[i - 1], FLAGS.ABS_NEGATION) || hasFlag(acting[i + 1], FLAGS.ABS_NEGATION)
+    if (negated && !isSigilId(d.elementId) && !isPokerId(d.elementId) && d.sides > 1) {
+      const opposite = d.sides + 1 - value
+      if (opposite > value) {
+        total += opposite - value
+        value = opposite
+      }
+    }
+    return { ...d, actingAs: acting[i], rolledFace: d.value, value, total }
   })
   if (floor > 0) ctx = { ...ctx, noFizzle: true }
   const n = perDie.length
@@ -679,7 +708,11 @@ function evaluateCore(dice, relics = [], ctx = {}) {
           powers.some((p) => p.index === i && p.god === 'zephyr') ||
           // A Rune of Wild on its number, or a Joker on its wild face (O1, O3).
           hasActiveRune(d, 'wild') ||
-          (d.elementId === 'joker' && d.value === JOKER_FACE),
+          (d.elementId === 'joker' && d.value === JOKER_FACE) ||
+          // One, the Monad and Bit's neighbors count as any face (R3).
+          hasFlag(d.actingAs, FLAGS.ABS_ONE) ||
+          acting.some((id) => hasFlag(id, FLAGS.MONAD)) ||
+          [i - 1, i + 1].some((j) => hasFlag(perDie[j]?.actingAs, FLAGS.BIT)),
       )
       .map((d) => d.id)
     const wildcardCount = wildcardIds.length
@@ -734,8 +767,11 @@ function evaluateCore(dice, relics = [], ctx = {}) {
   let midasShards = 0
   let bullionDice = 0
   perDie.forEach((d, i) => {
-    const fizzled = fizzles(d, ctx, fx)
-    const banned = fx.bannedElementId && d.elementId === fx.bannedElementId
+    // Zero and Bit make their neighbors ignore the boss twist (R3).
+    const ignoresTwist = [i - 1, i + 1].some((j) => hasFlag(perDie[j]?.actingAs, FLAGS.ABS_ZERO) || hasFlag(perDie[j]?.actingAs, FLAGS.BIT))
+    const f = ignoresTwist ? fxClean : fx
+    const fizzled = fizzles(d, ctx, f)
+    const banned = f.bannedElementId && d.elementId === f.bannedElementId
     const midas = hasFlag(d.actingAs, FLAGS.MIDAS)
     const bullion = hasFlag(d.actingAs, FLAGS.BULLION)
     if (midas) midasShards += d.total
@@ -743,19 +779,34 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     // Void scores nothing (H3); the Dawn's overexposure zeroes a max face and
     // the Umbra keeps a swallowed die out (H2).
     const empty = hasFlag(d.actingAs, FLAGS.VOID)
-    const overexposed = fx.maxFaceZero && d.rolledFace === d.sides
+    const overexposed = f.maxFaceZero && d.rolledFace === d.sides
     // The Satellite scores nothing itself, and the Quasar's face goes to
     // Mult instead of Base (I1).
     const celestialOut = [FLAGS.SATELLITE, FLAGS.QUASAR, FLAGS.HORIZON, FLAGS.BLACK_HOLE_DIE].some((f) => hasFlag(d.actingAs, f))
     // Null, Singularity and the Dead Star score nothing either (K1, K4).
-    const cosmicOut = [FLAGS.NIL, FLAGS.SINGULARITY, FLAGS.DEAD_STAR].some((f) => hasFlag(d.actingAs, f))
+    const cosmicOut = [FLAGS.NIL, FLAGS.SINGULARITY, FLAGS.DEAD_STAR, FLAGS.ABS_ZERO, FLAGS.LIMIT, FLAGS.REVBITS].some((flag) => hasFlag(d.actingAs, flag))
     const out = midas || bullion || empty || overexposed || d.swallowed || celestialOut || cosmicOut || isSigilDie(i)
     // Null and Singularity score nothing by design, but they still react (L5):
     // seven of the new reactions name the Void.
     d.reactsAtZero = cosmicOut && !d.swallowed
     // A Comet that exploded scores its whole total twice (I1).
     const cometFactor = hasFlag(d.actingAs, FLAGS.COMET) && (d.explosions || 0) > 0 ? 2 : 1
-    let contribution = fizzled || zeroTargets.has(i) || banned || out ? 0 : d.total * cometFactor
+    // One scores 1 for every die in the pool, the Rolling Joke its face plus every
+    // reroll made this run, the Undivisible the square of a prime face minus one (R4).
+    let base = d.total * cometFactor
+    if (hasFlag(d.actingAs, FLAGS.ABS_ONE)) base = perDie.length
+    if (hasFlag(d.actingAs, FLAGS.ROLLJOKE)) base = d.total + (ctx.rerollsTotal || 0)
+    if (hasFlag(d.actingAs, FLAGS.UNDIV) && isPrime(d.value)) base = d.value * d.value - 1
+    let contribution = fizzled || zeroTargets.has(i) || banned || out ? 0 : base
+    // Parity doubles every even face in the pool, the Monad multiplies every die by the dice count (R3).
+    if (contribution > 0 && d.value % 2 === 0 && acting.some((id) => hasFlag(id, FLAGS.PARITY))) {
+      contribution *= 2
+      noteBoost(d, { id: 'parity', from: acting.findIndex((id) => hasFlag(id, FLAGS.PARITY)), factor: 2 })
+    }
+    if (contribution > 0 && acting.some((id) => hasFlag(id, FLAGS.MONAD))) {
+      contribution *= perDie.length
+      noteBoost(d, { id: 'monad', from: acting.findIndex((id) => hasFlag(id, FLAGS.MONAD)), factor: perDie.length })
+    }
     // Law of Small Things (O2): a d3 scores x3 and a d5 x2, as if they were d10s.
     if (fx.lawSmall && contribution > 0 && (d.sides === 3 || d.sides === 5)) {
       const factor = d.sides === 3 ? 3 : 2
@@ -766,7 +817,7 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     if (contribution > 0 && hasFlag(d.actingAs, FLAGS.ENTROPY)) contribution += 104
 
     if (contribution > 0) {
-      if (fx.highFaceHalf && d.value > 4) contribution /= 2
+      if (f.highFaceHalf && d.value > 4) contribution /= 2
       if (d.elementId === 'earth' && fx.earthPipMultiplier) contribution *= fx.earthPipMultiplier
       if (hasFlag(d.actingAs, FLAGS.DOUBLE_ON_SET) && winningValues.has(d.id)) contribution *= 2
       // A Rune of Glass (K3b): on its number the score is doubled (it may
@@ -818,7 +869,7 @@ function evaluateCore(dice, relics = [], ctx = {}) {
       // Gaea's drawback (on every other Earth-family die) and her trial
       // (on all of them): -5, or -10 on a 1.
       const gaeaHere = powers.some((p) => p.index === i && p.god === 'gaea')
-      const gaeaCurse = (fx.earthCurse || (gaeaDrawback && !gaeaHere)) && inFamily(d.elementId, 'earth')
+      const gaeaCurse = (f.earthCurse || (gaeaDrawback && !gaeaHere)) && inFamily(d.elementId, 'earth')
       if (gaeaCurse) contribution = Math.max(0, contribution - (d.value === 1 ? 10 : 5))
     }
     d.contribution = contribution
@@ -860,6 +911,15 @@ function evaluateCore(dice, relics = [], ctx = {}) {
       perDie[j].contribution *= 1.5
       // Only a die that actually scores shows the boost.
       if (perDie[j].contribution > 0) noteBoost(perDie[j], { id: d.elementId, from: i, factor: 1.5 })
+    }
+  })
+  // Two's Complement (R4): on an even face it doubles both neighbors' score.
+  perDie.forEach((d, i) => {
+    if (!hasFlag(d.actingAs, FLAGS.TWOS) || d.value % 2 !== 0) return
+    for (const j of [i - 1, i + 1]) {
+      if (!perDie[j] || !(perDie[j].contribution > 0)) continue
+      perDie[j].contribution *= 2
+      noteBoost(perDie[j], { id: 'twos_complement', from: i, factor: 2 })
     }
   })
   // A Singularity triples both neighbors' Base (K4, N3).
@@ -1137,6 +1197,16 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     multiplier *= 2
     multLines.push({ kind: 'celestial', id: 'timelike_curve', value: 2, op: 'mul', dice: [curve] })
   }
+  // Realm 3's Mult (R3, R4): Two's Complement on an even face, Limit's explosions,
+  // Infinity's and Apeiron's explosions kept for the run, Divergence's free rerolls.
+  perDie.forEach((d, i) => {
+    if (hasFlag(d.actingAs, FLAGS.TWOS) && d.value % 2 === 0) addMult({ kind: 'celestial', id: 'twos_complement', value: 2, dice: [i] })
+    if (hasFlag(d.actingAs, FLAGS.LIMIT) && !d.swallowed) addMult({ kind: 'celestial', id: 'limit', value: Math.min(LIMIT_MULT_CAP, explodeCount), dice: [i] })
+  })
+  if (ctx.infMult) addMult({ kind: 'celestial', id: 'abs_infinity', value: ctx.infMult, dice: perDie.flatMap((d, i) => (hasFlag(d.actingAs, FLAGS.ABS_INFINITY) || hasFlag(d.actingAs, FLAGS.APEIRON) ? [i] : [])) })
+  if (ctx.divergeCount) addMult({ kind: 'celestial', id: 'divergence', value: ctx.divergeCount, dice: perDie.flatMap((d, i) => (hasFlag(d.actingAs, FLAGS.DIVERGENCE) ? [i] : [])) })
+  // Epsilon (R2): +2 Mult, and the Mult is never rounded down.
+  if (fx.neverRoundMult) addMult({ kind: 'relic', id: sourceOf(relics, 'neverRoundMult'), value: 2 })
   // The Eye and the Spiral (P2) pay Mult at the cast.
   sigil.forEach((sg, i) => {
     const g = sg?.greater ? 1 : 0
@@ -1171,7 +1241,20 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     multLines.push({ kind: 'relic', id: sourceOf(relics, 'finalMultFactor'), value: fx.finalMultFactor, op: 'mul' })
   }
 
-  const roundScore = Math.round(baseValue * multiplier)
+  // Floating Point (R2): no decimals. Base and Mult are rounded down after every
+  // step of the ledger, and each loss is a line of its own. Epsilon spares the Mult.
+  if (fx.floorSteps) {
+    const b = floorSteps(baseLines, 0)
+    baseLines.splice(0, baseLines.length, ...b.lines)
+    baseValue = b.total
+    if (!fx.neverRoundMult) {
+      const m = floorSteps(multLines, 1)
+      multLines.splice(0, multLines.length, ...m.lines)
+      multiplier = m.total
+    }
+  }
+  // The Axiom (R2): the score is Base + Mult.
+  const roundScore = fx.addScore ? Math.round(baseValue + multiplier) : Math.round(baseValue * multiplier)
   // Bullion pays the final Mult, rounded down, per Bullion die.
   const bullionShards = bullionDice * Math.floor(multiplier)
 
@@ -1179,6 +1262,7 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     baseValue: Math.round(baseValue * 100) / 100,
     multiplier: Math.round(multiplier * 100) / 100,
     roundScore,
+    addScore: Boolean(fx.addScore),
     explodeCount,
     setTier,
     setDiceIds,
@@ -1191,6 +1275,24 @@ function evaluateCore(dice, relics = [], ctx = {}) {
     bullionShards,
     dice: perDie,
   }
+}
+
+/** Floating Point's rounding (R2): floors the running total after each line, adding the loss as a line. */
+function floorSteps(lines, start) {
+  const out = []
+  let run = start
+  for (const line of lines) {
+    out.push(line)
+    run = line.op === 'mul' ? run * line.value : run + line.value
+    if (Math.abs(run - Math.round(run)) > 1e-9) {
+      const floored = Math.floor(run)
+      out.push({ kind: 'rounding', id: 'floating', value: floored - run, op: 'add' })
+      run = floored
+    } else {
+      run = Math.round(run)
+    }
+  }
+  return { lines: out, total: run }
 }
 
 // Round 1 must be clearable with the starting 3d6 Earth kit (max roll 18,
@@ -1210,7 +1312,9 @@ export function thresholdForRound(round, difficulty) {
   if (round <= 10) base = difficulty.thresholdBase * EARLY_BASE_FACTOR * Math.pow(EARLY_GROWTH, round - 1)
   else {
     const fifteenth = tenth * Math.pow(difficulty.thresholdGrowth, 5)
-    base = round <= 15 ? tenth * Math.pow(difficulty.thresholdGrowth, round - 10) : fifteenth * Math.pow(LATE_GROWTH, round - 15)
+    base = round <= 15 ? tenth * Math.pow(difficulty.thresholdGrowth, round - 10) : fifteenth * Math.pow(LATE_GROWTH, Math.min(round, 30) - 15)
+    // Realm 3 is steeper: x1.45 a round from round 31 (R1).
+    if (round > 30) base *= Math.pow(REALM3_GROWTH, round - 30)
   }
   return Math.round(base * (difficulty.thresholdMultiplier ?? 1))
 }

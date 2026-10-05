@@ -4,6 +4,8 @@
 // is not repeated here: it is generated from the die's flags by
 // describeElement() in data/elements.js, so it can never drift from the
 // rules. `tags` lists every keyword the die uses, most defining first.
+import { ABSTRACT_DEFS } from './abstract.js'
+
 const T = (en, es, tags) => ({ short: { en, es }, tags })
 
 export const DICE_TEXT = {
@@ -104,6 +106,13 @@ Object.assign(DICE_TEXT, {
 })
 
 Object.assign(DICE_TEXT, POKER_TEXT, SIGIL_TEXT)
+
+// Realm 3 (EXPANSION.md R3, R4): the Abstract, Absolute and number dice take
+// their one-line text from their definition in data/abstract.js.
+const REALM3_TAGS = {'abs_zero': ['boost'], 'abs_one': ['wild', 'sets'], 'abs_infinity': ['explodes'], 'abs_negation': ['boost'], 'bit': ['wild', 'sets'], 'limit': ['explodes'], 'parity': ['boost'], 'divergence': ['explodes'], 'nun': ['mythic'], 'monad': ['wild', 'sets'], 'apeiron': ['explodes'], 'janus': ['boost'], 'twos_complement': ['boost'], 'reversed_bits': ['rewind'], 'rolling_joke': ['rerolls'], 'undivisible': ['boost']}
+for (const [id, def] of Object.entries(ABSTRACT_DEFS)) {
+  DICE_TEXT[id] = T(def.tagline.en, def.tagline.es, REALM3_TAGS[id])
+}
 
 export function diceText(elementId, lang = 'en') {
   const entry = DICE_TEXT[elementId]

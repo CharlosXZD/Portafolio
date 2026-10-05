@@ -6,6 +6,7 @@
 
 import { RARITY } from './relics.js'
 import { SIGIL_SETS, SIGIL_PRICE, SIGIL_GREATER_PRICE } from './sigils.js'
+import { ABSTRACT_DEFS, ABSTRACT_BASE_IDS, ABSTRACT_FUSION_IDS, ABSOLUTE_IDS, NUMBER_DICE_IDS, ABSTRACT_PRICE, ABSTRACT_FUSION_COST, ABSOLUTE_FORGE_COST } from './abstract.js'
 import { localize, ELEMENTS_ES, FLAG_DESCRIPTIONS_ES } from './i18n.js'
 
 export const FLAGS = {
@@ -58,6 +59,23 @@ export const FLAGS = {
   JOKER: 'joker', // a wild seventh face
   // EXPANSION.md P1: sigil dice, faces of symbols.
   SIGIL: 'sigil',
+  // EXPANSION.md R3, R4: realm 3's dice.
+  ABS_ZERO: 'absZero',
+  ABS_ONE: 'absOne',
+  ABS_INFINITY: 'absInfinity',
+  ABS_NEGATION: 'absNegation',
+  BIT: 'bit',
+  LIMIT: 'limit',
+  PARITY: 'parity',
+  DIVERGENCE: 'divergence',
+  NUN: 'nun',
+  MONAD: 'monad',
+  APEIRON: 'apeiron',
+  JANUS: 'janus',
+  TWOS: 'twosComplement',
+  REVBITS: 'reversedBits',
+  ROLLJOKE: 'rollingJoke',
+  UNDIV: 'undivisible',
   // EXPANSION.md K1: the six base elements of the Firmament.
   GLIMMER: 'glimmer', // Glimmer: its neighbors never fizzle
   GLOOM: 'gloom', // Gloom: the die on its right scores 0, half of it to Mult
@@ -985,6 +1003,36 @@ for (const [set, info] of Object.entries(SIGIL_SETS)) {
   }
 }
 
+// Realm 3's dice (R3, R4). The Abstract base elements are cosmic-tier (their
+// own families); the fusions are double-tier "cosmic" fusions Vesper teaches;
+// the Absolute dice are Mythic-tier (forged, one of each); the number dice are
+// arcane. Charged does not apply to any of them (R3).
+const rarityOf = { epic: RARITY.EPIC, legendary: RARITY.LEGENDARY }
+for (const [id, d] of Object.entries(ABSTRACT_DEFS)) {
+  const flags = flagSet(FLAGS[d.flag])
+  const common = { id, name: d.name.en, color: d.color, tagline: d.tagline.en, flags, abstract: true }
+  if (ABSTRACT_BASE_IDS.includes(id)) {
+    ELEMENTS[id] = { ...common, tier: TIERS.COSMIC, rarity: RARITY.ABSTRACT, price: ABSTRACT_PRICE, firmament: true, realm3: true, parents: [] }
+  } else if (ABSTRACT_FUSION_IDS.includes(id)) {
+    ELEMENTS[id] = { ...common, tier: TIERS.DOUBLE, rarity: RARITY.ABSTRACT, cosmic: true, forgeCost: ABSTRACT_FUSION_COST, parents: d.parents }
+  } else if (ABSOLUTE_IDS.includes(id)) {
+    ELEMENTS[id] = {
+      ...common,
+      tier: TIERS.MYTHIC,
+      rarity: RARITY.ABSOLUTE,
+      absolute: true,
+      bigGrowth: true,
+      recipe: { [d.base]: 4 },
+      stardust: 1,
+      forgeCost: ABSOLUTE_FORGE_COST,
+      teacher: d.teacher,
+      parents: [],
+    }
+  } else if (NUMBER_DICE_IDS.includes(id)) {
+    ELEMENTS[id] = { ...common, abstract: false, tier: TIERS.ARCANE, rarity: rarityOf[d.rarity], price: d.price, firmament: true, realm3: true, parents: [] }
+  }
+}
+
 export const PURE_ELEMENT_IDS = ['earth', 'fire', 'water', 'air']
 export const DOUBLE_FUSION_IDS = ['lightning', 'ice', 'steel', 'mud', 'steam', 'crystal']
 export const TRIPLE_FUSION_IDS = ['storm', 'obsidian', 'magma', 'monsoon']
@@ -1003,6 +1051,9 @@ export const CELESTIAL_DIE_IDS = ['comet', 'pulsar', 'satellite', 'quasar', 'zen
 // when the round ends.
 // The poker dice (O3): their own family, sold in Elementa too.
 export const POKER_DIE_IDS = ['poker', 'joker']
+export { ABSTRACT_BASE_IDS, ABSTRACT_FUSION_IDS, ABSOLUTE_IDS, NUMBER_DICE_IDS }
+/** Realm 3's dice (R3, R4), for the Gallery and the shops. */
+export const isAbstractBase = (elementId) => ABSTRACT_BASE_IDS.includes(elementId)
 export const BLACK_HOLE_DIE_ID = 'black_hole_die'
 export const TIME_GHOST_ID = 'time_ghost'
 export const isTempDie = (d) => Boolean(d?.temp)
@@ -1014,7 +1065,7 @@ export const takesNoSlot = (elementId) => SLOT_FREE_IDS.includes(elementId)
 // The Charged tag (N1): 'half' of the die's face also goes to Mult, 'full' all of it.
 export const chargedOf = (elementId) => ELEMENTS[elementId]?.charged ?? null
 // The dice of v0.8.3 (N6): they arrive sized to your pool, and are bought at the apprentice's discount.
-export const NEW_DICE_IDS = [...'glimmer', 'gloom', 'moment', 'reach', 'flux', 'nil', 'shadow', 'continuum', 'oblivion', 'alba', 'anomaly', 'singularity', 'abyss', ...CELESTIAL_DIE_IDS]
+export const NEW_DICE_IDS = [...ABSTRACT_BASE_IDS, ...NUMBER_DICE_IDS, ...ABSTRACT_FUSION_IDS, 'glimmer', 'gloom', 'moment', 'reach', 'flux', 'nil', 'shadow', 'continuum', 'oblivion', 'alba', 'anomaly', 'singularity', 'abyss', ...CELESTIAL_DIE_IDS]
 export const MYTHIC_DIE_IDS = ['light', 'darkness', 'time', 'space', 'chaos', 'void']
 // The Firmament's base elements (K1) and their fusions (K4).
 export const COSMIC_BASE_IDS = ['glimmer', 'gloom', 'moment', 'reach', 'flux', 'nil']
@@ -1093,6 +1144,7 @@ export function familiesOf(elementId) {
   if (CELESTIAL_DIE_IDS.includes(elementId)) return ['celestial']
   if (POKER_DIE_IDS.includes(elementId)) return ['poker']
   if (ELEMENTS[elementId]?.sigilSet) return ['sigil']
+  if (ABSOLUTE_IDS.includes(elementId)) return ['absolute']
   if (def.tier === TIERS.ARCANE) return ['arcane']
   if (def.tier === TIERS.MYTHIC) return ['mythic']
   if (def.tier === TIERS.PURE || def.tier === TIERS.COSMIC) return [elementId]
@@ -1193,6 +1245,7 @@ const FLAG_DESCRIPTIONS = {
   [FLAGS.HORIZON]: 'Scores 0. When it shows its highest face it spawns two Black Hole dice, which last the round.',
   [FLAGS.BLACK_HOLE_DIE]: 'Temporary, takes no slot. Every die between the two Black Hole dice gets +50 score.',
   [FLAGS.ENTANGLE]: 'Each roll it picks a random other die and copies its abilities and its score.',
+  ...Object.fromEntries(Object.entries(ABSTRACT_DEFS).map(([, d]) => [FLAGS[d.flag], d.tagline.en])),
   [FLAGS.SIGIL]: 'Six faces of symbols, no numbers: it takes no part in sets or reactions and scores no Base, only what the symbol does. One per set.',
   [FLAGS.POKER]: 'Faces 9, 10, J, Q, K and A (the numbers 9 to 14). The poker dice together make poker hands, which add Mult.',
   [FLAGS.JOKER]: 'Its seventh face is wild: any rank for a poker hand, any value for a set. At most 2 Jokers.',
@@ -1224,24 +1277,30 @@ const CHARGED_TEXT = {
 const MYTHIC_TEXT = {
   en: {
     one: 'Mythic: one of each kind per run. It cannot be copied.',
+    absolute: 'Absolute: one of each kind per run. It cannot be copied.',
     space: 'Always carries Warp: it does not count toward your dice cap.',
     big: 'Can grow past d20 in the Firmament, up to d100.',
     chronoShop: 'Sold only by the Horologist, in the Firmament.',
     celestial: 'Celestial: sold only in the Firmament.',
     onePerRun: 'One per run. It cannot be copied.',
     cosmic: 'A base element of the Firmament: sold only past the door.',
+    abstractBase: 'A base element of realm 3: sold only there. Two of them forge an Abstract fusion.',
     forged: 'Forged from 4 {base} dice and 1 Stardust, once its Warden has taught the recipe.',
+    forgedAbs: 'Forged from 4 {base} dice and 1 Stardust, once a Rewriter has taught the recipe.',
     volatile: 'Volatile: forging it can collapse into a Dead Star (25%), unless a Catalyst steadies it.',
   },
   es: {
     one: 'Mítico: uno de cada tipo por partida. No se puede copiar.',
+    absolute: 'Absoluto: uno de cada tipo por partida. No se puede copiar.',
     space: 'Siempre lleva Warp: no cuenta para tu límite de dados.',
     big: 'Puede crecer más allá de d20 en el Firmamento, hasta d100.',
     chronoShop: 'Solo lo vende el Relojero, en el Firmamento.',
     celestial: 'Celestial: solo se vende en el Firmamento.',
     onePerRun: 'Uno por partida. No se puede copiar.',
     cosmic: 'Un elemento base del Firmamento: solo se vende más allá de la puerta.',
+    abstractBase: 'Un elemento base del reino 3: solo se vende allí. Dos de ellos forjan una fusión Abstracta.',
     forged: 'Se forja con 4 dados de {base} y 1 Polvo Estelar, cuando su Custodio ya enseñó la receta.',
+    forgedAbs: 'Se forja con 4 dados de {base} y 1 Polvo Estelar, cuando un Reescritor ya enseñó la receta.',
     volatile: 'Volátil: al forjarlo puede colapsar en una Estrella Muerta (25%), salvo que un Catalizador lo estabilice.',
   },
 }
@@ -1250,14 +1309,17 @@ export function mythicTextLines(elementId, lang = 'en') {
   const text = MYTHIC_TEXT[lang] ?? MYTHIC_TEXT.en
   const def = ELEMENTS[elementId]
   const out = []
-  if (isMythic(elementId)) out.push(text.one)
+  if (def?.absolute) out.push(text.absolute)
+  else if (isMythic(elementId)) out.push(text.one)
   if (elementId === 'space') out.push(text.space)
   if (ELEMENTS[elementId]?.bigGrowth) out.push(text.big)
   if (elementId === CHRONO_ID) out.push(text.chronoShop)
   if (CELESTIAL_DIE_IDS.includes(elementId)) out.push(text.celestial)
   if (elementId === 'quasar') out.push(text.onePerRun)
-  if (isCosmicBase(elementId)) out.push(text.cosmic)
-  if (isMythic(elementId) && def?.stardust) {
+  if (isCosmicBase(elementId)) out.push(def?.rarity === 'abstract' ? text.abstractBase : text.cosmic)
+  if (isMythic(elementId) && def?.stardust && def.absolute) {
+    out.push(text.forgedAbs.replace('{base}', localize(lang, ELEMENTS[Object.keys(def.recipe)[0]].name, ELEMENTS_ES, Object.keys(def.recipe)[0], 'name')))
+  } else if (isMythic(elementId) && def?.stardust) {
     const base = Object.keys(def.recipe)[0]
     out.push(text.forged.replace('{base}', localize(lang, ELEMENTS[base].name, ELEMENTS_ES, base, 'name')))
   }

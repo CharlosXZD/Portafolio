@@ -338,6 +338,97 @@ export const SCENES = {
       ]),
     ],
   },
+  // --- Realm 3 (EXPANSION.md R1, R2): the door, then each Rewriter. Drafts. ---
+  realm3: {
+    title: L('A realm of numbers', 'Un reino de números'),
+    color: '#7affd8',
+    music: 'scene_realm3',
+    pages: [
+      page(PIP, L('Pip', 'Pip'), [
+        L('The frame was not the edge. Behind it, the numbers themselves are written down, and someone is holding the pen.', 'El marco no era el borde. Detrás, los números mismos están escritos, y alguien sostiene la pluma.'),
+        L('Six Rewriters live here. Each one changes how a score is counted. Beat them, and what they know is yours.', 'Aquí viven seis Reescritores. Cada uno cambia cómo se cuenta un puntaje. Véncelos, y lo que saben es tuyo.'),
+        L('There are new elements too, and dice made of arithmetic. Pip does not understand them. Pip wants to.', 'También hay elementos nuevos, y dados hechos de aritmética. Pip no los entiende. Pip quiere entenderlos.'),
+      ]),
+    ],
+  },
+  rewriter_axiom: {
+    title: L('A Rewriter', 'Un Reescritor'),
+    color: '#ffe9a0',
+    music: 'boss_axiom',
+    pages: [
+      page(boss('axiom'), L('The Axiom', 'El Axioma'), [
+        L('I state it; therefore it is.', 'Lo enuncio; por lo tanto, es.'),
+        L('A score is a sum. Base, plus Mult. I have always said so.', 'Un puntaje es una suma. Base, más Mult. Siempre lo he dicho.'),
+        L('Your multipliers are decoration. Bring weight, not tricks.', 'Tus multiplicadores son decoración. Trae peso, no trucos.'),
+      ]),
+      page(PIP, L('Pip', 'Pip'), [L('Pip says: big, flat numbers. Whetstones. Do not trust anything with an x.', 'Pip dice: números grandes y planos. Piedras de afilar. No confíes en nada que lleve una x.')]),
+    ],
+  },
+  rewriter_zero: {
+    title: L('A Rewriter', 'Un Reescritor'),
+    color: '#9a9ab0',
+    music: 'boss_zero',
+    pages: [
+      page(boss('zero'), L('Zero', 'Cero'), [
+        L('...there was nothing, and then...', '...no había nada, y luego...'),
+        L('...the small ones do not count. I do not count them...', '...los pequeños no cuentan. Yo no los cuento...'),
+        L('...three or more, and you may stay...', '...tres o más, y puedes quedarte...'),
+      ]),
+      page(PIP, L('Pip', 'Pip'), [L('Pip says: faces below 3 are gone. Bring big dice, or something that lifts the small ones.', 'Pip dice: las caras menores a 3 desaparecen. Trae dados grandes, o algo que levante a los pequeños.')]),
+    ],
+  },
+  rewriter_infinity: {
+    title: L('A Rewriter', 'Un Reescritor'),
+    color: '#8ad0ff',
+    music: 'boss_infinity',
+    pages: [
+      page(boss('infinity'), L('Infinity', 'Infinito'), [
+        L('and then, and then, and then', 'y luego, y luego, y luego'),
+        L('Take every cap off. Explode forever. I only ask that the number you must reach grows with every breath you take.', 'Quita todos los topes. Explota para siempre. Solo pido que el número que debes alcanzar crezca con cada aliento tuyo.'),
+        L('and then, and then', 'y luego, y luego'),
+      ]),
+      page(PIP, L('Pip', 'Pip'), [L('Pip says: every reroll and every explosion raises the target. Cast early, and make the first roll count.', 'Pip dice: cada reroll y cada explosión sube el objetivo. Lanza temprano, y que la primera tirada cuente.')]),
+    ],
+  },
+  rewriter_observer: {
+    title: L('A Rewriter', 'Un Reescritor'),
+    color: '#ff9ad0',
+    music: 'boss_observer',
+    pages: [
+      page(boss('observer'), L('The Observer', 'El Observador'), [
+        L('I am only here if you look.', 'Solo estoy aquí si me miras.'),
+        L('And neither are your dice. A face you are not watching has not decided what it is.', 'Y tus dados tampoco. Una cara que no miras no ha decidido qué es.'),
+        L('Look at one. Only one.', 'Mira uno. Solo uno.'),
+      ]),
+      page(PIP, L('Pip', 'Pip'), [L('Pip says: faces are hidden until you hover or tap them. Luminance and the Eye keep them in view.', 'Pip dice: las caras están ocultas hasta que pasas el cursor o las tocas. La Luminancia y el Ojo las mantienen a la vista.')]),
+    ],
+  },
+  rewriter_floating: {
+    title: L('A Rewriter', 'Un Reescritor'),
+    color: '#d8d8f0',
+    music: 'boss_floating',
+    pages: [
+      page(boss('floating'), L('Floating Point', 'Punto Flotante'), [
+        L('approximately.', 'aproximadamente.'),
+        L('I round down. Every time. Half a point is not a point.', 'Redondeo hacia abajo. Siempre. Medio punto no es un punto.'),
+        L('approximately, approximately.', 'aproximadamente, aproximadamente.'),
+      ]),
+      page(PIP, L('Pip', 'Pip'), [L('Pip says: whole numbers only. Every 0.5 is lost at every step. Flat Mult is your friend.', 'Pip dice: solo números enteros. Cada 0.5 se pierde en cada paso. El Mult plano es tu amigo.')]),
+    ],
+  },
+  rewriter_deadlock: {
+    title: L('A Rewriter', 'Un Reescritor'),
+    color: '#c9a46b',
+    music: 'boss_deadlock',
+    pages: [
+      page(boss('deadlock'), L('Deadlock', 'Bloqueo Mortal'), [
+        L('One at a time, please.', 'De uno en uno, por favor.'),
+        L('You may keep one die. Choose well. The rest must be thrown.', 'Puedes conservar un dado. Elige bien. El resto debe lanzarse.'),
+        L('One at a time. Please.', 'De uno en uno. Por favor.'),
+      ]),
+      page(PIP, L('Pip', 'Pip'), [L('Pip says: you can hold or lock only one die. Build to reroll everything and trust the explosions.', 'Pip dice: solo puedes guardar o bloquear un dado. Arma algo que relance todo y confía en las explosiones.')]),
+    ],
+  },
   // The god who bans fishing (EXPANSION.md P5). Unarmed, calm, a little bored.
   // realm 3 god: the name and the portrait are placeholders until that realm is workshopped.
   arbiter: {

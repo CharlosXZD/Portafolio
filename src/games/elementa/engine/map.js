@@ -149,6 +149,14 @@ export function enterFirmament(map, follower) {
   return extendMap(base, BLOCK)
 }
 
+/**
+ * Lays realm 3's stretch of the Road (R1): rounds 31 to 45 with the same
+ * shops as the Firmament, the path's legendary shop before the last Rewriter.
+ */
+export function enterRealm3(map) {
+  return extendMap({ ...map, pendingId: null, layers: map.layers.slice(0, BLOCK * 2) }, BLOCK)
+}
+
 export function newMap() {
   return extendMap(null, BLOCK)
 }

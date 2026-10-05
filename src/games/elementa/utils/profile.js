@@ -11,9 +11,10 @@ import { ENDING_IDS } from '../data/endings.js'
 import { SECRET_REACTION_IDS, FIRMAMENT_REACTION_IDS } from '../data/reactions.js'
 import { ACHIEVEMENTS } from '../data/achievements.js'
 import { sigilsFromEndings } from '../data/sigils.js'
+import { REWRITERS } from '../data/realm3.js'
 import { readFile, updateProfile, listFiles, emptyProfile } from './saveManager.js'
 
-export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id, ...GOD_TRIALS.map((b) => b.id), ...WARDENS.map((b) => b.id)]
+export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id, ...GOD_TRIALS.map((b) => b.id), ...WARDENS.map((b) => b.id), ...REWRITERS.map((b) => b.id)]
 
 export function readProfile(slot) {
   if (slot == null) return emptyProfile()
@@ -114,6 +115,7 @@ function addToList(slot, key, ids) {
 
 /** Wardens beaten on this file (H2). Returns the ones that are new. */
 export const markWardens = (slot, ids) => addToList(slot, 'wardens', ids)
+export const markRewriters = (slot, ids) => addToList(slot, 'rewriters', ids)
 
 /** Mythic dice unlocked on this file (H2, H3). Returns the ones that are new. */
 export const unlockMythics = (slot, ids) => addToList(slot, 'mythics', ids)

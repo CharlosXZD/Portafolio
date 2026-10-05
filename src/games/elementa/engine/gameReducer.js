@@ -24,6 +24,10 @@ import {
   takesNoSlot,
   VOID_CAP,
   NEW_DICE_IDS,
+  ABSTRACT_BASE_IDS,
+  ABSTRACT_FUSION_IDS,
+  ABSOLUTE_IDS,
+  NUMBER_DICE_IDS,
   POKER_DIE_IDS,
   BLACK_HOLE_DIE_ID,
   TIME_GHOST_ID,
@@ -83,6 +87,7 @@ import {
   nextChoices,
   retypeAhead,
   enterFirmament,
+  enterRealm3,
   redrawRow,
   addPath,
   unlinkedNext,
@@ -90,6 +95,7 @@ import {
 import { firmamentEnding } from '../data/endings.js'
 import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
 import { isPokerId, pokerFaces, JOKER_CAP } from '../data/poker.js'
+import { REWRITER_ROUNDS, rewriterFor, REWRITER_SETS, REWRITER_TARGET, rewriterById, realm3Ending, REALM3_END } from '../data/realm3.js'
 import { isSigilId, sigilFaces, sigilSetOf, isGreaterSigil, SIGIL_SETS, SIGIL_SET_IDS, SIGIL_OFFER_CHANCE, SIGIL_PRICE, SIGIL_GREATER_PRICE } from '../data/sigils.js'
 import { TOTEM_CAP, totemLevel, kindlingReroll } from '../data/totems.js'
 import { GLASS_BREAK_CHANCE, RUNE_CLASH_FEE, runesOf, hasActiveRune, migrateDieRunes, fitRunes, faceCap } from '../data/runes.js'
@@ -147,6 +153,9 @@ const RARITY_UNLOCK_ROUND = {
   [RARITY.LEGENDARY]: 10,
   // Mythic dice are sold only in the Firmament (H3), from its first shop.
   [RARITY.MYTHIC]: 15,
+  // Realm 3 (R3).
+  [RARITY.ABSTRACT]: 31,
+  [RARITY.ABSOLUTE]: 31,
 }
 
 const RARITY_WEIGHT = {
@@ -156,6 +165,8 @@ const RARITY_WEIGHT = {
   [RARITY.EPIC]: 1,
   [RARITY.LEGENDARY]: 1,
   [RARITY.MYTHIC]: 1,
+  [RARITY.ABSTRACT]: 1,
+  [RARITY.ABSOLUTE]: 1,
 }
 
 const FORGE_BASE_COST_BY_TIER = {
@@ -223,17 +234,25 @@ function primordialWith(twistId) {
 
 // The run's last round: 15, or 30 past the door (H1).
 function finalRound(state) {
-  return state.realm === 'firmament' ? FIRMAMENT_END : WIN_ROUND
+  return state.realm3 ? REALM3_END : state.realm === 'firmament' ? FIRMAMENT_END : WIN_ROUND
+}
+
+/** The Rewriter waiting at a round of realm 3 for this path and set, or null (R2). */
+function rewriterAt(state, round) {
+  return state.realm3 ? rewriterFor(state.path, state.realm3Set, round) : null
 }
 
 // A boss no pact can swap out: the Primordial, or a Warden (H1, H2).
 function isFixedBoss(state, round) {
+  if (state.realm3 && round > FIRMAMENT_END) return Boolean(rewriterAt(state, round))
   if (state.realm === 'firmament') return Boolean(wardenFor(state.path, state.firmamentSet, round))
   return round % WIN_ROUND === 0
 }
 
 function pickBossModifier(state, round) {
   // Past the door, rounds 20, 25 and 30 are the path's Wardens (H1, H2).
+  const rewriter = rewriterAt(state, round)
+  if (rewriter) return rewriter
   const warden = state.realm === 'firmament' ? wardenFor(state.path, state.firmamentSet, round) : null
   if (warden) return warden
   if (round % WIN_ROUND === 0 && state.realm !== 'firmament') return primordialWith(randomOf(PRIMORDIAL_POOL))
@@ -396,6 +415,8 @@ function freshRoundCounters(dice) {
   return {
     driftsUsed: 0,
     lockedThisRound: false,
+    // Divergence's free rerolls this round (R3).
+    divergeCount: 0,
     // The Eye (P2, P5): table changes since the last reroll, whether the Eye was struck blind this round, and the warning on screen.
     eyeShifts: 0,
     eyeBlind: false,
@@ -433,6 +454,10 @@ function scoreContext(state) {
     // Levelled reactions and sets (J1), Totems (L4).
     constellations: state.constellations || {},
     totems: state.totems || {},
+    // Realm 3 (R3, R4): Mult kept from explosions, Divergence's rerolls, rerolls made this run.
+    infMult: state.infMult || 0,
+    divergeCount: state.divergeCount || 0,
+    rerollsTotal: state.rerollsTotal || 0,
     // Law of Greed (O2) reads the Shards held; Link (O1) the elements the run has met.
     shards: state.shards,
     firmament: state.realm === 'firmament',
@@ -693,7 +718,7 @@ function forgeableRecipes(state) {
   state.dice.forEach((d) => ownedCounts.set(d.elementId, (ownedCounts.get(d.elementId) || 0) + 1))
   const fusions = knowsAether(state) ? ALL_FUSION_IDS : ALL_FUSION_IDS.filter((id) => id !== QUADRA_FUSION_ID)
   // Gods, Mythic dice, element fusions and Entropy need their recipe (B4, K1, K4, H5).
-  const learned = [...GOD_IDS, ...MYTHIC_DIE_IDS, ...COSMIC_FUSION_IDS, ENTROPY_ID].filter((id) => state.recipes?.includes(id))
+  const learned = [...GOD_IDS, ...MYTHIC_DIE_IDS, ...COSMIC_FUSION_IDS, ...ABSTRACT_FUSION_IDS, ...ABSOLUTE_IDS, ENTROPY_ID].filter((id) => state.recipes?.includes(id))
   return [...fusions, ...learned].map((fusionElementId) => {
     const def = ELEMENTS[fusionElementId]
     const needs = recipeNeeds(def)
@@ -724,6 +749,8 @@ const FORGE_RESULTS = [
   ...GOD_IDS,
   ...MYTHIC_DIE_IDS,
   ...COSMIC_FUSION_IDS,
+  ...ABSTRACT_FUSION_IDS,
+  ...ABSOLUTE_IDS,
   ENTROPY_ID,
 ]
 
@@ -986,6 +1013,7 @@ function rollShopStock(state, type) {
             (!r.needsGods || knowsGods(state)) &&
             (!r.bazaarOnly || type.legendary) &&
             !r.law &&
+            !r.bossPrize &&
             relicInReach(state, r) &&
             !r.horologistOnly,
         )
@@ -1010,7 +1038,10 @@ function rollShopStock(state, type) {
   const asOffer = (id) => ({ id, rarity: rarityForElement(id), stockWeight: ELEMENTS[id].stockWeight ?? 1, minRound: ELEMENTS[id].minRound })
   // Poker dice (O3): Elementa's Markets and every Firmament shop.
   const poker = firmament || type.id === 'market' ? POKER_DIE_IDS.filter((id) => id !== 'joker' || poolHoldsFewJokers(state)) : []
-  const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...cosmic, ...celestials, ...poker].map(asOffer)
+  // Realm 3 (R3, R4): the Abstract elements in its shops, the number dice only in its Markets and legendary shop.
+  const abstract = state.realm3 ? ABSTRACT_BASE_IDS : []
+  const numbers = state.realm3 && ['market', 'astral'].includes(type.id) ? NUMBER_DICE_IDS : []
+  const allBuyable = [...PURE_ELEMENT_IDS, ...unlockedFusions, ...ARCANE_DIE_IDS, ...cosmic, ...celestials, ...poker, ...abstract, ...numbers].map(asOffer)
   const dieOfferCount = Math.min(type.dice, allBuyable.length)
   const luckyRound = state.round + (type.legendary ? 3 : 0)
   const dieWeight = (item) => rarityWeight(item, luckyRound) * item.stockWeight
@@ -1108,7 +1139,7 @@ function rollHorologistStock(state, ownedRelicIds) {
 // Relics a pact or prize may hand out: never the god relics before the god
 // recipes are known, never the Bazaar's Pantheon.
 function relicGrantable(state, r) {
-  return (!r.needsGods || knowsGods(state)) && !r.bazaarOnly && !r.horologistOnly && relicInReach(state, r)
+  return (!r.needsGods || knowsGods(state)) && !r.bazaarOnly && !r.horologistOnly && !r.bossPrize && relicInReach(state, r)
 }
 
 // The multiplying relics (M3) wait for round 15, and the Legendary two are
@@ -1358,6 +1389,13 @@ function baseTitleState() {
     rewardLaws: [],
     // Fishing with the Eye (P5): offenses so far this run.
     eyeStrikes: 0,
+    // Realm 3 (R1): whether the run has walked through the second door, and which Rewriter set; the Rewriters beaten on this file;
+    // Mult kept from Infinity's explosions; rerolls made this run for the Rolling Joke.
+    realm3: false,
+    realm3Set: null,
+    rewriters: [],
+    infMult: 0,
+    rerollsTotal: 0,
     gustUsed: false,
     explosionsThisRound: 0,
     // The Accord (B1): a hidden lean, + toward the Primordial, - toward
@@ -1421,6 +1459,7 @@ function fileFields(file = {}) {
     moteFed: file.mote?.fed || 0,
     // The sigil dice this file has unlocked (P3).
     sigils: [...(file.sigils || [])],
+    rewriters: [...(file.rewriters || [])],
   }
 }
 
@@ -1538,9 +1577,11 @@ function enterRoundBase(state, round) {
     roundSeq: (state.roundSeq || 0) + 1,
     map: prophecy?.round === round ? { ...state.map, prophecy: null } : state.map,
     chronicle: noteBoss(state.chronicle, bossModifier),
-    // A Warden's target is the round's own times 1, 1.1 or 1.25 (H2).
+    // A Warden's target is the round's own times 1, 1.1 or 1.25 (H2); a Rewriter's is calibrated (R2).
     threshold: Math.round(
-      thresholdForRound(round, state.difficulty) * (state.nextTargetMult || 1) * (bossModifier?.tier === 4 ? WARDEN_TARGET[round] ?? 1 : 1),
+      thresholdForRound(round, state.difficulty) *
+        (state.nextTargetMult || 1) *
+        (bossModifier?.tier === 4 ? WARDEN_TARGET[round] ?? 1 : bossModifier?.tier === 5 ? REWRITER_TARGET[bossModifier.id] ?? 1 : 1),
     ),
     nextTargetMult: 1,
     dice,
@@ -1673,8 +1714,9 @@ function addBoon(state, id, source, detail = null) {
 
 /** A round's target as it will be when you get there (Almanac, I2). */
 function almanacTarget(state, round, next) {
-  const warden = state.realm === 'firmament' && wardenFor(state.path, state.firmamentSet, round)
-  return Math.round(thresholdForRound(round, state.difficulty) * (next ? state.nextTargetMult || 1 : 1) * (warden ? WARDEN_TARGET[round] ?? 1 : 1))
+  const warden = state.realm === 'firmament' && (rewriterAt(state, round) || wardenFor(state.path, state.firmamentSet, round))
+  const bossMult = warden ? (warden.tier === 5 ? REWRITER_TARGET[warden.id] ?? 1 : WARDEN_TARGET[round] ?? 1) : 1
+  return Math.round(thresholdForRound(round, state.difficulty) * (next ? state.nextTargetMult || 1 : 1) * bossMult)
 }
 
 function nextBossRound(state) {
@@ -2195,6 +2237,51 @@ function doorOpen(state) {
   return (state.endingsSeen || []).includes(state.path ?? 'neutral')
 }
 
+/** Realm 3's door (R1, Default): open once the file has seen the path's Firmament I ending. */
+function doorOpen3(state) {
+  return (state.endingsSeen || []).includes(firmamentEnding(state.path ?? 'neutral', 1))
+}
+
+/** Which set of Rewriters the door can lead to: Set I until the path's first Realm ending, then Set II, then the player chooses. */
+function realm3Sets(state) {
+  const path = state.path ?? 'neutral'
+  const seen = state.endingsSeen || []
+  const one = seen.includes(realm3Ending(path, 1))
+  const two = seen.includes(realm3Ending(path, 2))
+  if (!one) return [1]
+  if (!two) return [2]
+  return [1, 2]
+}
+
+// --- Realm 3's rules (EXPANSION.md R2). ---
+
+/** Whether a Nun is in the pool: every die ignores the boss twist (R3). */
+function nunActive(dice) {
+  return actingElementIds(dice).some((id) => elementHasFlag(id, FLAGS.NUN))
+}
+
+/** The target as it stands: Infinity raises it 10% a reroll used and 5% an explosion (R2). */
+export function effectiveThreshold(state) {
+  const fx = relicEffects(effectiveRelics(state))
+  if (!fx.thresholdPerReroll || nunActive(state.dice)) return state.threshold
+  return Math.round(state.threshold * (1 + fx.thresholdPerReroll * (state.rerollsUsed || 0) + (fx.thresholdPerExplosion || 0) * (state.explosionsThisRound || 0)))
+}
+
+/** The most dice that may be held or locked at once: Deadlock allows one, Release one more (R2). */
+export function holdLimit(state) {
+  const fx = relicEffects(effectiveRelics(state))
+  if (!fx.holdLimit || nunActive(state.dice)) return Infinity
+  return fx.holdLimit + (fx.holdLimitBonus || 0)
+}
+
+/** Whether one more die may be held or locked right now. */
+function canHoldMore(state, dieId) {
+  const limit = holdLimit(state)
+  if (limit === Infinity) return true
+  const holding = state.dice.filter((d) => (d.held || d.locked) && !d.temp && d.id !== dieId).length
+  return holding < limit
+}
+
 /**
  * Which set of Wardens the door can lead to: Set I until the path's first
  * Firmament ending, then Set II; with both done, the player chooses.
@@ -2213,6 +2300,22 @@ function firmamentSets(state) {
  * A Warden falls (H2): it teaches the file its Mythic die's recipe (K1; it
  * used to put the die in the shops), and all six teach Entropy (H5).
  */
+/**
+ * A Rewriter falls (R2): Zero, the Axiom, Infinity and the Observer teach the
+ * recipe of an Absolute die; Floating Point and Deadlock leave a Legendary
+ * relic (a free slot is made for it).
+ */
+function beatRewriter(state, id) {
+  const def = rewriterById(id)
+  let next = (state.rewriters || []).includes(id) ? state : { ...state, rewriters: [...(state.rewriters || []), id] }
+  const taught = def.teaches ? ABSOLUTE_IDS.find((a) => ELEMENTS[a].teacher === id) : null
+  if (taught) next = withRecipe(next, taught)
+  if (def.prizeRelic && !next.relics.some((r) => r.id === def.prizeRelic)) {
+    next = { ...next, relics: [...next.relics, relicById(def.prizeRelic)], relicCapBonus: Math.max(next.relicCapBonus || 0, next.relics.length + 1 - relicCapFor({ ...next, relicCapBonus: 0 })) }
+  }
+  return next
+}
+
 function beatWarden(state, id) {
   const guards = bossById(id)?.guards
   const wardens = (state.wardens || []).includes(id) ? state.wardens : [...(state.wardens || []), id]
@@ -2255,7 +2358,7 @@ export function peekReroll(state) {
   const keep = getRngState()
   const probe = { ...state, rngState: typeof state.rngState === 'number' ? state.rngState : keep }
   setRngState(probe.rngState)
-  const out = reduce(probe, { type: 'REROLL_UNHELD' })
+  const out = settle(reduce(probe, { type: 'REROLL_UNHELD' }))
   setRngState(keep)
   return out === probe ? null : out.dice
 }
@@ -2297,6 +2400,66 @@ function applyLandings(state) {
   return { ...next, dice, rerollsBonusThisRound: (next.rerollsBonusThisRound || 0) + bonus }
 }
 
+/**
+ * What realm 3's dice do the moment a roll lands (R3, R4), once per roll of a
+ * die: Infinity and the Apeiron keep Mult from explosions, Divergence gives a
+ * die on its lowest face a free reroll (and +1 Mult), Reversed Bits turns the
+ * face of every die that rolled over, bit by bit within its own width.
+ */
+function realmRolls(state) {
+  if (state.phase !== 'rolling') return state
+  const acting = actingElementIds(state.dice)
+  const has = (flag) => acting.some((id) => elementHasFlag(id, flag))
+  const apeiron = has(FLAGS.APEIRON)
+  const divergence = has(FLAGS.DIVERGENCE)
+  const reversed = has(FLAGS.REVBITS)
+  const infinity = has(FLAGS.ABS_INFINITY)
+  if (!apeiron && !divergence && !reversed && !infinity) return state
+  const relics = effectiveRelics(state)
+  let dice = state.dice
+  let gain = 0
+  let rerolled = 0
+  if (apeiron || infinity) {
+    dice = dice.map((d, i) => {
+      if (d.temp || !(d.explosions > 0) || d.infCounted === d.rollId) return d
+      const each = apeiron ? 2 : elementHasFlag(acting[i], FLAGS.ABS_INFINITY) ? 1 : 0
+      if (!each) return d
+      gain += each * d.explosions
+      return { ...d, infCounted: d.rollId }
+    })
+  }
+  if (divergence) {
+    dice = dice.map((d, i) => {
+      if (d.temp || d.held || d.locked || d.value !== 1 || d.divRoll === d.rollId || isSigilId(d.elementId)) return d
+      const again = rollDie(acting[i], d.sides, relics, rollContext(d, dice, relicEffects(relics), acting[i]))
+      rerolled += 1
+      return { ...d, ...again, divRoll: again.rollId }
+    })
+  }
+  if (reversed) {
+    dice = dice.map((d, i) => {
+      if (d.temp || d.revId === d.rollId || elementHasFlag(acting[i], FLAGS.REVBITS) || isSigilId(d.elementId) || isPokerId(d.elementId) || !(d.value > 0)) return d
+      const value = reverseBits(d.value, d.sides)
+      return { ...d, value, total: d.total - d.value + value, revId: d.rollId }
+    })
+  }
+  if (dice === state.dice) return state
+  return { ...state, dice, infMult: (state.infMult || 0) + gain, divergeCount: (state.divergeCount || 0) + rerolled }
+}
+
+/** A face with its bits reversed within the die's own width (B12): 3 bits up to d7, then as many as the size needs. */
+export function reverseBits(value, sides) {
+  const bits = Math.max(3, Math.ceil(Math.log2(sides + 1)))
+  let out = 0
+  for (let k = 0; k < bits; k++) if (value & (1 << k)) out |= 1 << (bits - 1 - k)
+  return out
+}
+
+/** Everything that settles after a roll or a change of the table. */
+function settle(state) {
+  return realmRolls(applyLandings(state))
+}
+
 /** One more table change under a watching Eye. Six make an offense (P5). */
 function countShift(state) {
   const shifts = (state.eyeShifts || 0) + 1
@@ -2325,7 +2488,7 @@ export function gameReducer(state, action) {
   const watching = FISHING_ACTIONS.includes(action.type) && state.phase === 'rolling' && eyeActive(state)
   const before = watching ? visionKey(state) : null
   let next = reduce(state, action)
-  next = applyLandings(next)
+  next = settle(next)
   if (watching && next !== state && next.phase === 'rolling') {
     const keep = getRngState()
     const after = visionKey({ ...next, rngState: keep })
@@ -2420,6 +2583,9 @@ function reduce(state, action) {
 
     case 'TOGGLE_HELD': {
       if (state.phase !== 'rolling') return state
+      const target = state.dice.find((d) => d.id === action.dieId)
+      // Deadlock (R2): holding is refused past the limit; letting go is always fine.
+      if (target && !target.held && !canHoldMore(state, target.id)) return state
       return {
         ...state,
         dice: state.dice.map((d) =>
@@ -2447,6 +2613,8 @@ function reduce(state, action) {
       // Varuna's power: any die locks for free, and still refunds (B4).
       const tide = tideLocks(state.dice)
       if (!die || die.locked || !(acting.flags[FLAGS.FREE_LOCK] || tide)) return state
+      // Deadlock (R2): at most one die held or locked.
+      if (!canHoldMore(state, die.id)) return state
 
       const fx = relicEffects(effectiveRelics(state))
       if (fx.noFreeLock) return state
@@ -2454,7 +2622,7 @@ function reduce(state, action) {
       const rerollGrant = grantsReroll ? 1 + (fx.waterLockRerollBonus || 0) : 0
       const adjacent = acting.flags[FLAGS.ADJACENT_FREE_LOCK]
 
-      const adjacentId = adjacent ? state.dice[idx + 1]?.id : null
+      const adjacentId = adjacent && holdLimit(state) === Infinity ? state.dice[idx + 1]?.id : null
 
       let dice = state.dice.map((d) => {
         if (d.id === action.dieId) return { ...d, held: true, locked: true, lockedVia: 'lock' }
@@ -2485,6 +2653,7 @@ function reduce(state, action) {
       const fx = relicEffects(effectiveRelics(state))
       const charges = fx.freezeChargePerRound || 0
       if (state.freezeChargesUsed >= charges) return state
+      if (!canHoldMore(state, action.dieId)) return state
       return {
         ...state,
         freezeChargesUsed: state.freezeChargesUsed + 1,
@@ -2592,6 +2761,7 @@ function reduce(state, action) {
         rerollsUsed: state.rerollsUsed + (free ? 0 : 1),
         freeRerolls: free ? state.freeRerolls - 1 : state.freeRerolls || 0,
         rerollsMade: (state.rerollsMade || 0) + 1,
+        rerollsTotal: (state.rerollsTotal || 0) + 1,
         rerollsBonusThisRound: state.rerollsBonusThisRound + kindling,
         explosionsThisRound,
         lastReroll,
@@ -2648,7 +2818,9 @@ function reduce(state, action) {
     case 'SUBMIT_ROUND': {
       if (state.phase !== 'rolling') return state
       const result = evaluatePool(state.dice, effectiveRelics(state), scoreContext(state))
-      const passed = result.roundScore >= state.threshold
+      // Infinity, the Rewriter (R2), raises the target for every reroll and explosion.
+      const target = effectiveThreshold(state)
+      const passed = result.roundScore >= target
       // Runes of Gold (O1) pay on every cast, cleared or not.
       if (result.goldShards) state = { ...state, shards: state.shards + result.goldShards }
       // The Maelstrom only lent your dice their elements (H2): give them back.
@@ -2656,7 +2828,7 @@ function reduce(state, action) {
       // A god of the gauntlet falls; three more stages before the ending.
       if (passed && state.gauntlet && state.gauntlet.stage < GOD_TRIALS.length - 1) {
         const glass = shatterGlass(state)
-        return advanceGauntlet(glass.state, { ...result, passed, threshold: state.threshold, shattered: glass.shattered })
+        return advanceGauntlet(glass.state, { ...result, passed, threshold: target, shattered: glass.shattered })
       }
       // Primordial Unbound only borrowed your dice: give the pool back.
       if (state.bossModifier?.variant === 'unbound' && state.roundPool) state = { ...state, dice: state.roundPool }
@@ -2666,7 +2838,7 @@ function reduce(state, action) {
       result.shattered = glass.shattered
 
       if (passed) {
-        const earned = shardsEarned(result.roundScore, state.threshold, state.difficulty)
+        const earned = shardsEarned(result.roundScore, target, state.difficulty)
         const fx = relicEffects(effectiveRelics(state))
         const interest = interestFor(state.shards, fx.interestCapBonus || 0, fx.interestDivisor || 3)
         const base = Math.round(5 * state.difficulty.shardMultiplier)
@@ -2693,7 +2865,7 @@ function reduce(state, action) {
           }
         }
         let permanentRerollBonus = state.permanentRerollBonus
-        if (fx.momentumRerollOnOverkill && result.roundScore >= state.threshold * 2) {
+        if (fx.momentumRerollOnOverkill && result.roundScore >= target * 2) {
           permanentRerollBonus += 1
         }
         let lives = state.lives
@@ -2718,26 +2890,33 @@ function reduce(state, action) {
           const firmament = state.realm === 'firmament'
           state = {
             ...withRecipe(state, QUADRA_FUSION_ID),
-            ending: firmament ? firmamentEnding(state.path ?? 'neutral', state.firmamentSet) : state.path ?? 'neutral',
+            ending: state.realm3
+              ? realm3Ending(state.path ?? 'neutral', state.realm3Set)
+              : firmament
+                ? firmamentEnding(state.path ?? 'neutral', state.firmamentSet)
+                : state.path ?? 'neutral',
             dice: state.dice.filter((d) => d.elementId !== PRIMORDIAL_DIE_ID),
           }
-          // A path whose door is open stops at the Crossroads first (H1).
-          crossroads = !firmament && doorOpen(state)
+          // A path whose door is open stops at the Crossroads first (H1); so does the Firmament's last Warden (R1).
+          crossroads = state.realm3 ? false : firmament ? doorOpen3(state) : doorOpen(state)
         }
         // A Warden that falls gives the file its Mythic die; all six teach
         // Entropy's recipe (H2, H5).
         const wardenBeaten = state.bossModifier?.tier === 4 ? state.bossModifier.id : null
         if (wardenBeaten) state = beatWarden(state, wardenBeaten)
+        // A Rewriter that falls teaches a recipe or leaves a relic (R2).
+        const rewriterBeaten = state.bossModifier?.tier === 5 ? state.bossModifier.id : null
+        if (rewriterBeaten) state = beatRewriter(state, rewriterBeaten)
         // Stardust (K2): every boss drops some, a Warden more.
-        const stardustGain = beatBoss ? (wardenBeaten ? STARDUST_PER_WARDEN : STARDUST_PER_BOSS) : 0
+        const stardustGain = beatBoss ? (wardenBeaten || rewriterBeaten ? STARDUST_PER_WARDEN : STARDUST_PER_BOSS) : 0
         return {
           ...state,
           // Beating a boss first offers a permanent upgrade, then the shop.
           phase: crossroads ? 'crossroads' : won ? 'victory' : beatBoss ? 'bossReward' : 'shop',
           chronicle: won ? chronicle : { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: shopType }] },
-          lastResult: { ...result, passed, threshold: state.threshold, shardGain, beatBoss, longNightRelic, timeCarry, wardenBeaten, stardustGain },
+          lastResult: { ...result, passed, threshold: target, shardGain, beatBoss, longNightRelic, timeCarry, wardenBeaten, stardustGain },
           // A Warden or a round-10 boss also offers a choice of Laws (O2, Default).
-          rewardLaws: beatBoss && (wardenBeaten || state.round === 10) ? pickRewardLaws(state) : [],
+          rewardLaws: beatBoss && (wardenBeaten || rewriterBeaten || state.round === 10) ? pickRewardLaws(state) : [],
           stardust: (state.stardust || 0) + stardustGain,
           shards,
           relics,
@@ -2765,7 +2944,7 @@ function reduce(state, action) {
       return {
         ...state,
         phase: lives <= 0 ? 'gameover' : 'missed',
-        lastResult: { ...result, passed, threshold: state.threshold, secondWindTriggered },
+        lastResult: { ...result, passed, threshold: target, secondWindTriggered },
         lives: Math.max(0, lives),
         secondWindUsed,
         shards: state.shards + (fx.lifeLostShardBonus || 0),
@@ -3237,6 +3416,8 @@ function reduce(state, action) {
       return {
         ...state,
         shards: state.shards - cost,
+        // The Rolling Joke counts shop rerolls too (R4).
+        rerollsTotal: (state.rerollsTotal || 0) + 1,
         shop: { ...state.shop, ...fresh, rerollShopUses: state.shop.rerollShopUses + 1, restocks: (state.shop.restocks || 0) + 1 },
       }
     }
@@ -3402,7 +3583,7 @@ function reduce(state, action) {
       if (service.id === 'peek') {
         // The next Warden, like a Prophecy (it is fixed by the set).
         const round = [20, 25, 30].find((r) => r > state.round)
-        const warden = round && wardenFor(state.path, state.firmamentSet, round)
+        const warden = round && (rewriterAt(state, round) || wardenFor(state.path, state.firmamentSet, round))
         if (!warden) return state
         peek = { round, bossId: warden.id }
         next = { ...map, peeks: { ...(map.peeks || {}), [round]: warden.id } }
@@ -3479,6 +3660,22 @@ function reduce(state, action) {
       }
     }
 
+    // Through the second door (R1): the same run goes on into realm 3, rounds
+    // 31 to 45, with the path's Rewriters.
+    case 'ENTER_REALM3': {
+      if (state.phase !== 'crossroads' || state.realm !== 'firmament' || state.realm3 || !doorOpen3(state) || !realm3Sets(state).includes(action.set)) return state
+      const chronicle = state.chronicle ?? { bosses: [], shops: [] }
+      const next = {
+        ...state,
+        realm3: true,
+        realm3Set: action.set,
+        ending: null,
+        map: enterRealm3(state.map),
+        chronicle: { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: 'market' }] },
+      }
+      return { ...next, phase: 'bossReward', shop: { ...buildShopOffers(next, 'market'), afterBoss: true, firstRealm3: true } }
+    }
+
     case 'RETURN_HOME':
       return { ...baseTitleState(), phase: 'menu' }
 
@@ -3545,6 +3742,9 @@ export const selectors = {
   unlinkedNext,
   doorOpen,
   firmamentSets,
+  realm3Sets,
+  effectiveThreshold,
+  holdLimit,
   isFixedBoss,
   stardustPrice: STARDUST_PRICE,
   forgePlan,

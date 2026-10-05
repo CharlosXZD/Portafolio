@@ -78,3 +78,7 @@ export function finishCastScript(r) {
   while (cur.index < cur.steps.length) cur = applyCastStep(cur)
   return cur
 }
+
+/** The score a reveal has reached: Base x Mult, or Base + Mult under the Axiom (R2). */
+export const revealScore = (reveal) =>
+  Math.round(reveal.result?.addScore ? reveal.base + reveal.mult : reveal.base * reveal.mult)

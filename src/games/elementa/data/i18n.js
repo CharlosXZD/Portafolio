@@ -15,7 +15,11 @@ export function localize(lang, en, dict, id, field) {
   return dict[id]?.[field] ?? en
 }
 
+// The flag values of realm 3's dice (data/elements.js FLAGS), without importing it (it imports this file).
+const FLAG_KEYS = { ABS_ZERO: 'absZero', ABS_ONE: 'absOne', ABS_INFINITY: 'absInfinity', ABS_NEGATION: 'absNegation', BIT: 'bit', LIMIT: 'limit', PARITY: 'parity', DIVERGENCE: 'divergence', NUN: 'nun', MONAD: 'monad', APEIRON: 'apeiron', JANUS: 'janus', TWOS: 'twosComplement', REVBITS: 'reversedBits', ROLLJOKE: 'rollingJoke', UNDIV: 'undivisible' }
+
 export const ELEMENTS_ES = {
+  ...ABSTRACT_ES,
   earth: { name: 'Tierra', tagline: 'Relleno confiable. Sin riesgo, sin desventaja.' },
   fire: { name: 'Fuego', tagline: 'Volátil. Explota al máximo, se apaga con un 1.' },
   water: { name: 'Agua', tagline: 'Manipulación. Bloqueos gratis que recargan tus rerolls.' },
@@ -108,6 +112,8 @@ export const ELEMENTS_ES = {
 // Keyed by the flag's string value (FLAGS.EXPLODE === 'explode', etc.), not
 // by an id, since flag descriptions aren't per-item.
 export const FLAG_DESCRIPTIONS_ES = {
+  // Realm 3's dice (R3, R4): the flag text is the die's own line.
+  ...Object.fromEntries(Object.values(ABSTRACT_DEFS).map((d) => [FLAG_KEYS[d.flag], d.tagline.es])),
   explode: 'Sacar la cara máxima vuelve a tirar y suma de nuevo, encadenando.',
   zeroOnMin: 'Sacar un 1 anota 0 esta ronda.',
   freeLock: 'Puede bloquear su cara gratis (sin gastar un reroll).',
@@ -187,6 +193,8 @@ export const RELICS_ES = {
   law_greed: { name: 'Ley de la Codicia', description: 'Una Ley: cada 10 Fragmentos que tienes suma +1 Mult.' },
   law_echo: { name: 'Ley del Eco', description: 'Una Ley: tu dado de mayor puntaje cuenta dos veces.' },
   law_small: { name: 'Ley de las Cosas Pequeñas', description: 'Una Ley: tus d3 anotan x3 y tus d5 x2, como si fueran d10.' },
+  epsilon: { name: 'Épsilon', description: 'Tu Mult nunca se redondea hacia abajo, y +2 Mult.' },
+  release: { name: 'Liberación', description: 'Puedes guardar un dado más de lo que permita cualquier límite.' },
   crown_of_ages: {
     name: 'Corona de las Eras',
     description: 'Multiplica tu Mult por 1 + ronda / 20 (x1.75 en la ronda 15, x2.5 en la ronda 30).',
@@ -314,6 +322,7 @@ export const RELICS_ES = {
 
 import { CONSTELLATIONS_ES } from './constellations.js'
 import { TOTEMS_ES } from './totems.js'
+import { ABSTRACT_DEFS, ABSTRACT_ES } from './abstract.js'
 import { RUNES } from './runes.js'
 
 export const CONSUMABLES_ES = {
@@ -441,6 +450,8 @@ export function localizeBossModifier(modifier, lang) {
     ...modifier,
     name: localize(lang, modifier.name, BOSS_MODIFIERS_ES, modifier.id, 'name'),
     description: localize(lang, modifier.description, BOSS_MODIFIERS_ES, modifier.id, 'description'),
+    // A Rewriter's one-line nudge toward the counter (R2).
+    ...(modifier.hint ? { hint: localize(lang, modifier.hint, BOSS_MODIFIERS_ES, modifier.id, 'hint') } : {}),
   }
 }
 
@@ -486,6 +497,13 @@ export const BOSS_MODIFIERS_ES = {
     description: 'Después de cada reroll, un dado que acaba de tirarse se vuelve un elemento puro al azar por la ronda.',
   },
   hollow: { name: 'El Hueco', description: 'Todas las reliquias quedan selladas y no se pueden usar consumibles esta ronda.' },
+  // The Rewriters of realm 3 (EXPANSION.md R2).
+  axiom: { name: 'El Axioma', description: 'Tu puntaje es Base + Mult, no Base x Mult.', hint: 'Gana la Base plana: dados grandes, Piedra de Afilar, Aceite de Afilar, Oro. Los multiplicadores sirven poco.' },
+  zero: { name: 'Cero', description: 'Toda cara menor a 3 cuenta como 0, y se apaga.', hint: 'Dados grandes, Luminancia, Alba, Pesas y rerolls. Una reserva de d3 no sobrevive.' },
+  infinity: { name: 'Infinito', description: 'Nada tiene tope, pero el objetivo sube un 10% por cada reroll usado y un 5% por cada explosión de esta ronda.', hint: 'Pocos rerolls, explosiones grandes, lanza temprano. Ognen y el Cometa brillan.' },
+  observer: { name: 'El Observador', description: 'La cara de un dado está oculta hasta que pasas el cursor, lo tocas o lo enfocas. Lanzar las muestra todas.', hint: 'La Luminancia mantiene las caras visibles, y el Ojo de sigilo también. Menos dados, más grandes, se leen mejor al tacto.' },
+  floating: { name: 'Punto Flotante', description: 'Sin decimales: la Base y el Mult se redondean hacia abajo en cada paso del libro.', hint: 'Fuentes de números enteros, Mult plano, Marea. Todo bono de 0.5 o 1.5 desaparece.' },
+  deadlock: { name: 'Bloqueo Mortal', description: 'Solo puedes guardar o bloquear un dado a la vez.', hint: 'Estructuras que relanzan todo, Crono, Alba y pisos altos. Que las explosiones te lleven.' },
 }
 
 export const REACTIONS_ES = {
@@ -525,6 +543,16 @@ export const REACTIONS_ES = {
   slipstream: { name: 'Corriente', description: 'Ouranos junto a un dado de la familia del Aire: un atajo por el cielo. +3 Base, +2 Mult.' },
   frozen_moment: { name: 'Instante Helado', description: 'Tempus junto a Hielo: un instante, guardado. Suma la cara menor a la Base, +2 Mult.' },
   cascade: { name: 'Cascada', description: 'Entropía junto a un dado Mítico: cada Mítico recuerda que fue primero. +10 Base, +5 Mult.' },
+  absolute_zero: { name: 'Cero Absoluto', description: 'Nada que mueva al Agua: +2 Mult.' },
+  pilot_light: { name: 'Llama Piloto', description: 'Una llama sin nada que quemar: +4 Base.' },
+  bedrock: { name: 'Lecho de Roca', description: 'Nada bajo la Tierra: suma la cara menor a la Base, +1 Mult.' },
+  pinpoint: { name: 'Punto de Luz', description: 'Un solo punto brillante de Fuego: +3 Base, +1 Mult.' },
+  monotone: { name: 'Monotonía', description: 'Una nota constante sobre el Aire: +1.5 Mult.' },
+  runaway: { name: 'Desbocado', description: 'Fuego sin techo: +2.5 Mult.' },
+  endless_gale: { name: 'Vendaval Sin Fin', description: 'Un viento que nunca acaba: +4 Base, +1 Mult.' },
+  undertow: { name: 'Resaca', description: 'El Agua tira hacia el otro lado: suma la cara mayor a la Base, +1 Mult.' },
+  cold_flame: { name: 'Llama Fría', description: 'Fuego vuelto del revés: suma ambas caras a la Base.' },
+  binary: { name: 'Binario', description: 'Cero junto a Uno: todo es una cosa o la otra. +5 Base, +2 Mult.' },
   sunburst: { name: 'Estallido Solar', description: 'La Luz aviva un Fuego: +2 Mult.' },
   rainbow: { name: 'Arcoíris', description: 'La Luz atraviesa el Aire: +3 Base, +1 Mult.' },
   ink: { name: 'Tinta', description: 'La Oscuridad mancha el Agua: suma la cara mayor a la Base.' },

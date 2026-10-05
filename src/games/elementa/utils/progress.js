@@ -2,6 +2,8 @@
 // player has seen, and which achievements a given moment earns. Pure
 // "what should unlock" logic lives here; ElementaGame.jsx calls it and
 // writes the results through utils/profile.js.
+import { REWRITER_IDS } from '../data/realm3.js'
+import { ABSTRACT_FUSION_IDS, ABSOLUTE_IDS } from '../data/abstract.js'
 import { isSigilId, isGreaterSigil, SIGIL_SET_IDS, SIGIL_SETS } from '../data/sigils.js'
 import { DECKS } from '../data/decks.js'
 import { runesOf } from '../data/runes.js'
@@ -47,6 +49,9 @@ export function achievementsFromState(state) {
   if (levels.some((l) => l >= 5)) ids.push('stargazer')
   if (levels.some((l) => l >= 10)) ids.push('sky_cartographer')
   if (state.dice.some((d) => runesOf(d).length > 0)) ids.push('runesmith')
+  // Realm 3 (R5): a forged Abstract fusion or Absolute die, and round 45.
+  ;[...ABSTRACT_FUSION_IDS, ...ABSOLUTE_IDS].forEach((id) => state.dice.some((d) => d.elementId === id) && ids.push(`forged_${id}`))
+  if (state.realm3 && state.round >= 45) ids.push('out_of_order')
   // Sigil dice (P4).
   if (state.dice.some((d) => isSigilId(d.elementId))) ids.push('sigil_bearer')
   if (SIGIL_SET_IDS.every((k) => state.dice.some((d) => d.elementId === SIGIL_SETS[k].normal))) ids.push('whole_pantheon')
@@ -98,6 +103,9 @@ export function achievementsFromProfile(profile) {
   const mythics = (profile.recipes || []).filter((id) => MYTHIC_DIE_IDS.includes(id))
   if (mythics.length >= 1) ids.push('first_myth')
   if (mythics.length >= MYTHIC_DIE_IDS.length) ids.push('six_unspoken')
+  const rewriters = profile.rewriters || []
+  REWRITER_IDS.forEach((id) => rewriters.includes(id) && ids.push(`rw_${id}`))
+  if (REWRITER_IDS.every((id) => rewriters.includes(id))) ids.push('rewritten')
   const wardens = profile.wardens || []
   if (wardens.length >= 1) ids.push('first_warden')
   if (wardens.length >= 6) ids.push('all_wardens')
