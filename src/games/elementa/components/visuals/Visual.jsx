@@ -28,7 +28,7 @@ export default function Visual({ id, scale = 4, native = 24, className, ...rest 
   }
   return (
     <Suspense fallback={<span style={{ display: 'inline-block', width: native * scale, height: native * scale }} />}>
-      <Lazy {...entry.props} {...rest} scale={scale} native={native} className={className} />
+      <Lazy {...entry.props} fallbackSprite={entry.fallbackSprite} {...rest} scale={scale} native={native} className={className} />
     </Suspense>
   )
 }

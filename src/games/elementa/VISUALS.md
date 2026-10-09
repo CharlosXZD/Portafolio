@@ -2,7 +2,7 @@
 
 The plan for making Elementa look and move much better: item models, event backgrounds, cinematics, the map, characters and their small animations. It is built **in small phases, one at a time**, like the game itself. Each phase ends with a playable game, a Visual Lab page to look at the new work, patch notes and a report. Carlos reviews a phase before the next one is written in detail.
 
-Status: **V1 is Ready. V2 to V8 are Proposed** (each gets a full spec after the one before it is built and reviewed). Carlos's direction (2026-10-08): **pixel art in feel, but crisp and premium, and the game must feel alive**: menus and shops most of all should feel like magical places where people actually live, not squares on a background.
+Status: **V1 is Built (2026-10-08, Alpha 0.9.6, see `VISUALS_V1_REPORT.md`). V2 to V8 are Proposed** (each gets a full spec after the one before it is built and reviewed). Carlos's direction (2026-10-08): **pixel art in feel, but crisp and premium, and the game must feel alive**: menus and shops most of all should feel like magical places where people actually live, not squares on a background.
 
 ## 0. For the agent: read this first
 
@@ -65,7 +65,7 @@ Carlos will draw his own art for v1.0. Every new asset is looked up **by id** th
 
 Each phase is one release: "Alpha v0.9.x" patch notes in `data/patchNotes.js` and EXPANSION Part D, a CONTENT or GDD note, the Visual Lab page updated, and a report. A phase is done when Carlos has seen it and said yes.
 
-### V1: Foundations and the Visual Lab (Ready)
+### V1: Foundations and the Visual Lab (Built, waiting for Carlos's review)
 
 Goal: prove the tools and set the rules before any mass work. Nothing user-facing changes except new routes.
 

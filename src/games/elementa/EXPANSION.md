@@ -578,7 +578,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.9.5** | The Convergence | **Built.** Part T: the Rush (one boss at a time, shops between except on Cataclysm), Pip's callback fight, the ghost duel (multi-cast, it steals and interferes), the Cataclysm best build, new loadouts (Climate, Lottery, Quintessence). Becomes Ready after the best-build result. |
 | **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
 | **(old)** | Rewriting reality | Became v0.9 (Realm 3) and v0.9.5 (Convergence). |
-| **(visuals)** | Visual overhaul | **V1 Ready** (`VISUALS.md`): foundations, the Visual Lab, Remotion and 3D spikes; V2 to V7 Proposed (items, backgrounds, cinematics, the map, characters, polish). Runs between v0.9.5 and v1.0, in small phases released as Alpha 0.9.6 and up. |
+| **(visuals)** | Visual overhaul | **V1 Built** (Alpha 0.9.6, `VISUALS_V1_REPORT.md`): foundations, the Visual Lab, Remotion and 3D spikes, the Market slice; V2 to V7 Proposed (items, backgrounds, cinematics, the map, characters, polish). Runs between v0.9.5 and v1.0, in small phases released as Alpha 0.9.6 and up. |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
 | **Beta v0.1** | Cinematics and depth | Part G Q4b: full animated cinematics, 3D-style item sprites like the dice, and more interesting items and synergies. The beta starts after Alpha v1.0. |
 
@@ -587,6 +587,13 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.9.6 "Visual foundations" (in development, unreleased)
+- **The Visual Lab** (`/games/elementa/visuals`, linked from Options next to the Jukebox): every new visual lives here first. Language and Reduced motion switches that only change the page, a frame-rate readout, the registry of assets, and a sound-hook log. Nothing in a run changes.
+- **A lived-in Market** as the "feel test" for every later shop: a layered room (wall, window with a living dusk sky, light shafts, lanterns that flicker, drifting dust, a sleeping fox), Tobb behind his counter who glances, answers and nods, and items that rock, lift, fly to the counter and leave a clean gap.
+- **Three spikes:** a 6 second Remotion title card played by the new `CinematicPlayer` (skip, replay, Reduced motion shows the last frame), relics and dice rendered as cached 24 by 24 pixel 3D atlases, and Brasa and Tobb as layered SVG rigs (breathing, blink, talking mouth, glance, nod).
+- **Swappable art:** every new asset is looked up by id through `data/visualRegistry.js`; a PNG, WebP or SVG named after the id in `public/elementa/visuals/` replaces the code-made version with no code changes (`ASSETS.md` section 8).
+- Bundle budget script (`tools/visualBudget.mjs`) and the audit of every current visual (`VISUALS_AUDIT.md`).
 
 ### Alpha v0.9.5 "The Convergence" (in development, unreleased)
 - **The Unwritten:** after round 45 every path reaches a last door. Anyone who arrives may enter and gets a secret achievement, a completion mark and +2 Stardust at the start of every later run.

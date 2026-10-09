@@ -155,7 +155,7 @@ export default function TitleCard({ lang = 'en' }) {
       <div style={{ position: 'absolute', left: 0, right: 0, top: 410, display: 'flex', justifyContent: 'center', gap: 22 }}>
         {ELEMENT_COLORS.map((c, i) => {
           const p = spring({ frame: frame - (112 + i * 5), fps, config: { damping: 9, mass: 0.5 } })
-          return <div key={c} style={{ width: 20, height: 20, background: c, border: `4px solid ${INK}`, scale: String(Math.max(0, p)) , opacity: Math.min(1, p * 3) }} />
+          return <div key={c} style={{ width: 20, height: 20, background: c, border: `4px solid ${INK}`, scale: String(0.6 + 0.4 * Math.max(0, p)), opacity: Math.min(1, Math.max(0, p) * 3) }} />
         })}
       </div>
 

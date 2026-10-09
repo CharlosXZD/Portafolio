@@ -93,3 +93,20 @@ Keep the middle 60% of the table and shop scenes calm and dark: that's where the
 3. Stone panel + gold button 9-slices, which re-skin every menu at once.
 4. One background (the arcane table).
 5. Everything else.
+
+## 8. Swapping any new visual for your own art (the registry rule)
+
+The visual overhaul (`VISUALS.md`) never imports its assets directly. Every new visual has an **id** in `data/visualRegistry.js` (for example `spike.relic.ember_heart`, `rig.keeper.tobb`, `room.market`), and the game asks the registry for the id. The registry says what the id is today: `code` (drawn by code), `three` (a cached low-resolution 3D render), `remotion` (a composition) or `image` (a file).
+
+**To replace a code-made visual with your own drawing, with no code changes:** save a file named exactly like the id in `public/elementa/visuals/`:
+
+```
+public/elementa/visuals/spike.relic.ember_heart.png
+public/elementa/visuals/rig.keeper.tobb.svg
+```
+
+- Accepted formats, tried in this order: `.png`, `.webp`, `.svg`. The first one found wins.
+- Draw at the **native size** from section 2 to 6 above (24 x 24 for items) and the game scales it by a whole number with `image-rendering: pixelated`. The registry does not smooth or resize art.
+- The lookup is a small request made the first time an id is shown and remembered for the session. In the Visual Lab (`/games/elementa/visuals`) the "showing" column says `image (file)` for every id that found a file, and "Look for files again" re-checks after you drop one in.
+- A file replaces the whole visual for that id. For a layered rig that means a still picture instead of the moving rig, so use it only when the art is meant to be still.
+- Ids are lowercase with dots between the category, the kind and the name. New ids are added to `data/visualRegistry.js`, never invented in components.

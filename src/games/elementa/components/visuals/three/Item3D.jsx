@@ -73,7 +73,8 @@ function Item3D({ shape, color, rarity = 'common', scale = 4, fallbackSprite, fl
   }, [atlas, reduced])
 
   function onMove(e) {
-    if (reduced) return
+    // Hover is a mouse thing: a finger dragging across the screen should not tilt items.
+    if (reduced || e.pointerType !== 'mouse') return
     const r = rootRef.current.getBoundingClientRect()
     const fx = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width))
     const fy = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height))
@@ -98,7 +99,7 @@ function Item3D({ shape, color, rarity = 'common', scale = 4, fallbackSprite, fl
       {rarity !== 'common' && <span className="v-item3d__halo" data-still={reduced ? '' : undefined} />}
       <span className="v-item3d__tilt" style={{ transform: `perspective(${size * 2}px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)` }}>
         {useFallback ? (
-          fallbackSprite && <PixelSprite {...fallbackSprite} size={Math.round(size * 0.6)} />
+          fallbackSprite && <PixelSprite {...fallbackSprite} size={12 * Math.max(1, Math.round((size * 0.85) / 12))} />
         ) : (
           <canvas ref={canvasRef} width={NATIVE} height={NATIVE} style={{ width: size, height: size, imageRendering: 'pixelated', opacity: atlas ? 1 : 0 }} />
         )}

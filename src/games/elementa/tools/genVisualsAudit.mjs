@@ -188,7 +188,7 @@ w(`- **V3 rooms:** start from the V1 Market slice (\`components/visuals/MarketRo
 w(`- **V4 menus:** one panel material and one button system first (ASSETS.md section 4 already describes the 9-slice), then screens.`)
 w(`- **V5 cinematics:** Remotion Player is cheap enough lazy-loaded (V1 report); keep text as live bilingual text.`)
 w(`- **V6 map:** new layout over the same \`engine/map.js\` data.`)
-w(`- **V7 characters:** extend the V1 rig (\`visuals/rigs\`) with expressions and boss intro animations.`)
+w(`- **V7 characters:** extend the V1 rig (\`components/visuals/rigs\`) with expressions and boss intro animations.`)
 w(`- **V8:** token file for easings and durations, the two CSS fixes above, a phone performance pass.`)
 writeFileSync(root + 'VISUALS_AUDIT.md', md)
 console.log(md.length, 'chars')

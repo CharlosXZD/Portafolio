@@ -316,5 +316,5 @@ Nothing above was changed in V1 (the brief says read-only for the real game).
 - **V4 menus:** one panel material and one button system first (ASSETS.md section 4 already describes the 9-slice), then screens.
 - **V5 cinematics:** Remotion Player is cheap enough lazy-loaded (V1 report); keep text as live bilingual text.
 - **V6 map:** new layout over the same `engine/map.js` data.
-- **V7 characters:** extend the V1 rig (`visuals/rigs`) with expressions and boss intro animations.
+- **V7 characters:** extend the V1 rig (`components/visuals/rigs`) with expressions and boss intro animations.
 - **V8:** token file for easings and durations, the two CSS fixes above, a phone performance pass.

@@ -12,6 +12,30 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.6',
+    name: L('Visual foundations', 'Cimientos visuales'),
+    date: null,
+    highlights: [
+      L(
+        'A new page, the Visual Lab, in Options next to the Jukebox. It is where the game\'s new look is built and judged before it reaches a run. Nothing in your runs changes yet.',
+        'Una página nueva, el Laboratorio Visual, en Opciones junto a la Rockola. Ahí se construye y se prueba el nuevo aspecto del juego antes de que llegue a una partida. Por ahora nada cambia en tus partidas.',
+      ),
+      L(
+        'A first lived-in shop: the Market as a real room, with a window and a moving sky, lanterns, dust in the light, a sleeping fox, and Tobb behind his counter. Items rock when you hover, lift when you pick them, fly to the counter when you buy them, and leave a clean gap on the shelf.',
+        'Una primera tienda habitada: el Mercado como una sala de verdad, con ventana y cielo en movimiento, faroles, polvo en la luz, un zorro dormido y Tobb detrás de su mostrador. Los objetos se mecen al pasar el cursor, se levantan al elegirlos, vuelan al mostrador al comprarlos y dejan un hueco limpio en el estante.',
+      ),
+      L(
+        'Three tests of what is coming: a short animated title card, relics and dice drawn as tiny turning 3D objects, and a keeper (Brasa, Tobb) built from layers that breathes, blinks and talks.',
+        'Tres pruebas de lo que viene: una breve carta de título animada, reliquias y dados dibujados como pequeños objetos 3D que giran, y un guardián (Brasa, Tobb) hecho de capas que respira, parpadea y habla.',
+      ),
+      L(
+        'Everything respects Reduced motion, and the Lab has an English and Spanish switch. Hand-drawn art will be able to replace any of it just by dropping a file with the right name.',
+        'Todo respeta el Movimiento reducido, y el Laboratorio tiene un cambio entre inglés y español. El arte dibujado a mano podrá reemplazar cualquier cosa con solo poner un archivo con el nombre correcto.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.5',
     name: L('The Convergence', 'La Convergencia'),
     date: null,

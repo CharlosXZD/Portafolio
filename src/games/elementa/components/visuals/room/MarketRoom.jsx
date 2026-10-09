@@ -119,13 +119,19 @@ export default function MarketRoom() {
     return () => clearInterval(id)
   }, [say.id, say.full, reduced])
 
-  // Hide the bubble a while after the line finishes.
+  // Hide the bubble a while after the line finishes: a quick fade first (the exit is faster than the entrance), then gone.
   const typing = say.full && shown < say.full.length
+  const [fading, setFading] = useState(false)
   useEffect(() => {
+    setFading(false)
     if (!say.full || typing) return
-    const id = setTimeout(() => setSay({ id: say.id, full: '' }), 3600)
-    return () => clearTimeout(id)
-  }, [typing, say.full, say.id])
+    const fade = setTimeout(() => setFading(true), 3600)
+    const gone = setTimeout(() => setSay({ id: say.id, full: '' }), reduced ? 3600 : 3780)
+    return () => {
+      clearTimeout(fade)
+      clearTimeout(gone)
+    }
+  }, [typing, say.full, say.id, reduced])
 
   // Greet once when the room appears.
   useEffect(() => {
@@ -293,7 +299,7 @@ export default function MarketRoom() {
           {quality !== 'low' && <Motes />}
 
           {shownLine && (
-            <div className="v-bubble-box" aria-hidden="true">
+            <div className="v-bubble-box" data-leaving={fading ? '' : undefined} aria-hidden="true">
               {shownLine}
               {typing ? <span className="v-caret" /> : null}
             </div>
