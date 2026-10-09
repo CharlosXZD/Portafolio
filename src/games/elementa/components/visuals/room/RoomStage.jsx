@@ -92,18 +92,18 @@ function Tint({ realm, calm }) {
   )
 }
 
-function RoomArt({ room, calm, realm, keeper, tone }) {
+function RoomArt({ room, calm, realm, keeper, tone, meter }) {
   const { Back, Ambient, Front, motes } = room
-  const lights = typeof room.lights === 'function' ? room.lights(tone) : room.lights
+  const lights = typeof room.lights === 'function' ? room.lights(tone, meter) : room.lights
   return (
     <>
       <svg className="r-layer" viewBox={`0 0 ${W} ${H}`} width={W} height={H} shapeRendering="crispEdges" aria-hidden="true">
-        <Back realm={realm} tone={tone} />
+        <Back realm={realm} tone={tone} meter={meter} />
       </svg>
       <Lights lights={lights ?? []} calm={calm} />
       {!calm && Ambient && (
         <svg className="r-layer" viewBox={`0 0 ${W} ${H}`} width={W} height={H} shapeRendering="crispEdges" aria-hidden="true">
-          <Ambient realm={realm} tone={tone} />
+          <Ambient realm={realm} tone={tone} meter={meter} />
         </svg>
       )}
       {keeper && (
@@ -131,7 +131,7 @@ function RoomArt({ room, calm, realm, keeper, tone }) {
  * Reduced motion switches every loop off; the low-end tier draws only the
  * static layers.
  */
-export default function RoomStage({ roomId, realm = 'elementa', tone, framed = false, dim = 1, keeper = null, onCount }) {
+export default function RoomStage({ roomId, realm = 'elementa', tone, meter = 0, framed = false, dim = 1, keeper = null, onCount }) {
   const { reduced, quality } = useVisualEnv()
   const calm = quality === 'low'
   const rootRef = useRef(null)
@@ -186,7 +186,7 @@ export default function RoomStage({ roomId, realm = 'elementa', tone, framed = f
     >
       <div className="r-stage" style={{ transform: `translate(${left}px, ${top}px) scale(${scale})` }}>
         <Suspense fallback={null}>
-          <RoomLoaded Room={Room} calm={calm} realm={realm} keeper={keeper} tone={tone} />
+          <RoomLoaded Room={Room} calm={calm} realm={realm} keeper={keeper} tone={tone} meter={meter} />
         </Suspense>
         {dim > 0 && <div className="r-dim" style={{ '--dim-core': 0.5 * dim, '--dim-mid': 0.32 * dim, opacity: 1 }} />}
       </div>
@@ -195,6 +195,6 @@ export default function RoomStage({ roomId, realm = 'elementa', tone, framed = f
 }
 
 // A room module exports its art as the default export of a lazy chunk; this wrapper reads it.
-function RoomLoaded({ Room, calm, realm, keeper, tone }) {
-  return <Room>{(room) => <RoomArt room={room} calm={calm} realm={realm} keeper={keeper} tone={tone} />}</Room>
+function RoomLoaded({ Room, calm, realm, keeper, tone, meter }) {
+  return <Room>{(room) => <RoomArt room={room} calm={calm} realm={realm} keeper={keeper} tone={tone} meter={meter} />}</Room>
 }

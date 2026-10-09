@@ -12,6 +12,30 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.8',
+    name: L('Shop rooms', 'Salas de las tiendas'),
+    date: null,
+    highlights: [
+      L(
+        'Every shop is now a room where someone lives: Brasa at her forge with sparks and a pumping bellows, Vessa beside a bubbling cauldron, the Curator among cases and a rolling ladder, Nix in an alley under an eclipse, Aeris in a temple of feathers and light, and more. The Crossroads, the table, boss fights and the Unwritten have their own backdrops too.',
+        'Cada tienda es ahora una sala donde vive alguien: Brasa en su forja con chispas y un fuelle que bombea, Vessa junto a un caldero que burbujea, el Curador entre vitrinas y una escalera rodante, Nix en un callejón bajo un eclipse, Aeris en un templo de plumas y luz, y más. La Encrucijada, la mesa, los jefes y Lo No Escrito también tienen su propio fondo.',
+      ),
+      L(
+        'The shopkeepers breathe, blink and talk while they speak, nod when you pick something, hop when you buy, and grumble when you cannot afford it. Vesper has her own corner of the Forge in the Firmament, and Mote\'s watching Void brightens as it is fed.',
+        'Los tenderos respiran, parpadean y hablan mientras dicen su línea, asienten cuando eliges algo, saltan cuando compras y refunfuñan cuando no te alcanza. Vesper tiene su propio rincón en la Forja del Firmamento, y el Vacío de Mote brilla más a medida que lo alimentas.',
+      ),
+      L(
+        'The realms tint every room: warm in the Elementa, cold violet in the Firmament, gridded in the Empyrean, dissolving in the Pleroma, swinging in the Meridian. Reduced motion stops everything; slower devices get still rooms.',
+        'Los reinos tiñen cada sala: cálida en Elementa, violeta fría en el Firmamento, con cuadrícula en el Empíreo, que se disuelve en el Pleroma y que oscila en el Meridiano. El Movimiento reducido lo detiene todo; los dispositivos lentos reciben salas quietas.',
+      ),
+      L(
+        'In the Gallery, things you have not found yet now show their dark outline instead of a question mark.',
+        'En la Galería, lo que aún no has encontrado muestra su silueta oscura en lugar de un signo de interrogación.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.7',
     name: L('Item models', 'Modelos de objetos'),
     date: null,

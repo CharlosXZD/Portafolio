@@ -578,7 +578,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.9.5** | The Convergence | **Built.** Part T: the Rush (one boss at a time, shops between except on Cataclysm), Pip's callback fight, the ghost duel (multi-cast, it steals and interferes), the Cataclysm best build, new loadouts (Climate, Lottery, Quintessence). Becomes Ready after the best-build result. |
 | **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
 | **(old)** | Rewriting reality | Became v0.9 (Realm 3) and v0.9.5 (Convergence). |
-| **(visuals)** | Visual overhaul | **V1 Built** (Alpha 0.9.6, `VISUALS_V1_REPORT.md`) and **V2 Built** (Alpha 0.9.7, `VISUALS_V2_REPORT.md`): foundations, the Visual Lab, Remotion and 3D spikes, the Market slice, item models; V3 to V7 Proposed (items, backgrounds, cinematics, the map, characters, polish). Runs between v0.9.5 and v1.0, in small phases released as Alpha 0.9.6 and up. |
+| **(visuals)** | Visual overhaul | **V1 Built** (Alpha 0.9.6, `VISUALS_V1_REPORT.md`) and **V2 Built** (Alpha 0.9.7, `VISUALS_V2_REPORT.md`) and **V3 Built** (Alpha 0.9.8, `VISUALS_V3_REPORT.md`): foundations, the Visual Lab, Remotion and 3D spikes, the Market slice, item models, shop rooms and event backdrops; V4 to V7 Proposed (menus, cinematics, the map, characters, polish). Runs between v0.9.5 and v1.0, in small phases released as Alpha 0.9.6 and up. |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
 | **Beta v0.1** | Cinematics and depth | Part G Q4b: full animated cinematics, 3D-style item sprites like the dice, and more interesting items and synergies. The beta starts after Alpha v1.0. |
 
@@ -587,6 +587,14 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.9.8 "Shop rooms" (in development, unreleased)
+- **Every shop is a lived-in room** (`components/visuals/room/`): Market, Forge (with Vesper's corner in the Firmament), Alchemist, Relic Vault, Black Market, Shrine, Aether Bazaar, Astral Exchange, Cartography, Clockwork, Observatory, Pantry and the Camp. Each has at least six props that say who lives there, a light of its own, drifting specks and a moving detail (sparks, bubbles, a pendulum, a drawing constellation, a Void that brightens as Mote is fed). One engine draws them in a 320 by 180 art box scaled by whole numbers, behind the shop's own screen, dimmed so prices stay readable.
+- **Event backdrops:** the Crossroads (a door in the sky), boss fights (a stage in the boss's tone), the table, and the Unwritten (a page that erases itself). Realm tints shift the palette: Elementa warm, Firmament cold violet, Empyrean gridded, Pleroma dissolving, Meridian swinging. The old PixelBackdrop is the fallback and still draws the menus.
+- **Keeper rigs for all 12 keepers** replace the flat portrait in the shop header: idle breathing, blink, a talking mouth while the line is read, and reactions to a room event bus (`welcome`, `hover`, `pick`, `buy`, `bell`, `broke`, `restock`, `sell`, `leave`). The bus plays no sound; it is the hook list for V4.
+- **Gallery silhouettes:** unseen dice, relics and items show their dark model shape instead of "?", with "???" text and no family or rarity color.
+- **Performance:** each room is a lazy chunk of about 0.6 to 1.1 kB gzip (plus a shared 2 kB engine); Reduced motion stops every loop, the low-end tier draws only the static layers and the keeper's blink.
+- Lab "Rooms" page (`/games/elementa/visuals/rooms`) and test saves (`tools/roomTestSaves.mjs`).
 
 ### Alpha v0.9.7 "Item models" (in development, unreleased)
 - **Every relic, consumable, rune, Constellation, Totem and Law (115 items) is a cached 3D model**, 24 by 24 pixels and 16 frames, drawn from about 20 parameterized generator families (`components/visuals/three/itemGenerators.js`) and one table, `data/itemModels.js`. The element colors the item, rarity sets the trim and glow, and each has a signature detail from its `itemConcept`. Dice are not included: they keep their shaped sprite, element color, symbol and `ElementFx`.

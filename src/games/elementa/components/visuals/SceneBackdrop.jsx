@@ -26,7 +26,7 @@ export function roomFor(state) {
   const realm = state.realm3 ? realm3For(state.path).id : state.realm === 'firmament' ? 'firmament' : 'elementa'
   if (state.phase === 'shop' || state.phase === 'bossReward') {
     const type = state.shop?.type
-    return ROOM_LOADERS[type] ? { id: type, realm } : null
+    return ROOM_LOADERS[type] ? { id: type, realm, meter: type === 'pantry' ? Math.min(1, (state.moteFed || 0) / 40) : 0 } : null
   }
   if (state.phase === 'crossroads') return { id: 'crossroads', realm }
   if (state.phase === 'rolling' || state.phase === 'missed') {
@@ -42,7 +42,7 @@ export default function SceneBackdrop({ state, scene }) {
   return (
     <Fallback key={room.id} fallback={old}>
       <Suspense fallback={old}>
-        <RoomStage roomId={room.id} realm={room.realm} tone={room.tone} dim={1} />
+        <RoomStage roomId={room.id} realm={room.realm} tone={room.tone} meter={room.meter} dim={room.id === 'crossroads' ? 1.7 : 1} />
       </Suspense>
     </Fallback>
   )

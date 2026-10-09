@@ -1,4 +1,4 @@
-import { Anvil, Barrel, Beam, Crate, Floor, ForgeMouth, Notice, Pillar, Rug, Sign, Stones } from '../props.jsx'
+import { Anvil, Barrel, Beam, Crate, Floor, ForgeMouth, Notice, Orrery, Pillar, Rug, Sign, Stones } from '../props.jsx'
 import { Flame, GearSpin, Sparks, Steam, Sway, Pulse } from '../props.jsx'
 
 // The Forge (Brasa; Vesper joins her in the Firmament): a stone smithy around
@@ -28,7 +28,19 @@ function Ingots({ x, y }) {
   )
 }
 
-function Back() {
+// Vesper's corner (the Firmament): star-charts pinned up and a small orrery on a stand.
+function VesperCorner() {
+  return (
+    <>
+      <Notice x={206} y={62} w={22} h={26} c="#2c3a6a" ink="#9fb8ff" lines={4} />
+      <Notice x={232} y={66} w={18} h={22} c="#24305a" ink="#9fb8ff" lines={3} />
+      <rect x="270" y="100" width="4" height="26" fill="#4a4a6a" />
+      <Orrery x={272} y={90} r={14} c="#9fb8ff" core="#ffd166" />
+    </>
+  )
+}
+
+function Back({ realm }) {
   return (
     <>
       <Stones a="#3a2c34" b="#443640" mortar="#1d1218" />
@@ -49,6 +61,7 @@ function Back() {
       <Crate x={120} y={132} w={20} h={18} a="#3a2c34" hi="#5a4a54" band="#241418" />
       <Rug x={96} y={150} w={100} h={12} a="#5a1a22" />
       <Sign x={20} y={22} w={44} c="#2a1812" />
+      {realm === 'firmament' && <VesperCorner />}
     </>
   )
 }

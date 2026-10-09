@@ -55,6 +55,7 @@ function Rooms() {
   const [qualityMode, setQualityMode] = useState(() => params.get('quality') ?? 'auto')
   const [room, setRoom] = useState(() => (ROOM_IDS.includes(params.get('room')) ? params.get('room') : 'market'))
   const [realm, setRealm] = useState(() => (REALMS.includes(params.get('realm')) ? params.get('realm') : 'elementa'))
+  const [meter, setMeter] = useState(() => Number(params.get('meter') ?? 0.5))
   const [withKeeper, setWithKeeper] = useState(() => params.get('keeper') !== '0')
   const [probed, setProbed] = useState(null)
   const [anims, setAnims] = useState(0)
@@ -145,6 +146,12 @@ function Rooms() {
               <input type="checkbox" checked={withKeeper} onChange={(e) => setWithKeeper(e.target.checked)} />
               {tx.keeper[lang]}
             </label>
+            {room === 'pantry' && (
+              <label className="flex items-center gap-2 text-base text-[var(--text-dim)]">
+                {lang === 'es' ? 'Medidor de Mote' : "Mote's meter"}
+                <input type="range" min="0" max="1" step="0.05" value={meter} onChange={(e) => setMeter(Number(e.target.value))} />
+              </label>
+            )}
             <div className="flex items-center gap-2">
               <span className="el-label">{tx.quality[lang]}</span>
               {[['auto', tx.auto], ['low', tx.forceLow], ['high', tx.forceHigh]].map(([k, label]) => (
@@ -178,7 +185,7 @@ function Rooms() {
           </section>
 
           <div className="mx-auto w-full max-w-[960px]" style={{ border: '3px solid var(--ink)', boxShadow: '0 0 0 3px var(--wood-2), 6px 6px 0 3px rgba(0,0,0,0.5)' }}>
-            <RoomStage roomId={room} realm={realm} framed dim={0} keeper={keeper} onCount={setAnims} />
+            <RoomStage roomId={room} realm={realm} meter={meter} framed dim={0} keeper={keeper} onCount={setAnims} />
           </div>
 
           {keeperId && (

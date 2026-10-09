@@ -15,7 +15,7 @@ function Back() {
       ))}
       <rect x="122" y="40" width="76" height="90" fill="#2a2150" />
       <rect x="128" y="46" width="64" height="84" fill="#120c28" />
-      <rect x="134" y="52" width="52" height="78" fill="#d9b8ff" opacity="0.5" />
+      <rect x="134" y="52" width="52" height="78" fill="#d9b8ff" opacity="0.22" />
       <rect x="122" y="36" width="76" height="6" fill="#4a3f7a" />
       <rect x="116" y="130" width="88" height="6" fill="#4a3f7a" />
     </>
@@ -26,7 +26,7 @@ function Ambient() {
     <>
       <Twinkles stars={STARS} />
       <Pulse dur={4} lo={0.35}>
-        <rect x="142" y="60" width="36" height="62" fill="#ffffff" opacity="0.3" />
+        <rect x="142" y="60" width="36" height="62" fill="#ffffff" opacity="0.14" />
       </Pulse>
       <Bob dur={6} amp={2}><rect x="60" y="100" width="6" height="6" fill="#9fd8ff" /></Bob>
       <Bob dur={8} amp={2} delay={-3}><rect x="256" y="96" width="6" height="6" fill="#ffd166" /></Bob>
@@ -37,7 +37,7 @@ const room = {
   id: 'crossroads',
   Back,
   Ambient,
-  lights: [{ x: 160, y: 90, r: 100, c: '#d9b8ff', o: 0.4 }],
+  lights: [{ x: 160, y: 90, r: 100, c: '#d9b8ff', o: 0.25 }],
   motes: { kind: 'star', count: 12, area: [10, 10, 310, 120] },
 }
 export default function CrossroadsRoom({ children }) {
