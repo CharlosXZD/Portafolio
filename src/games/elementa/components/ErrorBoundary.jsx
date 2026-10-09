@@ -1,5 +1,6 @@
 import { Component } from 'react'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
+import { openFeedback } from '../utils/feedback.js'
 
 // Catches a crash anywhere in the game so the page never goes blank. The
 // run is autosaved (utils/saveManager.js), so reloading loses nothing but the
@@ -32,6 +33,10 @@ function Fallback({ error, onRetry }) {
           </button>
           <button type="button" className="el-btn" onClick={() => window.location.reload()}>
             {es ? 'Recargar' : 'Reload'}
+          </button>
+          {/* Opens the contact form with the error text in a draft; nothing is sent (T8). */}
+          <button type="button" className="el-btn" onClick={() => openFeedback(lang, error)}>
+            {es ? 'Enviar comentarios' : 'Send feedback'}
           </button>
         </div>
       </div>

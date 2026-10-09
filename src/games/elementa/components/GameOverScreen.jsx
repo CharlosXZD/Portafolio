@@ -1,3 +1,4 @@
+import FeedbackButton from './FeedbackButton.jsx'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
@@ -186,6 +187,7 @@ export default function GameOverScreen({ state, dispatch, victory = false, endin
         >
           {t('elementa.gameOver.returnHome')}
         </button>
+        <FeedbackButton className="el-btn el-btn--lg" />
       </div>
       {victory && <p className="text-sm text-[var(--text-mute)]">{t('elementa.gameOver.endlessHint')}</p>}
     </motion.div>

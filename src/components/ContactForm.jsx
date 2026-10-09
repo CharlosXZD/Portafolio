@@ -1,6 +1,8 @@
 import { useForm, ValidationError } from '@formspree/react'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
+import { takeFeedbackPrefill } from '../utils/feedback.js'
 
 const FORM_ID = import.meta.env.VITE_FORMSPREE_ID
 
@@ -32,6 +34,8 @@ const errorClass = 'mt-1.5 text-xs text-red-500'
 function ContactForm() {
   const { t } = useLanguage()
   const [state, handleSubmit, reset] = useForm(FORM_ID)
+  // A game can hand over a drafted message (/?feedback=...#contact); read once, never sent by itself.
+  const [prefill] = useState(() => takeFeedbackPrefill())
 
   if (state.succeeded) {
     return (
@@ -104,7 +108,8 @@ function ContactForm() {
           id="message"
           name="message"
           required
-          rows={4}
+          rows={prefill ? 8 : 4}
+          defaultValue={prefill}
           className={`mt-1.5 resize-none ${fieldClass}`}
           placeholder={t('contact.form.messagePlaceholder')}
         />

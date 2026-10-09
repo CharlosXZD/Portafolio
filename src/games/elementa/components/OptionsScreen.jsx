@@ -12,6 +12,7 @@ import {
 import { playClick, refreshMusicVolume, applyMusicEnabled } from '../utils/sound.js'
 import Modal from './Modal.jsx'
 import BackupControls from './BackupControls.jsx'
+import FeedbackButton from './FeedbackButton.jsx'
 import { resetTutorial } from '../utils/tutorial.js'
 import PatchNotesScreen from './PatchNotesScreen.jsx'
 import { useFourthWall } from '../utils/useFourthWall.js'
@@ -227,6 +228,11 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         <Toggle label={t('elementa.options.keyHints')} checked={display.keyHints} onChange={(v) => updateDisplay({ keyHints: v })} />
         <Toggle label={t('elementa.options.liveTotal')} checked={display.liveTotal} onChange={(v) => updateDisplay({ liveTotal: v })} />
         <Toggle label={t('elementa.options.ledgerOpen')} checked={display.ledgerOpen} onChange={(v) => updateDisplay({ ledgerOpen: v })} />
+      </Section>
+
+      <Section title={t('elementa.feedback.title')}>
+        <p className="text-sm text-[var(--text-mute)]">{t('elementa.feedback.note')}</p>
+        <FeedbackButton className="el-btn el-btn--sm w-fit" />
       </Section>
 
       <Section title={t('elementa.backup.title')}>

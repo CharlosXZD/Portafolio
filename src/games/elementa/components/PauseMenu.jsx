@@ -5,6 +5,7 @@ import ConfirmButton from './ConfirmButton.jsx'
 import OptionsScreen from './OptionsScreen.jsx'
 import Modal from './Modal.jsx'
 import GalleryScreen from './GalleryScreen.jsx'
+import FeedbackButton from './FeedbackButton.jsx'
 
 /**
  * Pause overlay, opened by Escape or the on-screen pause button (see
@@ -61,6 +62,7 @@ export default function PauseMenu({ slot, dispatch, onResume }) {
         >
           {t('elementa.options.title')}
         </button>
+        <FeedbackButton className="el-btn" />
         <ConfirmButton
           onConfirm={() => dispatch({ type: 'GO_TO_HUB' })}
           className="el-btn el-btn--danger"

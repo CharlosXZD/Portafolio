@@ -56,6 +56,7 @@ import Crossroads from './components/Crossroads.jsx'
 import StoryScene from './components/StoryScene.jsx'
 import { FourthWallPrompt } from './components/ArbiterParts.jsx'
 import { useFourthWall } from './utils/useFourthWall.js'
+import { setFeedbackContext } from './utils/feedback.js'
 import { markArbiter } from './utils/profile.js'
 import { sceneById } from './data/story.js'
 import { realm3For } from './data/realm3.js'
@@ -118,6 +119,11 @@ function ElementaGameInner() {
     setSeenScenes(slot == null ? [] : readProfile(slot).scenes || [])
   }, [slot])
   const story = slot == null ? null : sceneFor(state, seenScenes)
+  // What a feedback message can say about the run (T8); kept in memory only.
+  useEffect(() => {
+    setFeedbackContext(state.seed ? state : null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.round, state.seed, state.realm, state.realm3, state.difficulty?.id, state.deckId])
   // The first time an Arbiter appears, in realm 3 or at the Eye's smite, the player is asked once
   // whether he may notice details about their device (Part S).
   const [fourthWall, chooseFourthWall] = useFourthWall()
