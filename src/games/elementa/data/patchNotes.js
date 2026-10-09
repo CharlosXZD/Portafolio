@@ -12,6 +12,39 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.5',
+    name: L('The Convergence', 'La Convergencia'),
+    date: null,
+    highlights: [
+      L(
+        'After round 45 a last door opens onto the Unwritten, the blank page the Split was written on. Anyone who arrives may enter, and keeps a small gift for every later run: 2 Stardust.',
+        'Después de la ronda 45 se abre una última puerta hacia Lo No Escrito, la página en blanco sobre la que se escribió la División. Quien llega puede entrar, y conserva un pequeño regalo para cada partida futura: 2 de Polvo Estelar.',
+      ),
+      L(
+        'The Rush: the Primordial, the four gods, the six Wardens and the six Rewriters, one at a time. Each says one more line, targets follow your best cast, and a Market waits between fights (not on Cataclysm).',
+        'La Estampida: el Primordial, los cuatro dioses, los seis Custodios y los seis Reescritores, uno a la vez. Cada uno dice una línea más, los objetivos siguen tu mejor tirada, y un Mercado espera entre combates (no en Cataclismo).',
+      ),
+      L(
+        'Pip says it is the final boss. It is not: its master is You. A race of up to six exchanges against a ghost of your own build, which announces a move before each one. Beat it for the true ending, and your winning build becomes the next ghost.',
+        'Pip dice que es el jefe final. No lo es: su amo eres Tú. Una carrera de hasta seis intercambios contra un fantasma de tu propio equipo, que anuncia un movimiento antes de cada uno. Véncelo para el final verdadero, y tu equipo ganador será el próximo fantasma.',
+      ),
+      L(
+        'Seven new loadouts in a chain (Climate, Geologist, Tidal, Arcanist, Hoarder, Twin Flame, Lottery). The Gambler now follows Stormchaser, and Avatar is gone.',
+        'Siete equipos iniciales nuevos en cadena (Clima, Geólogo, Mareal, Arcanista, Acaparador, Llama Gemela, Lotería). El Apostador ahora sigue a Cazatormentas, y Avatar se fue.',
+      ),
+      L(
+        'With your permission, the Arbiter can notice more about your device, and, with a second yes, the weather where you are. Only rounded coordinates go to Open-Meteo, and nothing is stored.',
+        'Con tu permiso, el Árbitro puede notar más de tu dispositivo, y, con un segundo sí, el clima donde estás. Solo se envían coordenadas redondeadas a Open-Meteo, y no se guarda nada.',
+      ),
+      L(
+        'A "Send feedback" button in Options, the pause menu, the game-over screen and the error screen opens the contact form with a draft message. Nothing is sent until you press Send.',
+        'Un botón "Enviar comentarios" en Opciones, el menú de pausa, la pantalla de fin y la pantalla de error abre el formulario de contacto con un mensaje borrador. No se envía nada hasta que presiones Enviar.',
+      ),
+      L('Six new secret achievements.', 'Seis logros secretos nuevos.'),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.2',
     name: L('The Arbiter', 'El Árbitro'),
     date: null,

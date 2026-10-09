@@ -573,7 +573,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.6** | Sigils | **Built.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. The Eye's peek is a live dry run, no engine change. Run after v0.8.5. |
 | **v0.9** | Realm 3 | **Built.** Part R: rounds 31 to 45 (Empyrean, Pleroma or Meridian by path), six Rewriters, four Abstract elements with fusions and four Absolute forged dice, the number dice, two endings per path. Run after v0.8.6. |
 | **v0.9.2** | The Arbiter | **Built.** Part S: the realm's god who talks like Pip, for or against you, and the opt-in fourth-wall lines. |
-| **v0.9.5** | The Convergence | **Ready.** Part T: the Rush (one boss at a time, shops between except on Cataclysm), Pip's callback fight, the ghost duel (multi-cast, it steals and interferes), the Cataclysm best build, new loadouts (Climate, Lottery, Quintessence). Becomes Ready after the best-build result. |
+| **v0.9.5** | The Convergence | **Built.** Part T: the Rush (one boss at a time, shops between except on Cataclysm), Pip's callback fight, the ghost duel (multi-cast, it steals and interferes), the Cataclysm best build, new loadouts (Climate, Lottery, Quintessence). Becomes Ready after the best-build result. |
 | **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
 | **(old)** | Rewriting reality | Became v0.9 (Realm 3) and v0.9.5 (Convergence). |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
@@ -584,6 +584,15 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 # Part D: Patch notes
 
 Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are when the work was done in development.
+
+### Alpha v0.9.5 "The Convergence" (in development, unreleased)
+- **The Unwritten:** after round 45 every path reaches a last door. Anyone who arrives may enter and gets a secret achievement, a completion mark and +2 Stardust at the start of every later run.
+- **The Rush:** one boss at a time (the Primordial, the four gods, the six Wardens, the six Rewriters), each with a new line, a Market between fights (not on Cataclysm) and a target from your best cast so far.
+- **Pip** claims to be the final boss and repeats your very first cast. Its master is You: **the ghost duel**, a race of up to six exchanges against a ghost of your own build that announces moves to steal, rewind, borrow, shuffle or lock. Beat it for the true ending; the winning build becomes the next ghost on Inferno.
+- **New loadouts in a chain:** Climate, Geologist, Tidal, Arcanist, Hoarder, Twin Flame and Lottery. The Gambler now follows Stormchaser. Avatar is gone.
+- **The Arbiter notices more** (with permission): your machine's cores and memory, your window, the moon, and, with a second yes, the weather where you are. Nothing is stored, and only rounded coordinates go to Open-Meteo.
+- **Send feedback** in Options, the pause menu, the game-over screen and the error screen opens the contact form with a drafted message.
+- Six secret achievements, including Theoretical Best.
 
 ### Alpha v0.9.2 "The Arbiter" (in development, unreleased)
 - **An Arbiter** speaks in realm 3: a line at the start of every round and at every shop, three to five lines per mood so they rarely repeat. The god who bans fishing is this Arbiter; his portrait is an open, empty hand.
@@ -1905,7 +1914,7 @@ Build the four dice **exactly as B12 decided**: Two's Complement, Reversed Bits 
 
 ## Part T: v0.9.5 "The Convergence" (spec, 2026-10-08)
 
-**Status: Ready.** Carlos confirmed on 2026-10-08: the place is **The Unwritten**, the Arbiter keeps his name **Arbiter**, all the new loadouts, Avatar deleted, the weather extension, the ghost duel, the curated Cataclysm ghost. Builds on Part Q (3, 4, 6) and Part S. Run after v0.9.2 (built). Items marked **Default** are Claude's reading; list each in the report.
+**Status: Built** (Alpha v0.9.5, GDD §48; the Defaults were built as written, GDD §48 lists them). Carlos confirmed on 2026-10-08: the place is **The Unwritten**, the Arbiter keeps his name **Arbiter**, all the new loadouts, Avatar deleted, the weather extension, the ghost duel, the curated Cataclysm ghost. Builds on Part Q (3, 4, 6) and Part S. Run after v0.9.2 (built). Items marked **Default** are Claude's reading; list each in the report.
 
 ### T1. The place: The Unwritten
 

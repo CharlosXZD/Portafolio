@@ -1084,6 +1084,70 @@ Placeholders: `{hour}`, `{timezone}`, `{os}`, `{browser}`, `{language}`, `{scree
 | deadlock | It is {hour}, and you will not hold more than one thing. Try holding your breath instead. | Son las {hour}, y no sostendrás más de una cosa. Mejor prueba a contener la respiración. |  |
 | deadlock | {wins} wins and still only one hand. How do you manage? | {wins} victorias y aún una sola mano. ¿Cómo lo logras? |  |
 
+## 7e. The Convergence (v0.9.5, drafts)
+
+After round 45 every path reaches **the Unwritten**, the blank page the Split was written on. Anyone who arrives may enter, and gets a secret achievement, a completion mark on the loadout, a Gallery card and +2 Stardust at the start of every later run. Resting at the door ends the run with the realm 3 ending as before. The fights, one boss at a time:
+
+1. **The Rush** (14 fights): the Primordial; the four gods as one block of four stages (no shop inside it); the six Wardens (Set I then Set II); the six Rewriters (Set I then Set II). Each fight's target is **0.6 x the best cast of the run so far** times the boss's own factor (Primordial 1; the gods their gauntlet factors 0.7, 0.9, 1.1, 1.4; Wardens 1, 1.1, 1.25 by order in a set; Rewriters their calibrated factors). A **Market sits between fights** on every difficulty except Cataclysm. Each boss keeps its rules and gets one new callback line. Losing a fight costs a life; there is no camp.
+2. **Pip** (a bluff): it repeats your very first cast of the run, target 0.1 of your best cast. Afterwards it says its master is You.
+3. **You** (the ghost duel): a race of up to 6 exchanges against a ghost build; first to 3 x the ghost's reference cast (the median of 7 seeded casts) wins; you cast first; the ghost's score is rolled from its build through the real engine and one ghost cast counts for at most 50% of the goal. After six exchanges the higher total wins, a tie goes to the ghost. The ghost announces one move before each exchange (two from the 4th); it lands on your first reroll or your cast, so a held die is safe. It never destroys a die and never keeps a relic. A loss costs a life and starts the duel again.
+
+| Difficulty | The ghost |
+|---|---|
+| Ember | Your current build (this run's dice, relics and Law now) |
+| Blaze | Your current build with every die one size tier up and its bonuses doubled |
+| Inferno | The ghost left by the last winner on this file, else the best build on this file (`profile.bestBuild`: the dice and relics of the highest cast ever), else your build |
+| Cataclysm | The curated best-of-the-best build below |
+
+| Move | What it says it will do |
+|---|---|
+| **Steal** (`steal`) | I will take your highest die for this exchange. Hold it, and it stays yours. |
+| **Rewind** (`rewind`) | Your best die will be thrown again. Hold it, and it is safe. |
+| **Borrow** (`borrow`) | One of your relics fights for me this exchange. It comes back. |
+| **Shuffle** (`shuffle`) | Your row will be shuffled. Neighbors are only neighbors for a moment. |
+| **Lock** (`lock`) | Your lowest die will be locked where it lies, and will not roll again. |
+
+**Beating yourself** is the true ending ("Beat Yourself"); the winning build is saved as `profile.ghost` and is the Inferno ghost from then on.
+
+### The Cataclysm ghost
+
+Dice: Monad (d50), Singularity (d40), Undivisible (d20), Obscurity (d50), Parity (d40), Luminance (d40), Oblivion (d40), Ouranos (d40), Ice (d30), Greater Sigil of Aeris (sigil). Relics: Aether Crown, Heart of the Circle, Heart of the Forge, Crown of Ages, Chain Break. Law: Law of Echo. Its median cast is about two and a half times the round-45 target on Cataclysm. Holding all sixteen of these at once, at any size, is the secret achievement **Theoretical Best**.
+
+### The loadout chain
+
+| Loadout | Starting dice | Opens after winning with | Tagline |
+|---|---|---|---|
+| **Stonecaller** | Earth, Earth, Earth | (open from the start) | Steady stone. No risk, no tricks. |
+| **Tidecaller** | Water, Water, Water | Stonecaller | Free locks that feed your rerolls. |
+| **Tempest** | Air, Air, Air | Tidecaller | Sets from the very first roll. |
+| **Pyromancer** | Fire, Fire, Fire | Tempest | All explosion, no safety net. |
+| **Wanderer** | Earth, Water, Fire, Air | Pyromancer | One of every element. Fuse anything. |
+| **Forgeborn** | Earth, Fire, Steel | Wanderer | Starts with Steel: fire without the fizzle. |
+| **Stormchaser** | Fire, Air, Lightning | Forgeborn | Chain explosions straight into sets. |
+| **Gambler** | Poker Die, Poker Die, Poker Die, Poker Die, Joker | Stormchaser | Four poker dice and a Joker. Make hands. |
+| **Climate** | Magma, Storm, Monsoon | Gambler | Weather as a weapon: the three climate phenomena. |
+| **Geologist** | Mud, Crystal, Obsidian | Climate | Earth's patient fusions. |
+| **Tidal** | Ice, Steam, Water | Geologist | Everything water can become. |
+| **Arcanist** | Mirror, Beacon, Conduit | Tidal | No element, all neighbors. |
+| **Hoarder** | Gilded, Bullion, Earth | Arcanist | Money first, dice later. |
+| **Twin Flame** | Fire, Lightning, Magma | Hoarder | Fire and everything that burns. |
+| **Lottery** | 3 drawn at random from the Elementa shop pool | Twin Flame | Whatever the universe hands you. |
+
+The Lottery draws three different dice with the run's seed, never gods, Mythic, Absolute, sigil or number dice, at the starting size. Avatar was removed.
+
+### Achievements (all secret)
+
+- **Where the Roads Meet**: Reach the Unwritten.
+- **The Rush**: Finish the Rush.
+- **Pip's Master**: Reach the duel.
+- **Beat Yourself**: Win the duel against the ghost.
+- **Final Form**: Win the duel on Cataclysm.
+- **Theoretical Best**: Hold the best build at once: its ten dice, five relics and Law.
+
+### What the Arbiter may notice now (T7)
+
+With the first permission (device details): CPU cores, memory, connection, input type, window and screen size, pixel ratio, orientation, light or dark mode, language list, referrer, first and last visit to the file, weekday, season, moon phase (computed here), battery where the browser offers it. With the second, separate permission (weather and place): the browser's own location prompt, coordinates rounded to 0.1 degrees sent to api.open-meteo.com only, temperature, rain, cloud, day or night, sunset; kept in memory for the sitting, never stored. The city comes from the timezone name, never from the address of the connection. Twenty-five more Arbiter lines (four bluffs with a wink) and a third line for each Rewriter use these.
+
 ## 7. Shops and the Road
 
 | Shop | Keeper | What it does | Music |
@@ -1161,7 +1225,7 @@ Placeholders: `{hour}`, `{timezone}`, `{os}`, `{browser}`, `{language}`, `{scree
 
 ## 8. Loadouts, difficulties, achievements
 
-### Loadouts (each unlocks by winning with the previous one; the Gambler by winning with any other)
+### Loadouts (each unlocks by winning with the previous one; see 7e for the full chain and the new ones)
 | Loadout | Starting dice | Tagline |
 |---|---|---|
 | **Stonecaller** | Earth, Earth, Earth | Steady stone. No risk, no tricks. |
@@ -1171,8 +1235,7 @@ Placeholders: `{hour}`, `{timezone}`, `{os}`, `{browser}`, `{language}`, `{scree
 | **Wanderer** | Earth, Water, Fire, Air | One of every element. Fuse anything. |
 | **Forgeborn** | Earth, Fire, Steel | Starts with Steel: fire without the fizzle. |
 | **Stormchaser** | Fire, Air, Lightning | Chain explosions straight into sets. |
-| **Avatar** | Earth, Earth, Aether | Master of all four. Starts with Aether. |
-| **Gambler** | Poker, Poker, Poker, Poker, Joker | Four poker dice and a Joker. Make hands. |
+| **Gambler** | Poker, Poker, Poker, Poker, Joker | Four poker dice and a Joker. Make hands. (Opens after Stormchaser.) |
 
 ### Difficulties (each unlocks by winning the previous one)
 Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
@@ -1184,7 +1247,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 | **Inferno** | 3 | 2 | 2 | 4 | No |
 | **Cataclysm** | 3 | 3 | 2 | 4 | Yes |
 
-### Achievements (66, 22 public and 44 secret; secret ones show as ??? until earned and do not count toward completion)
+### Achievements (72, 22 public and 50 secret; secret ones show as ??? until earned and do not count toward completion)
 - **First Spark**: Clear your first round.
 - **Keeper of the Circle**: Win a run.
 - **Every Path**: Win with every loadout.
