@@ -97,11 +97,26 @@ Goal: prove the tools and set the rules before any mass work. Nothing user-facin
 
 Do not build anything else in V1: no mass item models, no real-game backgrounds, no scenes, no changes to the real menus or shops.
 
-### V2: Item models (Proposed)
+### V2: Item models (Ready once the V1 fix pass is accepted)
 
-**Carlos's V2 answers (2026-10-09):** 16 frames per item; rigs replace the old keeper sprites where a rig exists (V3); a still PNG per keeper for hand-drawn replacements (layered later if wanted); sound hooks wired to existing sfx in V4; V3 and V4 right after. **Before V2 begins, fix the V1 title card and check the spikes against section 0b.** Dice are NOT part of V2's 3D items: on the table dice keep their shaped sprite, element color, symbol and element effects (section 0b).
+**Carlos's V2 answers (2026-10-09):** 16 frames per item; rigs replace the old keeper sprites where a rig exists (V3); a still PNG per keeper for hand-drawn replacements (layered later if wanted); sound hooks wired to existing sfx in V4; V3 and V4 right after. **Dice are NOT part of V2's 3D items:** on the table dice keep their shaped sprite, element color, symbol and element effects (section 0b).
 
-Parametric generators (a gem, a potion, a scroll, a key, a coin, a tome, a shard, a die...) instead of 150 bespoke models; each relic, consumable, rune and die gets a generator plus parameters (shape, color, rarity glow, a signature detail). Idle motion, hover and inspect animations, a rarity-based reveal when bought. Pre-rendered and cached. Old sprites stay as a fallback.
+**Goal.** Every **relic, consumable, rune, Constellation, Totem and Law** (about 115 items) gets a crisp, premium, pixel-lit 3D-rendered model, cached as a 24 by 24, 16 frame sprite strip, replacing today's flat item sprite in the shop, the inventory, the inspector, the Gallery and reward screens, with the old sprite as the fallback. Per V1's recommendation: pre-rendered and cached, built lazily in idle time, never blocking a purchase.
+
+**V2.1 The generators.** Parametric families (about 14): gem (round, rough, faceted), potion and flask, scroll, key, coin, tome, shard, pouch, crown, ring, hourglass, tag and rune stone, plus whatever the audit (`VISUALS_AUDIT.md`) shows is needed. Each is a function from parameters (shape, proportions, colors, a signature detail) to geometry, using the V1 toon-ramp pipeline. No bespoke model per item.
+
+**V2.2 The item table.** One data file, `data/itemModels.js`, maps **every item id to a generator and its parameters**, built from each item's `itemConcept` text and its element (`itemConcept` in `data/relics.js` and `data/consumables.js` is the brief). Rules:
+- **An item's element colors it** when it has one (a Fire relic leans red-orange, Water blue, Earth tan, Air pale); Neutral items use the gold and stone palette. Rarity sets the glow and trim, using the existing rarity scale (GDD 14), not new colors.
+- Each item has a **signature detail** that makes it recognizable at 24 pixels (a flame, a drop, a gear, a star), taken from its concept. Two items must never look the same at a glance: run a uniqueness check (a script that compares atlases and flags near-duplicates).
+- Swap rule: dropping a PNG at the registry path for an id replaces the model with no code change (V1's registry).
+
+**V2.3 Where it shows.** Shop shelves (idle turn, hover tilt, a rarity-based reveal when bought), the inventory strip, the inspector (a larger turn), the Gallery (unseen items stay silhouettes), reward screens, the Run Info. Build the atlases **in idle time after the shop appears**, never on the click; a hidden tab builds when shown; low-end devices (V1's probe) and Reduced motion get the static first frame or the old sprite.
+
+**V2.4 Quality bar.** Crisp at integer scales, consistent light from the top left, a 1 pixel ink outline, the limited palette, and **no item reads as a colored blob**. Before and after screenshots of every family in the Visual Lab ("Item gallery" page: all items in a grid, by rarity and by element).
+
+**V2.5 Budget and report.** Keep the first-load budget; the item code lazy-loads with the shop. Report build time and memory for the whole set, the uniqueness check, the list of items that fell back and why, the screenshots, and the skills used. Run `improve-animations` on the idle and reveal motion; Carlos runs `/review-animations` himself afterward (that skill is user-invoked).
+
+Do not build backgrounds, menus, scenes, characters or the map in V2. Patch notes "Alpha 0.9.7 Item models".
 
 ### V3: Shop rooms and event backgrounds (Proposed)
 
