@@ -57,8 +57,8 @@ export default function CinematicPlayer({ composition = 'title_card', onDone, on
   const skip = useCallback(() => {
     const p = ref.current
     if (!p) return
-    p.pause()
     p.seekTo(last)
+    p.pause()
     setFinished(true)
     doneRef.current?.(true)
   }, [last])

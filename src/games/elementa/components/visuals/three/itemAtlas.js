@@ -61,8 +61,10 @@ const BUILDERS = {
       ],
       8,
     )
-    geo.computeVertexNormals()
-    g.add(new THREE.Mesh(geo, toon(color, ramp, rarity, { flatShading: true })))
+    // Un-index the lathe so every facet gets its own flat normal.
+    const facets = geo.toNonIndexed()
+    facets.computeVertexNormals()
+    g.add(new THREE.Mesh(facets, toon(color, ramp, rarity)))
     const table = new THREE.Mesh(new THREE.CircleGeometry(0.5, 8), toon(new THREE.Color(color).lerp(new THREE.Color('#ffffff'), 0.55), ramp, rarity))
     table.rotation.x = -Math.PI / 2
     table.position.y = 0.585
@@ -100,7 +102,7 @@ const BUILDERS = {
   // A twenty-sided die.
   die(color, ramp, rarity) {
     const g = new THREE.Group()
-    g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(1, 0), toon(color, ramp, rarity, { flatShading: true })))
+    g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(1, 0), toon(color, ramp, rarity)))
     g.rotation.x = 0.55
     g.rotation.z = 0.2
     return g

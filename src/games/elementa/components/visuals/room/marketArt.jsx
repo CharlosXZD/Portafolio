@@ -52,11 +52,6 @@ export function BackLayer() {
     return out
   }, [])
   const ridges = useMemo(() => [ridge(27, 85, 62, 4, 3, '#2a1730'), ridge(27, 85, 70, 3, 9, '#170d1c')], [])
-  const stars = useMemo(() => {
-    const rnd = seeded(7)
-    return Array.from({ length: 11 }, (_, i) => ({ x: 29 + Math.floor(rnd() * 54), y: 26 + Math.floor(rnd() * 28), d: (i * 0.7).toFixed(1), big: i % 4 === 0 }))
-  }, [])
-
   return (
     <svg className="v-layer" viewBox={`0 0 ${ROOM_W} ${ROOM_H}`} width={ROOM_W} height={ROOM_H} shapeRendering="crispEdges" aria-hidden="true">
       <defs>
@@ -84,17 +79,6 @@ export function BackLayer() {
         ))}
         {SKY.slice(1).map((c, i) => (
           <rect key={`d${c}`} x="27" y={25 + (i + 1) * 8 - 2} width="58" height="4" fill={c} opacity="0.55" />
-        ))}
-        {stars.map((s, i) => (
-          <g key={i} className="v-twinkle" style={{ '--d': `${s.d}s` }}>
-            <rect x={s.x} y={s.y} width="1" height="1" fill="#fff4d6" />
-            {s.big && (
-              <>
-                <rect x={s.x - 1} y={s.y} width="3" height="1" fill="#fff4d6" opacity="0.5" />
-                <rect x={s.x} y={s.y - 1} width="1" height="3" fill="#fff4d6" opacity="0.5" />
-              </>
-            )}
-          </g>
         ))}
         <g>
           <rect x="70" y="31" width="5" height="5" fill="#fff0c4" />
@@ -142,14 +126,9 @@ export function BackLayer() {
       <rect x="129" y="56" width="10" height="1" fill="#c6ffd4" />
       <rect x="130" y="49" width="8" height="3" fill="#a8744a" />
       <rect x="128" y="52" width="1" height="12" fill="#dff3ff" opacity="0.6" />
-      <rect className="v-bubble" x="133" y="61" width="2" height="2" fill="#c6ffd4" />
-      <rect className="v-bubble v-bubble--b" x="135" y="62" width="1" height="1" fill="#c6ffd4" />
       {/* A jar of fireflies. */}
       <rect x="146" y="52" width="12" height="12" fill="#dff3ff" opacity="0.22" />
       <rect x="147" y="49" width="10" height="3" fill="#a8744a" />
-      <rect className="v-twinkle" style={{ '--d': '0.2s' }} x="149" y="55" width="1" height="1" fill="#ffe27a" />
-      <rect className="v-twinkle" style={{ '--d': '1.1s' }} x="154" y="58" width="1" height="1" fill="#c6ff7a" />
-      <rect className="v-twinkle" style={{ '--d': '2s' }} x="151" y="61" width="1" height="1" fill="#ffe27a" />
       {/* An hourglass. */}
       <rect x="170" y="50" width="12" height="2" fill="#744528" />
       <rect x="170" y="62" width="12" height="2" fill="#744528" />
@@ -160,7 +139,6 @@ export function BackLayer() {
       <rect x="172" y="60" width="8" height="2" fill="#dff3ff" opacity="0.3" />
       <rect x="173" y="60" width="6" height="2" fill="#ffd166" />
       <rect x="175" y="53" width="2" height="2" fill="#ffd166" />
-      <rect className="v-sand" x="175" y="56" width="1" height="4" fill="#ffd166" />
       {/* A candle. */}
       <rect x="198" y="56" width="6" height="8" fill="#f2e6c8" />
       <rect x="198" y="56" width="1" height="8" fill="#fff8e6" />
@@ -215,6 +193,40 @@ export function BackLayer() {
       <rect x="34" y="140" width="22" height="2" fill="#2a170e" />
       <rect x="38" y="118" width="2" height="34" fill="#744528" />
       <rect x="34" y="150" width="22" height="2" fill={INK} opacity="0.5" />
+    </svg>
+  )
+}
+
+/**
+ * Everything in the back wall that twinkles or bubbles, in its own small
+ * layer. The wall itself never changes, so the browser can keep it as one
+ * cached picture while only this thin layer repaints.
+ */
+export function AmbientLayer() {
+  const stars = useMemo(() => {
+    const rnd = seeded(7)
+    return Array.from({ length: 11 }, (_, i) => ({ x: 29 + Math.floor(rnd() * 54), y: 26 + Math.floor(rnd() * 28), d: (i * 0.7).toFixed(1), big: i % 4 === 0 }))
+  }, [])
+
+  return (
+    <svg className="v-layer" viewBox={`0 0 ${ROOM_W} ${ROOM_H}`} width={ROOM_W} height={ROOM_H} shapeRendering="crispEdges" aria-hidden="true">
+      {stars.map((s, i) => (
+        <g key={i} className="v-twinkle" style={{ '--d': `${s.d}s` }}>
+          <rect x={s.x} y={s.y} width="1" height="1" fill="#fff4d6" />
+          {s.big && (
+            <>
+              <rect x={s.x - 1} y={s.y} width="3" height="1" fill="#fff4d6" opacity="0.5" />
+              <rect x={s.x} y={s.y - 1} width="1" height="3" fill="#fff4d6" opacity="0.5" />
+            </>
+          )}
+        </g>
+      ))}
+      <rect className="v-bubble" x="133" y="61" width="2" height="2" fill="#c6ffd4" />
+      <rect className="v-bubble v-bubble--b" x="135" y="62" width="1" height="1" fill="#c6ffd4" />
+      <rect className="v-twinkle" style={{ '--d': '0.2s' }} x="149" y="55" width="1" height="1" fill="#ffe27a" />
+      <rect className="v-twinkle" style={{ '--d': '1.1s' }} x="154" y="58" width="1" height="1" fill="#c6ff7a" />
+      <rect className="v-twinkle" style={{ '--d': '2s' }} x="151" y="61" width="1" height="1" fill="#ffe27a" />
+      <rect className="v-sand" x="175" y="56" width="1" height="4" fill="#ffd166" />
     </svg>
   )
 }

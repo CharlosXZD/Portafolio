@@ -542,6 +542,18 @@
 .v-room-wrap[data-reduced] .v-room *::after {
   animation: none !important;
 }
+.v-room-wrap[data-calm] .v-twinkle,
+.v-room-wrap[data-calm] .v-bubble,
+.v-room-wrap[data-calm] .v-sand,
+.v-room-wrap[data-calm] .v-flicker,
+.v-room-wrap[data-calm] .v-sway,
+.v-room-wrap[data-calm] .v-shaft,
+.v-room-wrap[data-calm] .v-fox__body,
+.v-room-wrap[data-calm] .v-fox__ear,
+.v-room-wrap[data-calm] .v-fox__tail,
+.v-room-wrap[data-calm] .v-fox__z {
+  animation: none;
+}
 .v-room-wrap[data-reduced] .v-mote {
   opacity: 0;
 }

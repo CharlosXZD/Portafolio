@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useVisualEnv } from '../VisualEnv.jsx'
 import Visual from '../Visual.jsx'
-import { BackLayer, CounterLayer, LightLayer, Lanterns, Motes, ROOM_H, ROOM_W, ShelfLayer, SleepingFox } from './marketArt.jsx'
+import { AmbientLayer, BackLayer, CounterLayer, LightLayer, Lanterns, Motes, ROOM_H, ROOM_W, ShelfLayer, SleepingFox } from './marketArt.jsx'
 
 const L = (en, es) => ({ en, es })
 
@@ -68,7 +68,7 @@ function useRoomScale(ref) {
  * hook names ('hover', 'pick', 'buy', 'bell', 'restock') for V4 to wire up.
  */
 export default function MarketRoom() {
-  const { lang, reduced, onEvent } = useVisualEnv()
+  const { lang, reduced, quality, onEvent } = useVisualEnv()
   const wrapRef = useRef(null)
   const scale = useRoomScale(wrapRef)
   const [shards, setShards] = useState(20)
@@ -195,18 +195,21 @@ export default function MarketRoom() {
   const shownLine = say.full.slice(0, shown)
 
   return (
-    <div className="v-room-wrap" ref={wrapRef} data-reduced={reduced ? '' : undefined}>
+    <div className="v-room-wrap" ref={wrapRef} data-reduced={reduced ? '' : undefined} data-calm={quality === 'low' ? '' : undefined}>
       <div className="v-room-holder" style={{ width: ROOM_W * scale, height: ROOM_H * scale }}>
         <div
           className="v-room"
           role="group"
           aria-label={T.roomLabel[lang]}
-          style={{ width: ROOM_W, height: ROOM_H, transform: `scale(${scale})`, '--bubble-fs': `${Math.max(8, Math.ceil(13 / scale))}px` }}
+          style={{ width: ROOM_W, height: ROOM_H, transform: `scale(${scale})`, '--bubble-fs': `${Math.max(8, Math.ceil(11 / scale))}px` }}
         >
           <BackLayer />
+          <AmbientLayer />
           <SleepingFox />
           <LightLayer />
           <Lanterns />
+          {/* The vignette sits under the shelf, so items, Tobb and the counter stay at full color. */}
+          <div className="v-grade" aria-hidden="true" />
           <ShelfLayer slotLefts={SLOTS.map((_, i) => SLOT_LEFT(i))} />
 
           {/* The clean patch left where a bought item sat, and the dust it kicked up. */}
@@ -287,7 +290,7 @@ export default function MarketRoom() {
               {pop.text}
             </span>
           )}
-          <Motes />
+          {quality !== 'low' && <Motes />}
 
           {shownLine && (
             <div className="v-bubble-box" aria-hidden="true">
@@ -295,7 +298,6 @@ export default function MarketRoom() {
               {typing ? <span className="v-caret" /> : null}
             </div>
           )}
-          <div className="v-grade" aria-hidden="true" />
         </div>
       </div>
 

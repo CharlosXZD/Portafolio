@@ -1,0 +1,6 @@
+{
+  "firstLoadJsGzip": 423189,
+  "firstLoadCssGzip": 15261,
+  "measuredAt": "4c7ad36 (the build taken at the start of V1, before any V1 code)",
+  "note": "Before the visual overhaul. gzip level 9, bytes. Vite reports the same entry as 428.26 kB (its own gzip level)."
+}
