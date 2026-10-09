@@ -118,9 +118,50 @@ Do not build anything else in V1: no mass item models, no real-game backgrounds,
 
 Do not build backgrounds, menus, scenes, characters or the map in V2. Patch notes "Alpha 0.9.7 Item models".
 
-### V3: Shop rooms and event backgrounds (Proposed)
+### V3: Shop rooms and event backgrounds (Ready, spec 2026-10-09)
 
-Turn every shop and event screen into a **lived-in room** (section 1): layered parallax backdrops with ambient animation, props, light, the keeper idling and reacting. Shops: Market, Forge (Brasa and Vesper together), Black Market, Shrine, Vault, Alchemist, Camp, Observatory, Cartography, Clockwork, Pantry, the legendary shops; events: the Crossroads, boss intros, each realm, the Unwritten. SVG, canvas and CSS only, static under Reduced motion. The V1 slice is the template.
+**Carlos's V2 answers, applied from V3 on (2026-10-09):** (1) trims stay metallic and the rarity color goes in the glow only (elements own their color); (2) each Constellation model takes its colors from its reaction in `data/reactions.js`; (3) sidebar items move on hover only; (4) the polish pass on the V2 weak spots (Windfall, Weights, Loom of Fate, Prism Lens, Bookends, Time Capsule) is its own small job after V4, **but fix points 1 and 2 as part of V3's first commit**; (5) unseen Gallery items show the dark model silhouette instead of "?" (build it in V3).
+
+**Goal.** Turn every shop and event screen from "squares on a background" into a **lived-in room where people actually live** (section 1): layered, animated, with props, light, a keeper who idles and reacts, and the shelves, counter and items already built (V2). The V1 Market (`components/visuals/room/MarketRoom.jsx`) is the template and the bar. This phase **replaces the real game's shop backdrops**; the shop's **functions, buttons, prices, keyboard paths and layout rules do not change** (V4 redoes the interface itself).
+
+**V3.1 The room system.** Turn the Market slice into a reusable system: a room is data (layers, props, light sources, ambient particles, the keeper rig and its idle and reaction beats, shelf slots, a counter) rendered by one engine (`components/visuals/room/`), so each of the 14 rooms is a data file plus a few bespoke props, not a new component. Rules: SVG, canvas, CSS only; stepped to whole art pixels; transform and opacity animations only; animated layers separate from static ones; **a shared ambient loop**, not a timer per prop; static under Reduced motion; fewer layers and no particles on the low-end tier; the 320 by 180 art box scaled by whole numbers, with a graceful fractional scale on phones.
+
+**V3.2 The rooms** (each: palette from the shop's color in `data/shops.js`, a different light, **at least 6 props that tell who lives there**, a keeper that does something, and an ambient detail that moves):
+
+| Room | Keeper | Feel and props (Draft) |
+|---|---|---|
+| **Market** | Tobb | Warm wooden stall, lanterns, hanging goods, a cart, a sleeping cat. (Exists; adapt it to the real game.) |
+| **Forge** | Brasa and Vesper (Firmament) | Glowing forge mouth, anvil, tongs, sparks, bellows pumping; Vesper's star-charts and a floating orrery in the Firmament version. |
+| **Alchemist** | Vessa | Bubbling cauldron, shelves of bottles, drifting vapors, a stuffed owl, color-shifting flasks. |
+| **Vault** | The Curator | Stone archive, cases under glass, a rolling ladder, dust in light shafts, the fallen's dice displayed. |
+| **Black Market** | Nix | Back-alley under eclipse light, hooded crates, flickering sign, shadows moving, pact scrolls pinned to a wall. |
+| **Shrine** | Aeris | Pale blue-white temple, floating feathers, a prayer flame, blessing glyphs, soft god-rays. |
+| **Aether Bazaar** | the Conclave | The grand room: gold and violet, floating wares, every other shop's stall in miniature. |
+| **Astral Exchange** | the Conclave | Firmament version: starfield through a glass dome, orbiting wares, ticker lights. |
+| **Cartography** | Atlas | A map table, rolled charts, a compass, ink and pens, a window onto the Road. |
+| **Clockwork** | The Horologist | Walls of ticking gears and clocks, a pendulum swinging, sand falling in a glass. |
+| **Observatory** | Seren | A telescope under an open dome, star charts, constellation lights drawing themselves. |
+| **Pantry** | Mote | A dim larder of hungry shadow, jars, a small Void that watches; it brightens as Mote's meter fills. |
+| **Camp** | Tobb | A campfire in the dark, tea on a stone, a tent, the Road in the distance. |
+| **Vesper's corner** | Vesper | Not a room: her second portrait and idle in the Forge. |
+
+Realm tints: the same room takes a light shift per realm (Elementa warm, Firmament cold violet, Empyrean gridded, Pleroma dissolving, Meridian swinging) with a palette shift, not new art.
+
+**V3.3 Event screens.** The same system builds the other scenes: **the Crossroads** (the door, a gate in the sky), **boss intros** (a stage per boss tier with that boss's color and an entrance beat), **realm backdrops** (Elementa, Firmament, Empyrean, Pleroma, Meridian and The Unwritten, whose blank page erases), **the table's backdrop** (the round screen's room, with realm tint) and **the Road screen's frame** (V6 does the map itself). Each replaces the matching `PixelBackdrop` scene with the old one as the fallback.
+
+**V3.4 Keepers.** Replace `KeeperSprite` with a rig wherever a rig exists. Build rigs (palette and head from the existing sprites, the V1 data-driven `rigData.js`) for **all 12 keepers** in `data/keepers.js` (Tobb, Vessa, the Curator, Brasa, Nix, Aeris, Atlas, the Horologist, Seren, Mote, Vesper, the Conclave), each with an idle breathe, a blink, a talking mouth during their line, and **reaction beats** that the shop emits: welcome, an item picked, bought, can't afford (a grumble), sold, restock, leaving. Lines keep coming from `data/keepers.js` (the dialog system is unchanged). Pip and the Arbiter get rigs in V7, not here.
+
+**V3.5 Gallery silhouettes (Carlos's answer 5).** Unseen items and dice show the dark silhouette of their model (the shape, no color, no detail) instead of "?", in the Gallery tiles and detail panel; the text stays "???" and spoils nothing (no family, no rarity, as already decided for the Unlocks box).
+
+**V3.6 Rules that must hold** (section 0b): fonts and the logo style; elements own their color; the shop's own color and each keeper's palette stay; dice are never redrawn here; nothing covers the shop's controls or the dice tray; **contrast and legibility of every price, button and line of text must be at least as good as today**: dim the room behind the UI where needed.
+
+**V3.7 Performance and phones.** Build each room's art lazily when its shop is entered (the room art is a lazy chunk per room family), never in the main bundle. Budget: first load grows by at most **15 kB gzip** in V3 (the rooms are lazy); report each room's chunk size and the idle animation count per room. Under Reduced motion nothing moves; on the low-end tier use the static backdrop plus the keeper rig's blink only; on phones the room scales to the width without horizontal scroll and the shelf stays tappable.
+
+**V3.8 Sound hooks** only: rooms emit the event names from V1 (`hover`, `pick`, `buy`, `bell`, `broke`, `restock`) and the new ones (`welcome`, `leave`, `sell`) on a small event bus; V4 wires them to the existing sfx. **Do not play sounds in V3.**
+
+**V3.9 Verify and report.** The Visual Lab gets a **Rooms** page: every room, every realm tint, Reduced motion and low tier toggles, an animation counter and a frame-rate readout. Test saves that put the real game in each shop and each event (use the existing test-save tools). Screenshots of every room in the Lab and in the real game at desktop and phone, English and Spanish, with Reduced motion. Run `improve-animations` on the rooms' motion; Carlos runs `/review-animations`. Report: what you built, numbers per room (chunk size, DOM nodes, running animations), skills used, every default you chose, anything skipped, open questions. Patch notes "Alpha 0.9.8 Shop rooms".
+
+**Do not build** in V3: the menus or the shop's interface (V4), cinematics (V5), the Road map (V6), character rigs for Pip, bosses, gods or the Arbiter (V7), or the V2 weak-spot polish.
 
 ### V4: Menus and shop interfaces (Proposed)
 
