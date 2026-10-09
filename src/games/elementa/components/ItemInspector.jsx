@@ -1,12 +1,16 @@
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { RARITY_GLOW } from '../data/relics.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import FamilyTags from './FamilyTag.jsx'
 import KeywordTags from './KeywordTag.jsx'
+import PixelSprite from './PixelSprite.jsx'
 import RichText from './RichText.jsx'
 import { useFloating, arrowStyle } from './useFloating.js'
+
+// The V2 item model, loaded on demand: a bigger idle turn for relics and consumables.
+const ItemModel = lazy(() => import('./visuals/ItemModel.jsx'))
 
 export const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic', abstract: 'Abstract', absolute: 'Absolute' },
@@ -78,6 +82,23 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
         visibility: pos ? 'visible' : 'hidden',
       }}
     >
+      {item.itemId && (
+        <div className="flex justify-center px-3 pt-3">
+          <span className="el-well flex items-center justify-center" style={{ width: 96, height: 96 }}>
+            {/* Until the model is built (or on a low-end device) the old sprite shows, so the well is never empty. */}
+            <Suspense fallback={null}>
+              <ItemModel
+                itemId={item.itemId}
+                scale={3}
+                motion="turn"
+                rarity={item.rarity}
+                priority={3}
+                fallback={item.sprite ? <PixelSprite {...item.sprite} size={72} /> : null}
+              />
+            </Suspense>
+          </span>
+        </div>
+      )}
       <div className="flex items-start justify-between gap-2 px-3 pb-2 pt-3">
         <h4 className="pixel-heading text-[10px] leading-relaxed text-[var(--text)]">{item.name}</h4>
         <span

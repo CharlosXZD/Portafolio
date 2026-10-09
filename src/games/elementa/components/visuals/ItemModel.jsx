@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, useState } from 'react'
 import { RARITY_GLOW } from '../../data/relics.js'
+import { findImageOverride, itemVisualId } from '../../data/visualRegistry.js'
 import { useVisualEnv } from './VisualEnv.jsx'
 import { FRAMES, NATIVE, getModelAtlas } from './three/itemAtlas.js'
 import { subscribeTicker } from './three/ticker.js'
@@ -22,6 +23,8 @@ function ItemModel({ itemId, scale = 1, motion = 'still', reveal = false, rarity
   const { reduced, quality } = useVisualEnv()
   const [atlas, setAtlas] = useState(null)
   const [failed, setFailed] = useState(false)
+  // The swap rule (data/visualRegistry.js): a hand-drawn file named item.<id> wins over the model.
+  const [override, setOverride] = useState({ id: null, src: null })
   const rootRef = useRef(null)
   const canvasRef = useRef(null)
   const hoverRef = useRef(null)
@@ -30,7 +33,17 @@ function ItemModel({ itemId, scale = 1, motion = 'still', reveal = false, rarity
   const off = quality === 'low' || failed
 
   useEffect(() => {
-    if (off) return
+    let live = true
+    findImageOverride(itemVisualId(itemId)).then((src) => live && setOverride({ id: itemId, src }))
+    return () => {
+      live = false
+    }
+  }, [itemId])
+  const checked = override.id === itemId
+  const src = checked ? override.src : null
+
+  useEffect(() => {
+    if (off || !checked || src) return
     let live = true
     getModelAtlas(itemId, priority).then((a) => {
       if (!live) return
@@ -41,7 +54,7 @@ function ItemModel({ itemId, scale = 1, motion = 'still', reveal = false, rarity
     return () => {
       live = false
     }
-  }, [itemId, off, priority, onReady])
+  }, [itemId, off, checked, src, priority, onReady])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -87,6 +100,13 @@ function ItemModel({ itemId, scale = 1, motion = 'still', reveal = false, rarity
     setTilt({ x: 0, y: 0 })
   }
 
+  if (src) {
+    return (
+      <span className={`v-model ${className}`} style={{ width: size, height: size }}>
+        <img src={src} alt="" style={{ width: size, height: size, imageRendering: 'pixelated', display: 'block' }} />
+      </span>
+    )
+  }
   if (!atlas) return fallback
   const glow = RARITY_GLOW[rarity] || RARITY_GLOW.common
   const strong = rarity === 'epic' || rarity === 'legendary' || rarity === 'mythic'

@@ -45,6 +45,7 @@ const TEXT = {
   check: L('Run the uniqueness check', 'Ejecutar la verificación de unicidad'),
   checking: L('Comparing...', 'Comparando...'),
   checkResult: L('Compared', 'Comparados'),
+  nearest: L('The closest pairs (the threshold is 0.20)', 'Los pares más cercanos (el umbral es 0.20)'),
   noDupes: L('No pair is too alike.', 'Ningún par es demasiado parecido.'),
   dupes: L('Pairs that look too alike (smaller means more alike)', 'Pares demasiado parecidos (menor significa más parecidos)'),
   fallbacks: L('Items that fell back to the old sprite', 'Objetos que usan el sprite anterior'),
@@ -233,6 +234,14 @@ function Gallery() {
                 <p className="text-base text-[var(--text-dim)]">
                   {tx.checkResult[lang]} <b className="v-num">{check.compared}</b>: {check.pairs.length === 0 ? tx.noDupes[lang] : `${check.pairs.length} ${tx.dupes[lang]}`}
                 </p>
+                <p className="mt-2 text-base text-[var(--text-mute)]">{tx.nearest[lang]}:</p>
+                <ul className="v-log">
+                  {check.nearest.map((p) => (
+                    <li key={p.a + p.b}>
+                      <code>{p.a}</code> / <code>{p.b}</code> <b className="v-num">{p.diff.toFixed(3)}</b>
+                    </li>
+                  ))}
+                </ul>
                 {check.pairs.length > 0 && (
                   <ul className="v-log">
                     {check.pairs.map((p) => (

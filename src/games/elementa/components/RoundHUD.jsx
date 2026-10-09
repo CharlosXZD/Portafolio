@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { compactNumber } from '../utils/formatNumber.js'
 import { AnimatePresence } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
@@ -54,14 +54,18 @@ export function Stat({ label, children, accent }) {
   )
 }
 
-function MiniIcon({ itemKey, item, openKey, onOpenChange, actions, armed = false, pulse = null }) {
+function MiniIcon({ itemKey, item, openKey, onOpenChange, actions, armed = false, pulse = null, fresh = false }) {
   const isOpen = openKey === itemKey
+  // An item that arrives after the sidebar is already up (just bought) plays the rarity reveal once.
+  const [reveal] = useState(fresh)
   const body = (
     <>
       <ItemIcon
         size={48}
         glyph={item.glyph}
         icon={item.icon} sprite={item.sprite}
+        itemId={item.itemId}
+        reveal={reveal}
         color={item.color}
         rarity={item.rarity}
         title={item.name}
@@ -100,6 +104,8 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
   const { lang, t } = useLanguage()
   const [openKey, setOpenKey] = useState(null)
   const pulses = useTriggerPulses()
+  const mountedAt = useRef(Date.now())
+  const fresh = () => Date.now() - mountedAt.current > 900
   const difficulty = state.difficulty ? localizeDifficulty(state.difficulty, lang) : null
   const hollow = Boolean(state.phase === 'rolling' && state.bossModifier?.effects?.sealAllRelics)
   const relicCap = selectors.relicCapFor(state)
@@ -202,6 +208,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
             <MiniIcon
               key={r.id}
               itemKey={`relic-${r.id}`}
+              fresh={fresh()}
               item={relicDescriptor(r, lang)}
               pulse={pulses[`relic:${r.id}`]}
               openKey={openKey}
@@ -221,6 +228,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
           {state.law ? (
             <MiniIcon
               itemKey={`relic-${state.law.id}`}
+              fresh={fresh()}
               item={relicDescriptor(state.law, lang)}
               pulse={pulses[`relic:${state.law.id}`]}
               openKey={openKey}
@@ -244,6 +252,7 @@ export default function RoundHUD({ state, dispatch, armedConsumable, onArm }) {
               <MiniIcon
                 key={c.instanceId}
                 itemKey={`consumable-${c.instanceId}`}
+                fresh={fresh()}
                 item={consumableDescriptor(c, lang)}
                 armed={armedConsumable === c.instanceId}
                 actions={

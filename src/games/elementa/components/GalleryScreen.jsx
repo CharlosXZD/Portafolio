@@ -99,7 +99,7 @@ function Detail({ entry, lang, t }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
-        {art ?? <ItemIcon static size={72} icon={item.icon} sprite={item.sprite} glyph={item.glyph} color={item.color} rarity={item.rarity} />}
+        {art ?? <ItemIcon static size={72} itemId={item.itemId} icon={item.icon} sprite={item.sprite} glyph={item.glyph} color={item.color} rarity={item.rarity} />}
         <div className="flex flex-col gap-2">
           <h3 className="pixel-heading text-[10px] leading-relaxed">{item.name}</h3>
           {item.rarity && (
@@ -152,7 +152,7 @@ function Group({ title, color, note, entries, selectedKey, onSelect }) {
               {e.sticker && e.seen && <StarSticker size={18} className="absolute -right-2 -top-2 z-10" />}
               {e.tile ??
                 (e.seen ? (
-                  <ItemIcon static size={56} icon={e.item.icon} sprite={e.item.sprite} glyph={e.item.glyph} color={e.item.color} rarity={e.item.rarity} />
+                  <ItemIcon static size={56} itemId={e.item.itemId} icon={e.item.icon} sprite={e.item.sprite} glyph={e.item.glyph} color={e.item.color} rarity={e.item.rarity} />
                 ) : (
                   <ItemIcon static size={56} glyph="?" color="#6e6480" />
                 ))}
@@ -635,7 +635,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
                     if (id == null) return <ItemIcon key={j} static size={24} glyph="?" color="#c8b6ff" />
                     const item = dieDescriptor(id, lang)
                     return unlocked ? (
-                      <ItemIcon key={j} static size={24} icon={item.icon} glyph={item.glyph} color={item.color} rarity={item.rarity} />
+                      <ItemIcon key={j} static size={24} itemId={item.itemId} icon={item.icon} glyph={item.glyph} color={item.color} rarity={item.rarity} />
                     ) : (
                       <ItemIcon key={j} static size={24} glyph="?" color="#6e6480" />
                     )

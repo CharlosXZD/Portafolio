@@ -25,6 +25,7 @@ export function relicDescriptor(relic, lang = 'en') {
   return {
     kind: 'relic',
     id: relic.id,
+    itemId: relic.id, // the id ItemIcon looks a 3D model up by (data/itemModels.js)
     name,
     description: localize(lang, relic.description, RELICS_ES, relic.id, 'description'),
     rarity: relic.rarity,
@@ -47,6 +48,7 @@ export function consumableDescriptor(def, lang = 'en') {
   return {
     kind: 'consumable',
     id: def.id,
+    itemId: def.id,
     name,
     description: localize(lang, def.description, CONSUMABLES_ES, def.id, 'description'),
     rarity: def.rarity,

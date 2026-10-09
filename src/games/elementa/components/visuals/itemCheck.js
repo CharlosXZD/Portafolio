@@ -39,14 +39,17 @@ export async function findNearDuplicates(ids, threshold = 0.2) {
   }
   const list = [...frames.keys()]
   const pairs = []
+  const all = []
   for (let i = 0; i < list.length; i++) {
     for (let j = i + 1; j < list.length; j++) {
       const a = frames.get(list[i])
       const b = frames.get(list[j])
       // Mean over the sampled turns, so two items that only match from one angle do not count.
       const d = a.reduce((sum, fa, n) => sum + difference(fa, b[n]), 0) / a.length
+      all.push({ a: list[i], b: list[j], diff: d })
       if (d < threshold) pairs.push({ a: list[i], b: list[j], diff: d })
     }
   }
-  return { compared: list.length, pairs: pairs.sort((x, y) => x.diff - y.diff) }
+  all.sort((x, y) => x.diff - y.diff)
+  return { compared: list.length, pairs: pairs.sort((x, y) => x.diff - y.diff), nearest: all.slice(0, 8) }
 }

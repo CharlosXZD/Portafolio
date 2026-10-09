@@ -93,6 +93,13 @@ export const VISUALS = {
 
 export const VISUAL_IDS = Object.keys(VISUALS)
 
+// V2: every relic and consumable is a registry id too, named `item.<item id>`
+// (for example `item.molten_core`). They are not listed one by one above: the
+// table in data/itemModels.js says how each is made, and the swap rule below
+// applies to all of them, so `public/elementa/visuals/item.molten_core.png`
+// (24 by 24, drawn at its native size) replaces that item's model everywhere.
+export const itemVisualId = (itemId) => `item.${itemId}`
+
 export function visualEntry(id) {
   return VISUALS[id] ?? null
 }

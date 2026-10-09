@@ -82,7 +82,9 @@ function flask(k, p) {
   if (body === 'crucible') {
     g.children[0].material.color.set(k.c('stone'))
     g.children[0].material.emissive.set(k.c('stoneLo'))
-    g.add(k.at(k.G(new k.THREE.CircleGeometry(0.88, 12), p.liquid ?? 'main'), 0, 0.64, 0, -Math.PI / 2))
+    if (p.quad) ['fire', 'water', 'earth', 'air'].forEach((c, i) => g.add(k.at(k.G(new k.THREE.CircleGeometry(0.88, 6, (i * Math.PI) / 2, Math.PI / 2), c), 0, 0.64, 0, -Math.PI / 2, 0, 0)))
+    else g.add(k.at(k.G(new k.THREE.CircleGeometry(0.88, 12), p.liquid ?? 'main'), 0, 0.64, 0, -Math.PI / 2))
+    if (p.flames) [-0.45, 0, 0.45].forEach((x, i) => g.add(k.at(k.G(k.cone(0.22, 0.6 + (i === 1 ? 0.25 : 0), 5), i === 1 ? 'gold' : 'main'), x, -1.15, 0.1)))
     g.add(k.at(k.M(k.tor(0.95, 0.07, 4, 14), 'trim', { glow: 0.3 }), 0, 0.62, 0, Math.PI / 2))
     ;[-0.55, 0.55].forEach((x) => g.add(k.at(k.M(k.cyl(0.07, 0.07, 0.6, 4), 'ink'), x, -0.9, 0)))
   } else {
@@ -183,7 +185,7 @@ function coin(k, p) {
     return g
   }
   for (let i = 0; i < stack; i++) {
-    const c = k.M(k.cyl(0.9, 0.9, p.seal ? 0.3 : 0.2, p.seal ? 10 : 14), base, { glow: 0.1 })
+    const c = k.M(k.cyl(0.9, 0.9, p.seal ? 0.3 : 0.2, p.seal ? (p.sides ?? 10) : 14), base, { glow: 0.1 })
     c.rotation.x = Math.PI / 2
     c.position.z = (i - (stack - 1) / 2) * 0.28
     g.add(c)
@@ -194,7 +196,8 @@ function coin(k, p) {
   const z = ((stack - 1) / 2) * 0.28 + (p.seal ? 0.17 : 0.12)
   if (p.front) g.add(k.at(k.decal(p.front, p.seal ? 1.1 : 1.0, p.fg ?? 'white', p.bg ?? 'ink'), 0, 0, z))
   if (p.back) g.add(k.at(k.decal(p.back, 1.0, p.fg ?? 'white', p.bg ?? 'ink'), 0, 0, -z, 0, Math.PI))
-  if (p.seal) g.add(k.at(k.M(k.box(0.12, 0.7, 0.05), 'parch'), 0.35, -1, -0.1, 0, 0, 0.2))
+  if (p.seal) g.add(k.at(k.M(k.box(0.12, 0.7, 0.05), p.tail ?? 'parch'), 0.35, -1, -0.1, 0, 0, 0.2))
+  if (p.seal && p.tail) g.add(k.at(k.M(k.box(0.12, 0.7, 0.05), p.tail), -0.35, -1, -0.1, 0, 0, -0.2))
   g.rotation.x = 0.0
   return g
 }
@@ -291,8 +294,9 @@ function ring(k, p) {
 // ---- hourglass ----
 function hourglass(k, p) {
   const g = k.grp()
-  g.add(k.at(k.M(k.cyl(0.8, 0.8, 0.16, 12), 'wood'), 0, 1, 0), k.at(k.M(k.cyl(0.8, 0.8, 0.16, 12), 'wood'), 0, -1, 0))
-  ;[0, 1, 2].forEach((i) => g.add(k.at(k.M(k.cyl(0.06, 0.06, 2, 4), 'woodLo'), Math.cos((i / 3) * TAU + 0.5) * 0.7, 0, Math.sin((i / 3) * TAU + 0.5) * 0.7)))
+  const frame = p.frame ?? 'wood'
+  g.add(k.at(k.M(k.cyl(0.8, 0.8, 0.16, 12), frame), 0, 1, 0), k.at(k.M(k.cyl(0.8, 0.8, 0.16, 12), frame), 0, -1, 0))
+  ;[0, 1, 2].forEach((i) => g.add(k.at(k.M(k.cyl(0.06, 0.06, 2, 4), p.frame ? 'trim' : 'woodLo'), Math.cos((i / 3) * TAU + 0.5) * 0.7, 0, Math.sin((i / 3) * TAU + 0.5) * 0.7)))
   const glass = k.lathe([[0.001, 0.95], [0.6, 0.9], [0.62, 0.4], [0.1, 0.05], [0.62, -0.4], [0.6, -0.9], [0.001, -0.95]], 10)
   g.add(k.M(glass, 'glass', { op: 0.35 }))
   const sand = p.sand ?? 'gold'
@@ -300,9 +304,10 @@ function hourglass(k, p) {
   if (topLevel > 0.05) g.add(k.M(k.lathe([[0.001, 0.1 + topLevel * 0.7], [0.5 * (0.2 + topLevel), 0.1 + topLevel * 0.7], [0.05, 0.1], [0.001, 0.1]], 8), sand, { glow: 0.25 }))
   g.add(k.at(k.M(k.cone(0.55, 0.55, 8), sand, { glow: 0.25 }), 0, -0.65, 0))
   g.add(k.at(k.G(k.box(0.05, 0.4, 0.05), sand), 0, -0.1, 0))
-  if (p.flow === 'up') g.add(k.at(k.G(k.cone(0.14, 0.3, 4), 'white'), 0, 0.55, 0.3))
+  if (p.flow === 'up') g.add(k.at(k.G(new k.THREE.TorusGeometry(0.85, 0.06, 3, 16, Math.PI * 1.5), 'white'), 0, 0, 0.5, 0, 0, 0.8), k.at(k.G(k.cone(0.18, 0.4, 4), 'white'), 0.6, 0.62, 0.5, 0, 0, -0.9))
   if (p.embers) [[0.2, 0.1], [-0.25, -0.3], [0.1, -0.5]].forEach(([x, y]) => g.add(k.at(k.G(k.box(0.12, 0.12, 0.12), 'gold'), x, y, 0.2)))
   if (p.cracked) g.add(k.at(k.G(k.box(0.05, 1.2, 0.05), 'ink'), 0.3, 0.3, 0.6, 0, 0, 0.3))
+  if (p.wide) g.scale.x = 1.3
   g.rotation.x = 0.15
   return g
 }
@@ -417,11 +422,53 @@ function rock(k, p) {
     m.scale.set(0.95, 1.05, 0.55)
     g.add(m, k.at(k.decal(p.glyph ?? 'eye', 1.05, 'white', 'white'), 0, 0.05, 0.52))
   } else if (kind === 'runestone') {
-    // A pointed standing stone with the rune cut in the front and glowing in the rarity color.
-    g.add(k.M(k.ext('tablet', 0.5, 0.1), p.color ?? 'stone', { flat: true }))
-    g.add(k.at(k.G(k.box(1.1, 1.5, 0.04), 'inkLight'), 0, -0.15, 0.38))
-    g.add(k.at(k.decal(p.glyph, 1.1, 'trim', 'white'), 0, -0.15, 0.42))
-    g.add(k.at(k.G(k.box(0.14, 0.14, 0.14), 'trim'), 0.5, 0.75, 0.35, 0.3, 0.4, 0))
+    // Each rune is its own stone: a different silhouette and color, with its glyph cut in the front.
+    const body = p.body ?? 'tablet'
+    const col = p.color ?? 'stone'
+    const disc = (r, n) => {
+      const m = k.M(k.cyl(r, r, 0.5, n), col, { flat: true })
+      m.rotation.x = Math.PI / 2
+      if (n === 4) m.rotation.y = Math.PI / 4
+      return m
+    }
+    let w = 1.1
+    let h = 1.5
+    let z = 0.38
+    if (body === 'tablet') g.add(k.M(k.ext('tablet', 0.5, 0.1), col, { flat: true }))
+    else if (body === 'hex') g.add(disc(1.0, 6))
+    else if (body === 'diamond') {
+      g.add(disc(1.25, 4))
+      w = 0.9
+      h = 0.9
+    } else if (body === 'round') {
+      g.add(disc(1.0, 24))
+      w = 1.1
+      h = 1.1
+    } else if (body === 'tri') {
+      g.add(disc(1.15, 3))
+      g.children[0].rotation.y = Math.PI
+      w = 0.8
+      h = 0.8
+    } else if (body === 'wide') {
+      g.add(k.M(k.box(2.0, 1.25, 0.5), col, { flat: true }))
+      w = 1.2
+      h = 1.0
+    } else if (body === 'tall') {
+      g.add(k.M(k.box(1.1, 2.0, 0.5), col, { flat: true }))
+      h = 1.7
+    }
+    else if (body === 'oval') {
+      const m = k.M(k.sph(0.95, 10, 8), col, { flat: true })
+      m.scale.set(1, 1.2, 0.55)
+      g.add(m)
+    } else if (body === 'twin') {
+      g.add(k.at(k.M(k.box(0.75, 1.6, 0.4), col, { flat: true }), -0.5, 0, 0), k.at(k.M(k.box(0.75, 1.6, 0.4), col, { flat: true }), 0.5, 0, 0.1))
+      z = 0.3
+      w = 1.2
+    }
+    g.add(k.at(k.G(k.box(w, h, 0.04), 'inkLight'), 0, -0.1, z))
+    g.add(k.at(k.decal(p.glyph, w * 1.0, p.fg ?? 'white', p.fg ?? 'white'), 0, -0.1, z + 0.04))
+    g.add(k.at(k.G(k.box(0.14, 0.14, 0.14), 'trim'), 0.55, 0.75, 0.35, 0.3, 0.4, 0))
   } else if (kind === 'ammonite') {
     g.add(k.at(k.M(k.box(1.9, 1.5, 0.6), 'stone'), 0, 0, -0.1))
     for (let i = 0; i < 5; i++) g.add(k.at(k.M(new k.THREE.TorusGeometry(0.62 - i * 0.1, 0.1, 4, 14, Math.PI * 1.6), 'mainHi'), 0.08 * i, 0.05, 0.25, 0, 0, i * 0.9))

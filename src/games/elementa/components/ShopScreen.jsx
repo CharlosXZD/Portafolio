@@ -46,8 +46,10 @@ import { KEEPERS } from '../data/keepers.js'
  * slot's popover is open at a time (`openKey`/`onOpenChange`, lifted to
  * ShopScreen) so opening a new one closes whatever was open.
  */
-function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, openKey, onOpenChange, size = 72, placement, showCaption = true, affordable = true, renderIcon }) {
+function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, openKey, onOpenChange, size = 72, placement, showCaption = true, affordable = true, renderIcon, fresh = false }) {
   const isOpen = openKey === itemKey
+  // An item that lands in the inventory after the shop is already open (just bought) plays the rarity reveal once.
+  const [reveal] = useState(fresh)
   // Dice (and the dice a forge recipe makes) get the three levels of detail
   // (EXPANSION.md P5 to P9): hover for the basics, click for the short text,
   // click and hold (or right-click, or the Info button) for everything.
@@ -74,6 +76,8 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
       size={size}
       glyph={item.glyph}
       icon={item.icon} sprite={item.sprite}
+      itemId={item.itemId}
+      reveal={reveal}
       color={item.color}
       rarity={item.rarity}
       armed={armed}
@@ -474,6 +478,7 @@ function OfferCard({ title, body, color, button, disabled, done, onClick, art })
 }
 
 export default function ShopScreen({ state, dispatch }) {
+  const openedAt = useRef(Date.now())
   const { t, lang } = useLanguage()
   // An Arbiter has a word at every realm 3 shop (Part S).
   const arbiterShop = useArbiter(state, 'shop')
@@ -644,6 +649,7 @@ export default function ShopScreen({ state, dispatch }) {
               <IconSlot
                 key={relic.id}
                 itemKey={`ownedrelic-${relic.id}`}
+                fresh={Date.now() - openedAt.current > 900}
                 item={relicDescriptor(relic, lang)}
                 size={48}
                 showCaption={false}
@@ -672,6 +678,7 @@ export default function ShopScreen({ state, dispatch }) {
               <IconSlot
                 key={item.instanceId}
                 itemKey={`ownedconsumable-${item.instanceId}`}
+                fresh={Date.now() - openedAt.current > 900}
                 item={consumableDescriptor(item, lang)}
                 size={48}
                 showCaption={false}

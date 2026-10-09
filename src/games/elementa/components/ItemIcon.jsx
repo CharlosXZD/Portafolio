@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import { motion } from 'framer-motion'
 import { RARITY_GLOW } from '../data/relics.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
@@ -5,12 +6,21 @@ import { juicyHover, juicyTap } from '../utils/motionPresets.js'
 import PixelIcon from './PixelIcon.jsx'
 import PixelSprite from './PixelSprite.jsx'
 
+// The V2 item models (VISUALS.md): cached 3D renders of every relic and
+// consumable, loaded on demand (three.js and the generators are not part of
+// the first load) and built in idle time. Until one is ready, and whenever it
+// cannot be shown (low-end device, no WebGL, a tile too small to read), the
+// flat sprite below stays.
+const ItemModel = lazy(() => import('./visuals/ItemModel.jsx'))
+
 /**
  * The visual stand-in for a relic/consumable/die "item": a pixel tile with
  * an ink outline, a rarity-colored inner frame, and a placeholder mark (a
  * pixel element icon when there is one, otherwise a letter) until real
  * hand-drawn art exists. Pass `iconSrc` (a 32x32 sprite, see ASSETS.md) and
- * it renders that instead. Click to inspect (ItemInspector.jsx); `static`
+ * it renders that instead. With an `itemId` (a relic or consumable) the 3D
+ * model replaces the sprite once it is built; `reveal` plays the buy pop in
+ * the item's rarity glow. Click to inspect (ItemInspector.jsx); `static`
  * renders a plain, non-interactive tile for read-only lists.
  */
 export default function ItemIcon({
@@ -21,6 +31,8 @@ export default function ItemIcon({
   rarity = 'common',
   size = 56,
   iconSrc,
+  itemId,
+  reveal = false,
   armed = false,
   disabled = false,
   onClick,
@@ -53,7 +65,7 @@ export default function ItemIcon({
         : undefined,
   }
 
-  const content = iconSrc ? (
+  const flat = iconSrc ? (
     <img src={iconSrc} alt="" className="h-full w-full object-contain p-1" />
   ) : sprite ? (
     // 12px sprite at the largest whole-number scale that fits the tile.
@@ -65,6 +77,16 @@ export default function ItemIcon({
       {glyph}
     </span>
   )
+  // One art pixel of the model is a whole number of screen pixels; tiles under 36 are too small for it.
+  const modelScale = Math.floor((size - 2 * b - 4) / 24)
+  const content =
+    itemId && !iconSrc && modelScale >= 1 ? (
+      <Suspense fallback={flat}>
+        <ItemModel itemId={itemId} scale={modelScale} motion={isStatic ? 'still' : 'turn'} reveal={reveal} rarity={rarity} fallback={flat} />
+      </Suspense>
+    ) : (
+      flat
+    )
 
   if (isStatic) {
     return (
