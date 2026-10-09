@@ -13,7 +13,7 @@ import CreditsScreen from './components/CreditsScreen.jsx'
 import RunPreview from './components/RunPreview.jsx'
 import PauseMenu from './components/PauseMenu.jsx'
 import { ChromaticFilterDefs, CrtScanlines } from './components/CrtOverlay.jsx'
-import PixelBackdrop from './components/PixelBackdrop.jsx'
+import SceneBackdrop from './components/visuals/SceneBackdrop.jsx'
 import PixelIcon from './components/PixelIcon.jsx'
 import Tutorial from './components/Tutorial.jsx'
 import { GameSettingsProvider, useGameSettings } from './utils/gameSettingsContext.jsx'
@@ -395,7 +395,7 @@ function ElementaGameInner() {
       style={{ ...(crtEffect ? { filter: 'url(#elementa-chromatic)' } : {}), ...(erase != null ? { '--erase': erase } : {}) }}
     >
       <ChromaticFilterDefs />
-      <PixelBackdrop scene={scene} />
+      <SceneBackdrop state={state} scene={scene} />
 
       <main
         className={`relative z-10 flex min-h-screen w-full flex-col ${

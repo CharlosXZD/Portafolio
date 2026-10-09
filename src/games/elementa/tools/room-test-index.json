@@ -1,0 +1,102 @@
+{
+ "table": {
+  "phase": "rolling",
+  "round": 1,
+  "shop": null
+ },
+ "shop:market": {
+  "phase": "shop",
+  "round": 1,
+  "shop": "market"
+ },
+ "shop:camp": {
+  "phase": "shop",
+  "round": 2,
+  "shop": "camp"
+ },
+ "shop:shrine": {
+  "phase": "shop",
+  "round": 2,
+  "shop": "shrine"
+ },
+ "shop:forge": {
+  "phase": "shop",
+  "round": 3,
+  "shop": "forge"
+ },
+ "shop:alchemist": {
+  "phase": "shop",
+  "round": 4,
+  "shop": "alchemist"
+ },
+ "boss": {
+  "phase": "rolling",
+  "round": 5,
+  "shop": null
+ },
+ "shop:vault": {
+  "phase": "shop",
+  "round": 10,
+  "shop": "vault"
+ },
+ "shop:bazaar": {
+  "phase": "shop",
+  "round": 14,
+  "shop": "bazaar"
+ },
+ "shop:blackmarket": {
+  "phase": "shop",
+  "round": 6,
+  "shop": "blackmarket"
+ },
+ "crossroads": {
+  "phase": "crossroads",
+  "round": 15,
+  "shop": "forge"
+ },
+ "fshop:market": {
+  "phase": "shop",
+  "round": 15,
+  "shop": "market"
+ },
+ "fshop:shrine": {
+  "phase": "shop",
+  "round": 16,
+  "shop": "shrine"
+ },
+ "fshop:blackmarket": {
+  "phase": "shop",
+  "round": 17,
+  "shop": "blackmarket"
+ },
+ "fshop:alchemist": {
+  "phase": "shop",
+  "round": 18,
+  "shop": "alchemist"
+ },
+ "fshop:observatory": {
+  "phase": "shop",
+  "round": 19,
+  "shop": "observatory"
+ },
+ "fshop:vault": {
+  "phase": "shop",
+  "round": 20,
+  "shop": "vault"
+ },
+ "fshop:clockwork": {
+  "phase": "shop",
+  "round": 21,
+  "shop": "clockwork"
+ },
+ "fshop:forge": {
+  "phase": "shop",
+  "round": 22,
+  "shop": "forge"
+ },
+ "fshop:cartography": {
+  "phase": "shop",
+  "round": 27,
+  "shop": "cartography"
+ }
+}

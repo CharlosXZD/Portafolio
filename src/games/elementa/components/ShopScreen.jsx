@@ -21,8 +21,10 @@ import PriceTag from './PriceTag.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import { Hearts, ShardCount, Stat } from './RoundHUD.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
+import ShopPortrait from './visuals/ShopPortrait.jsx'
+import { emitRoom, eventForAction } from './visuals/room/roomBus.js'
 import RoadMap from './RoadMap.jsx'
-import { playCoin, playClick, playSuccess, playFail } from '../utils/sound.js'
+import { playCoin, playClick, playSuccess, playFail as playFailSound } from '../utils/sound.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { juicyHover } from '../utils/motionPresets.js'
 import DieToken from './DieToken.jsx'
@@ -351,6 +353,12 @@ function allegianceContext(state, keeper) {
 }
 
 /** The shop's keeper and what they say this visit (they remember you). */
+// A failed buy or use: the sound, and the keeper's grumble (V3.8 room event).
+function playFail() {
+  playFailSound()
+  emitRoom('broke')
+}
+
 function KeeperGreeting({ state, type }) {
   const { t, lang } = useLanguage()
   const [visit, setVisit] = useState(null)
@@ -375,7 +383,7 @@ function KeeperGreeting({ state, type }) {
   return (
     <div className="flex w-full max-w-2xl items-end gap-4">
       <div className="flex shrink-0 flex-col items-center gap-1">
-        <KeeperSprite id={keeper.id} size={72} />
+        <ShopPortrait id={keeper.id} size={72} lineLength={lineText(keeper, line, lang).length} />
         <span className="pixel-score text-[8px] text-[var(--gold-hi)]">{keeper.name[lang]}</span>
       </div>
       <motion.div
@@ -407,7 +415,7 @@ function CampGreeting({ state, type }) {
   return (
     <div className="flex w-full max-w-2xl items-end gap-4">
       <div className="flex shrink-0 flex-col items-center gap-1">
-        <KeeperSprite id={keeper.id} size={72} />
+        <ShopPortrait id={keeper.id} size={72} lineLength={type.line[lang].length} />
         <span className="pixel-score text-[8px] text-[var(--gold-hi)]">{keeper.name[lang]}</span>
       </div>
       <motion.div
@@ -478,13 +486,23 @@ function OfferCard({ title, body, color, button, disabled, done, onClick, art })
   )
 }
 
-export default function ShopScreen({ state, dispatch }) {
+export default function ShopScreen({ state, dispatch: gameDispatch }) {
   const openedAt = useRef(Date.now())
   const { t, lang } = useLanguage()
   // An Arbiter has a word at every realm 3 shop (Part S).
   const arbiterShop = useArbiter(state, 'shop')
   const shop = state.shop
   const [openKey, setOpenKey] = useState(null)
+  // What the shop does tells the room (V3.8): a buy, a sale, a restock or leaving.
+  const dispatch = (action) => {
+    const event = eventForAction(action.type)
+    if (event) emitRoom(event)
+    gameDispatch(action)
+  }
+  // Opening an item's inspector is a pick.
+  useEffect(() => {
+    if (openKey) emitRoom('pick')
+  }, [openKey])
   const [armedConsumable, setArmedConsumable] = useState(null)
   // A shop consumable bought with "Buy & use" that still needs a die.
   const [armedPurchase, setArmedPurchase] = useState(null)
