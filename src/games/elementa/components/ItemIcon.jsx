@@ -30,8 +30,8 @@ export default function ItemIcon({
   glyph,
   icon,
   sprite,
-  color = '#9ca3af',
-  rarity = 'common',
+  color: colorProp = '#9ca3af',
+  rarity: rarityProp = 'common',
   size = 56,
   iconSrc,
   itemId,
@@ -42,7 +42,12 @@ export default function ItemIcon({
   onClick,
   title,
   static: isStatic = false,
+  silhouette = false,
 }) {
+  // The Gallery's unseen items (VISUALS.md V3.5): the shape of the model or sprite in
+  // one dark tone, on a neutral tile. No color, no rarity, no detail to spoil it.
+  const color = silhouette ? '#6e6480' : colorProp
+  const rarity = silhouette ? 'common' : rarityProp
   const glow = RARITY_GLOW[rarity] || RARITY_GLOW.common
   const { reducedMotion } = useGameSettings()
   const b = size >= 40 ? 3 : 2
@@ -92,10 +97,19 @@ export default function ItemIcon({
       flat
     )
 
+  const shown =
+    silhouette && (itemId || sprite || icon) ? (
+      <span className="flex items-center justify-center" style={{ filter: 'brightness(0) invert(0.27)' }}>
+        {content}
+      </span>
+    ) : (
+      content
+    )
+
   if (isStatic) {
     return (
       <span title={title} className="relative inline-flex shrink-0 items-center justify-center" style={style}>
-        {content}
+        {shown}
       </span>
     )
   }

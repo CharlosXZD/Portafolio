@@ -89,6 +89,7 @@ function Detail({ entry, lang, t }) {
   if (!entry.seen) {
     return (
       <div className="flex flex-col gap-3">
+        {entry.item && <ItemIcon static silhouette size={72} itemId={entry.item.itemId} icon={entry.item.icon} sprite={entry.item.sprite} glyph="?" />}
         <div className="pixel-heading text-[10px] text-[var(--text-mute)]">???</div>
         <p className="text-base text-[var(--text-dim)]">{entry.hint ?? t('elementa.gallery.undiscovered')}</p>
       </div>
@@ -154,7 +155,7 @@ function Group({ title, color, note, entries, selectedKey, onSelect }) {
                 (e.seen ? (
                   <ItemIcon static size={56} itemId={e.item.itemId} icon={e.item.icon} sprite={e.item.sprite} glyph={e.item.glyph} color={e.item.color} rarity={e.item.rarity} />
                 ) : (
-                  <ItemIcon static size={56} glyph="?" color="#6e6480" />
+                  <ItemIcon static silhouette size={56} itemId={e.item?.itemId} icon={e.item?.icon} sprite={e.item?.sprite} glyph="?" />
                 ))}
             </button>
           )
