@@ -14,6 +14,8 @@ A living design document between Carlos (the designer) and Claude. It collects e
 
 **Mute the game before any browser test.** Carlos plays in his own tab while agents test, and he hears double music. Before driving the game in the browser pane, set `elementa-music-enabled` to `false`, and `elementa-music-volume` and `elementa-sfx-volume` to `0` in localStorage (in the same call that writes any test save), then reload. Never leave sound on in a test save. The Jukebox page is the only exception, and only when the task is to check a song.
 
+**Visual work follows `VISUALS.md`.** Carlos (2026-10-08) clarified that "no AI art" means **no generative visual art**: art made with code (SVG, canvas, CSS, JavaScript, Three.js, Remotion) is welcome. For any visual change, read `VISUALS.md` first: it lists the skills to load and the phases. Steam notes for later are in `STEAM.md`.
+
 **Never build from `IDEAS.md`** (Carlos's inbox of loose ideas). Never treat `CONTENT.md` as a plan: it describes only the current game.
 
 **Read first, in this order:**
@@ -576,6 +578,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.9.5** | The Convergence | **Built.** Part T: the Rush (one boss at a time, shops between except on Cataclysm), Pip's callback fight, the ghost duel (multi-cast, it steals and interferes), the Cataclysm best build, new loadouts (Climate, Lottery, Quintessence). Becomes Ready after the best-build result. |
 | **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
 | **(old)** | Rewriting reality | Became v0.9 (Realm 3) and v0.9.5 (Convergence). |
+| **(visuals)** | Visual overhaul | **V1 Ready** (`VISUALS.md`): foundations, the Visual Lab, Remotion and 3D spikes; V2 to V7 Proposed (items, backgrounds, cinematics, the map, characters, polish). Runs between v0.9.5 and v1.0, in small phases released as Alpha 0.9.6 and up. |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
 | **Beta v0.1** | Cinematics and depth | Part G Q4b: full animated cinematics, 3D-style item sprites like the dice, and more interesting items and synergies. The beta starts after Alpha v1.0. |
 
