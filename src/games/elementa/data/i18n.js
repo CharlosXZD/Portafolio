@@ -320,6 +320,7 @@ export const RELICS_ES = {
   },
 }
 
+import { CONVERGENCE_BOSS_ES } from './convergence.js'
 import { CONSTELLATIONS_ES } from './constellations.js'
 import { TOTEMS_ES } from './totems.js'
 import { ABSTRACT_DEFS, ABSTRACT_ES } from './abstract.js'
@@ -462,6 +463,7 @@ export function localizeBossModifier(modifier, lang) {
 }
 
 export const BOSS_MODIFIERS_ES = {
+  ...CONVERGENCE_BOSS_ES,
   calm_winds: {
     name: 'Vientos Calmos',
     description: 'Las explosiones no encadenan esta ronda: la cara máxima suma una vez y se detiene.',

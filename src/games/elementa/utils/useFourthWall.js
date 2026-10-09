@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { readFourthWall, writeFourthWall, startSessionTracking } from './fourthWall.js'
+import { readFourthWall, writeFourthWall, startSessionTracking, probeBattery } from './fourthWall.js'
 
 const EVENT = 'elementa-fourthwall-change'
 
@@ -16,7 +16,11 @@ export function useFourthWall() {
     return () => window.removeEventListener(EVENT, sync)
   }, [])
   // The sitting is only counted once the player said yes.
-  useEffect(() => (permission === 'yes' ? startSessionTracking() : undefined), [permission])
+  useEffect(() => {
+    if (permission !== 'yes') return undefined
+    probeBattery()
+    return startSessionTracking()
+  }, [permission])
   const choose = useCallback((value) => {
     writeFourthWall(value)
     // Storage may be blocked: the answer still holds for this sitting.

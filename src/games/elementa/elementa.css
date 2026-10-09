@@ -867,3 +867,15 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* The Unwritten (EXPANSION.md T1): the interface is being rubbed out, a little more with every fight.
+   Static on purpose, so it reads the same under Reduced motion. */
+.elementa-root[data-erase] [data-die-face] {
+  opacity: calc(1 - var(--erase, 0) * 0.65);
+}
+.elementa-root[data-erase] aside ul > li:nth-child(3n) {
+  opacity: calc(1 - var(--erase, 0) * 0.9);
+}
+.elementa-root[data-erase] aside ul > li:nth-child(3n + 1) {
+  opacity: calc(1 - var(--erase, 0) * 0.5);
+}

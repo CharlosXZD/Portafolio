@@ -48,6 +48,9 @@ export function emptyProfile() {
     sigils: [],
     // An Arbiter (Part S): whether he has appeared on this file, and the deepest realm 3 round seen with him.
     arbiter: { met: false, deepest: 0 },
+    // The Convergence (T4): the dice and relics of the highest cast ever on this file, and the build that beat the ghost duel last.
+    bestBuild: null,
+    ghost: null,
     // One-time data fixes already applied to this file (a new file needs none).
     migrations: ['kairos'],
   }
@@ -81,6 +84,8 @@ function normalizeProfile(p = {}) {
     mote: { fed: p.mote?.fed || 0 },
     scenes: p.scenes || [],
     arbiter: { met: Boolean(p.arbiter?.met), deepest: p.arbiter?.deepest || 0 },
+    bestBuild: p.bestBuild ?? null,
+    ghost: p.ghost ?? null,
     // A file that already has the Firmament endings has the sigil dice they unlock.
     sigils: [...new Set([...(p.sigils || []), ...sigilsFromEndings(p.endings || [])])],
     ...kairosRename(p),

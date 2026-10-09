@@ -95,6 +95,21 @@ import {
 import { firmamentEnding } from '../data/endings.js'
 import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
 import { isPokerId, pokerFaces, JOKER_CAP } from '../data/poker.js'
+import {
+  RUSH_BASE,
+  RUSH_WARDEN_FACTORS,
+  PIP_FRACTION,
+  PIP_BOSS,
+  YOU_BOSS,
+  DUEL_EXCHANGES,
+  DUEL_GOAL_MULT,
+  DUEL_TWO_MOVES_FROM,
+  GHOST_SAMPLES,
+  MOVE_IDS,
+  CATACLYSM_GHOST,
+  ARRIVAL_STARDUST,
+  rushFights,
+} from '../data/convergence.js'
 import { clampFavor, arbiterRound, FAVOR_CLEAN, FAVOR_WARNING, FAVOR_SMITE, FAVOR_BETRAYAL } from '../data/arbiter.js'
 import { REWRITER_ROUNDS, rewriterFor, REWRITER_SETS, REWRITER_TARGET, rewriterById, realm3Ending, REALM3_END } from '../data/realm3.js'
 import { isSigilId, sigilFaces, sigilSetOf, isGreaterSigil, SIGIL_SETS, SIGIL_SET_IDS, SIGIL_OFFER_CHANCE, SIGIL_PRICE, SIGIL_GREATER_PRICE } from '../data/sigils.js'
@@ -211,14 +226,17 @@ function relicEffects(relics) {
 // branch at each call site. It's deliberately never added to state.relics
 // itself, so it can't be sold or shown as an owned relic.
 function effectiveRelics(state) {
+  // The ghost of the duel may borrow one relic (or the Law) for an exchange (T4).
+  const lent = state.duel?.borrowed ?? null
+  const owned = lent ? state.relics.filter((r) => r.id !== lent) : state.relics
   // The Law (O2) sits outside the relic slots but scores like a relic.
-  const law = state.law ? [state.law] : []
-  if (!state.bossModifier) return law.length ? [...state.relics, ...law] : state.relics
+  const law = state.law && state.law.id !== lent ? [state.law] : []
+  if (!state.bossModifier) return law.length ? [...owned, ...law] : owned
   // Silence seals one owned relic for the round; the Hollow seals them all (H2).
   const twists = [state.bossModifier, state.extraTwist].filter(Boolean)
   const sealed = twists.map((t) => t.effects?.sealedRelicId).filter(Boolean)
   const sealAll = twists.some((t) => t.effects?.sealAllRelics)
-  const relics = sealAll ? [] : sealed.length ? state.relics.filter((r) => !sealed.includes(r.id)) : state.relics
+  const relics = sealAll ? [] : sealed.length ? owned.filter((r) => !sealed.includes(r.id)) : owned
   return [...relics, ...law, ...twists]
 }
 
@@ -1465,6 +1483,9 @@ function fileFields(file = {}) {
     // The sigil dice this file has unlocked (P3).
     sigils: [...(file.sigils || [])],
     rewriters: [...(file.rewriters || [])],
+    // The Convergence (T): the best build and the ghost on this file, kept for the duel.
+    fileBestBuild: file.bestBuild ?? null,
+    fileGhost: file.ghost ?? null,
   }
 }
 
@@ -1548,6 +1569,8 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', re
     seed,
     recipes: [...recipes],
     ...fileFields(file),
+    // A file that reached the Unwritten starts every run with Stardust (T1).
+    stardust: (file.endings || []).includes('unwritten') ? ARRIVAL_STARDUST : 0,
     rngState: getRngState(),
   }
 }
@@ -1942,6 +1965,7 @@ function trialFor(stage) {
 }
 
 function stageTarget(state, stage) {
+  if (state.convergence) return convTarget(state, 'gods', stage)
   return Math.round(thresholdForRound(WIN_ROUND, state.difficulty) * trialFor(stage).target)
 }
 
@@ -2517,6 +2541,331 @@ function countShift(state) {
   }
 }
 
+// --- The Convergence (EXPANSION.md Part T, v0.9.5): the Rush, Pip and the ghost duel. ---
+
+/** The base a Rush target is built on: this run's best cast, never less than round 45's own target. */
+function rushBest(state) {
+  return Math.max(1, state.bestCast || 0, thresholdForRound(REALM3_END, state.difficulty))
+}
+
+/** The fights in the Rush that are Wardens, in order (Set I then Set II). */
+const RUSH_WARDENS = ['dawn', 'clockwork', 'expanse', 'umbra', 'maelstrom', 'hollow']
+
+/** A Convergence fight's target (T2, T3): 0.6 of the best cast of the run so far, times the boss's own factor. */
+function convTarget(state, id, stage = 0) {
+  const best = rushBest(state)
+  if (id === 'pip') return Math.max(1, Math.round(best * PIP_FRACTION))
+  const base = best * RUSH_BASE
+  if (id === 'gods') return Math.max(1, Math.round(base * GOD_TRIALS[stage].target))
+  const warden = RUSH_WARDENS.indexOf(id)
+  if (warden !== -1) return Math.max(1, Math.round(base * RUSH_WARDEN_FACTORS[warden % 3]))
+  if (rewriterById(id)) return Math.max(1, Math.round(base * (REWRITER_TARGET[id] ?? 1)))
+  return Math.max(1, Math.round(base))
+}
+
+/** The boss object for a Rush fight, by id. */
+function convBoss(id) {
+  if (id === 'primordial') return primordialWith(randomOf(PRIMORDIAL_POOL))
+  if (id === 'gods') return GOD_TRIALS[0]
+  if (id === 'pip') return PIP_BOSS
+  if (id === 'you') return YOU_BOSS
+  return bossById(id)
+}
+
+/** What a shop between Convergence fights shows as the next target and boss. */
+function convergenceNext(state) {
+  const c = state.convergence
+  if (!c) return null
+  const id = c.fights[c.index]
+  if (!id) return null
+  return { id, target: id === 'you' ? null : convTarget(state, id), boss: convBoss(id) }
+}
+
+/** A fight begins (T2): a fresh table with the boss's rules on, the target set from the run's best cast. */
+function startConvFight(state, index) {
+  const id = state.convergence.fights[index]
+  if (id === 'you') return startDuel({ ...state, convergence: { ...state.convergence, index } }, false)
+  const boss = convBoss(id)
+  const gods = id === 'gods'
+  const twistRelics = effectiveRelics({ relics: state.relics, law: state.law, bossModifier: boss, extraTwist: null })
+  const dice = applyTwistsRoundStart(rollFreshRound(state.dice, twistRelics), boss, null)
+  return {
+    ...state,
+    phase: 'rolling',
+    bossModifier: boss,
+    extraTwist: null,
+    longNightActive: false,
+    gauntlet: gods ? { stage: 0, rush: true } : null,
+    roundPool: null,
+    convergence: { ...state.convergence, index },
+    threshold: gods ? convTarget(state, 'gods', 0) : convTarget(state, id),
+    dice,
+    ...freshRoundCounters(dice),
+    rerollsUsed: 0,
+    rerollsBonusThisRound: state.nextRoundRerollBonus || 0,
+    nextRoundRerollBonus: 0,
+    freezeChargesUsed: 0,
+    roundBuffs: state.nextRoundBuffs || {},
+    nextRoundBuffs: {},
+    roundSeq: (state.roundSeq || 0) + 1,
+    chronicle: noteBoss(state.chronicle, boss),
+    arbiterRound: null,
+    arbiterOffense: false,
+    shop: null,
+    lastResult: null,
+  }
+}
+
+/** A Rush fight or Pip is cleared: Shards for the clear, then a Market or straight to the next fight. */
+function convergenceCleared(state, result, target) {
+  const c = state.convergence
+  const earned = shardsEarned(result.roundScore, target, state.difficulty)
+  const next = {
+    ...state,
+    shards: state.shards + earned,
+    bestCast: Math.max(state.bestCast || 0, result.roundScore),
+    gauntlet: null,
+    bossModifier: null,
+    dice: withoutTemps(state.dice),
+    lastResult: { ...result, passed: true, threshold: target, shardGain: { base: earned, overkill: 0, interest: 0, bonus: 0, total: earned, effects: [] }, beatBoss: true, convergence: true },
+    convergence: { ...c, index: c.index + 1, cleared: c.cleared + 1 },
+  }
+  if (!c.shops) return startConvFight(next, next.convergence.index)
+  return { ...next, phase: 'shop', shop: { ...buildShopOffers(next, 'market'), afterBoss: false, rerollLocked: false } }
+}
+
+/** A round was missed (or a duel lost): a life goes, and with none left the run ends. */
+function missRound(state, result, passed, target) {
+  const fx = relicEffects(state.relics)
+  let lives = state.lives - 1
+  let secondWindUsed = state.secondWindUsed
+  let secondWindTriggered = false
+  if (lives <= 0 && fx.preventFirstDeath && !state.secondWindUsed) {
+    lives = 1
+    secondWindUsed = true
+    secondWindTriggered = true
+  }
+  return {
+    ...state,
+    phase: lives <= 0 ? 'gameover' : 'missed',
+    lastResult: { ...result, passed, threshold: target, secondWindTriggered },
+    lives: Math.max(0, lives),
+    secondWindUsed,
+    shards: state.shards + (fx.lifeLostShardBonus || 0),
+  }
+}
+
+// --- The ghost duel (T4) ---
+
+/** A die as it is kept in a saved build (the file's best build, its ghost) and in the Cataclysm ghost. */
+function snapshotDie(d) {
+  return { elementId: d.elementId, tierId: d.tierId, sides: d.sides, bonus: d.bonus || 0, runes: d.runes || [], edition: d.edition ?? null, weights: Boolean(d.weights), socket: Boolean(d.socket) }
+}
+
+/** The build a run holds right now: its dice, relics and Law (what `profile.bestBuild` and `profile.ghost` keep). */
+export function snapshotBuild(state) {
+  return { dice: withoutTemps(state.dice).map(snapshotDie), relics: state.relics.map((r) => r.id), law: state.law?.id ?? null }
+}
+
+function dieFromSnapshot(snap) {
+  const base = makeDie(snap.elementId, snap.tierId, snap.edition ?? null)
+  return { ...base, sides: snap.sides ?? base.sides, bonus: snap.bonus || 0, runes: snap.runes || [], weights: Boolean(snap.weights), socket: Boolean(snap.socket) }
+}
+
+/** Your build with every die one size tier up and its bonuses doubled (Blaze, Default). */
+function upgradedBuild(state) {
+  const snap = snapshotBuild(state)
+  const dice = withoutTemps(state.dice).map((d, i) => {
+    const up = growTier(state, d)
+    return { ...snap.dice[i], ...(up ? { tierId: up.id, sides: up.sides } : {}), bonus: (d.bonus || 0) * 2 }
+  })
+  return { ...snap, dice }
+}
+
+/** The curated Cataclysm ghost as a saved build (T6). */
+export function cataclysmBuild() {
+  return {
+    dice: CATACLYSM_GHOST.dice.map(([elementId, tierId]) => ({ elementId, tierId, sides: tierById(tierId).sides, bonus: 0, runes: [], edition: null })),
+    relics: [...CATACLYSM_GHOST.relics],
+    law: CATACLYSM_GHOST.law,
+  }
+}
+
+/** Who the ghost is, by difficulty (T4): Ember your build now, Blaze with upgrades, Inferno the best on file, Cataclysm the curated one. */
+export function ghostBuildFor(state) {
+  const id = state.difficulty?.id
+  if (id === 'cataclysm') return cataclysmBuild()
+  if (id === 'inferno') return state.fileGhost ?? state.fileBestBuild ?? snapshotBuild(state)
+  if (id === 'blaze') return upgradedBuild(state)
+  return snapshotBuild(state)
+}
+
+/** One cast of a ghost build through the real engine: roll it, then two simple rerolls that keep the high dice. */
+export function ghostCast(state, build, borrowed = null) {
+  const relics = build.relics.map(relicById).filter(Boolean)
+  const lent = borrowed ? [relicById(borrowed)].filter(Boolean) : []
+  const law = build.law ? relicById(build.law) : null
+  let dice = build.dice.map(dieFromSnapshot)
+  const ghostState = { ...state, dice, relics: [...relics, ...lent], law, bossModifier: null, extraTwist: null, duel: null, roundBuffs: {}, rerollsUsed: 0, rerollsBonusThisRound: 0, nextRoundRerollBonus: 0 }
+  const fxRelics = effectiveRelics(ghostState)
+  dice = rollFreshRound(dice, fxRelics)
+  for (let pass = 0; pass < 2; pass++) {
+    dice = rerollPool(
+      dice.map((d) => ({ ...d, held: d.value >= Math.ceil(d.sides * 0.7) })),
+      fxRelics,
+      {},
+    )
+  }
+  return evaluatePool(dice, fxRelics, scoreContext({ ...ghostState, dice })).roundScore
+}
+
+/** The duel begins, or begins again after a loss (T4). */
+function startDuel(state, rematch) {
+  const prior = state.duel
+  const build = prior?.build ?? ghostBuildFor(state)
+  let best = prior?.best
+  if (!best) {
+    best = 1
+    for (let k = 0; k < GHOST_SAMPLES; k++) best = Math.max(best, ghostCast(state, build))
+  }
+  const base = restoreStolen(state)
+  const duel = {
+    kind: state.difficulty?.id ?? 'ember',
+    build,
+    best,
+    goal: Math.max(1, Math.round(best * DUEL_GOAL_MULT)),
+    you: 0,
+    them: 0,
+    exchange: 1,
+    moves: [],
+    moveDone: true,
+    stolen: [],
+    borrowed: null,
+    last: null,
+    rematches: rematch ? (prior?.rematches || 0) + 1 : 0,
+  }
+  return beginExchange({ ...base, duel, bossModifier: YOU_BOSS, extraTwist: null, gauntlet: null, convergence: { ...state.convergence, stage: 'duel' } })
+}
+
+/** Puts back the die the ghost took, in the place it was. */
+function restoreStolen(state) {
+  const taken = state.duel?.stolen || []
+  if (!taken.length) return state
+  const dice = [...state.dice]
+  ;[...taken].sort((a, b) => a.index - b.index).forEach(({ die, index }) => dice.splice(Math.min(index, dice.length), 0, { ...die, held: false }))
+  return { ...state, dice, duel: { ...state.duel, stolen: [] } }
+}
+
+/** A new exchange: the table rolls fresh, the ghost announces its move or moves, the target is what is still needed. */
+function beginExchange(state) {
+  const duel = state.duel
+  const restored = restoreStolen({ ...state, duel: { ...duel, borrowed: null } })
+  const count = duel.exchange >= DUEL_TWO_MOVES_FROM ? 2 : 1
+  // A borrow needs a relic to borrow.
+  const pool = MOVE_IDS.filter((m) => m !== 'borrow' || restored.relics.length + (restored.law ? 1 : 0) > 0)
+  const moves = []
+  while (moves.length < count && pool.length) moves.push(pool.splice(Math.floor(random() * pool.length), 1)[0])
+  const dice = rollFreshRound(restored.dice, effectiveRelics({ ...restored, bossModifier: null }))
+  return {
+    ...restored,
+    phase: 'rolling',
+    dice,
+    ...freshRoundCounters(dice),
+    rerollsUsed: 0,
+    rerollsBonusThisRound: restored.nextRoundRerollBonus || 0,
+    nextRoundRerollBonus: 0,
+    freezeChargesUsed: 0,
+    roundSeq: (restored.roundSeq || 0) + 1,
+    threshold: Math.max(1, duel.goal - duel.you),
+    shop: null,
+    lastResult: null,
+    duel: { ...restored.duel, moves, moveDone: false, borrowed: null },
+  }
+}
+
+/**
+ * The ghost's announced moves land on your first reroll or your cast (T4), so a
+ * held die is safe. It never destroys a die and never keeps a relic.
+ */
+function applyDuelMoves(state) {
+  const duel = state.duel
+  if (!duel || duel.moveDone) return state
+  let dice = state.dice
+  const stolen = [...duel.stolen]
+  let borrowed = duel.borrowed
+  const free = (d) => !d.held && !d.locked && !d.temp
+  const best = (list) => list.reduce((a, d) => (!a || d.value > a.value ? d : a), null)
+  const worst = (list) => list.reduce((a, d) => (!a || d.value < a.value ? d : a), null)
+  for (const move of duel.moves) {
+    if (move === 'steal') {
+      const prey = best(dice.filter(free))
+      if (prey && dice.length > 1) {
+        stolen.push({ die: prey, index: dice.findIndex((d) => d.id === prey.id) })
+        dice = dice.filter((d) => d.id !== prey.id)
+      }
+    } else if (move === 'rewind') {
+      const prey = best(dice.filter(free))
+      if (prey) {
+        const rel = effectiveRelics({ ...state, dice, bossModifier: null })
+        const rolled = rerollPool(dice.map((d) => ({ ...d, held: d.id !== prey.id })), rel, {})
+        dice = dice.map((d, i) => (d.id === prey.id ? { ...rolled[i], held: false } : d))
+      }
+    } else if (move === 'borrow') {
+      const owned = [...state.relics.map((r) => r.id), ...(state.law ? [state.law.id] : [])]
+      if (owned.length && !borrowed) borrowed = owned[Math.floor(random() * owned.length)]
+    } else if (move === 'shuffle') {
+      dice = [...dice]
+      for (let i = dice.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1))
+        ;[dice[i], dice[j]] = [dice[j], dice[i]]
+      }
+    } else if (move === 'lock') {
+      const prey = worst(dice.filter(free))
+      if (prey) dice = dice.map((d) => (d.id === prey.id ? { ...d, locked: true, held: true, lockedVia: 'ghost' } : d))
+    }
+  }
+  return { ...state, dice, duel: { ...duel, moveDone: true, stolen, borrowed } }
+}
+
+/** One exchange of the duel is cast (T4): you first, then the ghost; first to the goal wins. */
+function submitDuelExchange(state, result) {
+  state = applyDuelMoves(state)
+  // Cast what is on the table after the moves.
+  const score = evaluatePool(state.dice, effectiveRelics(state), scoreContext(state)).roundScore
+  let duel = { ...state.duel }
+  duel.you += score
+  const mine = { ...result, roundScore: score }
+  const bestCast = Math.max(state.bestCast || 0, score)
+  if (duel.you >= duel.goal) return duelWon({ ...state, bestCast, duel }, mine)
+  const theirs = ghostCast(state, duel.build, duel.borrowed)
+  duel.them += theirs
+  duel.last = { exchange: duel.exchange, you: score, them: theirs, moves: duel.moves, borrowed: duel.borrowed }
+  const done = duel.exchange >= DUEL_EXCHANGES
+  if (duel.them >= duel.goal || (done && duel.them >= duel.you)) return duelLost({ ...state, bestCast, duel }, mine)
+  if (done) return duelWon({ ...state, bestCast, duel }, mine)
+  duel.exchange += 1
+  return beginExchange({ ...state, bestCast, duel })
+}
+
+function duelWon(state, result) {
+  const restored = restoreStolen(state)
+  return {
+    ...restored,
+    phase: 'victory',
+    ending: 'true',
+    bossModifier: null,
+    // The winning build becomes the next true boss on Inferno (T4).
+    ghostWin: snapshotBuild(restored),
+    lastResult: { ...result, passed: true, threshold: restored.duel.goal, duelWon: true },
+    duel: { ...restored.duel, won: true },
+  }
+}
+
+function duelLost(state, result) {
+  const restored = restoreStolen(state)
+  return missRound({ ...restored }, { ...result, roundScore: restored.duel.you, duelLost: true }, false, restored.duel.goal)
+}
+
 export function gameReducer(state, action) {
   if (typeof state.rngState === 'number') setRngState(state.rngState)
   // An Eye on the table makes the table's shape matter: note what it shows now (P5).
@@ -2701,6 +3050,8 @@ function reduce(state, action) {
     case 'REROLL_UNHELD': {
       if (state.phase !== 'rolling') return state
       if (availableRerolls(state) <= 0) return state
+      // The ghost's announced move lands on your first reroll (T4).
+      if (state.duel && !state.duel.moveDone) state = applyDuelMoves(state)
       // A cold Arbiter lets one hold slip, once in the round (Part S). Never a lock.
       const slipped = state.arbiterRound?.cold && !state.arbiterRound.used ? state.dice.find((d) => d.held && !d.locked && !d.temp) : null
       if (slipped) state = { ...state, dice: state.dice.map((d) => (d.id === slipped.id ? { ...d, held: false } : d)), arbiterRound: { ...state.arbiterRound, used: true } }
@@ -2859,6 +3210,10 @@ function reduce(state, action) {
       // Infinity, the Rewriter (R2), raises the target for every reroll and explosion.
       const target = effectiveThreshold(state)
       const passed = result.roundScore >= target
+      // Pip repeats the very first cast of the run (T3).
+      if (!state.firstCast) state = { ...state, firstCast: { dice: withoutTemps(state.dice).map((d) => ({ elementId: d.elementId, tierId: d.tierId, sides: d.sides, value: d.value })), score: result.roundScore } }
+      // The ghost duel is a race of exchanges, not a round with a target (T4).
+      if (state.duel) return submitDuelExchange(state, result)
       // A realm 3 round cleared without an Eye offense earns an Arbiter's favor (Part S).
       if (passed && state.realm3 && !state.arbiterOffense) state = { ...state, favor: clampFavor((state.favor || 0) + FAVOR_CLEAN) }
       // Runes of Gold (O1) pay on every cast, cleared or not.
@@ -2876,6 +3231,9 @@ function reduce(state, action) {
       const glass = shatterGlass(state)
       state = glass.state
       result.shattered = glass.shattered
+
+      // A Rush fight or Pip cleared (T2, T3): on to the next one.
+      if (passed && state.convergence) return convergenceCleared(state, result, target)
 
       if (passed) {
         const earned = shardsEarned(result.roundScore, target, state.difficulty)
@@ -2938,7 +3296,8 @@ function reduce(state, action) {
             dice: state.dice.filter((d) => d.elementId !== PRIMORDIAL_DIE_ID),
           }
           // A path whose door is open stops at the Crossroads first (H1); so does the Firmament's last Warden (R1).
-          crossroads = state.realm3 ? false : firmament ? doorOpen3(state) : doorOpen(state)
+          // Round 45's Rewriter always opens the Unwritten's door (T1).
+          crossroads = state.realm3 ? true : firmament ? doorOpen3(state) : doorOpen(state)
         }
         // A Warden that falls gives the file its Mythic die; all six teach
         // Entropy's recipe (H2, H5).
@@ -2972,27 +3331,13 @@ function reduce(state, action) {
         }
       }
 
-      const fx = relicEffects(state.relics)
-      let lives = state.lives - 1
-      let secondWindUsed = state.secondWindUsed
-      let secondWindTriggered = false
-      if (lives <= 0 && fx.preventFirstDeath && !state.secondWindUsed) {
-        lives = 1
-        secondWindUsed = true
-        secondWindTriggered = true
-      }
-      return {
-        ...state,
-        phase: lives <= 0 ? 'gameover' : 'missed',
-        lastResult: { ...result, passed, threshold: target, secondWindTriggered },
-        lives: Math.max(0, lives),
-        secondWindUsed,
-        shards: state.shards + (fx.lifeLostShardBonus || 0),
-      }
+      return missRound(state, result, passed, target)
     }
 
     case 'RETRY_ROUND': {
       if (state.phase !== 'missed') return state
+      // A lost duel starts over with the totals at zero (T4).
+      if (state.duel) return startDuel(state, true)
       return retryRound(state)
     }
 
@@ -3001,7 +3346,7 @@ function reduce(state, action) {
     // next shop you picked stays the same; leaving retries the round.
     case 'GO_TO_CAMP': {
       // No camp in the middle of the gods' gauntlet (B1): retry the stage.
-      if (state.phase !== 'missed' || state.gauntlet) return state
+      if (state.phase !== 'missed' || state.gauntlet || state.convergence) return state
       const pay = campPayout(state.round)
       return {
         ...state,
@@ -3552,7 +3897,9 @@ function reduce(state, action) {
       if (canGrow && !(die && growTier(state, die))) return state
       // The optional third choice: one of the Laws on offer (O2).
       const lawChoice = (state.rewardLaws || []).includes(action.lawId) ? relicById(action.lawId) : null
-      return { ...applyBossReward(state, action), phase: 'shop', ...(lawChoice ? { law: lawChoice } : {}), rewardLaws: [] }
+      const rewarded = { ...applyBossReward(state, action), phase: 'shop', ...(lawChoice ? { law: lawChoice } : {}), rewardLaws: [] }
+      // On Cataclysm the Rush has no shops: the first fight follows the reward (T2).
+      return rewarded.convergence && !rewarded.convergence.shops ? startConvFight(rewarded, rewarded.convergence.index) : rewarded
     }
 
     // Pick the next stop on the Road (a shop linked from the current one).
@@ -3565,6 +3912,8 @@ function reduce(state, action) {
     case 'NEXT_ROUND': {
       if (state.phase !== 'shop') return state
       if (state.shop?.type === 'camp') return retryRound(state)
+      // Leaving a Convergence shop: the next fight (T2).
+      if (state.convergence) return startConvFight(state, state.convergence.index)
       const round = state.round + 1
       if (round > finalRound(state) && !state.endless) {
         return { ...withRecipe(state, QUADRA_FUSION_ID), phase: 'victory', ending: state.ending ?? state.path ?? 'neutral' }
@@ -3675,6 +4024,23 @@ function reduce(state, action) {
       return { ...state, phase: 'victory' }
     }
 
+    // Through the last door (T1): the Unwritten. The Rewriter's reward and a first Market come
+    // first, then the Rush.
+    case 'ENTER_UNWRITTEN': {
+      if (state.phase !== 'crossroads' || !state.realm3 || state.round < REALM3_END) return state
+      const chronicle = state.chronicle ?? { bosses: [], shops: [] }
+      const next = {
+        ...state,
+        ending: null,
+        gauntlet: null,
+        roundPool: null,
+        bossModifier: null,
+        convergence: { fights: rushFights(), index: 0, cleared: 0, shops: state.difficulty?.id !== 'cataclysm' },
+        chronicle: { ...chronicle, shops: [...chronicle.shops, { round: state.round, type: 'market' }] },
+      }
+      return { ...next, phase: 'bossReward', shop: { ...buildShopOffers(next, 'market'), afterBoss: true, firstUnwritten: true } }
+    }
+
     // Through the door: the same run goes on into the Firmament. Everything
     // is kept; the boss reward and a first Market with Tobb come first,
     // then round 16.
@@ -3727,6 +4093,9 @@ function reduce(state, action) {
 }
 
 export const selectors = {
+  convergenceNext,
+  snapshotBuild,
+  ghostBuildFor,
   availableRerolls,
   projectedPath,
   knowsGods,

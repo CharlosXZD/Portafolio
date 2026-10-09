@@ -42,6 +42,9 @@ const COLORS = {
   observer: '#ff9ad0',
   floating: '#d8d8f0',
   deadlock: '#c9a46b',
+  // The Convergence (T3, T4).
+  pip: '#b88cff',
+  you: '#f4f0fa',
 }
 
 function rng(seedStr) {

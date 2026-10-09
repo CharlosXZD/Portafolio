@@ -54,10 +54,11 @@ import RunInfo from './components/RunInfo.jsx'
 import Toasts from './components/Toasts.jsx'
 import Crossroads from './components/Crossroads.jsx'
 import StoryScene from './components/StoryScene.jsx'
-import { FourthWallPrompt } from './components/ArbiterParts.jsx'
+import { FourthWallPrompt, WeatherPrompt } from './components/ArbiterParts.jsx'
+import { useWeather } from './utils/useWeather.js'
 import { useFourthWall } from './utils/useFourthWall.js'
 import { setFeedbackContext } from './utils/feedback.js'
-import { markArbiter } from './utils/profile.js'
+import { markArbiter, saveGhost, recordBestBuild } from './utils/profile.js'
 import { sceneById } from './data/story.js'
 import { realm3For } from './data/realm3.js'
 import { GOD_TRIALS } from './data/bossModifiers.js'
@@ -86,6 +87,13 @@ function sceneFor(state, seen) {
   if (live && state.bossModifier?.tier === 5) ids.push(`rewriter_${state.bossModifier.id}`)
   if (state.realm3 && ['bossReward', 'shop'].includes(state.phase)) ids.push('realm3')
   if (state.phase === 'crossroads' && state.round === 15) ids.push('crossroads')
+  // The Convergence (T1 to T4): the Unwritten, Pip before and after, You before the duel.
+  const conv = state.convergence
+  if (conv) {
+    if (conv.cleared === 0 && ['bossReward', 'shop'].includes(state.phase)) ids.push('unwritten')
+    if (live && state.bossModifier?.id === 'pip') ids.push('pip_before')
+    if (conv.fights[conv.index] === 'you' && conv.cleared > 0 && ['shop', 'rolling'].includes(state.phase)) ids.push('pip_after', 'you_before')
+  }
   // The Arbiter, on the third offense of fishing with the Eye (P5).
   if (live && state.arbiterScene) ids.push('arbiter')
   // Pip on crossing the door (K6), then the follower's arrival.
@@ -129,6 +137,9 @@ function ElementaGameInner() {
   const [fourthWall, chooseFourthWall] = useFourthWall()
   const arbiterHere = Boolean(state.arbiterScene) || (state.realm3 && ['rolling', 'shop', 'bossReward'].includes(state.phase))
   const askFourthWall = slot != null && arbiterHere && fourthWall === null
+  // Weather and place is a second, separate question, asked after the first is a yes (T7).
+  const [weatherPermission, chooseWeather] = useWeather(arbiterHere && fourthWall === 'yes')
+  const askWeather = slot != null && arbiterHere && fourthWall === 'yes' && weatherPermission === null
   // He is met (for the Gallery) the first time he appears on this file.
   useEffect(() => {
     if (slot != null && arbiterHere) markArbiter(slot, state.realm3 ? state.round : 0)
@@ -247,6 +258,8 @@ function ElementaGameInner() {
     const r = state.lastResult
     if (!r || r === lastResultRef.current || slot == null) return
     lastResultRef.current = r
+    // The highest cast on the file keeps its build for the ghost (T4).
+    recordBestBuild(slot, r.roundScore, selectors.snapshotBuild(state))
     const secrets = (r.reactions || []).filter((x) => SECRET_REACTION_IDS.includes(x.id)).map((x) => x.id)
     notify(markSeen(slot, 'reactions', secrets).map((id) => ({ kind: 'reaction', id })))
     updateStats(slot, (st) => ({
@@ -313,6 +326,18 @@ function ElementaGameInner() {
     recordWin(state.ending || state.path || 'neutral')
   }, [state.phase, state.seed, state.path, slot, recordWin])
 
+  // Arriving at the Unwritten (T1): a completion mark on the loadout, the achievement, and the
+  // Stardust for every later run (read from the file's endings when a run starts).
+  const arrivedRef = useRef(null)
+  useEffect(() => {
+    if (slot == null || state.phase !== 'crossroads' || !state.realm3 || state.round < 45) return
+    const key = `${state.seed}-arrived`
+    if (arrivedRef.current === key) return
+    arrivedRef.current = key
+    if (markEnding(slot, 'unwritten', state.deckId)) notify([{ kind: 'ending', id: 'unwritten' }])
+    award(['where_roads_meet'])
+  }, [state.phase, state.seed, state.realm3, state.round, state.deckId, slot, notify, award])
+
   const endedRef = useRef(null)
   useEffect(() => {
     if (slot == null || (state.phase !== 'gameover' && state.phase !== 'victory')) {
@@ -331,6 +356,8 @@ function ElementaGameInner() {
     // Past the door, the round-15 win was recorded at the Crossroads; this
     // records the Firmament ending (H1). recordWin is safe to repeat.
     recordWin(state.ending || 'neutral')
+    // Beating yourself: the winning build is the next true boss on Inferno (T4).
+    if (state.ending === 'true' && state.ghostWin) saveGhost(slot, { ...state.ghostWin, deckId: state.deckId, difficulty: state.difficulty?.id })
     updateStats(slot, (st) => ({ ...st, runs: st.runs + 1, wins: st.wins + 1 }))
     // Trinity: all three files at 100% unlocks it on every file.
     if (allFilesComplete()) {
@@ -350,7 +377,10 @@ function ElementaGameInner() {
           ? 'boss'
           : 'table'
         : 'menu'
-  const scene = state.realm3 && (base === 'table' || base === 'shop') ? realm3For(state.path).id : base
+  // The Unwritten is the blank page under everything (T1).
+  const scene = state.convergence ? 'unwritten' : state.realm3 && (base === 'table' || base === 'shop') ? realm3For(state.path).id : base
+  // How much of the interface has been rubbed out: more with every fight cleared, all of it in the duel (T1).
+  const erase = state.convergence ? (state.duel ? 1 : Math.min(1, state.convergence.cleared / Math.max(1, state.convergence.fights.indexOf('pip')))) : null
   // The in-run screens lay themselves out edge to edge (sidebar + table,
   // or the shop's three columns); menus stay a centered column.
   const inRun = PAUSABLE_PHASES.has(state.phase)
@@ -361,7 +391,8 @@ function ElementaGameInner() {
       data-font={display.fontStyle}
       data-hidden={tabHidden ? '' : undefined}
       className="elementa-root relative min-h-screen w-full overflow-x-hidden"
-      style={crtEffect ? { filter: 'url(#elementa-chromatic)' } : undefined}
+      data-erase={erase != null ? '' : undefined}
+      style={{ ...(crtEffect ? { filter: 'url(#elementa-chromatic)' } : {}), ...(erase != null ? { '--erase': erase } : {}) }}
     >
       <ChromaticFilterDefs />
       <PixelBackdrop scene={scene} />
@@ -480,6 +511,7 @@ function ElementaGameInner() {
 
       {story && !askFourthWall && <StoryScene key={story} id={story} onDone={() => finishScene(story)} />}
       {askFourthWall && <FourthWallPrompt onChoose={chooseFourthWall} />}
+      {askWeather && !story && <WeatherPrompt onChoose={chooseWeather} />}
 
       {showRunInfo && inRun && <RunInfo state={state} initialTab={showRunInfo} onClose={() => setShowRunInfo(false)} />}
 

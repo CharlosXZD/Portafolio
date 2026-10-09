@@ -517,7 +517,9 @@ export default function ShopScreen({ state, dispatch }) {
     pantry ? `${t('elementa.pantry.feed')} +${selectors.motePays(cost)}` : `${t('elementa.shop.sell')} +${cost}`
 
   const rerollShopCost = selectors.rerollShopOffersCost(state)
-  const nextTarget = thresholdForRound(state.round + 1, state.difficulty)
+  // Between fights in the Unwritten the next target is the next boss's (T2).
+  const convNext = selectors.convergenceNext(state)
+  const nextTarget = convNext ? convNext.target : thresholdForRound(state.round + 1, state.difficulty)
   const difficulty = localizeDifficulty(state.difficulty, lang)
 
   const relicCap = selectors.relicCapFor(state)
@@ -922,7 +924,7 @@ export default function ShopScreen({ state, dispatch }) {
           <Stat label={t('elementa.shop.round')}>{state.round}</Stat>
           {/* At camp you retry this round, so show its target. */}
           <Stat label={camp ? t('elementa.hud.target') : t('elementa.shop.nextTarget')} accent="var(--gold-1)">
-            {compactNumber(camp ? state.threshold : nextTarget)}
+            {nextTarget == null ? '?' : compactNumber(camp ? state.threshold : nextTarget)}
           </Stat>
         </div>
 
@@ -967,7 +969,7 @@ export default function ShopScreen({ state, dispatch }) {
           data-tut="next"
           className="el-btn el-btn--green el-btn--lg w-full"
         >
-          {needsPick ? t('elementa.map.pickFirst') : camp ? t('elementa.roundResult.tryAgain') : t('elementa.shop.nextRound')}
+          {needsPick ? t('elementa.map.pickFirst') : camp ? t('elementa.roundResult.tryAgain') : convNext ? t('elementa.convergence.nextFight') : t('elementa.shop.nextRound')}
         </button>
         {type.reroll && (
           <button

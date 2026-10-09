@@ -199,6 +199,31 @@ export const ENDINGS = [
     ),
     hint: L('Beat the other three Rewriters on the Primordial path.', 'Vence a los otros tres Reescritores en el camino Primordial.'),
   },
+  // --- The Convergence (EXPANSION.md T1, T4): arriving at the Unwritten, and beating yourself. ---
+  {
+    id: 'unwritten',
+    path: 'neutral',
+    color: '#e8e4f4',
+    boss: 'pip',
+    name: L('Where the Roads Meet', 'Donde se Encuentran los Caminos'),
+    text: L(
+      'Every road ends on the same blank page. You stand on it, and the page does not mind who walked which way. Some of the numbers on your dice have already begun to fade.',
+      'Todos los caminos terminan en la misma página en blanco. Estás sobre ella, y a la página no le importa quién caminó por dónde. Algunos de los números de tus dados ya empezaron a desvanecerse.',
+    ),
+    hint: L('Win round 45 on any path and reach the Unwritten.', 'Gana la ronda 45 en cualquier camino y llega a Lo No Escrito.'),
+  },
+  {
+    id: 'true',
+    path: 'neutral',
+    color: '#fff6c8',
+    boss: 'you',
+    name: L('Beat Yourself', 'Vencerte a Ti Mismo'),
+    text: L(
+      'The ghost across the table was every choice you made, and you beat it with the same dice. It takes your seat, and the table remembers it. Whoever comes this far next will play against you.',
+      'El fantasma al otro lado de la mesa era cada elección que hiciste, y lo venciste con los mismos dados. Toma tu asiento, y la mesa lo recuerda. Quien llegue tan lejos después jugará contra ti.',
+    ),
+    hint: L('Win the duel against the ghost in the Unwritten.', 'Gana el duelo contra el fantasma en Lo No Escrito.'),
+  },
 ]
 
 /** The Firmament ending for a path and set (H1). */
@@ -220,6 +245,9 @@ export function visibleEndingIds(reached = []) {
   if (!reached.length) return []
   return ENDINGS.filter((e) => {
     if (reached.includes(e.id)) return true
+    // The Convergence's two: the Unwritten once any realm 3 ending is seen, the true ending after it (T1, T4).
+    if (e.id === 'unwritten') return reached.some((id) => id.startsWith('realm3_'))
+    if (e.id === 'true') return reached.includes('unwritten')
     const [kind, path, set] = e.id.split('_')
     // Realm 3's hints wait for the path's Firmament I ending; Realm II for Realm I (R1).
     if (kind === 'realm3') return reached.includes(`firmament_${path}_1`) && (set === '1' || reached.includes(`realm3_${path}_1`))

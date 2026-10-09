@@ -9,6 +9,7 @@ import { REWRITER_SETS, REWRITER_ROUNDS, realm3For } from '../data/realm3.js'
 import { localizeBossModifier } from '../data/i18n.js'
 import BossAvatar from './BossAvatar.jsx'
 import { EndingArt } from './EndingCards.jsx'
+import { UnwrittenDoor } from './ConvergenceParts.jsx'
 
 const PATH_COLOR = { neutral: '#ffd166', split: '#9fd8ff', primordial: '#ff4d6d' }
 const ROMAN = { 1: 'I', 2: 'II' }
@@ -21,6 +22,8 @@ const ROMAN = { 1: 'I', 2: 'II' }
 export default function Crossroads({ state, dispatch }) {
   const { t, lang } = useLanguage()
   const { reducedMotion } = useGameSettings()
+  // After round 45 the last door is the Unwritten's (T1).
+  if (state.realm3 && state.round >= 45) return <UnwrittenDoor state={state} dispatch={dispatch} />
   const path = state.path ?? 'neutral'
   const color = PATH_COLOR[path]
   // At round 30 the door leads to realm 3 (EXPANSION.md R1); at 15 to the Firmament.

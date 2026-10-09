@@ -564,11 +564,51 @@ export const MUSIC_THEMES = {
     perc: '. . . . . . . . . . . . . . . .',
     voices: { lead: 'sine', bass: 'sine', pad: 'triangle' },
   },
+  // The Unwritten (T1): almost nothing, a note fading in and out, as if the page were being rubbed out.
+  scene_unwritten: {
+    root: 41,
+    scale: 'lydian',
+    step: 0.28,
+    lead: '0 - - - - - - - 4 - - - - - - - 2 - - - . . . . 7 - - - - - - -',
+    bass: '0 - - - - - - - - - - - . . . .',
+    pad: [
+      [0, 2, 4],
+      [0, 3, 4],
+    ],
+    perc: '. . . . . . . . . . . . . . . .',
+    voices: { lead: 'sine', bass: 'sine', pad: 'triangle' },
+  },
+  // Pip, the bluff boss: bouncy and a little too proud of itself.
+  boss_pip: {
+    root: 57,
+    scale: 'major',
+    step: 0.12,
+    lead: '0 2 4 2 0 2 4 7 . 7 4 2 0 . . . 4 4 5 4 2 2 4 2 0 . . . . . . .',
+    bass: '0 . 4 . 0 . 4 . 3 . 5 . 0 . 4 .',
+    perc: 'k . h . s . h . k . h . s . h h',
+    voices: { lead: 'square', bass: 'triangle' },
+  },
+  // You, the ghost duel: the table's own theme turned against it, driving and minor.
+  boss_you: {
+    root: 45,
+    scale: 'harmonicMinor',
+    step: 0.13,
+    lead: '0 . 2 . 3 . 4 . 7 . 4 . 3 . 2 . 0 . 3 . 4 . 7 . 8 . 7 . 4 .',
+    bass: '0 0 . 0 0 0 . 0 -2 -2 . -2 -3 -3 . -3',
+    perc: 'k . h h s . h h k . h h s h h h',
+    pad: [
+      [0, 2, 4],
+      [-2, 0, 2],
+    ],
+    voices: { lead: 'sawtooth', bass: 'sawtooth', pad: 'triangle' },
+  },
 }
 
 /** Which theme fits the current game state. */
 export function themeForState(state) {
   const p = state.phase
+  // Between fights in the Unwritten (T1): the page being rubbed out.
+  if (p === 'shop' && state.convergence) return 'scene_unwritten'
   if (p === 'rolling' || p === 'missed') {
     const boss = state.bossModifier?.id
     return boss && MUSIC_THEMES[`boss_${boss}`] ? `boss_${boss}` : 'table'

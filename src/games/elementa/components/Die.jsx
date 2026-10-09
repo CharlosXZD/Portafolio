@@ -413,6 +413,7 @@ export default function Die({
             initial={rolling ? false : { scale: 1.3, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: 'spring', bounce: 0.5, duration: 0.35 }}
+            data-die-face
             className="pointer-events-none absolute left-1/2 -translate-x-1/2 -translate-y-1/2 leading-none"
             style={{
               top: `${numberY * 100}%`,

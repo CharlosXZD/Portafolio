@@ -151,31 +151,75 @@ export const ARBITER_FOURTH_WALL = [
   { id: 'unsent', bluff: true, text: L('I did not read your messages. I did read the one you drafted and never sent.', 'No leí tus mensajes. Sí leí el que redactaste y nunca enviaste.') },
 ]
 
-/** Two for each Rewriter, in its own voice. */
+
+/**
+ * T7: more of what the page can see, and the weather where the player is (only
+ * with the second, separate permission). Twenty-five more Arbiter lines, four
+ * of them bluffs. Placeholders come from utils/fourthWall.js; a line whose
+ * value is missing is skipped.
+ */
+export const ARBITER_FOURTH_WALL_PLUS = [
+  { id: 'weather', text: L('It is {temperature} where you are, and {weather}. I like a tidy sky.', 'Hay {temperature} donde estás, y está {weather}. Me gusta un cielo ordenado.') },
+  { id: 'rain', text: L('Is it {rain} in {city}? Do not mind me. I only notice.', '¿Está {rain} en {city}? No me hagas caso. Solo me fijo.') },
+  { id: 'daylight', text: L('It is {daylight} in {city}. I do not sleep, but I understand those who do.', 'Es {daylight} en {city}. Yo no duermo, pero entiendo a quienes sí.') },
+  { id: 'sunset', text: L('The sun goes down at {sunset} today. Plan your last cast accordingly.', 'El sol se pone a las {sunset} hoy. Planea tu última tirada en consecuencia.') },
+  { id: 'moon', text: L('The moon is {moon} tonight. It has no opinion on your dice. I have several.', 'La luna está {moon} esta noche. No tiene opinión sobre tus dados. Yo tengo varias.') },
+  { id: 'battery', text: L('Your battery is at {battery}. A cautious Arbiter would suggest a charger.', 'Tu batería está en {battery}. Un Árbitro prudente sugeriría un cargador.') },
+  { id: 'cores', text: L('{cores} cores in that machine of yours, and you spend them on dice. Admirable.', '{cores} núcleos en esa máquina tuya, y los gastas en dados. Admirable.') },
+  { id: 'memory', text: L('About {memory} GB of memory in there, and I am the one who remembers.', 'Unos {memory} GB de memoria ahí dentro, y yo soy quien recuerda.') },
+  { id: 'connection', text: L('Your connection calls itself {connection}. I am patient, but I notice.', 'Tu conexión se dice {connection}. Soy paciente, pero me fijo.') },
+  { id: 'input', text: L('A {input} device. I could tell by the way you hold the dice.', 'Un dispositivo {input}. Lo noté por cómo sostienes los dados.') },
+  { id: 'window', text: L('Your window is {window}, at a pixel ratio of {ratio}. Everything fits. For now.', 'Tu ventana mide {window}, con una proporción de píxeles de {ratio}. Todo cabe. Por ahora.') },
+  { id: 'orientation', text: L('You hold the page {orientation}. I would have chosen otherwise, but I have no hands.', 'Sostienes la página en {orientation}. Yo habría elegido otra, pero no tengo manos.') },
+  { id: 'theme', text: L('Your system prefers the {theme} theme. It suits the game.', 'Tu sistema prefiere el tema {theme}. Le sienta bien al juego.') },
+  { id: 'languages', text: L('You read {languages}. I will pick whichever is kinder to you.', 'Lees {languages}. Elegiré la que sea más amable contigo.') },
+  { id: 'arrived', text: L('You came here from {arrived}. I hope the road was short.', 'Llegaste aquí desde {arrived}. Espero que el camino haya sido corto.') },
+  { id: 'firstVisit', text: L('You first sat at this file on {firstVisit}. I remember. I always do.', 'Te sentaste por primera vez en este archivo el {firstVisit}. Lo recuerdo. Siempre lo hago.') },
+  { id: 'lastVisit', text: L('Last time on this file: {lastVisit}. You came back. They usually do.', 'La última vez en este archivo: {lastVisit}. Volviste. Suelen hacerlo.') },
+  { id: 'weekday', text: L('A {weekday}, and you are here. I would call that a choice.', 'Un {weekday}, y estás aquí. Yo lo llamaría una elección.') },
+  { id: 'season', text: L('It is {season} where you are. Everything turns, even the dice.', 'Es {season} donde estás. Todo gira, hasta los dados.') },
+  { id: 'ritual', text: L('{weekday}, {hour}, {minutes} minutes in. This is a ritual.', '{weekday}, {hour}, {minutes} minutos de sesión. Esto es un ritual.') },
+  { id: 'city', text: L('{city}, {temperature}, {weather}. I know more about you than your neighbors do. It is not much.', '{city}, {temperature}, {weather}. Sé más de ti que tus vecinos. No es mucho.') },
+  { id: 'wallpaper', bluff: true, text: L('I can see your wallpaper. It is very you.', 'Puedo ver tu fondo de pantalla. Es muy tuyo.') },
+  { id: 'tabs', bluff: true, text: L('I counted the tabs you have open. It is a number. It is a lot of tabs.', 'Conté las pestañas que tienes abiertas. Es un número. Son muchas pestañas.') },
+  { id: 'lucky', bluff: true, text: L('I know your lucky number. It is whichever one you did not roll.', 'Sé tu número de la suerte. Es el que no sacaste.') },
+  { id: 'fridge', bluff: true, text: L('I looked in your fridge. You are out of milk.', 'Miré en tu refrigerador. Se te acabó la leche.') },
+]
+
+/** Everything the Arbiter may say with the fourth wall open. */
+export const ARBITER_FW_ALL = [...ARBITER_FOURTH_WALL, ...ARBITER_FOURTH_WALL_PLUS]
+
+/** Three for each Rewriter, in its own voice (the third uses the T7 details). */
 export const REWRITER_FOURTH_WALL = {
   axiom: [
     { id: 'hour', text: L('It is {hour}. I measure everything by sums, and this hour adds up to a long night.', 'Son las {hour}. Mido todo con sumas, y esta hora suma una noche larga.') },
     { id: 'screen', text: L('Your {screen} screen holds exactly as many pixels as I allow. Add them yourself.', 'Tu pantalla de {screen} tiene exactamente los píxeles que yo permito. Súmalos tú.') },
+    { id: 'temperature', text: L('It is {temperature} outside, and {weather}. A fine variable.', 'Hay {temperature} afuera, y está {weather}. Una buena variable.') },
   ],
   zero: [
     { id: 'timezone', text: L('Nothing is as quiet as {timezone} at this hour. I am almost at home.', 'Nada es tan silencioso como {timezone} a esta hora. Casi me siento en casa.') },
     { id: 'notifications', bluff: true, text: L('I counted your unread notifications. The answer was zero. Then I counted again.', 'Conté tus notificaciones sin leer. La respuesta fue cero. Luego volví a contar.') },
+    { id: 'battery', text: L('{battery}. Not zero, yet.', '{battery}. Todavía no es cero.') },
   ],
   infinity: [
     { id: 'minutes', text: L('{minutes} minutes so far. I have been here forever. The ratio is rude.', '{minutes} minutos hasta ahora. Yo llevo aquí para siempre. La proporción es grosera.') },
     { id: 'runs', text: L('{runs} runs. I would offer you infinitely many more, but you would take them.', '{runs} partidas. Te ofrecería infinitas más, pero las aceptarías.') },
+    { id: 'cores', text: L('{cores} cores, and still not enough for me.', '{cores} núcleos, y aun así no me alcanzan.') },
   ],
   observer: [
     { id: 'system', text: L('A {os} user. I see you looking at me looking at you.', 'Un usuario de {os}. Te veo mirarme mirándote.') },
     { id: 'returned', text: L('You left and came back {returned} times. I was only here when you looked.', 'Te fuiste y volviste {returned} veces. Yo solo estaba aquí cuando mirabas.') },
+    { id: 'moon', text: L('I watched the {moon} moon watch you.', 'Vi cómo la luna {moon} te miraba.') },
   ],
   floating: [
     { id: 'language', text: L('{language}. Approximately. I round everything, including you.', '{language}. Aproximadamente. Redondeo todo, tú incluido.') },
     { id: 'battery', bluff: true, text: L('Your battery is at roughly 63 percent. Roughly. I round.', 'Tu batería está en unos 63 por ciento. Más o menos. Yo redondeo.') },
+    { id: 'memory', text: L('{memory} GB, rounded down.', '{memory} GB, redondeados hacia abajo.') },
   ],
   deadlock: [
     { id: 'hour', text: L('It is {hour}, and you will not hold more than one thing. Try holding your breath instead.', 'Son las {hour}, y no sostendrás más de una cosa. Mejor prueba a contener la respiración.') },
     { id: 'wins', text: L('{wins} wins and still only one hand. How do you manage?', '{wins} victorias y aún una sola mano. ¿Cómo lo logras?') },
+    { id: 'input', text: L('A {input} device, one finger, one die. How fitting.', 'Un dispositivo {input}, un dedo, un dado. Qué apropiado.') },
   ],
 }
 

@@ -6,6 +6,7 @@ import { REWRITER_IDS } from '../data/realm3.js'
 import { ABSTRACT_FUSION_IDS, ABSOLUTE_IDS } from '../data/abstract.js'
 import { isSigilId, isGreaterSigil, SIGIL_SET_IDS, SIGIL_SETS } from '../data/sigils.js'
 import { DECKS } from '../data/decks.js'
+import { THEORETICAL_BEST } from '../data/convergence.js'
 import { runesOf } from '../data/runes.js'
 import { ELEMENTS, TIERS, MYTHIC_DIE_IDS } from '../data/elements.js'
 import { ENDING_IDS } from '../data/endings.js'
@@ -52,6 +53,15 @@ export function achievementsFromState(state) {
   // Realm 3 (R5): a forged Abstract fusion or Absolute die, and round 45.
   ;[...ABSTRACT_FUSION_IDS, ...ABSOLUTE_IDS].forEach((id) => state.dice.some((d) => d.elementId === id) && ids.push(`forged_${id}`))
   if (state.realm3 && state.round >= 45) ids.push('out_of_order')
+  // The Convergence (T4, T6): the Rush finished, the duel reached, and the theoretical best build held at once.
+  if (state.convergence && state.convergence.cleared >= state.convergence.fights.indexOf('pip')) ids.push('the_rush')
+  if (state.duel) ids.push('pips_master')
+  const held = new Set(state.dice.map((d) => d.elementId))
+  if (
+    THEORETICAL_BEST.dice.every((id) => held.has(id)) &&
+    THEORETICAL_BEST.relics.every((id) => state.relics.some((r) => r.id === id)) &&
+    state.law?.id === THEORETICAL_BEST.law
+  ) ids.push('theoretical_best')
   // Sigil dice (P4).
   if (state.dice.some((d) => isSigilId(d.elementId))) ids.push('sigil_bearer')
   if (SIGIL_SET_IDS.every((k) => state.dice.some((d) => d.elementId === SIGIL_SETS[k].normal))) ids.push('whole_pantheon')
@@ -83,6 +93,10 @@ export function achievementsFromVictory(state, profile) {
   if (state.difficulty?.id === 'cataclysm') ids.push('cataclysm')
   const beaten = new Set([...profile.decksBeaten, state.deckId])
   if (DECKS.every((d) => beaten.has(d.id))) ids.push('all_loadouts')
+  if (state.ending === 'true') {
+    ids.push('beat_yourself')
+    if (state.difficulty?.id === 'cataclysm') ids.push('final_form')
+  }
   if (state.path === 'primordial') ids.push('made_whole')
   if (state.path === 'split') ids.push('kept_apart')
   return ids

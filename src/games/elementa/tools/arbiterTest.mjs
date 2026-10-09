@@ -5,6 +5,7 @@ const R = await import(base + 'engine/gameReducer.js')
 const { nextChoices } = await import(base + 'engine/map.js')
 const A = await import(base + 'data/arbiter.js')
 const FW = await import(base + 'utils/fourthWall.js')
+const W = await import(base + 'utils/weather.js')
 const { SCENES } = await import(base + 'data/story.js')
 let fails = 0
 const eq = (name, got, want) => { const ok = JSON.stringify(got) === JSON.stringify(want); if (!ok) fails++; console.log(ok ? 'ok  ' : 'FAIL', name, ok ? '' : `got ${JSON.stringify(got)} want ${JSON.stringify(want)}`) }
@@ -25,13 +26,24 @@ const env = (extra = {}) => ({ navigator: NAV, screen: SCR, now: new Date(2026, 
 
 // ---- the files hold no network and no cookie code ----
 {
-  const files = ['data/arbiter.js', 'utils/fourthWall.js', 'utils/useFourthWall.js', 'utils/useArbiter.js', 'components/ArbiterParts.jsx']
+  // T7: the Arbiter's code, weather.js aside, never touches the network or the cookie.
+  const files = ['data/arbiter.js', 'utils/fourthWall.js', 'utils/useFourthWall.js', 'utils/useArbiter.js', 'utils/useWeather.js', 'components/ArbiterParts.jsx']
   const banned = [/document\.cookie/, /\bfetch\s*\(/, /XMLHttpRequest/, /sendBeacon/, /WebSocket/, /EventSource/, /navigator\.geolocation/, /navigator\.sendBeacon/, /\bimport\s*\(/]
   for (const f of files) {
     const src = readFileSync(base + f, 'utf8')
     eq(`${f}: no cookie read, no request, no socket`, banned.filter((re) => re.test(src)).map(String), [])
-    eq(`${f}: no em dash`, src.includes('—'), false)
+    eq(`${f}: no em dash`, src.includes('\u2014'), false)
+    // No direct reads of stored site data either: permissions go through the two small readers.
+    eq(`${f}: no direct storage read`, /localStorage\.getItem|sessionStorage|indexedDB/.test(src), false)
   }
+  // weather.js is the one file that may use the network: one host, no stored response, no cookie.
+  const w = readFileSync(base + 'utils/weather.js', 'utf8')
+  const urls = [...new Set([...w.matchAll(/https?:\/\/[a-z0-9.${}_-]+/gi)].map((m) => m[0]))]
+  eq('weather.js: the only address is Open-Meteo', urls, ['https://${OPEN_METEO_HOST}'])
+  eq('weather.js: the host constant is Open-Meteo', w.includes("OPEN_METEO_HOST = 'api.open-meteo.com'"), true)
+  eq('weather.js: no cookie read, one storage write (its own permission)', [/document\.cookie/.test(w), (w.match(/setItem\(/g) || []).length], [false, 1])
+  eq('weather.js: no em dash', w.includes('\u2014'), false)
+  eq('no other file asks for the weather itself', ['data/arbiter.js', 'utils/fourthWall.js', 'components/ArbiterParts.jsx'].some((f) => /fetchWeather|loadWeather/.test(readFileSync(base + f, 'utf8'))), false)
 }
 
 // ---- permission ----
@@ -69,8 +81,9 @@ const env = (extra = {}) => ({ navigator: NAV, screen: SCR, now: new Date(2026, 
   const d = FW.gatherDetails(env())
   eq('details: time, zone, system, language, screen, runs, wins', [!!d.hour, d.timezone, d.os, d.browser, d.language, d.screen, d.runs, d.wins], [true, 'America/Mexico City', 'macOS', 'Safari', 'Spanish', '1512 x 982', '7', '3'])
   eq('no session numbers before tracking starts', ['minutes' in d, 'returned' in d], [false, false])
+  eq('no weather unless the second permission loaded it', ['temperature' in d, 'city' in d], [false, true])
   const none = FW.gatherDetails({ navigator: {}, screen: {}, now: 0, timeZone: null, profile: { stats: { runs: 0, wins: 0 } }, lang: 'en' })
-  eq('a missing value is left out, not guessed', Object.keys(none).filter((k) => k !== 'hour'), [])
+  eq('a missing value is left out, not guessed', Object.keys(none).filter((k) => !['hour', 'weekday', 'season', 'moon'].includes(k)), [])
   const line = A.ARBITER_FOURTH_WALL.find((l) => l.id === 'runs')
   eq('fillLine fills every placeholder', FW.fillLine(line, 'en', d), '7 runs started on this file. I have been around for fewer. I make up for it by paying attention.')
   eq('fillLine returns null when a value is missing', FW.fillLine(line, 'en', none), null)
@@ -105,9 +118,10 @@ const env = (extra = {}) => ({ navigator: NAV, screen: SCR, now: new Date(2026, 
   for (const [name, bands] of Object.entries(sets)) for (const [band, list] of Object.entries(bands)) eq(`${name}/${band}: 3 to 5 lines, EN and ES`, [list.length >= 3 && list.length <= 5, list.every((l) => l.en && l.es)], [true, true])
   eq('gift and slip: 3 lines each', [A.ARBITER_LINES.GIFT.length, A.ARBITER_LINES.HINDRANCE.length], [3, 3])
   eq('ten Arbiter fourth-wall lines, two of them bluffs with a wink', [A.ARBITER_FOURTH_WALL.length, A.ARBITER_FOURTH_WALL.filter((l) => l.bluff).length], [10, 2])
-  eq('two lines for each of the six Rewriters', Object.entries(A.REWRITER_FOURTH_WALL).map(([k, v]) => [k, v.length]), ['axiom', 'zero', 'infinity', 'observer', 'floating', 'deadlock'].map((k) => [k, 2]))
-  const allLines = [...A.ARBITER_FOURTH_WALL, ...Object.values(A.REWRITER_FOURTH_WALL).flat()]
-  const known = new Set(['hour', 'timezone', 'os', 'browser', 'language', 'screen', 'returned', 'runs', 'wins', 'minutes'])
+  eq('three lines for each of the six Rewriters (two from Part S, one from T7)', Object.entries(A.REWRITER_FOURTH_WALL).map(([k, v]) => [k, v.length]), ['axiom', 'zero', 'infinity', 'observer', 'floating', 'deadlock'].map((k) => [k, 3]))
+  eq('T7: at least twenty more Arbiter lines, a few bluffs', [A.ARBITER_FOURTH_WALL_PLUS.length >= 20, A.ARBITER_FOURTH_WALL_PLUS.filter((l) => l.bluff).length >= 3, A.ARBITER_FW_ALL.length], [true, true, 10 + A.ARBITER_FOURTH_WALL_PLUS.length])
+  const allLines = [...A.ARBITER_FW_ALL, ...Object.values(A.REWRITER_FOURTH_WALL).flat()]
+  const known = new Set(['hour', 'timezone', 'city', 'os', 'browser', 'language', 'languages', 'screen', 'window', 'ratio', 'orientation', 'cores', 'memory', 'connection', 'input', 'theme', 'battery', 'charging', 'arrived', 'firstVisit', 'lastVisit', 'weekday', 'season', 'moon', 'returned', 'runs', 'wins', 'minutes', 'temperature', 'weather', 'rain', 'daylight', 'sunset'])
   eq('every placeholder is one we can fill', allLines.every((l) => FW.placeholdersOf(l.text.en).every((p) => known.has(p)) && FW.placeholdersOf(l.text.es).join() === FW.placeholdersOf(l.text.en).join()), true)
   eq('no line names a placeholder twice with different spellings in ES', allLines.every((l) => l.text.es && l.text.es.length > 5), true)
   eq('his name lives in one place', [A.ARBITER.name.en, A.ARBITER.article.en], ['Arbiter', 'an Arbiter'])
@@ -185,6 +199,58 @@ const env = (extra = {}) => ({ navigator: NAV, screen: SCR, now: new Date(2026, 
   const gifted = { ...warm, phase: 'missed' }
   const retried = R.gameReducer(gifted, { type: 'RETRY_ROUND' })
   eq('a retry gives the gift again', retried.rerollsBonusThisRound ?? 'n/a', 1)
+}
+
+// ---- T7: weather and place, with a fake browser and a fake request ----
+{
+  const calls = []
+  const reply = { ok: true, json: async () => ({ current: { temperature_2m: 18.4, precipitation: 0, wind_speed_10m: 9, cloud_cover: 45, is_day: 0 }, daily: { sunrise: ['2026-10-08T07:01'], sunset: ['2026-10-08T18:42'] } }) }
+  const fakeFetch = async (url) => { calls.push(url); return reply }
+  const geo = (answer) => ({ getCurrentPosition: (ok, fail) => (answer ? ok({ coords: answer }) : fail(new Error('denied'))) })
+  const never = { getCurrentPosition() {} }
+  const store = mkStorage()
+  const d = FW.gatherDetails(env())
+  eq('weather permission starts unanswered, separate from the first', [W.readWeather(store), FW.readFourthWall(store)], [null, null])
+  eq('only yes or no is stored under its own key', [W.writeWeather('perhaps', store), W.writeWeather('yes', store), store.getItem('elementa-weather'), store.getItem('elementa-fourthwall')], [false, true, 'yes', null])
+  for (const permission of ['no', null, undefined]) {
+    W.forgetWeather()
+    const out = await W.loadWeather(permission, { geolocation: geo({ latitude: 19.43, longitude: -99.13 }), fetch: fakeFetch })
+    eq(`permission ${permission}: no request, nothing kept`, [out, calls.length, W.currentWeather()], [null, 0, null])
+  }
+  W.forgetWeather()
+  void W.loadWeather('yes', { geolocation: never, fetch: fakeFetch })
+  await new Promise((r) => setTimeout(r, 20))
+  eq('before the browser answers the position, no request is made', calls.length, 0)
+  const W2 = await import(base + 'utils/weather.js?denied')
+  eq('the position denied: no request, nothing kept', [await W2.loadWeather('yes', { geolocation: geo(null), fetch: fakeFetch }), calls.length], [null, 0])
+  const W3 = await import(base + 'utils/weather.js?ok')
+  const w = await W3.loadWeather('yes', { geolocation: geo({ latitude: 19.4326, longitude: -99.1332 }), fetch: fakeFetch })
+  eq('yes and answered: one request, to Open-Meteo, coordinates rounded to 0.1', [calls.length, new URL(calls[0]).host, new URL(calls[0]).searchParams.get('latitude'), new URL(calls[0]).searchParams.get('longitude')], [1, 'api.open-meteo.com', '19.4', '-99.1'])
+  eq('...nothing in the request that identifies anyone', [...new URL(calls[0]).searchParams.keys()].sort(), ['current', 'daily', 'forecast_days', 'latitude', 'longitude', 'timezone'])
+  eq('...the kept summary holds no position', [JSON.stringify(w).includes('19.4'), 'latitude' in w, 'longitude' in w], [false, false, false])
+  eq('...temperature, night, sunset', [w.temperatureC, w.isDay, w.sunset], [18, false, '2026-10-08T18:42'])
+  await W3.loadWeather('yes', { geolocation: geo({ latitude: 1, longitude: 1 }), fetch: fakeFetch })
+  eq('...asked once per sitting', calls.length, 1)
+  const W4 = await import(base + 'utils/weather.js?twice')
+  const before = calls.length
+  await Promise.all([1, 2].map(() => W4.loadWeather('yes', { geolocation: geo({ latitude: 10.04, longitude: 20.06 }), fetch: fakeFetch })))
+  eq('two askers at once: one request, rounded coordinates', [calls.length - before, new URL(calls.at(-1)).searchParams.get('latitude'), new URL(calls.at(-1)).searchParams.get('longitude')], [1, '10', '20.1'])
+  const W5 = await import(base + 'utils/weather.js?fails')
+  eq('a failing service keeps nothing', await W5.loadWeather('yes', { geolocation: geo({ latitude: 5, longitude: 5 }), fetch: async () => { throw new Error('offline') } }), null)
+  eq('the global request function was never used', netCalls, 0)
+  const d2 = FW.gatherDetails({ ...env(), weather: w })
+  eq('with the weather loaded, its words are there', [d2.temperature, d2.weather, d2.daylight, !!d2.sunset], ['18 °C', 'cloudy', 'night', true])
+  const wl = A.ARBITER_FOURTH_WALL_PLUS.find((l) => l.id === 'weather')
+  eq('a weather line says the numbers', FW.fillLine(wl, 'en', d2), 'It is 18 °C where you are, and cloudy. I like a tidy sky.')
+  eq('...and is skipped without them', FW.fillLine(wl, 'en', d), null)
+  const south = FW.gatherDetails({ ...env(), now: new Date(2026, 9, 8).getTime(), weather: { ...w, south: true } })
+  const north = FW.gatherDetails({ ...env(), now: new Date(2026, 9, 8).getTime() })
+  eq('the season follows the hemisphere the weather reported', [north.season, south.season], ['autumn', 'spring'])
+  eq('city from the timezone name, never a lookup', FW.cityFromZone('America/Argentina/Buenos_Aires'), 'Buenos Aires')
+  eq('moon phase is computed locally and varies', new Set([1, 8, 15, 22].map((day) => FW.moonPhase(new Date(2026, 9, day), 'en'))).size >= 3, true)
+  const full = FW.gatherDetails(env({ navigator: { ...NAV, hardwareConcurrency: 8, deviceMemory: 8, languages: ['es-MX', 'en-US'], connection: { effectiveType: '4g', saveData: true } }, window: { innerWidth: 1200, innerHeight: 800, devicePixelRatio: 2 }, matchMedia: (q) => ({ matches: /coarse/.test(q) }), referrer: 'https://www.example.org/page', battery: { level: 0.5, charging: false }, file: { createdAt: Date.UTC(2026, 8, 1), updatedAt: Date.UTC(2026, 9, 5) } }))
+  eq('cores, memory, connection, input, window, ratio, battery, arrived, visits', [full.cores, full.memory, full.connection, full.input, full.window, full.ratio, full.battery, full.arrived, !!full.firstVisit, !!full.lastVisit], ['8', '8', '4g, data saver on', 'touch', '1200 x 800', '2', '50%', 'example.org', true, true])
+  eq('...and none of them when the browser does not offer them', ['cores' in d, 'battery' in d, 'arrived' in d, 'connection' in d], [false, false, false, false])
 }
 
 console.log(fails ? `${fails} FAILED` : 'all ok')

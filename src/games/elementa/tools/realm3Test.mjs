@@ -61,14 +61,14 @@ const rw = (id) => RW.rewriterById(id)
   eq('after Realm I only set II is offered', [1, 2].map((set) => R.gameReducer(one, { type: 'ENTER_REALM3', set }) !== one), [false, true])
   const n3 = files[2].run
   eq('file 3: in realm 3 with the new dice', [n3.round, !!n3.realm3, n3.dice.filter((d) => ELEMENTS[d.elementId]?.rarity === 'abstract').length], [31, true, 8])
-  eq('round growth 1.45 from 31', Math.round(thresholdForRound(32, n3.difficulty) / thresholdForRound(31, n3.difficulty) * 100) / 100, 1.45 )
+  eq('round growth 1.40 from 31 (eased from 1.45)', Math.round(thresholdForRound(32, n3.difficulty) / thresholdForRound(31, n3.difficulty) * 100) / 100, 1.4)
   eq('firmament growth unchanged 1.4ish', thresholdForRound(30, n3.difficulty) < thresholdForRound(31, n3.difficulty), true)
 }
 // ---- number formatting up to round 45 ----
 {
   const d = DIFFICULTIES.find((x) => x.id === 'ember')
   eq('format', [999999, 1000000, 1234567, 12345678, 123456789, 1234567890, 62501972, 1e12].map(compactNumber), ['999999', '1M', '1.2M', '12.3M', '123M', '1.2B', '62.5M', '1T'])
-  eq('no raw 8+ digit in round 31..45', [31, 40, 45].map((r) => compactNumber(thresholdForRound(r, d))), ['344145', '9.8M', '62.5M'])
+  eq('rounds 31 to 45 read cleanly (plain below a million, M above)', [31, 40, 45].map((r) => /^(\d{1,6}|\d+(\.\d)?M)$/.test(compactNumber(thresholdForRound(r, d)))), [true, true, true])
 }
 // ---- the six Rewriters ----
 const mk = (id) => [rw(id)]
@@ -150,7 +150,8 @@ const mk = (id) => [rw(id)]
   // endings at 45
   const fin = { ...sNun, phase: 'rolling', realm: 'firmament', realm3: true, realm3Set: 1, path: 'split', round: 45, threshold: 1, bossModifier: rw('floating'), endingsSeen: ['firmament_split_1'] }
   const done = R.gameReducer(fin, { type: 'SUBMIT_ROUND' })
-  eq('beating the last Rewriter of set I ends the run with realm3_split_1', [done.phase, done.ending], ['victory', 'realm3_split_1'])
+  eq('beating the last Rewriter of set I reaches the Unwritten door with realm3_split_1 (T1)', [done.phase, done.ending], ['crossroads', 'realm3_split_1'])
+  eq('...and resting there ends the run with that ending', [R.gameReducer(done, { type: 'REST_HERE' }).phase, R.gameReducer(done, { type: 'REST_HERE' }).ending], ['victory', 'realm3_split_1'])
   const fin2 = { ...fin, realm3Set: 2, bossModifier: rw('deadlock') }
   eq('...and set II with realm3_split_2', R.gameReducer(fin2, { type: 'SUBMIT_ROUND' }).ending, 'realm3_split_2')
   eq('...Primordial set 1 ends on Deadlock (reversed)', R.gameReducer({ ...fin2, path: 'primordial', realm3Set: 1 }, { type: 'SUBMIT_ROUND' }).ending, 'realm3_primordial_1')

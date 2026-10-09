@@ -86,6 +86,16 @@ SCENES.meridian = {
   glitch: 'shift',
 }
 
+// The Unwritten (T1): a dim blank page. Nothing in it moves but a few slow motes.
+SCENES.unwritten = {
+  sky: ['#16151f', '#201f2c', '#2c2b3e', '#3c3b54', '#54536e', '#76748f', '#a09eb8'],
+  ridges: null,
+  stars: 0.05,
+  motes: 14,
+  moteKinds: ['rune'],
+  circle: false,
+}
+
 const MOTE_STYLE = {
   rune: { colors: ['#e8f4ff', '#9fd8ff'], vy: -0.2, sway: 0.15 },
   blur: { colors: ['#ffc8e0', '#c08cff'], vy: -0.3, sway: 1.1 },

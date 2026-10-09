@@ -98,4 +98,35 @@ export function FourthWallPrompt({ onChoose }) {
   )
 }
 
+/**
+ * The second permission (T7): weather and place. Plain words about exactly what
+ * is read, what is sent and to whom. "No" changes nothing about play.
+ */
+export function WeatherPrompt({ onChoose }) {
+  const { t } = useLanguage()
+  return (
+    <Modal title={t('elementa.weather.title')} width="max-w-md" onClose={() => onChoose('no')} closeLabel={t('elementa.fourthwall.no')}>
+      <div className="flex items-center gap-3">
+        <ArbiterHand size={56} />
+        <p className="text-base">{t('elementa.weather.ask')}</p>
+      </div>
+      <ul className="list-disc pl-5 text-sm text-[var(--text-dim)]">
+        <li>{t('elementa.weather.reads')}</li>
+        <li>{t('elementa.weather.sends')}</li>
+        <li>{t('elementa.weather.keeps')}</li>
+        <li>{t('elementa.weather.decline')}</li>
+      </ul>
+      <div className="flex gap-3">
+        <button type="button" className="el-btn el-btn--gold flex-1" onClick={() => onChoose('yes')}>
+          {t('elementa.weather.yes')}
+        </button>
+        <button type="button" className="el-btn flex-1" onClick={() => onChoose('no')}>
+          {t('elementa.weather.no')}
+        </button>
+      </div>
+      <p className="text-sm text-[var(--text-mute)]">{t('elementa.fourthwall.later')}</p>
+    </Modal>
+  )
+}
+
 export default ArbiterHand

@@ -54,7 +54,7 @@ export default function EndingCards({ ending, visions = false, onDone, onScene }
   const { t, lang } = useLanguage()
   const { reducedMotion } = useGameSettings()
   // The story scenes still to play before the card.
-  const [scenes, setScenes] = useState(visions ? ['visions', 'recipes'] : [])
+  const [scenes, setScenes] = useState(visions ? ['visions', 'recipes'] : ending === 'true' ? ['true_ending'] : [])
   const cards = [
     ...[endingById(ending) ?? ENDINGS[0]].map((e) => ({
       key: e.id,

@@ -16,6 +16,7 @@ import FeedbackButton from './FeedbackButton.jsx'
 import { resetTutorial } from '../utils/tutorial.js'
 import PatchNotesScreen from './PatchNotesScreen.jsx'
 import { useFourthWall } from '../utils/useFourthWall.js'
+import { useWeather } from '../utils/useWeather.js'
 
 function Segmented({ options, value, onChange }) {
   return (
@@ -94,6 +95,7 @@ function Section({ title, children }) {
 export default function OptionsScreen({ onClose, onNotesSeen }) {
   const { lang, setLang, t } = useLanguage()
   const [fourthWall, chooseFourthWall] = useFourthWall()
+  const [weather, chooseWeather] = useWeather(false)
   const {
     crtEffect,
     setCrtEffect,
@@ -186,6 +188,11 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         {/* The Arbiter's fourth wall (Part S): asked once when he first appears; changeable here. */}
         <Toggle label={t('elementa.options.fourthwall')} checked={fourthWall === 'yes'} onChange={(v) => chooseFourthWall(v ? 'yes' : 'no')} />
         <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.options.fourthwallNote')}</p>
+        {/* Weather and place: its own switch, and only meaningful once the first one is on (T7). */}
+        <div className={fourthWall === 'yes' ? '' : 'opacity-40'}>
+          <Toggle label={t('elementa.options.weather')} checked={weather === 'yes' && fourthWall === 'yes'} onChange={(v) => fourthWall === 'yes' && chooseWeather(v ? 'yes' : 'no')} />
+        </div>
+        <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.options.weatherNote')}</p>
       </Section>
 
       <Section title={t('elementa.options.display')}>

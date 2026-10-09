@@ -1,6 +1,7 @@
 // A save file's permanent progress (see utils/saveManager.js): gallery
 // discoveries, beaten loadouts and difficulties, achievements, and stats.
 // Every function takes the save slot it applies to.
+import { PIP_BOSS, YOU_BOSS } from '../data/convergence.js'
 import { ELEMENTS } from '../data/elements.js'
 import { RELICS } from '../data/relics.js'
 import { CONSUMABLES } from '../data/consumables.js'
@@ -14,7 +15,7 @@ import { sigilsFromEndings } from '../data/sigils.js'
 import { REWRITERS } from '../data/realm3.js'
 import { readFile, updateProfile, listFiles, emptyProfile } from './saveManager.js'
 
-export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id, ...GOD_TRIALS.map((b) => b.id), ...WARDENS.map((b) => b.id), ...REWRITERS.map((b) => b.id)]
+export const ALL_BOSS_IDS = [...BOSS_MODIFIERS.map((b) => b.id), PRIMORDIAL.id, ...GOD_TRIALS.map((b) => b.id), ...WARDENS.map((b) => b.id), ...REWRITERS.map((b) => b.id), PIP_BOSS.id, YOU_BOSS.id]
 
 export function readProfile(slot) {
   if (slot == null) return emptyProfile()
@@ -122,6 +123,18 @@ export const unlockMythics = (slot, ids) => addToList(slot, 'mythics', ids)
 
 /** Story scenes already shown on this file (H7). */
 export const markScenes = (slot, ids) => addToList(slot, 'scenes', ids)
+
+/** The highest cast on this file keeps its build (T4): `build` is a snapshot of the dice, relics and Law. */
+export function recordBestBuild(slot, score, build) {
+  if (slot == null) return
+  updateProfile(slot, (p) => (score > (p.bestBuild?.score || 0) ? { ...p, bestBuild: { ...build, score } } : p))
+}
+
+/** The build that beat the ghost duel becomes the next true boss on Inferno (T4). */
+export function saveGhost(slot, build) {
+  if (slot == null || !build) return
+  updateProfile(slot, (p) => ({ ...p, ghost: build }))
+}
 
 /**
  * An Arbiter has appeared on this file (Part S). `round` is the realm 3 round

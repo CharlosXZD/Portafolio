@@ -14,9 +14,11 @@ import { ELEMENTS, FLAGS, inFamily, actingElementIds } from '../data/elements.js
 import { reactionById } from '../data/reactions.js'
 import { bossById } from '../data/bossModifiers.js'
 import { ArbiterSays } from './ArbiterParts.jsx'
+import { RushLine, PipEcho, DuelPanel } from './ConvergenceParts.jsx'
 import { useArbiter } from '../utils/useArbiter.js'
 import { useFourthWall } from '../utils/useFourthWall.js'
-import { gatherDetails, rewriterFourthWall } from '../utils/fourthWall.js'
+import { rewriterFourthWall } from '../utils/fourthWall.js'
+import { deviceDetails } from '../utils/useArbiter.js'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { localize, ELEMENTS_ES, RELICS_ES, localizeBossModifier, localizeReaction } from '../data/i18n.js'
 import { relicById } from '../data/relics.js'
@@ -214,10 +216,10 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
   const rewriterWall = useMemo(
     () =>
       boss?.tier === 5 && fourthPermission === 'yes'
-        ? rewriterFourthWall(boss.id, { permission: fourthPermission, details: gatherDetails({ lang, profile: readProfile(state.activeSlot) }), lang, seed: state.seed, round: state.round })
+        ? rewriterFourthWall(boss.id, { permission: fourthPermission, details: deviceDetails(lang, state.activeSlot), lang, seed: state.seed, round: state.round })
         : null,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [boss?.id, boss?.tier, fourthPermission, lang, state.round, state.seed],
+    [boss?.id, boss?.tier, fourthPermission, lang, state.round, state.seed, arbiterSays],
   )
   // Infinity raises the target as rerolls and explosions pile up (R2).
   const target = selectors.effectiveThreshold(state)
@@ -574,7 +576,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 <BossAvatar id={boss.id} size={48} />
                 <span className="el-chip shrink-0 bg-[#ff5a5a] text-[var(--ink)]">
                   {stageLabel ??
-                    (boss.tier === 5
+                    (boss.tier === 6
+                      ? t('elementa.convergence.chip')
+                      : boss.tier === 5
                       ? t('elementa.diceTray.rewriter')
                       : boss.tier === 4
                       ? t('elementa.diceTray.warden')
@@ -610,6 +614,9 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 {t('elementa.boss.fallen').replace('{god}', fallen)}
               </motion.p>
             )}
+            <RushLine state={state} />
+            <PipEcho state={state} />
+            <DuelPanel state={state} />
             {arbiterSays && !revealing && (state.rerollsUsed === 0 || arbiterSays.kind) && <ArbiterSays text={arbiterSays.text} tone={arbiterSays.tone} />}
             {pipSays && (
               <div className="el-panel flex items-center gap-3 px-4 py-2 text-left" style={{ '--edge': '#c8b6ff' }}>

@@ -27,6 +27,8 @@ import StarSticker from './StarSticker.jsx'
 import { DieDetails } from './DieInfo.jsx'
 import { KEEPERS, KEEPER_IDS } from '../data/keepers.js'
 import { ARBITER, ARBITER_LORE } from '../data/arbiter.js'
+import { REWRITERS } from '../data/realm3.js'
+import { PIP_BOSS, YOU_BOSS } from '../data/convergence.js'
 import { keeperMemory } from '../utils/keepers.js'
 import { SCENES, SCENE_IDS } from '../data/story.js'
 import StoryScene from './StoryScene.jsx'
@@ -260,12 +262,16 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       return CONSUMABLES.map((c) => ({ key: c.id, seen: seen.consumables.has(c.id), families: [consumableFamily(c)], item: consumableDescriptor(c, lang) }))
     }
     if (tab === 'bosses') {
-      return [...BOSS_MODIFIERS, PRIMORDIAL, ...GOD_TRIALS, ...WARDENS].map((raw) => {
+      return [...BOSS_MODIFIERS, PRIMORDIAL, ...GOD_TRIALS, ...WARDENS, ...REWRITERS, PIP_BOSS, YOU_BOSS].map((raw) => {
         const b = localizeBossModifier(raw, lang)
         const isSeen = seen.bosses.has(b.id)
         // A Warden guards a Mythic die (EXPANSION.md H2).
         const guards = raw.guards ? localize(lang, ELEMENTS[raw.guards].name, ELEMENTS_ES, raw.guards, 'name') : null
-        const when = raw.stage
+        const when = raw.tier === 6
+          ? t('elementa.gallery.bossConvergence')
+          : raw.tier === 5
+            ? t('elementa.gallery.bossRewriter')
+            : raw.stage
           ? t('elementa.gallery.bossGauntlet').replace('{n}', raw.stage)
           : guards
             ? t('elementa.gallery.bossWarden').replace('{die}', guards)

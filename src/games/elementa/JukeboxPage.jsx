@@ -49,6 +49,9 @@ const WHERE = {
   boss_floating: L('Rewriter: Floating Point (realm 3)', 'Reescritor: Punto Flotante (reino 3)'),
   boss_deadlock: L('Rewriter: Deadlock (realm 3)', 'Reescritor: Bloqueo Mortal (reino 3)'),
   scene_realm3: L('Realm 3: the door and the scenes', 'Reino 3: la puerta y las escenas'),
+  scene_unwritten: L('The Unwritten: the page being rubbed out', 'Lo No Escrito: la página que se borra'),
+  boss_pip: L('Pip, the bluff boss (the Unwritten)', 'Pip, el jefe de mentira (Lo No Escrito)'),
+  boss_you: L('You, the ghost duel (the Unwritten)', 'Tú, el duelo con el fantasma (Lo No Escrito)'),
 }
 
 const TEXT = {

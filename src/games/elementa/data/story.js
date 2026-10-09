@@ -10,6 +10,7 @@
 // enough to read in about 20 seconds.
 
 import { ARBITER } from './arbiter.js'
+import { SCENE_TEXT } from './convergence.js'
 
 const L = (en, es) => ({ en, es })
 const page = (portrait, speaker, lines) => ({ portrait, speaker, lines })
@@ -464,6 +465,37 @@ export const SCENES = {
         L('I sell Stardust and Catalysts. And if your runes fight over a number, Brasa and I can make them share. For a fee.', 'Vendo Polvo Estelar y Catalizadores. Y si tus runas se pelean por un número, Brasa y yo podemos hacer que lo compartan. Por una tarifa.'),
       ]),
     ],
+  },
+  // --- The Convergence (EXPANSION.md T1 to T4): the Unwritten, Pip and You. ---
+  unwritten: {
+    title: L('The Unwritten', 'Lo No Escrito'),
+    color: '#e8e4f4',
+    music: 'scene_unwritten',
+    pages: [page(boss('you'), L('The Unwritten', 'Lo No Escrito'), SCENE_TEXT.unwritten)],
+  },
+  pip_before: {
+    title: L('Pip, the final boss', 'Pip, el jefe final'),
+    color: '#c8b6ff',
+    music: 'boss_pip',
+    pages: [page(PIP, L('Pip', 'Pip'), SCENE_TEXT.pipBefore)],
+  },
+  pip_after: {
+    title: L("Pip's master", 'El amo de Pip'),
+    color: '#c8b6ff',
+    music: 'scene_unwritten',
+    pages: [page(PIP, L('Pip', 'Pip'), SCENE_TEXT.pipAfter)],
+  },
+  you_before: {
+    title: L('You', 'Tú'),
+    color: '#ffffff',
+    music: 'boss_you',
+    pages: [page(boss('you'), L('You', 'Tú'), SCENE_TEXT.youBefore)],
+  },
+  true_ending: {
+    title: L('Beat Yourself', 'Vencerte a Ti Mismo'),
+    color: '#fff6c8',
+    music: 'scene_unwritten',
+    pages: [page(boss('you'), L('You', 'Tú'), SCENE_TEXT.trueEnding)],
   },
 }
 
