@@ -14,10 +14,12 @@
     "@formspree/react": "^3.0.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
+    "@remotion/player": "^4.0.534",
     "framer-motion": "^12.42.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1",
+    "remotion": "^4.0.534",
     "three": "^0.185.1"
   },
   "devDependencies": {
