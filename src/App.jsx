@@ -10,12 +10,21 @@ import JukeboxPage from './games/elementa/JukeboxPage.jsx'
 // The Visual Lab (VISUALS.md V1) is a lazy route, so none of it is in the first load.
 const VisualsLabPage = lazy(() => import('./games/elementa/components/visuals/VisualsLabPage.jsx'))
 const ItemGalleryPage = lazy(() => import('./games/elementa/components/visuals/ItemGalleryPage.jsx'))
+const RoomsPage = lazy(() => import('./games/elementa/components/visuals/RoomsPage.jsx'))
 
 function App() {
   return (
     <Routes>
       <Route path="/games/elementa" element={<ElementaGame />} />
       <Route path="/games/elementa/jukebox" element={<JukeboxPage />} />
+      <Route
+        path="/games/elementa/visuals/rooms"
+        element={
+          <Suspense fallback={null}>
+            <RoomsPage />
+          </Suspense>
+        }
+      />
       <Route
         path="/games/elementa/visuals/items"
         element={

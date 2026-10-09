@@ -1,0 +1,149 @@
+/* The shop rooms and scene backdrops (VISUALS.md V3). One art box of 320 by
+   180 pixels, scaled by a whole number (a fraction on phones). Motion rules:
+   every loop moves whole art pixels with stepped timing where it can, uses
+   transform and opacity only, and lives in its own thin layer so the static
+   walls are never repainted. Reduced motion (data-reduced on the root) turns
+   every animation off; the low-end tier (data-calm) renders no ambient layer
+   and no particles at all, so there is nothing to switch off. */
+
+.r-root {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #0a0710;
+  pointer-events: none;
+}
+.r-root[data-framed] {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  background: #0a0710;
+}
+.r-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 320px;
+  height: 180px;
+  transform-origin: top left;
+  image-rendering: pixelated;
+  overflow: hidden;
+}
+.r-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 320px;
+  height: 180px;
+}
+.r-light {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.r-light[data-flicker] {
+  animation: r-flicker 3.1s step-end infinite;
+  animation-delay: var(--d, 0s);
+}
+.r-tint,
+.r-dim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.r-keeper {
+  position: absolute;
+}
+
+/* ---------- ambient loops ---------- */
+.r-flame { animation: r-flame 0.7s step-end infinite; animation-delay: var(--d, 0s); }
+.r-steam { opacity: 0; animation: r-steam var(--dur, 4s) steps(10, end) infinite; animation-delay: var(--delay, 0s); }
+.r-spark { opacity: 0; animation: r-spark var(--dur, 1.4s) steps(8, end) infinite; animation-delay: var(--delay, 0s); }
+.r-pendulum { animation: r-pendulum var(--dur, 3.2s) step-end infinite; }
+.r-spin { animation: r-spin var(--dur, 16s) steps(var(--n, 8), end) infinite; animation-direction: var(--dir, normal); }
+.r-tick { animation: r-tick var(--dur, 12s) steps(var(--n, 12), end) infinite; }
+.r-sand { animation: r-sand 1.2s step-end infinite; }
+.r-twinkle { animation: r-twinkle 3.4s step-end infinite; animation-delay: var(--d, 0s); }
+.r-bubble { opacity: 0; animation: r-bubble var(--dur, 3s) steps(8, end) infinite; animation-delay: var(--delay, 0s); }
+.r-bob { animation: r-bob var(--dur, 4s) step-end infinite; animation-delay: var(--delay, 0s); }
+.r-sway { animation: r-sway var(--dur, 6s) step-end infinite; animation-delay: var(--delay, 0s); }
+.r-pulse { animation: r-pulse var(--dur, 3s) var(--ease, cubic-bezier(0.77, 0, 0.175, 1)) infinite alternate; animation-delay: var(--delay, 0s); }
+.r-eyes { opacity: 0; animation: r-eyes var(--dur, 9s) step-end infinite; animation-delay: var(--delay, 0s); }
+.r-mote { opacity: 0; animation: r-mote var(--dur, 12s) steps(var(--n, 8), end) infinite; animation-delay: var(--delay, 0s); }
+.r-shaft { animation: r-shaft 7s cubic-bezier(0.77, 0, 0.175, 1) infinite alternate; }
+.r-drift { animation: r-drift var(--dur, 40s) steps(var(--n, 40), end) infinite; }
+
+@keyframes r-flicker { 0% { opacity: 0.9; } 14% { opacity: 1; } 27% { opacity: 0.78; } 41% { opacity: 0.96; } 58% { opacity: 0.84; } 73% { opacity: 1; } 88% { opacity: 0.8; } }
+@keyframes r-flame { 0% { transform: translateY(0); } 33% { transform: translateY(-1px); } 66% { transform: translateY(0) scaleY(0.92); } }
+@keyframes r-steam { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 0.55; } 80% { opacity: 0.35; } 100% { transform: translate(var(--sway, 2px), calc(var(--rise, 14px) * -1)); opacity: 0; } }
+@keyframes r-spark { 0% { transform: translate(0, 0); opacity: 1; } 100% { transform: translate(var(--dx, 6px), var(--dy, -14px)); opacity: 0; } }
+@keyframes r-pendulum { 0% { transform: rotate(-9deg); } 25% { transform: rotate(0deg); } 50% { transform: rotate(9deg); } 75% { transform: rotate(0deg); } }
+@keyframes r-spin { to { transform: rotate(360deg); } }
+@keyframes r-tick { to { transform: rotate(360deg); } }
+@keyframes r-sand { 0%, 50% { opacity: 1; } 75% { opacity: 0.4; } }
+@keyframes r-twinkle { 0%, 62% { opacity: 1; } 66%, 78% { opacity: 0.2; } 82% { opacity: 1; } }
+@keyframes r-bubble { 0% { transform: translateY(0); opacity: 0.9; } 100% { transform: translateY(calc(var(--rise, 12px) * -1)); opacity: 0; } }
+@keyframes r-bob { 0% { transform: translateY(0); } 50% { transform: translateY(calc(var(--amp, 1px) * -1)); } }
+@keyframes r-sway { 0% { transform: translateX(0); } 25% { transform: translateX(1px); } 50% { transform: translateX(0); } 75% { transform: translateX(-1px); } }
+@keyframes r-pulse { 0% { opacity: var(--lo, 0.35); } 100% { opacity: 1; } }
+@keyframes r-eyes { 0%, 40% { opacity: 0; } 42%, 52% { opacity: 1; } 54% { opacity: 0; } 56%, 66% { opacity: 1; } 68%, 100% { opacity: 0; } }
+@keyframes r-mote { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: var(--peak, 0.6); } 85% { opacity: var(--peak, 0.6); } 100% { transform: translate(var(--dx), var(--dy)); opacity: 0; } }
+@keyframes r-shaft { 0% { opacity: 0.7; } 100% { opacity: 1; } }
+@keyframes r-draw { 0% { opacity: 0; } 12% { opacity: 0.25; } 24% { opacity: 0.5; } 36%, 80% { opacity: 1; } 92%, 100% { opacity: 0; } }
+@keyframes r-erase { 0%, 30% { opacity: 1; } 34%, 62% { opacity: 0; } 66%, 100% { opacity: 1; } }
+@keyframes r-drift { to { transform: translateX(-160px); } }
+
+/* ---------- switches ---------- */
+.r-root[data-reduced] .r-stage *,
+.r-root[data-reduced] .r-stage *::before,
+.r-root[data-reduced] .r-stage *::after {
+  animation: none !important;
+}
+.r-root[data-reduced] .r-mote,
+.r-root[data-reduced] .r-steam,
+.r-root[data-reduced] .r-spark,
+.r-root[data-reduced] .r-bubble,
+.r-root[data-reduced] .r-eyes {
+  opacity: 0;
+}
+
+/* ---------- realm tints: a palette shift, never new art ---------- */
+.r-tint[data-realm='firmament'] { background: linear-gradient(to bottom, rgba(40, 30, 110, 0.32), rgba(20, 10, 70, 0.22)); }
+.r-tint[data-realm='empyrean'] { background: rgba(30, 70, 130, 0.22); }
+.r-tint[data-realm='pleroma'] { background: linear-gradient(to bottom, rgba(150, 40, 100, 0.2), rgba(90, 20, 80, 0.26)); }
+.r-tint[data-realm='meridian'] { background: linear-gradient(to bottom, rgba(130, 110, 20, 0.18), rgba(30, 110, 120, 0.2)); }
+.r-tint__grid {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(to right, rgba(159, 216, 255, 0.18) 1px, transparent 1px), linear-gradient(to bottom, rgba(159, 216, 255, 0.18) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+.r-tint__bands {
+  position: absolute;
+  inset: -40px 0;
+  background: repeating-linear-gradient(to bottom, rgba(255, 209, 102, 0.1) 0 12px, transparent 12px 36px);
+  animation: r-bands 12s steps(24, end) infinite alternate;
+}
+.r-tint__dissolve {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 30%, rgba(255, 200, 224, 0.2), transparent 30%), radial-gradient(circle at 75% 60%, rgba(192, 140, 255, 0.2), transparent 35%), radial-gradient(circle at 50% 85%, rgba(255, 200, 224, 0.14), transparent 30%);
+  animation: r-dissolve 14s cubic-bezier(0.77, 0, 0.175, 1) infinite alternate;
+}
+@keyframes r-bands { to { transform: translateY(36px); } }
+@keyframes r-dissolve { 0% { opacity: 0.5; transform: translate(0, 0); } 100% { opacity: 1; transform: translate(3px, -2px); } }
+.r-root[data-reduced] .r-tint__bands,
+.r-root[data-reduced] .r-tint__dissolve { animation: none; }
+
+/* ---------- legibility: dim the room behind the UI ---------- */
+.r-dim {
+  background:
+    radial-gradient(ellipse at 50% 55%, rgba(10, 6, 16, var(--dim-core, 0.5)) 0%, rgba(10, 6, 16, var(--dim-mid, 0.32)) 55%, rgba(10, 6, 16, 0.15) 100%),
+    linear-gradient(to bottom, rgba(10, 6, 16, 0.18), rgba(10, 6, 16, 0.3));
+}
+
+.r-draw { animation: r-draw var(--dur, 12s) step-end infinite; animation-delay: var(--delay, 0s); }
+.r-erase { animation: r-erase var(--dur, 14s) step-end infinite; animation-delay: var(--delay, 0s); }
+.r-root[data-reduced] .r-draw,
+.r-root[data-reduced] .r-erase { animation: none; opacity: 1; }
