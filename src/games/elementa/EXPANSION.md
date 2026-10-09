@@ -590,7 +590,7 @@ Newest first. Versions before v0.4 are reconstructed from GDD.md; the dates are 
 
 ### Alpha v0.9.7 "Item models" (in development, unreleased)
 - **Every relic, consumable, rune, Constellation, Totem and Law (115 items) is a cached 3D model**, 24 by 24 pixels and 16 frames, drawn from about 20 parameterized generator families (`components/visuals/three/itemGenerators.js`) and one table, `data/itemModels.js`. The element colors the item, rarity sets the trim and glow, and each has a signature detail from its `itemConcept`. Dice are not included: they keep their shaped sprite, element color, symbol and `ElementFx`.
-- **Where it shows:** shop shelves (slow idle turn), the inventory strips, the inspector (a larger turn), the Gallery, the Run Preview and the game-over screens. Models are built in idle time after the screen appears (never on a click); until then, on low-end devices, with Reduced motion off-screen or without WebGL, the old sprite stays. Bought items play a rarity reveal.
+- **Where it shows:** shop shelves (slow idle turn), the inventory strips, the inspector (a larger turn), the Gallery, the Run Preview and the game-over screens. Models are built in idle time after the screen appears (never on a click); until then, on low-end devices or without WebGL, the old sprite stays, and Reduced motion keeps the model still. Bought items play a rarity reveal.
 - **Swap rule for items:** `public/elementa/visuals/item.<id>.png` replaces that item's model (`ASSETS.md` section 8).
 - **Item gallery** (`/games/elementa/visuals/items`): all 115 by rarity, element or kind, a build-everything timer, and the uniqueness check that compares every pair of items.
 
