@@ -61,6 +61,7 @@ The check is a floor, not a verdict: it cannot say whether something reads as th
 - **The Item gallery** at 820 px (1:1), 1280 px and 375 px, by rarity, element and kind, in English and Spanish, with Reduced motion on and off, quality forced low, and the swap rule with a test PNG (screenshots below). No horizontal scroll at 375.
 - **The real game**, on a test save that stands in the Market (`tools/itemShopTestSave.mjs`) and on the Firmament test save at the table: shelf models, the sidebar relics, the Law slot, the consumables, the Run Preview, the inspector with its larger model, a purchase (the new item gets `data-reveal` and, from uncommon up, the ring), and no console errors. Dice kept their sprites and `ElementFx` throughout.
 - Lint is clean for everything new; the build and the budget script pass.
+- **Changed but not opened in the browser:** the in-game Gallery's three `ItemIcon` call sites (they pass `itemId` the same way the others do), and the Run Preview and game-over lists beyond the Run Preview on the Firmament save.
 - **Not verified:** real frame rate and phone performance (the Browser pane throttles frames to 1 or 2 a second and sets the tab hidden at times; I spoofed visibility to let idle builds run), Safari and Firefox, a production build's idle behaviour, and a real touch device. Please open the gallery and a shop in your own browser and watch the shelf turn.
 
 ## Screenshots (`reports/v2/`)
