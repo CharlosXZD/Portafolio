@@ -42,6 +42,21 @@ Status: **V1 is Built (2026-10-08, Alpha 0.9.6, see `VISUALS_V1_REPORT.md`). V2 
 
 *A note on third-party skills:* they are instructions the agent will follow. Install only from owners Carlos already trusts or the well-known ones listed above, and read a new skill's `SKILL.md` before relying on it.
 
+## 0b. Design rules already in the game that every phase MUST keep (Carlos, 2026-10-09)
+
+New visuals must **match what the game already looks like**, and Carlos prefers the existing look to anything that drifts from it. Before any change, read GDD sections 14 and 15 (palette, pixel art), E3 and E4 in `EXPANSION.md`, and `elementa.css`. The rules:
+
+1. **Typography:** the game's own fonts and the `el-logo` banded-gold logo style (`.el-logo`, `.pixel-heading`, Press Start 2P for headings and small text, the body font for sentences) as they appear in the main menu. **Never introduce a different typeface or logo style** (the V1 title card did; it must be redone with the real logo and fonts).
+2. **The tagline** is **"Roll the elements. Bend the odds."** (`elementa.menu.tagline`, Spanish "Tira los elementos. Doblega la suerte."). Always read it from the strings file, never retype it.
+3. **Elements are shown with their real pixel icons** (`PixelIcon`, the four 7x7 marks and the other elements' marks), never as plain colored boxes.
+4. **Elements own their color, everywhere** (GDD 14): each element's `color` in `data/elements.js` is its identity, used identically on the die, shop cards, forge cards and tooltips. Never recolor an element. Semantic UI colors, difficulty colors and the rarity scale stay as they are.
+5. **Every die emanates its element** (E3): the element's particle layer (`ElementFx`: flames rising off Fire, wind streaks around Air, drips and ripples on Water, pebbles settling on Earth, and each fusion, arcane, god, Mythic and new element's own effect), in the element's color. Any new die model, sprite or 3D render **must keep its element effect**, and the effects keep their Reduced motion and Options toggle.
+6. **Every die carries its element logo** (E4): the element's symbol in the middle where there is no face to show, and its mark beside or on the face elsewhere, so dice are told apart at a glance, and **each element's die is a different color that matches its element**. A new rendering of a die must preserve the shape per size (DieSprite silhouettes), the element color, the symbol and the effect.
+7. **Palette tokens:** `--ink`, `--stone-*`, `--wood-*`, `--gold-*`, `--arcane` and the realm palettes already used by the screens. New art draws from them.
+8. **Existing screens are the reference:** the main menu, the title screen, the shop and the table. When a new piece sits beside an old one (a cinematic next to the title screen, a room behind the existing shop UI), the two must look like the same game.
+
+**Fixing V1 (a small job for the V2 agent to do first):** the V1 title-card spike breaks rules 1, 2 and 3 (wrong typeface and logo, the wrong tagline "Four elements. One cast.", plain colored squares for the elements). Rebuild it so it reuses the real logo component or CSS, the real fonts, the tagline from the strings file, and the real element `PixelIcon`s orbiting, so it reads as the main menu in motion. Check the other V1 spikes (the 3D item spike, the keeper rig and the Market) against rules 4 to 6 and fix any drift.
+
 ## 1. Art direction (Carlos confirmed the pixel feel on 2026-10-08)
 
 **Crisp, premium, alive.** Carlos: the new visuals stay pixel art in feel, but should feel **crisp and premium**, and **the game must feel alive.** The menus and the shops "just feel like squares on a background"; a shop should feel like **a magical place where people actually live.** What that means for every phase:
@@ -83,6 +98,8 @@ Goal: prove the tools and set the rules before any mass work. Nothing user-facin
 Do not build anything else in V1: no mass item models, no real-game backgrounds, no scenes, no changes to the real menus or shops.
 
 ### V2: Item models (Proposed)
+
+**Carlos's V2 answers (2026-10-09):** 16 frames per item; rigs replace the old keeper sprites where a rig exists (V3); a still PNG per keeper for hand-drawn replacements (layered later if wanted); sound hooks wired to existing sfx in V4; V3 and V4 right after. **Before V2 begins, fix the V1 title card and check the spikes against section 0b.** Dice are NOT part of V2's 3D items: on the table dice keep their shaped sprite, element color, symbol and element effects (section 0b).
 
 Parametric generators (a gem, a potion, a scroll, a key, a coin, a tome, a shard, a die...) instead of 150 bespoke models; each relic, consumable, rune and die gets a generator plus parameters (shape, color, rarity glow, a signature detail). Idle motion, hover and inspect animations, a rarity-based reveal when bought. Pre-rendered and cached. Old sprites stay as a fallback.
 
