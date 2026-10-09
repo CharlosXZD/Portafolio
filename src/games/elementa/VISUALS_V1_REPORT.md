@@ -2,6 +2,16 @@
 
 Built 2026-10-08 on branch `elementa-v0.6.5` as Alpha 0.9.6 "Visual foundations". Small commits, nothing pushed or merged, no worktrees. The real menus, shops, backgrounds and scenes are untouched. The only edits outside the new code are the Options link, one lazy route in `App.jsx`, the patch notes and the docs.
 
+## V1 fix pass (2026-10-09, after Carlos's review)
+
+Done before V2, against `VISUALS.md` section 0b:
+
+- **Title card rebuilt** (rules 1 to 3): the real banded-gold `el-logo` ("Elementa", same class and Press Start 2P as the main menu), the body font for the tagline, the tagline read from `elementa.menu.tagline` in the strings file ("Roll the elements. Bend the odds." and the Spanish line), and the real fire, water, earth and air `PixelIcon`s (earth with the menu's own tint) orbiting the logo and coming to rest at its corners on the last frame. The invented typeface, tagline and colored boxes are gone. Screenshot 04.
+- **3D items** (rules 4 to 6): items now take an `elementId` and use that element's own color from `data/elements.js` (Ember Heart is fire's `#e5533d`, the flask is water's `#3d8fe5`; the old made-up orange is gone). The die uses the same derived body color as `DieSprite` (`dieColors`), shows the element's mark in the middle (no face to show, like `DieToken`), and keeps its element effect (`ElementFx` behind and in front, lite under 56 px, off under Reduced motion and the quality 'low' tier). Dice get no rarity halo, as in the game. Screenshots 02 and 05.
+- **Keeper rig:** checked, no drift. The Tobb and Brasa palettes and head shapes are byte-identical to `KeeperSprite` (compared by script). The Market's mock items without an element (coin, map) use no element color.
+- **16 frames per item** (Carlos's answer): atlas is now 36 KB per item (was 54 KB), idle turn about 2.7 seconds at 6 frames a second. First-load JS is 415.30 kB gzip (+2.03 kB), still within budget.
+- Not touched, per the message: V2.
+
 ## What was built
 
 | Piece | Where |
@@ -44,7 +54,7 @@ On-demand JavaScript in total went from 233.4 kB to 353.0 kB, of which Remotion 
 
 **Spike 1, Remotion.** Chunk loads in 19 to 54 ms from the local server. The title card is 180 frames at 30 fps, 960 by 540, about 50 DOM nodes (three star layers are single `box-shadow` lists, so 168 stars cost 3 nodes). React commit time per frame, measured with a `Profiler` around the Player: **4.4 to 4.8 ms average, 7.1 ms worst**, on the dev build. I could not measure a production build (see "Not verified").
 
-**Spike 2, 3D items.** One shared WebGL context for the whole game. Each item is rendered once from 24 angles into a **24 by 24 pixel atlas strip: 54 KB of canvas memory per item**. Build time per item: 48 ms for the first (it includes creating the context), then **18 to 25 ms** (production numbers; the dev build is similar). Copying one frame out of the cache costs about 0.5 microseconds of script time. The shared idle-turn clock costs **3.0 microseconds per frame with 6 items listening**. Nothing runs live 3D per item.
+**Spike 2, 3D items.** One shared WebGL context for the whole game. Each item is rendered once from 16 angles into a **24 by 24 pixel atlas strip: 36 KB of canvas memory per item** (it was 54 KB with 24 angles, before the fix pass). Build time per item: 48 ms for the first (it includes creating the context), then **18 to 25 ms** (production numbers; the dev build is similar). Copying one frame out of the cache costs about 0.5 microseconds of script time. The shared idle-turn clock costs **3.0 microseconds per frame with 6 items listening**. Nothing runs live 3D per item.
 
 **Spike 3, layered rig.** 3.9 KB of rendered SVG for one keeper (7 layers), 1.2 kB gzip of code, 5 CSS keyframe sets, no JavaScript per frame. At rest it is pixel-identical to today's sprite (screenshot 03).
 
@@ -85,7 +95,7 @@ Not captured: the real game screens (nothing changed there beyond Options, scree
 
 ## Recommendation for V2 (items)
 
-**Pre-rendered and cached 3D, with the shipping SVG sprite as the fallback for low-end devices.** Live 3D per item is out (one WebGL context is cheap, one per item is not, and a shelf has 5 to 12 items). Procedural SVG alone cannot give rotating, lit objects. Concretely: about 14 generator families (gem round, rough and faceted, potion, scroll, key, coin, tome, shard, pouch, crown, ring, hourglass, die, tag) with per-item parameters, built lazily when an item first becomes visible, 16 to 24 frames, 24 by 24. At 54 KB and about 20 ms each, all 115 items cost 6 MB of memory and 2.5 seconds if built eagerly, so build on demand and keep dice on the cheap SVG on the table (they are on screen all the time), using the 3D path only for the shop reveal and the inspector. A later option is to bake the atlases to PNG at build time, which would drop three from the runtime entirely.
+**Pre-rendered and cached 3D, with the shipping SVG sprite as the fallback for low-end devices.** Live 3D per item is out (one WebGL context is cheap, one per item is not, and a shelf has 5 to 12 items). Procedural SVG alone cannot give rotating, lit objects. Concretely: about 14 generator families (gem round, rough and faceted, potion, scroll, key, coin, tome, shard, pouch, crown, ring, hourglass, die, tag) with per-item parameters, built lazily when an item first becomes visible, 16 to 24 frames, 24 by 24. At 36 KB and about 20 ms each, all 115 items cost 4 MB of memory and 2.5 seconds if built eagerly, so build on demand and keep dice on the cheap SVG on the table (they are on screen all the time), using the 3D path only for the shop reveal and the inspector. A later option is to bake the atlases to PNG at build time, which would drop three from the runtime entirely.
 
 ## Skills
 
@@ -114,7 +124,7 @@ Choices I made that the spec did not fix:
 
 ## Open questions for you
 
-1. Is **24 frames** per item right, or should it be 16 to save memory? Today the idle turn is 3 seconds, stepped at 8 fps.
+1. ~~Frames per item~~ decided: 16.
 2. Should rigs and the old keeper sprites coexist, or should V3 replace `KeeperSprite` everywhere? At rest they match.
 3. For a hand-drawn replacement of a **rig**, do you want a still PNG per keeper (what the swap rule gives) or layered files? Layered needs a small extension to the registry.
 4. How much dust, flicker and sway is right? I kept it gentle and sparse; the "alive" amount is the thing to judge in the Lab, and it is easy to dial.

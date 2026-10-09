@@ -55,7 +55,7 @@ New visuals must **match what the game already looks like**, and Carlos prefers 
 7. **Palette tokens:** `--ink`, `--stone-*`, `--wood-*`, `--gold-*`, `--arcane` and the realm palettes already used by the screens. New art draws from them.
 8. **Existing screens are the reference:** the main menu, the title screen, the shop and the table. When a new piece sits beside an old one (a cinematic next to the title screen, a room behind the existing shop UI), the two must look like the same game.
 
-**Fixing V1 (a small job for the V2 agent to do first):** the V1 title-card spike breaks rules 1, 2 and 3 (wrong typeface and logo, the wrong tagline "Four elements. One cast.", plain colored squares for the elements). Rebuild it so it reuses the real logo component or CSS, the real fonts, the tagline from the strings file, and the real element `PixelIcon`s orbiting, so it reads as the main menu in motion. Check the other V1 spikes (the 3D item spike, the keeper rig and the Market) against rules 4 to 6 and fix any drift.
+**Fixing V1 (done 2026-10-09, see `VISUALS_V1_REPORT.md`):** the V1 title-card spike breaks rules 1, 2 and 3 (wrong typeface and logo, the wrong tagline "Four elements. One cast.", plain colored squares for the elements). Rebuild it so it reuses the real logo component or CSS, the real fonts, the tagline from the strings file, and the real element `PixelIcon`s orbiting, so it reads as the main menu in motion. Check the other V1 spikes (the 3D item spike, the keeper rig and the Market) against rules 4 to 6 and fix any drift.
 
 ## 1. Art direction (Carlos confirmed the pixel feel on 2026-10-08)
 
