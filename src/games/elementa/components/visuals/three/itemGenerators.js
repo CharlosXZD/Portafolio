@@ -685,8 +685,8 @@ function plate(k, p) {
     g.add(solid(r, n, 0.24, frame, { glow: 0.2 }), solid(r - 0.2, n, 0.28, 'navy'))
     if (shape === 'tri') g.children.forEach((c) => (c.rotation.y = Math.PI))
   }
-  g.add(k.at(k.decal(p.sign, 1.3, 'white', p.accent ?? 'gold'), 0, shape === 'tri' ? -0.1 : 0, 0.16))
-  g.add(k.at(k.decal(p.sign, 1.3, 'white', p.accent ?? 'gold'), 0, 0, -0.16, 0, Math.PI))
+  g.add(k.at(k.decal(p.sign, 1.3, 'white', p.stars ?? p.accent ?? 'gold'), 0, shape === 'tri' ? -0.1 : 0, 0.16))
+  g.add(k.at(k.decal(p.sign, 1.3, 'white', p.stars ?? p.accent ?? 'gold'), 0, 0, -0.16, 0, Math.PI))
   g.add(k.at(k.G(k.box(0.1, 0.1, 0.05), 'trim'), shape === 'wide' ? 0.9 : 0.7, shape === 'tall' ? 0.9 : 0.6, 0.17))
   g.rotation.set(0.2, 0.4, 0)
   return g

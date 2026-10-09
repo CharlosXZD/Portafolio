@@ -12,8 +12,18 @@
 // Dice are not in this table: they keep their shaped sprite and ElementFx.
 import { RELICS } from './relics.js'
 import { CONSUMABLES } from './consumables.js'
+import { REACTIONS } from './reactions.js'
 
 const m = (gen, p = {}, d = [], tone) => ({ gen, p, d, tone })
+
+// A Constellation's chart takes its colors from its reaction (data/reactions.js):
+// the frame is the first element's color, the star pattern the second's. Resonance
+// has no elements and uses its own color; the poker sets stay gold.
+function chart(reactionId, sign, shape) {
+  const r = REACTIONS.find((x) => x.id === reactionId)
+  const [a, b] = r?.elements ?? []
+  return m('plate', { sign, shape, accent: a ?? r?.color ?? 'gold', stars: b ?? r?.color ?? 'gold' })
+}
 
 export const ITEM_MODELS = {
   // ---------------- relics ----------------
@@ -104,13 +114,13 @@ export const ITEM_MODELS = {
   pocket_watch: m('clock', { kind: 'watch', color: 'gold' }),
   metronome: m('clock', { kind: 'metronome' }),
   almanac: m('tome', { cover: 'navy', marks: true, spine: 'woodLo' }),
-  const_phoenix: m('plate', { sign: 'kindle', accent: 'fire', shape: 'tri' }),
-  const_anvil: m('plate', { sign: 'forge', accent: 'earth', shape: 'wide' }),
-  const_geyser: m('plate', { sign: 'scald', accent: 'water', shape: 'tall' }),
-  const_cloud: m('plate', { sign: 'mist', accent: 'air', shape: 'round' }),
-  const_seedling: m('plate', { sign: 'bloom', accent: 'green', shape: 'hex' }),
-  const_whirl: m('plate', { sign: 'dust', accent: 'earth', shape: 'oct' }),
-  const_twins: m('plate', { sign: 'resonance', accent: 'arcaneHi', shape: 'diamond' }),
+  const_phoenix: chart('kindle', 'kindle', 'tri'),
+  const_anvil: chart('forge', 'forge', 'wide'),
+  const_geyser: chart('scald', 'scald', 'tall'),
+  const_cloud: chart('mist', 'mist', 'round'),
+  const_seedling: chart('bloom', 'bloom', 'hex'),
+  const_whirl: chart('dust', 'dust', 'oct'),
+  const_twins: chart('resonance', 'resonance', 'diamond'),
   const_pair: m('plate', { sign: 'pair', accent: 'gold', shape: 'rect' }),
   const_trio: m('plate', { sign: 'three', accent: 'gold', shape: 'tri' }),
   const_ladder: m('plate', { sign: 'straight', accent: 'gold', shape: 'tall' }),

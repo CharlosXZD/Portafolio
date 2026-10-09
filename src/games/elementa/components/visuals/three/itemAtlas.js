@@ -264,7 +264,10 @@ function modelColors(model) {
     main,
     mainHi: mixHex(main, '#ffffff', 0.4),
     mainLo: mixHex(main, '#120c1a', 0.4),
-    trim: RARITY_GLOW[model.rarity] ?? RARITY_GLOW.common,
+    // Trim is metal; the rarity color only glows on it (and in glyphs and gems).
+    trim: PAL.brass,
+    rarity: RARITY_GLOW[model.rarity] ?? RARITY_GLOW.common,
+    rarityGlow: { common: 0.0, uncommon: 0.25, rare: 0.35, epic: 0.45, legendary: 0.55, mythic: 0.65 }[model.rarity] ?? 0.3,
     glow: mixHex(main, PAL.gold, 0.5),
     fire: ELEMENTS.fire.color,
     water: ELEMENTS.water.color,

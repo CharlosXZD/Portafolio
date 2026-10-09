@@ -255,11 +255,13 @@ export function makeKit(ramp, colors) {
   /** A toon-lit mesh. o.glow = 0..1 self-light, o.op = opacity, o.flat = faceted. */
   const M = (geo, color, o = {}) => {
     const col = new THREE.Color(resolve(color))
+    // Trim is metal; the rarity color is only its glow (Carlos, 2026-10-09).
+    const isTrim = color === 'trim'
     const mat = new THREE.MeshToonMaterial({
       color: col,
       gradientMap: ramp,
-      emissive: col,
-      emissiveIntensity: o.glow ?? 0,
+      emissive: isTrim ? new THREE.Color(colors.rarity ?? '#000000') : col,
+      emissiveIntensity: isTrim ? (colors.rarityGlow ?? 0.3) : (o.glow ?? 0),
       transparent: o.op != null,
       opacity: o.op ?? 1,
       depthWrite: o.op == null,
@@ -267,7 +269,7 @@ export function makeKit(ramp, colors) {
     return new THREE.Mesh(o.flat ? flat(geo) : geo, mat)
   }
   /** An unlit, full-bright mesh for sparks, flames and glints. */
-  const G = (geo, color) => new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: resolve(color), toneMapped: false }))
+  const G = (geo, color) => new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: color === 'trim' ? (colors.rarity ?? resolve(color)) : resolve(color), toneMapped: false }))
   const at = (o, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => {
     o.position.set(x, y, z)
     o.rotation.set(rx, ry, rz)
@@ -306,7 +308,7 @@ export function makeKit(ramp, colors) {
     decal: (name, size, fg = '#ffffff', bg = PAL.gold) => {
       const m = new THREE.Mesh(
         new THREE.PlaneGeometry(size, size),
-        new THREE.MeshBasicMaterial({ map: glyphTexture(name, resolve(fg), resolve(bg)), transparent: true, alphaTest: 0.5, toneMapped: false, side: THREE.DoubleSide }),
+        new THREE.MeshBasicMaterial({ map: glyphTexture(name, fg === 'trim' ? (colors.rarity ?? resolve(fg)) : resolve(fg), bg === 'trim' ? (colors.rarity ?? resolve(bg)) : resolve(bg)), transparent: true, alphaTest: 0.5, toneMapped: false, side: THREE.DoubleSide }),
       )
       return m
     },
