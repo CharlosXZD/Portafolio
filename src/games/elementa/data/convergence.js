@@ -77,11 +77,16 @@ export const CALLBACKS = {
 
 // --- The ghost duel (T4) ---
 
-/** Exchanges in a duel, and the running total that wins it, as a multiple of the ghost build's best cast (Default). */
+/** Exchanges in a duel, and the running total that wins it, as a multiple of the ghost build's reference cast (Default). */
 export const DUEL_EXCHANGES = 6
 export const DUEL_GOAL_MULT = 3
-/** The ghost's best cast is the best of this many seeded casts of its build. */
-export const GHOST_SAMPLES = 5
+/**
+ * The reference cast of a ghost build is the median of this many seeded casts (Default), so a lucky
+ * chain cannot set an impossible goal. One ghost cast never counts for more than this share of the
+ * goal, so the duel stays a race of several exchanges.
+ */
+export const GHOST_SAMPLES = 7
+export const GHOST_CAST_CAP = 0.5
 /** From this exchange on the ghost makes two moves instead of one. */
 export const DUEL_TWO_MOVES_FROM = 4
 
@@ -121,20 +126,20 @@ export const GHOST_NAME = {
 /**
  * The Cataclysm ghost (T6): a fixed, realistic best-of-the-best build, from
  * the best-build search of tools/bestBuild.mjs. Ten dice at d20 to d50, five
- * relics and a Law. The sizes are tuned in tools/balanceSim.mjs (`ghost`) so
- * its best cast is a few times the round-45 target.
+ * relics and a Law. The sizes are tuned (tools/balanceSim.mjs `ghost`) so
+ * its median cast is about two and a half times the round-45 target on Cataclysm.
  */
 export const CATACLYSM_GHOST = {
   dice: [
-    ['monad', 'd40'],
-    ['singularity', 'd30'],
-    ['undivisible', 'd50'],
-    ['darkness', 'd30'],
-    ['parity', 'd30'],
-    ['light', 'd30'],
-    ['oblivion', 'd30'],
-    ['space', 'd30'],
-    ['ice', 'd20'],
+    ['monad', 'd50'],
+    ['singularity', 'd40'],
+    ['undivisible', 'd20'],
+    ['darkness', 'd50'],
+    ['parity', 'd40'],
+    ['light', 'd40'],
+    ['oblivion', 'd40'],
+    ['space', 'd40'],
+    ['ice', 'd30'],
     ['sigil_aeris_g', 'sigil'],
   ],
   relics: ['aether_crown', 'heart_of_circle', 'heart_of_the_forge', 'crown_of_ages', 'chain_break'],

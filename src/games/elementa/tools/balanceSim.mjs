@@ -245,6 +245,68 @@ if (process.argv.includes('rewriters')) {
   process.exit(0)
 }
 
+// --- 'rush' mode (EXPANSION.md T2) -------------------------------------------
+// Reports the Rush's targets. A Rush fight's target is 0.6 x the best cast of the run so far times
+// the boss's own factor, so it depends on the build: for the 'good' and 'great' reference builds of
+// 'rewriters' mode at round 45 it takes the best of many casts as "the best cast so far", prints each
+// fight's target, and plays the same bot under the boss's rule to show the median score / target.
+// Run: node tools/balanceSim.mjs ember 40 45 rush
+if (process.argv.includes('rush')) {
+  const { thresholdForRound } = await import('../engine/scoring.js')
+  const { relicById } = await import('../data/relics.js')
+  const { tierById } = await import('../data/diceTiers.js')
+  const { rushFights, RUSH_BASE, RUSH_WARDEN_FACTORS, PIP_FRACTION } = await import('../data/convergence.js')
+  const { REWRITER_TARGET } = await import('../data/realm3.js')
+  const { bossById, GOD_TRIALS, PRIMORDIAL } = await import('../data/bossModifiers.js')
+  const POOL = ['air', 'lightning', 'crystal', 'storm', 'magma', 'steel', 'earth', 'fire', 'ice', 'monsoon']
+  const REALM3_POOL = ['parity', 'limit', 'abs_infinity', 'divergence']
+  const WARDENS = ['dawn', 'clockwork', 'expanse', 'umbra', 'maelstrom', 'hollow']
+  const R = 45
+  const build = (kind, k, boss) => {
+    let st = gameReducer({ phase: 'title' }, { type: 'START_RUN', deckId: DECKS[k % DECKS.length].id, difficultyId: diffId, seed: 'U' + kind + k + (boss?.id ?? '') })
+    const dice = Array.from({ length: 10 }, (_, i) => { const tier = tierById(kind === 'great' || i < 9 ? 'd100' : 'd20'); return { ...st.dice[0], id: 'b' + i, elementId: kind === 'great' && i >= 6 ? REALM3_POOL[i - 6] : POOL[i % POOL.length], tierId: tier.id, sides: tier.sides, held: false, locked: false } })
+    const relics = ['molten_core', 'ember_heart', 'stormcaller', 'static_charge', 'loaded_die', 'feather_charm', 'crown_of_ages', 'heart_of_the_forge', 'starmap', 'echo_chamber'].map(relicById).filter(Boolean)
+    st = { ...st, round: R, threshold: 1, realm: 'firmament', realm3: true, realm3Set: 1, path: 'split', bossModifier: boss ?? null, dice, relics, constellations: { pair: 10, straight: 10, kindle: 10 }, rerollsUsed: 0 }
+    return gameReducer(st, { type: 'REROLL_UNHELD' })
+  }
+  const median = (a) => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)]
+  const fights = rushFights().filter((id) => id !== 'you')
+  console.log('Rush targets on', diffId, '(', runs, 'casts per cell; best cast of the run = the best of the plain casts )')
+  for (const kind of ['good', 'great']) {
+    const plain = Array.from({ length: runs }, (_, k) => score(playRound(build(kind, k, null))))
+    const best = Math.max(...plain)
+    console.log('\n' + kind + ' build: best cast', best, ', round 45 target', thresholdForRound(R, DIFFICULTIES_BY_ID(diffId)))
+    console.log('fight        target      median cast under the rule   median / target')
+    fights.forEach((id) => {
+      const wi = WARDENS.indexOf(id)
+      const boss = id === 'primordial' ? PRIMORDIAL : id === 'gods' ? GOD_TRIALS[0] : id === 'pip' ? null : bossById(id)
+      const factor = id === 'pip' ? PIP_FRACTION / RUSH_BASE : id === 'primordial' ? 1 : id === 'gods' ? GOD_TRIALS[0].target : wi !== -1 ? RUSH_WARDEN_FACTORS[wi % 3] : REWRITER_TARGET[id] ?? 1
+      const target = Math.round(best * RUSH_BASE * factor)
+      const casts = Array.from({ length: runs }, (_, k) => { const st = playRound(build(kind, k, boss)); return score(st) / (id === 'infinity' ? selectors.effectiveThreshold({ ...st, threshold: 1 }) : 1) })
+      const m = median(casts)
+      console.log(id.padEnd(12), String(target).padStart(12), String(Math.round(m)).padStart(18), (m / target).toFixed(2).padStart(18))
+    })
+  }
+  process.exit(0)
+}
+
+// --- 'ghost' mode (EXPANSION.md T4, T6) ----------------------------------------
+// The duel's ghost per difficulty: the curated Cataclysm build's casts against the round-45 target
+// (it is tuned so its median is about two and a half times that target on Cataclysm). Run:
+//   node tools/balanceSim.mjs cataclysm 60 45 ghost
+if (process.argv.includes('ghost')) {
+  const { thresholdForRound } = await import('../engine/scoring.js')
+  const { ghostCast, cataclysmBuild } = await import('../engine/gameReducer.js')
+  const run = gameReducer({ phase: 'title' }, { type: 'START_RUN', deckId: 'balanced', difficultyId: diffId, seed: 'GHOST' })
+  const state = { ...run, round: 45, realm: 'firmament', realm3: true }
+  const casts = Array.from({ length: runs }, () => ghostCast(state, cataclysmBuild())).sort((a, b) => a - b)
+  const t45 = thresholdForRound(45, run.difficulty)
+  const q = (p) => casts[Math.min(casts.length - 1, Math.floor(casts.length * p))]
+  console.log('Cataclysm ghost on', diffId, 'round 45 target', t45)
+  console.log('median', q(0.5), '(' + (q(0.5) / t45).toFixed(1) + ' x)', 'p75', q(0.75), 'p90', q(0.9), 'max', casts.at(-1))
+  process.exit(0)
+}
+
 const rows = {} // round -> {n, passed, ratios[]}
 let deaths = {}, reached = []
 for (let run = 0; run < runs; run++) {

@@ -105,6 +105,7 @@ import {
   DUEL_GOAL_MULT,
   DUEL_TWO_MOVES_FROM,
   GHOST_SAMPLES,
+  GHOST_CAST_CAP,
   MOVE_IDS,
   CATACLYSM_GHOST,
   ARRIVAL_STARDUST,
@@ -2725,8 +2726,8 @@ function startDuel(state, rematch) {
   const build = prior?.build ?? ghostBuildFor(state)
   let best = prior?.best
   if (!best) {
-    best = 1
-    for (let k = 0; k < GHOST_SAMPLES; k++) best = Math.max(best, ghostCast(state, build))
+    const samples = Array.from({ length: GHOST_SAMPLES }, () => ghostCast(state, build)).sort((a, b) => a - b)
+    best = Math.max(1, samples[Math.floor(samples.length / 2)])
   }
   const base = restoreStolen(state)
   const duel = {
@@ -2837,7 +2838,8 @@ function submitDuelExchange(state, result) {
   const mine = { ...result, roundScore: score }
   const bestCast = Math.max(state.bestCast || 0, score)
   if (duel.you >= duel.goal) return duelWon({ ...state, bestCast, duel }, mine)
-  const theirs = ghostCast(state, duel.build, duel.borrowed)
+  // One lucky ghost cast never wins the duel alone (T4, Default).
+  const theirs = Math.min(ghostCast(state, duel.build, duel.borrowed), Math.round(duel.goal * GHOST_CAST_CAP))
   duel.them += theirs
   duel.last = { exchange: duel.exchange, you: score, them: theirs, moves: duel.moves, borrowed: duel.borrowed }
   const done = duel.exchange >= DUEL_EXCHANGES
