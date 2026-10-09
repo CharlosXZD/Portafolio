@@ -46,19 +46,70 @@ export const DECKS = [
     dice: ['fire', 'air', 'lightning'],
     tagline: 'Chain explosions straight into sets.',
   },
-  {
-    id: 'avatar',
-    name: 'Avatar',
-    dice: ['earth', 'earth', 'aether'],
-    tagline: 'Master of all four. Starts with Aether.',
-  },
-  // v0.8.5 (EXPANSION.md O3): unlocked by winning with any other loadout.
+  // v0.8.5 (EXPANSION.md O3). Since v0.9.5 (T5) it follows Stormchaser, like every loadout in the chain.
   {
     id: 'gambler',
     name: 'Gambler',
     dice: ['poker', 'poker', 'poker', 'poker', 'joker'],
     tagline: 'Four poker dice and a Joker. Make hands.',
   },
+  // v0.9.5 (EXPANSION.md T5): each opens when the file has won with the one before it.
+  {
+    id: 'climate',
+    name: 'Climate',
+    dice: ['magma', 'storm', 'monsoon'],
+    tagline: 'Weather as a weapon: the three climate phenomena.',
+  },
+  {
+    id: 'geologist',
+    name: 'Geologist',
+    dice: ['mud', 'crystal', 'obsidian'],
+    tagline: "Earth's patient fusions.",
+  },
+  {
+    id: 'tidal',
+    name: 'Tidal',
+    dice: ['ice', 'steam', 'water'],
+    tagline: 'Everything water can become.',
+  },
+  {
+    id: 'arcanist',
+    name: 'Arcanist',
+    dice: ['mirror', 'beacon', 'conduit'],
+    tagline: 'No element, all neighbors.',
+  },
+  {
+    id: 'hoarder',
+    name: 'Hoarder',
+    dice: ['midas', 'bullion', 'earth'],
+    tagline: 'Money first, dice later.',
+  },
+  {
+    id: 'twinflame',
+    name: 'Twin Flame',
+    dice: ['fire', 'lightning', 'magma'],
+    tagline: 'Fire and everything that burns.',
+  },
+  // The Lottery draws its three dice per run from LOTTERY_POOL (the seeded generator, no two alike).
+  {
+    id: 'lottery',
+    name: 'Lottery',
+    dice: [],
+    lottery: 3,
+    tagline: 'Whatever the universe hands you.',
+  },
+]
+
+/**
+ * The dice the Lottery can hand out (T5): the Elementa shop's pure elements,
+ * double and triple fusions and arcane dice. Never a god, a Mythic, an
+ * Absolute, a sigil or a number die, and nothing from the Firmament.
+ */
+export const LOTTERY_POOL = [
+  'earth', 'fire', 'water', 'air',
+  'lightning', 'ice', 'steel', 'mud', 'steam', 'crystal',
+  'storm', 'obsidian', 'magma', 'monsoon',
+  'midas', 'sapling', 'mirror', 'conduit', 'kairos', 'beacon', 'prism', 'bullion', 'masquerade', 'chameleon',
 ]
 
 export function deckById(id) {

@@ -625,7 +625,8 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  {deck.dice.map((id, j) => {
+                  {(deck.lottery ? Array.from({ length: deck.lottery }, () => null) : deck.dice).map((id, j) => {
+                    if (id == null) return <ItemIcon key={j} static size={24} glyph="?" color="#c8b6ff" />
                     const item = dieDescriptor(id, lang)
                     return unlocked ? (
                       <ItemIcon key={j} static size={24} icon={item.icon} glyph={item.glyph} color={item.color} rarity={item.rarity} />

@@ -409,7 +409,13 @@ export const DECKS_ES = {
   wanderer: { name: 'Errante', tagline: 'Uno de cada elemento. Fusiona lo que sea.' },
   forgeborn: { name: 'Forjado', tagline: 'Empieza con Acero: fuego sin apagarse.' },
   stormchaser: { name: 'Cazatormentas', tagline: 'Encadena explosiones directo a los sets.' },
-  avatar: { name: 'Avatar', tagline: 'Maestro de los cuatro. Empieza con Éter.' },
+  climate: { name: 'Clima', tagline: 'El clima como arma: los tres fenómenos climáticos.' },
+  geologist: { name: 'Geólogo', tagline: 'Las fusiones pacientes de la Tierra.' },
+  tidal: { name: 'Mareal', tagline: 'Todo lo que el agua puede llegar a ser.' },
+  arcanist: { name: 'Arcanista', tagline: 'Sin elemento, todos los vecinos.' },
+  hoarder: { name: 'Acaparador', tagline: 'Primero el dinero, los dados después.' },
+  twinflame: { name: 'Llama Gemela', tagline: 'El fuego y todo lo que arde.' },
+  lottery: { name: 'Lotería', tagline: 'Lo que el universo te reparta.' },
 }
 
 export const DIFFICULTIES_ES = {

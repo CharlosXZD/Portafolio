@@ -40,7 +40,7 @@ import {
 import { nextTier, prevTier, tierById, sellValueForDie, DICE_TIERS } from '../data/diceTiers.js'
 import { RELICS, RARITY, relicById, costForRelic, sellValueForRelic } from '../data/relics.js'
 import { CONSUMABLES, consumableById, costForConsumable, sellValueForConsumable } from '../data/consumables.js'
-import { deckById } from '../data/decks.js'
+import { deckById, LOTTERY_POOL } from '../data/decks.js'
 import { difficultyById } from '../data/difficulty.js'
 import {
   BOSS_MODIFIERS,
@@ -1503,6 +1503,14 @@ function renameChrono(save) {
   }
 }
 
+/** Draws `count` different dice for the Lottery loadout from the seeded generator. */
+function drawLottery(count) {
+  const pool = [...LOTTERY_POOL]
+  const out = []
+  while (out.length < count && pool.length) out.push(pool.splice(Math.floor(random() * pool.length), 1)[0])
+  return out
+}
+
 function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', recipes = [], file = {}) {
   // Seed first, so every roll below is reproducible from it.
   const seed = cleanSeed(seedInput) || randomSeed()
@@ -1511,7 +1519,9 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', re
   const map = newMap()
   const deck = deckById(deckId)
   const difficulty = difficultyById(difficultyId)
-  const dice = deck.dice.map((elementId) => makeDie(elementId))
+  // The Lottery hands out three different dice from its pool, drawn with the run's seed (T5).
+  const deckDice = deck.lottery ? drawLottery(deck.lottery) : deck.dice
+  const dice = deckDice.map((elementId) => makeDie(elementId))
   const relics = []
   const round = 1
   // Cataclysm's "every round is a boss" must apply from round 1 too, not
@@ -1532,7 +1542,7 @@ function startNewRun(deckId, difficultyId, activeSlot = null, seedInput = '', re
     dice: rolled,
     ...freshRoundCounters(rolled),
     relics,
-    ownedElementsEver: [...new Set(deck.dice)],
+    ownedElementsEver: [...new Set(deckDice)],
     chronicle: noteBoss(null, bossModifier),
     map,
     seed,

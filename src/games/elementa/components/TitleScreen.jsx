@@ -74,9 +74,13 @@ function LoadoutCard({ index, profile }) {
     <div className="flex flex-col items-center gap-5 text-center">
       {/* Locked loadouts are dark silhouettes. */}
       <div className="flex items-end justify-center gap-4" style={unlocked ? undefined : { filter: 'brightness(0) opacity(0.55)' }}>
-        {deck.dice.map((elementId, j) => (
-          <DieToken key={j} die={{ id: `${deck.id}-${j}`, elementId, tierId: 'd6', sides: 6 }} size={76} />
-        ))}
+        {deck.lottery
+          ? Array.from({ length: deck.lottery }, (_, j) => (
+              <span key={j} className="el-well pixel-score flex items-center justify-center text-3xl text-[var(--gold-1)]" style={{ width: 76, height: 76 }}>
+                ?
+              </span>
+            ))
+          : deck.dice.map((elementId, j) => <DieToken key={j} die={{ id: `${deck.id}-${j}`, elementId, tierId: 'd6', sides: 6 }} size={76} />)}
       </div>
       <h3 className="el-logo text-2xl sm:text-3xl">{unlocked ? deck.name : '???'}</h3>
       {/* Which endings this loadout has reached (B2). */}
