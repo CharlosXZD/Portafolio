@@ -16,7 +16,9 @@ const pick = (a) => a[Math.floor(rnd() * a.length)]
 const SKIP = new Set(['dead_star', 'primordial_die', 'entropy'])
 const DIE_IDS = Object.keys(ELEMENTS).filter((id) => !SKIP.has(id) && ELEMENTS[id].tier !== undefined)
 const REPEATABLE = new Set(DIE_IDS.filter((id) => [TIERS.PURE, TIERS.COSMIC].includes(ELEMENTS[id].tier) && ELEMENTS[id].cosmic !== false))
-const RELIC_IDS = RELICS.map((r) => r.id)
+// One Law slot, five relic slots (Part O2): Laws are relics with `law: true`.
+const LAW_IDS = RELICS.filter((r) => r.law).map((r) => r.id)
+const RELIC_IDS = RELICS.filter((r) => !r.law).map((r) => r.id)
 const relicById = Object.fromEntries(RELICS.map((r) => [r.id, r]))
 
 let n = 0
@@ -41,6 +43,7 @@ const randomBuild = () => {
   while (dice.length < 10) { const id = pick(DIE_IDS); if (REPEATABLE.has(id) || !dice.includes(id)) dice.push(id) }
   const relics = []
   while (relics.length < 5) { const id = pick(RELIC_IDS); if (!relics.includes(id)) relics.push(id) }
+  relics.push(pick(LAW_IDS))
   return { dice, relics }
 }
 let cur = randomBuild(); let curScore = score(cur.dice, cur.relics)
@@ -49,7 +52,8 @@ for (let i = 0; i < iterations; i++) {
   const next = { dice: [...cur.dice], relics: [...cur.relics] }
   const r = rnd()
   if (r < 0.5) { const j = Math.floor(rnd() * 10); next.dice[j] = pick(DIE_IDS) }
-  else if (r < 0.8) { const j = Math.floor(rnd() * 5); const id = pick(RELIC_IDS); if (!next.relics.includes(id)) next.relics[j] = id }
+  else if (r < 0.75) { const j = Math.floor(rnd() * 5); const id = pick(RELIC_IDS); if (!next.relics.includes(id)) next.relics[j] = id }
+  else if (r < 0.8) { next.relics[5] = pick(LAW_IDS) }
   else { const a = Math.floor(rnd() * 10), b = Math.floor(rnd() * 10); [next.dice[a], next.dice[b]] = [next.dice[b], next.dice[a]] }
   if (!valid(next.dice)) continue
   const sc = score(next.dice, next.relics)
@@ -59,4 +63,4 @@ for (let i = 0; i < iterations; i++) {
 const finalScore = score(best.dice, best.relics, 120)
 console.log('best build (mean best-of-5 score, 120 samples):', Math.round(finalScore).toLocaleString())
 console.log('dice  :', best.dice.map((id) => ELEMENTS[id].name).join(', '))
-console.log('relics:', best.relics.map((id) => relicById[id].name).join(', '))
+console.log('relics:', best.relics.slice(0, 5).map((id) => relicById[id].name).join(', '), '| Law:', relicById[best.relics[5]].name)

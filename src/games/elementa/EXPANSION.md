@@ -573,7 +573,7 @@ Patch notes (Part D and `data/patchNotes.js`) should label versions with their s
 | **v0.8.6** | Sigils | **Built.** Part P: sigil dice by path (Sun, Scale, Key; Eye, Spiral, Maw; a Neutral mix) with a Greater tier, no numbers, unlocked by the Firmament endings and sold by Aeris, Nix and Tobb. The Eye's peek is a live dry run, no engine change. Run after v0.8.5. |
 | **v0.9** | Realm 3 | **Built.** Part R: rounds 31 to 45 (Empyrean, Pleroma or Meridian by path), six Rewriters, four Abstract elements with fusions and four Absolute forged dice, the number dice, two endings per path. Run after v0.8.6. |
 | **v0.9.2** | The Arbiter | **Built.** Part S: the realm's god who talks like Pip, for or against you, and the opt-in fourth-wall lines. |
-| **v0.9.5** | The Convergence | **Proposed.** Part T: the Rush (one boss at a time, shops between except on Cataclysm), Pip's callback fight, the ghost duel (multi-cast, it steals and interferes), the Cataclysm best build, new loadouts (Climate, Lottery, Quintessence). Becomes Ready after the best-build result. |
+| **v0.9.5** | The Convergence | **Ready.** Part T: the Rush (one boss at a time, shops between except on Cataclysm), Pip's callback fight, the ghost duel (multi-cast, it steals and interferes), the Cataclysm best build, new loadouts (Climate, Lottery, Quintessence). Becomes Ready after the best-build result. |
 | **Later** | Echoes | Ideas promoted from `IDEAS.md` (flasks, tainted loadouts, bosses that remember...), possibly folded into v1.0. |
 | **(old)** | Rewriting reality | Became v0.9 (Realm 3) and v0.9.5 (Convergence). |
 | **v1.0** | True ending | The true ending (Cataclysm, hardest path, everything), balance pass, Carlos's hand-drawn art swapped in. This is Alpha v1.0; the beta starts after it. |
@@ -1903,48 +1903,80 @@ Build the four dice **exactly as B12 decided**: Two's Complement, Reversed Bits 
 - **Tests:** permission yes and no (no network, no cookie reads: add a test that greps the code for `document.cookie` and `fetch` use in these files), favor going up and down, lines without a placeholder when a value is missing, the opt-in appearing once, backups carrying the setting.
 - Patch notes "Alpha 0.9.2 The Arbiter"; CONTENT.md; GDD; mark Part S Built.
 
-## Part T: v0.9.5 "The Convergence" (workshop draft, 2026-10-05)
+## Part T: v0.9.5 "The Convergence" (spec, 2026-10-08)
 
-**Status: Proposed.** Carlos's decisions are marked; Claude's drafts are **Draft**. Becomes Ready after Carlos confirms and the best-build search is read (T6). Builds on Part Q (3 and 4).
+**Status: Ready.** Carlos confirmed on 2026-10-08: the place is **The Unwritten**, the Arbiter keeps his name **Arbiter**, all the new loadouts, Avatar deleted, the weather extension, the ghost duel, the curated Cataclysm ghost. Builds on Part Q (3, 4, 6) and Part S. Run after v0.9.2 (built). Items marked **Default** are Claude's reading; list each in the report.
 
-### T1. The place
+### T1. The place: The Unwritten
 
-After round 45's Rewriter, every path reaches **the Convergence** (the fourth place; working name **The Unwritten**, from A5; Carlos has not named it). Anyone who arrives may enter and gets the arrival reward of Q3. Its fights are, in order, **the Rush, Pip, and You.**
+After round 45's Rewriter, every path reaches **The Unwritten** (the blank page the Split was written on; the interface itself starts to erase: dice faces fade, the ledger goes blank line by line; draw it with CSS and canvas only, static under Reduced motion). Anyone who arrives may enter and gets the arrival reward of Q3 (secret achievement **Where the Roads Meet**, a completion mark, a Gallery scene card, +2 Stardust at the start of every later run). Its fights, in order: **the Rush, Pip, You.**
 
 ### T2. The Rush (Carlos: no stacking)
 
-The bosses are fought **one at a time**, in this order: **the Primordial; the four gods** (the existing god gauntlet of four stages, as one block, no shops inside it, **Draft**); **the six Wardens** (Set I then Set II); **the six Rewriters** (Set I then Set II). **On every difficulty except Cataclysm there is a shop between fights** (Carlos: "pop shops in between"); **on Cataclysm there are none.** That is about 14 fights.
+**One boss at a time**, in this order: **the Primordial; the four gods** (the existing god gauntlet of four stages as one block, no shops inside it, **Default**); **the six Wardens** (Set I then Set II); **the six Rewriters** (Set I then Set II). **On every difficulty except Cataclysm there is a shop between fights** (a Market, **Default**; the player may also leave without buying); **on Cataclysm there are none.** About 14 fights.
 
-**Targets (Draft):** a fixed round number would be too small for a late build, so each Rush fight's target is the player's own power: **0.6 x the best cast of this run so far, times the boss's own factor** (Primordial 1.0, gods their gauntlet factors, Wardens 1.0, 1.1 and 1.25 by order, Rewriters their calibrated `REWRITER_TARGET` factors applied to the same base). Each boss keeps its own rules, music, scene (a single new line, a callback) and Gallery entry. Losing a fight costs a life as usual; no life, run over.
+**Targets (Default, to run in the balance simulator):** each Rush fight's target is **0.6 x the best cast of this run so far, times the boss's own factor** (Primordial 1.0; the gods their gauntlet factors; Wardens 1.0, 1.1, 1.25 by order within a set; Rewriters their calibrated `REWRITER_TARGET` factors on the same base). Each boss keeps its rules, music and Gallery entry, and gets one new line of dialog (a callback). Losing a fight costs a life; no life, run over.
 
-### T3. Pip's fight (Carlos: "I like the Pip fight")
+### T3. Pip's fight (Carlos: "I like the Pip fight, and the real one is his master")
 
-A **bluff**. Pip announces itself as the final boss. **The fight is a callback: Pip repeats your very first cast** (it "rolls" the starting loadout of this run, with the same faces as the first cast of the run), the easiest fight of the game (a target a fraction of your best cast). After the first exchange Pip stops and says that the real one is behind it: **its master** (Carlos: "the real one is his master"), who is **you**. A scene before and after (EN and ES, drafts for Carlos to rewrite).
+A **bluff.** Pip announces itself as the final boss. **The fight is a callback: Pip repeats your very first cast of this run** (the same starting loadout dice and faces), the easiest fight in the game (a target of a fraction of your best cast). After one exchange Pip stops and says the real one is behind it: **its master, who is you.** A scene before and after (EN and ES, drafts for Carlos to rewrite).
 
 ### T4. The true boss: the ghost duel (Carlos)
 
-**A race against a ghost, over several casts** (Carlos: "multi cast, not just one cast"), and **the ghost interferes, fights with you and steals dice** (Carlos: "a fun final fight").
+**A multi-cast race against a ghost that interferes, fights with you and steals your dice**; a fun finale.
 
-- **Who the ghost is (by difficulty, Carlos):** **Ember:** your current build (the pool and relics of this run now). **Blaze:** your current build with upgrades (**Draft:** every die one size tier up and its bonuses doubled). **Inferno:** the best build on this file (the dice and relics of the highest cast ever recorded on the file; a new profile field `bestBuild`, updated on every cast that beats it, saved with its dice and relics). **Cataclysm:** a curated best-of-the-best loadout (T6), and a **secret achievement** for beating it.
-- **The race (Draft):** both sides cast in **exchanges**, up to **six**. The ghost's score each exchange is **rolled from its own build through the real engine** (seeded, so it varies), not a fixed number. The first to reach a running total of **3 x the ghost build's best cast** wins. You cast first. If the ghost gets there first you lose a life and rematch (its total resets); with no life left the run ends.
-- **The ghost's moves (Draft):** before each exchange it **announces one move** (a line of text, so you can play around it): **it steals your highest unheld die for that exchange** (a held die is safe, which makes holding a real decision; the die comes back after), **it rewinds** (your best die rerolls), **it borrows one of your relics** against you for the exchange, **it shuffles your row**, **it locks one of your dice**. Later exchanges use two moves. It never kills a die for good and never takes a relic for good.
-- **When you win:** beating yourself is the **true ending**; **you become the true boss**: the winning build is saved as `profile.ghost` and is the next Inferno true boss. The true ending card (draft text), a Gallery scene, and the achievements below.
+- **Who the ghost is, by difficulty (Carlos):** **Ember:** your current build (this run's pool and relics now). **Blaze:** your current build with upgrades (**Default:** every die one size tier up and its bonuses doubled). **Inferno:** the best build on this file (`profile.bestBuild`: the dice and relics of the highest cast ever recorded on the file, updated whenever a cast beats it). **Cataclysm:** a curated best-of-the-best build (T6) and a **secret achievement** for beating it.
+- **The race (Default):** both sides cast in **exchanges**, up to **six**. The ghost's score each exchange is **rolled from its own build through the real engine** (seeded), not a fixed number. First to a running total of **3 x the ghost build's best cast** wins. You cast first. If the ghost gets there first you lose a life and rematch (its total resets); with no life left the run ends.
+- **The ghost's moves (Default):** before each exchange it **announces one move** (a line of text, so you can play around it): **steal** your highest unheld die for that exchange (a held die is safe, so holding is a real decision; the die comes back), **rewind** (your best die rerolls), **borrow** one of your relics against you for the exchange, **shuffle** your row, **lock** one of your dice. Later exchanges use two moves. It never destroys a die and never keeps a relic.
+- **When you win:** beating yourself is the **true ending**; **you become the true boss**: the winning build is saved as `profile.ghost` and is the Inferno true boss from then on. A true ending card (draft text), a Gallery scene.
 - **Achievements (secret):** **Where the Roads Meet** (arrive), **The Rush** (finish it), **Pip's Master** (reach the duel), **Beat Yourself** (win it), **Final Form** (win it on Cataclysm).
 
-### T5. New loadouts (Carlos)
+### T5. Loadouts (Carlos)
 
-- **Drop "Avatar"** (a trademark worry). Draft: rename it **Quintessence** (starts with two Earth and an Aether, same unlock). Carlos to confirm the name.
-- **Climate** (Carlos: master of the climate phenomena): starts with **Magma, Storm and Monsoon**.
-- **Lottery** (Carlos: a random one): starts with **three dice drawn at random from the whole shop pool** (seeded per run, never gods, Mythic, sigil or Absolute dice; all at the starting size).
-- More combinations are welcome; candidates for Carlos to pick from are in the workshop reply.
+- **Delete Avatar altogether** (remove the deck and every reference; old files that beat it keep the ids harmlessly). The `all_loadouts` achievement counts every loadout (change "all 8" to "every loadout" in EN and ES).
+- **Every new loadout is earned: the chain.** A loadout opens when the file has **won with the previous one**; only Stonecaller is open from the start. **The Gambler is no longer open by default** (Carlos): it follows Stormchaser. New order and unlocks: Stonecaller, Tidecaller, Tempest, Pyromancer, Wanderer, Forgeborn, Stormchaser, **Gambler** (beat Stormchaser), **Climate** (beat Gambler), **Geologist** (beat Climate), **Tidal** (beat Geologist), **Arcanist** (beat Tidal), **Hoarder** (beat Arcanist), **Twin Flame** (beat Hoarder), **Lottery** (beat Twin Flame).
+- **The new loadouts** (three starting dice each, taglines EN and ES, draft):
 
-### T6. The best build (Cataclysm's ghost)
+| Loadout | Starts with | Tagline (draft) |
+|---|---|---|
+| **Climate** | Magma, Storm, Monsoon | Weather as a weapon: the three climate phenomena. |
+| **Geologist** | Mud, Crystal, Obsidian | Earth's patient fusions. |
+| **Tidal** | Ice, Steam, Water | Everything water can become. |
+| **Arcanist** | Mirror, Beacon, Conduit | No element, all neighbors. |
+| **Hoarder** | Gilded, Bullion, Earth | Money first, dice later. |
+| **Twin Flame** | Fire, Lightning, Magma | Fire and everything that burns. |
+| **Lottery** | three dice drawn at random from the Elementa shop pool | Whatever the universe hands you. |
 
-Carlos: "run bots on the best dice and see which is the best." **`tools/bestBuild.mjs`** (committed 2026-10-05) hill-climbs ten dice at top size and five relics for the highest mean best-of-five round score. It ranks raw power, ignoring cost and how a die is obtained, so Claude reads the result with Carlos before any build is chosen. The Cataclysm ghost is then a **fixed list** (checked into data, not computed live).
+  **Lottery:** seeded per run, never gods, Mythic, Absolute, sigil or number dice, and no two the same; all at the starting size.
 
-### T7. Open
+### T6. The Cataclysm ghost and the "Theoretical Best"
 
-The place's name; the exact exchange count and win line; the ghost's moves and how hard they hit; whether a Rush shop is a free choice of type or a Market; the Cataclysm build; the loadout list and the Avatar rename; the Rush targets (a factor of 0.6 on the best cast is a first guess, to be run in the balance simulator).
+- **The Cataclysm ghost is a curated, realistic best-of-the-best build** (a fixed list in data, not computed live): ten dice at sizes **d20 to d50** and five relics plus a Law, chosen from the best-build search below (Carlos: "give me the best loadout"), tuned in the balance simulator so its best cast is a few times the round-45 target.
+- **The theoretical best (the search's top build at every die at d100)** is listed below and is a **secret achievement, "Theoretical Best"**: unlocked the moment a run holds **all ten of its dice kinds and its five relics and Law at once** (any size).
+
+**The best-build search (2026-10-08, `tools/bestBuild.mjs`, ten dice at d100, five relics and one Law, mean of the best of five rolls of the round score; six independent searches).** The Law was **Law of Echo in every one**. Seen most: dice **Monad** (6 of 6), **Singularity** (6), **Undivisible** (5), **Obscurity** (5), **Parity** (4), **Luminance** (3), **Oblivion**, **Ouranos**, **Ice**, a **Greater Sigil**; relics **Aether Crown**, **Heart of the Circle**, **Heart of the Forge**, **Crown of Ages**, **Chain Break**. The six searches ranged from 3.5 x 10^11 to 7.6 x 10^11 (the best single run: Limit, Non-Euclidean Die, Monad, Obscurity, Undivisible, Singularity, Conduit, Nadir, Time, Tobb's Sigil; Safety Net, Heart of the Circle, Aether Crown, Crown of Ages, Chain Break; Law of Echo). The round 45 target is about 3.7 x 10^7, so the theoretical ceiling is about **ten thousand times** the target.
+
+**The Theoretical Best (consensus build, about 5 x 10^11):** dice `monad`, `singularity`, `undivisible`, `darkness` (Obscurity), `parity`, `light` (Luminance), `oblivion`, `space` (Ouranos), `ice`, `sigil_aeris_g` (Greater Sigil of Aeris); relics `aether_crown`, `heart_of_circle`, `heart_of_the_forge`, `crown_of_ages`, `chain_break`; Law `law_echo`. Holding **all sixteen at once** (any size) unlocks the secret achievement **Theoretical Best**. The agent builds the realistic Cataclysm ghost from this list (T6).
+
+### T7. The Arbiter learns more (Carlos: "as much info as possible"), with its own permission
+
+A second, **separate permission** ("weather and place") beside the device-details one of Part S. Same honesty: a plain prompt, a switch in Options, declining changes nothing, and **a list of exactly what is read and what is sent and to whom**.
+
+- **More device details (no prompt needed, same permission as Part S):** CPU cores (`hardwareConcurrency`), device memory, connection type and whether it is a data saver, battery level and whether it is charging (Chromium only, skipped when absent), whether it is a touch or mouse device, window and screen size and pixel ratio and orientation, light or dark mode and reduced-motion and contrast preferences, the language list and the date format, how the visitor arrived (the referrer), the first visit and the last visit to this file (from local storage), the weekday, the season and the phase of the **moon** (computed locally), how long they have played today.
+- **Weather and place (the new permission):** ask the browser for the location through its own **geolocation prompt**; **round the coordinates to 0.1 degrees**, call the free **Open-Meteo** weather API (no key, no cookies) from `utils/weather.js` only, read temperature, rain, wind, cloud, whether it is night there and sunrise and sunset, and keep **nothing**: the values live in memory for the sitting and the coordinates are never stored. The city comes from the **timezone name** offline, never from a reverse-geocoding request, and **never from the IP address**. The request goes to Open-Meteo and nowhere else, and only after a yes.
+- **Lines:** new placeholders `{temperature}`, `{weather}`, `{rain}`, `{daylight}`, `{sunset}`, `{moon}`, `{battery}`, `{cores}`, `{memory}`, `{connection}`, `{input}`, `{arrived}`, `{firstVisit}`, `{city}`; at least **twenty new Arbiter lines** and one per Rewriter that use them (EN and ES, drafts), skipped gracefully when a value is missing; plus a few more **bluffs** (clearly invented).
+- **Privacy tests:** the existing test is relaxed **only** for `utils/weather.js`: no other file in the Arbiter's code may use the network, `document.cookie` or storage reads; `weather.js` may call only the Open-Meteo host, only after the permission is `yes`, and never persists the response. A test with a fake `fetch` proves no call happens on `no`, on a missing permission, or before the geolocation answer.
+- **Still not allowed, by design:** camera, microphone, clipboard, files, history, other tabs, or anything that needs a scarier permission.
+
+### T8. Send feedback from the game (Carlos)
+
+Beta testers need a way to tell Carlos what happened. The portfolio already has a contact form at **`/#contact`** (a Formspree form in `src/components/ContactForm.jsx`). Add a **"Send feedback"** button to the game (the Options screen, the pause menu, the game-over screen and the **error screen** of the ErrorBoundary) that **opens `/#contact` in a new tab** (so a run in progress is untouched) **with the message prefilled**: a short template plus context lines: game version, round, realm, difficulty, loadout, the run seed, and (from the error screen) the error text. The visitor can edit or delete everything and presses Send themselves; **nothing is sent automatically.** Implement the prefill with a URL parameter (`/?feedback=...#contact`, size-limited and URL-encoded) that `ContactForm` reads once and clears; keep the form's own behavior unchanged. EN and ES.
+
+### T9. Also in this step
+
+- Achievements, Gallery (the Convergence scene, the true ending card, Pip, You, the new loadouts), `TOTALS`, EN and ES text, music (a theme for the Unwritten and for the duel; reuse the existing music system and add them to the Jukebox and MUSIC.md), test saves (a save at round 45 on each path, a save in the Unwritten, one with a file that has beaten every loadout).
+- Patch notes "Alpha 0.9.5 The Convergence" in Part D and `data/patchNotes.js`; CONTENT.md; GDD section; mark Part T Built.
+- Tests: Node scripts for the Rush order and its targets, shops between fights (and none on Cataclysm), Pip's callback, the duel (each ghost per difficulty, each move, the race and its win and loss, the ghost saved), the loadout chain and the Avatar removal, Lottery, the achievements, the feedback prefill, the privacy tests of T7, old saves loading. Run the balance simulator and report the Rush targets. Browser pass on the test saves, **muted**.
 
 ## Decision log
 
