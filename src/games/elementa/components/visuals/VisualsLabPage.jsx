@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../../../../i18n/LanguageContext.jsx'
 import { GameSettingsProvider, useGameSettings } from '../../utils/gameSettingsContext.jsx'
 import { getVisualQuality, lowEndHint } from '../../utils/perfProbe.js'
+import { ELEMENTS } from '../../data/elements.js'
 import { VISUAL_IDS, IMAGE_BASE, clearImageOverrides, visualEntry } from '../../data/visualRegistry.js'
 import KeeperSprite from '../KeeperSprite.jsx'
 import PixelSprite from '../PixelSprite.jsx'
@@ -137,7 +138,7 @@ function ItemsSpike({ lang, tx }) {
       }
       poll()
       setTimeout(
-        () => mod.benchmarkDraw({ shape: 'gem', color: '#ff7a45', rarity: 'uncommon' }).then((us) => live && setDraw(us)),
+        () => mod.benchmarkDraw({ shape: 'gem', color: ELEMENTS.fire.color, rarity: 'uncommon' }).then((us) => live && setDraw(us)),
         900,
       )
     })

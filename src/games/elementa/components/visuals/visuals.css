@@ -29,6 +29,17 @@
   display: block;
   transition: opacity 200ms var(--v-out);
 }
+.v-item3d {
+  isolation: isolate;
+}
+.v-item3d__mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  line-height: 0;
+}
 .v-item3d__halo {
   position: absolute;
   inset: -34%;

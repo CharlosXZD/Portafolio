@@ -9,7 +9,7 @@ import * as THREE from 'three'
 // every copy of an item. Light comes from the top left, like the sprites.
 
 export const NATIVE = 24 // final pixel size of one frame (matches the 24x24 relic spec in ASSETS.md)
-export const FRAMES = 24 // angles per full turn
+export const FRAMES = 16 // angles per full turn (Carlos, 2026-10-09: 16 per item)
 const SUPER = 96 // supersampled render size, shrunk to NATIVE for clean edges
 const INK = [0x12, 0x0c, 0x1a]
 const LEVELS = 5 // palette steps per channel

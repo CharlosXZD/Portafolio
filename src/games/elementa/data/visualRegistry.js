@@ -15,6 +15,8 @@
 // a whole number (see ASSETS.md). The files are looked up with a cheap
 // request on first use and remembered for the session.
 
+import { ELEMENTS } from './elements.js'
+
 const L = (en, es) => ({ en, es })
 
 export const IMAGE_BASE = '/elementa/visuals/'
@@ -31,22 +33,22 @@ export const VISUALS = {
     kind: 'three',
     label: L('Ember Heart (relic)', 'Corazón de Brasa (reliquia)'),
     load: () => import('../components/visuals/three/Item3D.jsx'),
-    props: { shape: 'gem', color: '#ff7a45', rarity: 'uncommon' },
-    fallbackSprite: { name: 'heart', color: '#ff7a45', accent: '#ffe27a' },
+    props: { shape: 'gem', elementId: 'fire', rarity: 'uncommon' },
+    fallbackSprite: { name: 'heart', color: ELEMENTS.fire.color, accent: '#ffe27a' },
   },
   'spike.consumable.tide_flask': {
     kind: 'three',
     label: L('Tide Flask (consumable)', 'Frasco de Marea (consumible)'),
     load: () => import('../components/visuals/three/Item3D.jsx'),
-    props: { shape: 'potion', color: '#3d8fe5', rarity: 'rare' },
-    fallbackSprite: { name: 'flask', color: '#3d8fe5', accent: '#9fd4ff' },
+    props: { shape: 'potion', elementId: 'water', rarity: 'rare' },
+    fallbackSprite: { name: 'flask', color: ELEMENTS.water.color, accent: '#9fd4ff' },
   },
   'spike.die.fire_d20': {
     kind: 'three',
     label: L('Fire d20 (die)', 'd20 de Fuego (dado)'),
     load: () => import('../components/visuals/three/Item3D.jsx'),
-    props: { shape: 'die', color: '#e5533d', rarity: 'epic' },
-    fallbackSprite: { name: 'die', color: '#e5533d', accent: '#ffd166' },
+    props: { shape: 'die', elementId: 'fire' },
+    fallbackSprite: { name: 'die', color: ELEMENTS.fire.color, accent: '#ffd166' },
   },
   // Two shelf fillers that stay code-made sprites, so the room mixes both.
   'spike.relic.lucky_coin': {
