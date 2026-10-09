@@ -33,7 +33,7 @@ All 115 items, "Build all models" in the Item gallery (dev server, one item per 
 | Memory | **4.04 MB for all 115** (36.9 KB each: 16 frames of 24 by 24 RGBA) |
 | Cost per frame afterwards | one `drawImage` of a 24 px frame; the shared turn clock is a few microseconds a frame |
 
-Bundle (`node src/games/elementa/tools/visualBudget.mjs --build`): first-load JavaScript **416.04 kB gzip, +2.77 kB** over the pre-overhaul baseline (V1 was +2.03; V2 adds 0.74 for the lazy hooks and the `itemId` plumbing). Loaded on demand with the first item that needs it: the model code, table and atlas 16.2 kB gzip, `ItemModel` 1.3 kB plus 0.4 kB of CSS, and the shared `three` chunk (177.6 kB gzip, already on-demand since V1). The Item gallery page is a further 4.2 kB and only loads at its URL.
+Bundle (`node src/games/elementa/tools/visualBudget.mjs --build`): first-load JavaScript **416.69 kB gzip, +3.42 kB** over the pre-overhaul baseline (V1 was +2.03; V2 adds 1.4 for the lazy hooks, the `itemId` plumbing and the patch notes text). Loaded on demand with the first item that needs it: the model code, table and atlas 16.2 kB gzip, `ItemModel` 1.3 kB plus 0.4 kB of CSS, and the shared `three` chunk (177.6 kB gzip, already on-demand since V1). The Item gallery page is a further 4.2 kB and only loads at its URL.
 
 ## Uniqueness check
 
