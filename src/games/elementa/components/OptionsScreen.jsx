@@ -172,6 +172,10 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         <a href="/games/elementa/jukebox" target="_blank" rel="noopener noreferrer" className="el-btn el-btn--sm w-fit">
           {lang === 'es' ? 'Abrir la Rockola' : 'Open the Jukebox'}
         </a>
+        {/* The new visuals are built and judged here before they reach the game (VISUALS.md). */}
+        <a href="/games/elementa/visuals" target="_blank" rel="noopener noreferrer" className="el-btn el-btn--sm w-fit">
+          {lang === 'es' ? 'Abrir el Laboratorio Visual' : 'Open the Visual Lab'}
+        </a>
       </Section>
 
       <Section title={t('elementa.options.gameplay')}>
