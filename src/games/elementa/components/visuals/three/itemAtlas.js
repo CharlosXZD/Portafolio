@@ -1,4 +1,9 @@
 import * as THREE from 'three'
+import { ELEMENTS } from '../../../data/elements.js'
+import { RARITY_GLOW } from '../../../data/relics.js'
+import { modelFor } from '../../../data/itemModels.js'
+import { PAL, makeKit, mixHex } from './itemKit.js'
+import { buildModel } from './itemGenerators.js'
 
 // Low-resolution 3D items (VISUALS.md V1 spike 2). One shared WebGL
 // renderer draws a small parametric object from several angles, each frame
@@ -164,10 +169,60 @@ export function getAtlasStats() {
   return [...stats.entries()].map(([key, s]) => ({ key, ...s }))
 }
 
+/** Renders FRAMES turns of the object `build(ramp)` returns into one atlas canvas. Synchronous, about 15 to 40 ms. */
+function renderAtlasSync(build, viewYaw = 0) {
+  const { renderer, ramp } = sharedRenderer()
+  const scene = new THREE.Scene()
+  const item = build(ramp)
+  // Frame 0 is the resting view: turned a little so a flat face reads and the sides show.
+  item.rotation.y += viewYaw
+  const holder = new THREE.Group()
+  holder.add(item)
+  scene.add(holder)
+  // Centre the object so it turns around the middle of its box.
+  const box = new THREE.Box3().setFromObject(holder)
+  item.position.sub(box.getCenter(new THREE.Vector3()))
+  // Fit the widest extent of the turning object, not its corner-to-corner diagonal.
+  const size = box.getSize(new THREE.Vector3())
+  const half = (Math.max(size.x, size.y, size.z) / 2) * (NATIVE / (NATIVE - 3))
+  const camera = new THREE.OrthographicCamera(-half, half, half, -half, 0.1, 20)
+  camera.position.set(0, 0, 8)
+  scene.add(new THREE.HemisphereLight('#ffffff', '#6a5a8a', 0.7))
+  const sun = new THREE.DirectionalLight('#fff4e0', 2.6)
+  sun.position.set(-3, 4, 5) // top left
+  scene.add(sun)
+
+  const atlas = document.createElement('canvas')
+  atlas.width = NATIVE * FRAMES
+  atlas.height = NATIVE
+  const actx = atlas.getContext('2d')
+  const scratch = document.createElement('canvas')
+  scratch.width = scratch.height = SUPER
+  const sctx = scratch.getContext('2d')
+  const mid = document.createElement('canvas')
+  mid.width = mid.height = NATIVE * 2
+  const mctx = mid.getContext('2d')
+  const smallCanvas = document.createElement('canvas')
+  smallCanvas.width = smallCanvas.height = NATIVE
+  const small = smallCanvas.getContext('2d', { willReadFrequently: true })
+
+  for (let f = 0; f < FRAMES; f++) {
+    holder.rotation.y = (f / FRAMES) * Math.PI * 2
+    renderer.render(scene, camera)
+    const img = pixelate(frameToPixels(renderer, scratch, sctx, small, mctx))
+    actx.putImageData(img, f * NATIVE, 0)
+  }
+  scene.traverse((o) => {
+    o.geometry?.dispose()
+    o.material?.dispose?.()
+  })
+  return atlas
+}
+
 /**
- * Builds (once) and returns the atlas for an item: a canvas of FRAMES frames
- * side by side, plus its cost. Resolves to null when WebGL is missing, so the
- * caller can fall back to the sprite.
+ * Builds (once) and returns the atlas for a V1 spike item: a canvas of FRAMES
+ * frames side by side, plus its cost. Resolves to null when WebGL is missing,
+ * so the caller can fall back to the sprite.
  */
 export function getAtlas({ shape, color, rarity = 'common' }) {
   const key = `${shape}|${color}|${rarity}`
@@ -176,52 +231,10 @@ export function getAtlas({ shape, color, rarity = 'common' }) {
     // Never block the click that asked for it: build on the next frame.
     requestAnimationFrame(() => {
       try {
-        const t0 = performance.now()
-        const { renderer, ramp } = sharedRenderer()
         const build = BUILDERS[shape]
         if (!build) return resolve(null)
-        const scene = new THREE.Scene()
-        const item = build(color, ramp, rarity)
-        const holder = new THREE.Group()
-        holder.add(item)
-        scene.add(holder)
-        // Centre the object so it turns around the middle of its box.
-        const box = new THREE.Box3().setFromObject(holder)
-        item.position.sub(box.getCenter(new THREE.Vector3()))
-        // Fit the widest extent of the turning object, not its corner-to-corner diagonal.
-        const size = box.getSize(new THREE.Vector3())
-        const half = (Math.max(size.x, size.y, size.z) / 2) * (NATIVE / (NATIVE - 3))
-        const camera = new THREE.OrthographicCamera(-half, half, half, -half, 0.1, 20)
-        camera.position.set(0, 0, 8)
-        scene.add(new THREE.HemisphereLight('#ffffff', '#6a5a8a', 0.7))
-        const sun = new THREE.DirectionalLight('#fff4e0', 2.6)
-        sun.position.set(-3, 4, 5) // top left
-        scene.add(sun)
-
-        const atlas = document.createElement('canvas')
-        atlas.width = NATIVE * FRAMES
-        atlas.height = NATIVE
-        const actx = atlas.getContext('2d')
-        const scratch = document.createElement('canvas')
-        scratch.width = scratch.height = SUPER
-        const sctx = scratch.getContext('2d')
-        const mid = document.createElement('canvas')
-        mid.width = mid.height = NATIVE * 2
-        const mctx = mid.getContext('2d')
-        const smallCanvas = document.createElement('canvas')
-        smallCanvas.width = smallCanvas.height = NATIVE
-        const small = smallCanvas.getContext('2d', { willReadFrequently: true })
-
-        for (let f = 0; f < FRAMES; f++) {
-          holder.rotation.y = (f / FRAMES) * Math.PI * 2
-          renderer.render(scene, camera)
-          const img = pixelate(frameToPixels(renderer, scratch, sctx, small, mctx))
-          actx.putImageData(img, f * NATIVE, 0)
-        }
-        scene.traverse((o) => {
-          o.geometry?.dispose()
-          o.material?.dispose?.()
-        })
+        const t0 = performance.now()
+        const atlas = renderAtlasSync((ramp) => build(color, ramp, rarity))
         const ms = performance.now() - t0
         stats.set(key, { ms, frames: FRAMES, native: NATIVE, bytes: atlas.width * atlas.height * 4 })
         resolve({ canvas: atlas, ms })
@@ -232,6 +245,97 @@ export function getAtlas({ shape, color, rarity = 'common' }) {
   })
   cache.set(key, job)
   return job
+}
+
+// ---- V2: item models, built from the table in data/itemModels.js, in idle time ----
+
+const EARTH_TINT = '#c89a5c' // the menu's own lift for Earth against the night sky
+const modelCache = new Map()
+const queue = []
+let pumping = false
+
+function modelColors(model) {
+  const extra = { ice: '#7ad1ff', void: '#07060e', inkLight: '#2b2b33', red: '#c8321f', pink: '#f0a0b8', greenHi: '#8fe8a8', glass: '#dff3ff' }
+  const named = { ...PAL, ...extra }
+  const toneHex = model.tone ? (named[model.tone] ?? model.tone) : PAL.gold
+  const main = model.element ? (model.element === 'earth' ? EARTH_TINT : ELEMENTS[model.element].color) : toneHex
+  return {
+    ...PAL,
+    main,
+    mainHi: mixHex(main, '#ffffff', 0.4),
+    mainLo: mixHex(main, '#120c1a', 0.4),
+    trim: RARITY_GLOW[model.rarity] ?? RARITY_GLOW.common,
+    glow: mixHex(main, PAL.gold, 0.5),
+    fire: ELEMENTS.fire.color,
+    water: ELEMENTS.water.color,
+    earth: EARTH_TINT,
+    air: ELEMENTS.air.color,
+    ...extra,
+  }
+}
+
+function buildModelAtlas(id) {
+  const model = modelFor(id)
+  if (!model) return null
+  const t0 = performance.now()
+  const atlas = renderAtlasSync((ramp) => buildModel(model, makeKit(ramp, modelColors(model))), model.view ?? 0.5)
+  const ms = performance.now() - t0
+  stats.set(`model:${id}`, { ms, frames: FRAMES, native: NATIVE, bytes: atlas.width * atlas.height * 4 })
+  return { canvas: atlas, ms }
+}
+
+// Run queued builds while the browser is idle, a few at a time, never while the tab is hidden.
+function pump() {
+  if (pumping || queue.length === 0) return
+  pumping = true
+  const run = (deadline) => {
+    if (document.hidden) {
+      pumping = false
+      document.addEventListener('visibilitychange', pump, { once: true })
+      return
+    }
+    const budget = () => (deadline?.timeRemaining ? deadline.timeRemaining() : 6)
+    do {
+      queue.sort((a, b) => b.priority - a.priority)
+      const job = queue.shift()
+      if (!job) break
+      try {
+        job.resolve(buildModelAtlas(job.id))
+      } catch {
+        job.resolve(null)
+      }
+    } while (queue.length && budget() > 14)
+    pumping = false
+    if (queue.length) pump()
+  }
+  if (typeof requestIdleCallback === 'function') requestIdleCallback(run, { timeout: 1200 })
+  else setTimeout(() => run(null), 40)
+}
+
+/**
+ * The cached atlas for an item id (relic or consumable), built lazily in idle
+ * time. `priority` lets what is on screen jump ahead of background pre-builds.
+ * Resolves to { canvas, ms } or null (unknown id, or no WebGL), and never
+ * blocks the click that mounted the item.
+ */
+export function getModelAtlas(id, priority = 1) {
+  if (modelCache.has(id)) {
+    const hit = modelCache.get(id)
+    const waiting = queue.find((j) => j.id === id)
+    if (waiting && priority > waiting.priority) waiting.priority = priority
+    return hit
+  }
+  const job = new Promise((resolve) => {
+    queue.push({ id, priority, resolve })
+    pump()
+  })
+  modelCache.set(id, job)
+  return job
+}
+
+/** True once an id's atlas is built (so a component can skip the loading state). */
+export function hasModelAtlas(id) {
+  return stats.has(`model:${id}`)
 }
 
 /** Microseconds to copy one frame from an atlas onto a canvas, averaged. */

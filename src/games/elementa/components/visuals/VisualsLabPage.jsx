@@ -18,6 +18,7 @@ const L = (en, es) => ({ en, es })
 const TEXT = {
   title: L('Visual Lab', 'Laboratorio Visual'),
   back: L('Back to the game', 'Volver al juego'),
+  itemGallery: L('Item gallery', 'Galería de objetos'),
   intro: L(
     'Every new visual of the overhaul lives here first (VISUALS.md, phase V1). Nothing on this page is in the real game yet. The toggles below change this page only and never your saved settings.',
     'Todo lo visual nuevo vive primero aquí (VISUALS.md, fase V1). Nada de esta página está aún en el juego real. Los controles de abajo solo cambian esta página y nunca tus ajustes guardados.',
@@ -343,9 +344,14 @@ function Lab() {
               <h1 className="el-logo text-2xl">{tx.title[lang]}</h1>
               <p className="max-w-2xl text-base leading-snug text-[var(--text-dim)]">{tx.intro[lang]}</p>
             </div>
-            <Link to="/games/elementa" className="el-btn el-btn--sm">
-              {tx.back[lang]}
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/games/elementa/visuals/items" className="el-btn el-btn--sm el-btn--gold">
+                {tx.itemGallery[lang]}
+              </Link>
+              <Link to="/games/elementa" className="el-btn el-btn--sm">
+                {tx.back[lang]}
+              </Link>
+            </div>
           </header>
 
           <section className="el-panel flex flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3" aria-label="Controls">
