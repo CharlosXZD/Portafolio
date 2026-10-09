@@ -110,3 +110,5 @@ public/elementa/visuals/rig.keeper.tobb.svg
 - The lookup is a small request made the first time an id is shown and remembered for the session. In the Visual Lab (`/games/elementa/visuals`) the "showing" column says `image (file)` for every id that found a file, and "Look for files again" re-checks after you drop one in.
 - A file replaces the whole visual for that id. For a layered rig that means a still picture instead of the moving rig, so use it only when the art is meant to be still.
 - Ids are lowercase with dots between the category, the kind and the name. New ids are added to `data/visualRegistry.js`, never invented in components.
+
+**Items (V2).** Every relic and consumable is the registry id `item.<item id>`: `item.molten_core`, `item.rune_echo`, `item.const_phoenix` and so on (the ids in `data/relics.js` and `data/consumables.js`). A file at `public/elementa/visuals/item.<id>.png` (24 by 24, drawn at its native size) replaces that item's 3D model in the shop, the inventory, the inspector and the Gallery. The model table is `data/itemModels.js`; the "Item gallery" page in the Visual Lab shows every id with its current model.

@@ -12,6 +12,30 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.7',
+    name: L('Item models', 'Modelos de objetos'),
+    date: null,
+    highlights: [
+      L(
+        'Every relic and consumable is now a small 3D object that turns: gems, flasks, scrolls, bells, crowns, charts, totems, runestones and more, each built to be told apart at a glance. Elements color them, and rarity sets the trim and the glow.',
+        'Cada reliquia y consumible es ahora un pequeño objeto 3D que gira: gemas, frascos, pergaminos, campanas, coronas, cartas, tótems, piedras rúnicas y más, cada uno hecho para distinguirse de un vistazo. Los elementos los colorean y la rareza define el borde y el brillo.',
+      ),
+      L(
+        'On shop shelves they turn slowly; everywhere else they sit still until you point at them, then they follow your cursor. Open one to see it larger. A new item pops in its rarity glow when you buy it.',
+        'En los estantes de la tienda giran despacio; en el resto de la partida están quietos hasta que los señalas, y entonces siguen tu cursor. Ábrelos para verlos más grandes. Un objeto nuevo aparece con el brillo de su rareza cuando lo compras.',
+      ),
+      L(
+        'Dice are unchanged: they keep their shape, element color, symbol and effects. On slower devices, with Reduced motion, or while a model is still being made, you see the old sprites.',
+        'Los dados no cambian: conservan su forma, color de elemento, símbolo y efectos. En dispositivos lentos, con Movimiento reducido, o mientras un modelo se está haciendo, verás los sprites anteriores.',
+      ),
+      L(
+        'The Visual Lab has a new Item gallery with every item by rarity or by element.',
+        'El Laboratorio Visual tiene una nueva Galería de objetos con todos los objetos por rareza o por elemento.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.6',
     name: L('Visual foundations', 'Cimientos visuales'),
     date: null,

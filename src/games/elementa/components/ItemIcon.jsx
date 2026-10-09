@@ -20,7 +20,10 @@ const ItemModel = lazy(() => import('./visuals/ItemModel.jsx'))
  * hand-drawn art exists. Pass `iconSrc` (a 32x32 sprite, see ASSETS.md) and
  * it renders that instead. With an `itemId` (a relic or consumable) the 3D
  * model replaces the sprite once it is built; `reveal` plays the buy pop in
- * the item's rarity glow. Click to inspect (ItemInspector.jsx); `static`
+ * the item's rarity glow, and `modelMotion` is 'turn' (the slow idle turn,
+ * used on shop shelves), 'hover' (still until the pointer is over it, the
+ * default for interactive tiles, so a sidebar of relics does not spin while
+ * you read the score) or 'still'. Click to inspect (ItemInspector.jsx); `static`
  * renders a plain, non-interactive tile for read-only lists.
  */
 export default function ItemIcon({
@@ -32,6 +35,7 @@ export default function ItemIcon({
   size = 56,
   iconSrc,
   itemId,
+  modelMotion,
   reveal = false,
   armed = false,
   disabled = false,
@@ -82,7 +86,7 @@ export default function ItemIcon({
   const content =
     itemId && !iconSrc && modelScale >= 1 ? (
       <Suspense fallback={flat}>
-        <ItemModel itemId={itemId} scale={modelScale} motion={isStatic ? 'still' : 'turn'} reveal={reveal} rarity={rarity} fallback={flat} />
+        <ItemModel itemId={itemId} scale={modelScale} motion={modelMotion ?? (isStatic ? 'still' : 'hover')} reveal={reveal} rarity={rarity} fallback={flat} />
       </Suspense>
     ) : (
       flat

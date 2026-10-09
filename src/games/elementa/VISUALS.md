@@ -97,7 +97,7 @@ Goal: prove the tools and set the rules before any mass work. Nothing user-facin
 
 Do not build anything else in V1: no mass item models, no real-game backgrounds, no scenes, no changes to the real menus or shops.
 
-### V2: Item models (Ready once the V1 fix pass is accepted)
+### V2: Item models (Built 2026-10-09, Alpha 0.9.7, see `VISUALS_V2_REPORT.md`; waiting for Carlos's review)
 
 **Carlos's V2 answers (2026-10-09):** 16 frames per item; rigs replace the old keeper sprites where a rig exists (V3); a still PNG per keeper for hand-drawn replacements (layered later if wanted); sound hooks wired to existing sfx in V4; V3 and V4 right after. **Dice are NOT part of V2's 3D items:** on the table dice keep their shaped sprite, element color, symbol and element effects (section 0b).
 

@@ -77,6 +77,7 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
       glyph={item.glyph}
       icon={item.icon} sprite={item.sprite}
       itemId={item.itemId}
+      modelMotion={cost != null ? 'turn' : 'hover'}
       reveal={reveal}
       color={item.color}
       rarity={item.rarity}

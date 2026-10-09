@@ -523,7 +523,7 @@ function cut(k, p) {
       g.add(b2)
     }
   }
-  if (p.disc) g.add(k.at(k.M(k.cyl(1.25, 1.25, 0.1, 18), 'glass', { op: 0.3 }), 0, 0, 0.36, Math.PI / 2), k.at(k.M(k.tor(1.25, 0.06, 3, 18), 'glass'), 0, 0, 0.36))
+  if (p.disc) g.add(k.at(k.M(k.cyl(1.25, 1.25, 0.1, 18), 'glass', { op: 0.16 }), 0, 0, 0.36, Math.PI / 2), k.at(k.M(k.tor(1.25, 0.06, 3, 18), 'glass'), 0, 0, 0.36))
   if (p.quill) g.add(k.at(k.M(k.box(0.07, 2.0, 0.1), 'ink'), 0.02, -0.05, (p.depth ?? 0.35) / 2 + 0.12, 0, 0, -0.12))
   if (p.ribs) for (let i = -2; i <= 2; i++) g.add(k.at(k.M(k.box(0.05, 1.7, 0.08), 'ink'), Math.sin(i * 0.36) * 0.85, -1 + Math.cos(i * 0.36) * 0.85, (p.depth ?? 0.35) / 2 + 0.1, 0, 0, -i * 0.36))
   if (p.spots) {
