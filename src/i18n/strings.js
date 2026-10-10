@@ -665,6 +665,7 @@ const strings = {
   'elementa.roundResult.tryAgain': { en: 'Try again', es: 'Reintentar' },
 
   'elementa.shop.yourDice': { en: 'Dice', es: 'Dados' },
+  'elementa.shop.pouch': { en: 'Your pouch', es: 'Tu bolsa' },
   'elementa.shop.yourRelics': { en: 'Relics', es: 'Reliquias' },
   'elementa.shop.yourConsumables': { en: 'Consumables', es: 'Consumibles' },
   'elementa.shop.buyADie': { en: 'Dice', es: 'Dados' },

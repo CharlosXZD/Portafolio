@@ -1,0 +1,709 @@
+/* The shop as a scene (VISUALS.md V4). Every control is an object made of the shop's own
+   materials: the ramps --w0..3 (wood), --l0..3 (leather), --p0..3 (parchment), --m0..3 (metal),
+   --s0..3 (stone) and --acc come from materials.js and are set on the scene root. Pixel style:
+   hard 3 px ink outlines (box-shadow on four sides, so corners are notched), 3 or 4 flat tones,
+   light from the upper left, hard drop shadows. No object here is a flat dark rectangle.
+   Motion is stepped and gentle; [data-calm] (Reduced motion) turns it off. */
+
+.shop-scene {
+  --ol: var(--ink);
+  position: relative;
+}
+
+/* ---- text on light materials: remap the text tokens inside parchment and ticket objects ---- */
+.obj-sign,
+.obj-tag,
+.obj-ticket,
+.obj-scroll,
+.obj-slip {
+  --text: #2a1a10;
+  --text-dim: #4a3626;
+  --text-mute: #6a5640;
+  --good: #1f6a36;
+  --bad: #9a1e28;
+  --gold-hi: #7a4a10;
+  --gold-1: #8a5a10;
+  --gold-2: #9a5a10;
+  --arcane-hi: #4a2a9a;
+  color: var(--text);
+}
+.obj-box {
+  box-shadow: 0 -3px 0 0 var(--ol), 0 3px 0 0 var(--ol), -3px 0 0 0 var(--ol), 3px 0 0 0 var(--ol);
+}
+
+/* ---------------- the counter ---------------- */
+.obj-counter {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 800px);
+  margin-inline: auto;
+}
+.obj-counter__top {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px 26px;
+  min-height: 34px;
+  padding: 18px 28px 12px;
+  background: repeating-linear-gradient(to bottom, var(--w3) 0 13px, var(--w2) 13px 14px, var(--w3) 14px 27px, var(--w2) 27px 28px);
+  box-shadow: inset 0 4px 0 var(--wood-hi), inset 0 -3px 0 var(--w2), 0 -3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol);
+}
+.obj-counter__front {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+  padding: 6px 18px 8px;
+  background: repeating-linear-gradient(to right, var(--w1) 0 62px, var(--w0) 62px 64px);
+  box-shadow: inset 0 4px 0 var(--w0), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), 0 12px 0 rgba(0, 0, 0, 0.4);
+}
+.obj-plate {
+  display: inline-block;
+  padding: 4px 10px 5px;
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2a1a10;
+  background: var(--m2);
+  box-shadow: 0 -2px 0 var(--ol), 0 2px 0 var(--ol), -2px 0 0 var(--ol), 2px 0 0 var(--ol), inset 0 2px 0 var(--m3), inset 0 -2px 0 var(--m0);
+}
+.obj-plate--hint {
+  background: none;
+  box-shadow: none;
+  color: var(--p2);
+  font-family: var(--small-font);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 0;
+}
+.obj-plate--warn {
+  background: var(--p2);
+  color: #7a1a22;
+  font-family: var(--small-font);
+  font-size: 13px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ---------------- the wall shelf ---------------- */
+.obj-shelf {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+}
+.obj-shelf__row {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px 0;
+  padding: 0 12px;
+}
+/* brackets at both ends of every shelf row */
+.obj-shelf__row::before,
+.obj-shelf__row::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  width: 8px;
+  height: 14px;
+  background: var(--w1);
+  box-shadow: 0 0 0 2px var(--ol);
+}
+.obj-shelf__row::before { left: 14px; }
+.obj-shelf__row::after { right: 14px; }
+
+/* a slot on a shelf or on the counter: the item, its plank, and its tag */
+.slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 12px;
+}
+.slot__item {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 72px;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.42));
+}
+.slot--shelf .slot__plank {
+  width: calc(100% + 24px);
+  margin-inline: -12px;
+  height: 14px;
+  margin-top: -3px;
+  background: linear-gradient(to bottom, var(--wood-hi) 0 3px, var(--w3) 3px 6px, var(--w2) 6px 11px, var(--w0) 11px 14px);
+  box-shadow: 0 3px 0 0 var(--ol), 0 9px 0 0 rgba(0, 0, 0, 0.35);
+}
+.slot--counter .slot__item::after {
+  /* the contact shadow a die throws on the counter top */
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -6px;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.32);
+  z-index: -1;
+}
+
+/* the price tag: a parchment tag on a string, name above price */
+.obj-tag {
+  position: relative;
+  min-width: 72px;
+  max-width: 112px;
+  margin-top: 12px;
+  padding: 5px 8px 5px;
+  text-align: center;
+  background: var(--p2);
+  box-shadow: 0 -2px 0 var(--ol), 0 2px 0 var(--ol), -2px 0 0 var(--ol), 2px 0 0 var(--ol), inset 0 2px 0 var(--p3), inset 0 -2px 0 var(--p1);
+  transform-origin: 50% -10px;
+}
+.obj-tag::before {
+  /* the string and the pin */
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  width: 2px;
+  height: 11px;
+  margin-left: -1px;
+  background: var(--l1);
+  box-shadow: 0 -3px 0 1px var(--m1);
+}
+.obj-tag__name {
+  display: block;
+  font-family: var(--small-font);
+  font-size: 12px;
+  line-height: 1.1;
+  color: #2a1a10;
+}
+.obj-tag__cost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 9px;
+  color: #6a3a08;
+}
+.obj-tag[data-afford='no'] {
+  background: var(--p1);
+  filter: saturate(0.5);
+}
+.obj-tag[data-afford='no'] .obj-tag__cost {
+  color: #9a1e28;
+}
+.obj-tag--free-swing {
+  animation: obj-swing 6s steps(4, end) infinite;
+}
+.slot:hover .obj-tag {
+  animation: obj-swing-once 0.5s steps(3, end) 1;
+}
+@keyframes obj-swing { 0%, 80% { transform: rotate(0); } 86% { transform: rotate(2deg); } 93% { transform: rotate(-1deg); } }
+@keyframes obj-swing-once { 0% { transform: rotate(3deg); } 40% { transform: rotate(-2deg); } 70% { transform: rotate(1deg); } 100% { transform: rotate(0); } }
+
+/* ---------------- the stage: the keeper behind the counter, the greeting sign ---------------- */
+.stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.stage__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: end;
+  column-gap: 14px;
+  width: min(100%, 800px);
+  padding: 0 28px;
+  margin-bottom: -3px; /* the counter overlaps the keeper's waist */
+}
+.stage__keeper {
+  position: relative;
+  grid-row: 1 / span 2;
+  align-self: end;
+  overflow: hidden; /* the rig is already cropped at the hands; the counter hides the rest */
+}
+.stage__keeper[data-k='1'] { grid-column: 1; }
+.stage__keeper[data-k='2'] { grid-column: 2; }
+.stage__keeper > * {
+  display: block;
+}
+.stage__sign {
+  grid-column: 3;
+  min-width: 0;
+  align-self: start;
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+.stage__sign[data-k='1'] { grid-row: 1; }
+.stage__sign[data-k='2'] { grid-row: 2; }
+
+/* the hanging greeting sign */
+.obj-sign {
+  position: relative;
+  max-width: 440px;
+  padding: 12px 16px 10px;
+  text-align: left;
+  background: var(--p2);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--p3), inset 0 -3px 0 var(--p1), 4px 7px 0 0 rgba(0, 0, 0, 0.38);
+  transform-origin: 50% -20px;
+  animation: obj-sway 7s steps(6, end) infinite;
+}
+.obj-sign::before,
+.obj-sign::after {
+  /* two ropes up to the beam */
+  content: '';
+  position: absolute;
+  top: -22px;
+  width: 3px;
+  height: 20px;
+  background: var(--l1);
+  box-shadow: 0 -2px 0 2px var(--m1);
+}
+.obj-sign::before { left: 22px; }
+.obj-sign::after { right: 22px; }
+.obj-sign__text {
+  font-size: 17px;
+  line-height: 1.25;
+  color: #2a1a10;
+}
+.obj-sign__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 5px;
+  font-size: 14px;
+  color: #5a4630;
+  border-top: 2px dotted #8a6a4a;
+}
+@keyframes obj-sway { 0%, 60% { transform: rotate(0); } 70% { transform: rotate(0.8deg); } 85% { transform: rotate(-0.6deg); } }
+
+/* ---------------- the pouch (your bag) ---------------- */
+.obj-pouch {
+  position: relative;
+  padding: 34px 16px 18px;
+  background:
+    repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.07) 0 3px, transparent 3px 7px),
+    linear-gradient(to bottom, var(--l2) 0 70%, var(--l1) 70%);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--l3), inset 0 -4px 0 var(--l0), 6px 9px 0 0 rgba(0, 0, 0, 0.4);
+}
+.obj-pouch::before {
+  /* the stitching */
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 2px dashed var(--l3);
+  opacity: 0.55;
+  pointer-events: none;
+}
+.obj-pouch::after {
+  /* the flap with its brass buckle */
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  width: 36px;
+  height: 22px;
+  margin-left: -18px;
+  background: var(--m2);
+  box-shadow: 0 0 0 3px var(--ol), inset 0 3px 0 var(--m3), inset 0 -3px 0 var(--m0), inset 0 0 0 7px var(--l0);
+}
+.obj-pouch .el-label,
+.obj-pouch h3 {
+  color: var(--p2);
+}
+.obj-pouch,
+.obj-maptable,
+.obj-board {
+  --text-dim: #e8dcc0;
+  --text-mute: #cdbf9f;
+}
+.obj-pouch .el-well,
+.obj-pocket {
+  background: var(--l0);
+  box-shadow: inset 0 3px 0 0 rgba(0, 0, 0, 0.5), inset 0 -2px 0 0 var(--l3), inset 2px 0 0 0 rgba(0, 0, 0, 0.25);
+}
+.obj-pouch .text-sm,
+.obj-pouch p {
+  color: var(--p1);
+}
+.obj-ticket {
+  position: relative;
+  padding: 10px 12px;
+  background: var(--p2);
+  box-shadow: 0 -2px 0 var(--ol), 0 2px 0 var(--ol), -2px 0 0 var(--ol), 2px 0 0 var(--ol), inset 0 2px 0 var(--p3), inset 0 -2px 0 var(--p1);
+}
+.obj-ticket .el-panel {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* ---------------- the map table (the Road, the purse, the plaques, the levers) ---------------- */
+.obj-maptable {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 14px 14px;
+  background: repeating-linear-gradient(to bottom, var(--w2) 0 21px, var(--w1) 21px 22px, var(--w2) 22px 43px, var(--w0) 43px 44px);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--wood-hi), inset 3px 0 0 var(--w3), inset -3px 0 0 var(--w1), inset 0 -3px 0 var(--w0), 6px 9px 0 0 rgba(0, 0, 0, 0.4);
+}
+.obj-nails::before,
+.obj-nails::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--m2);
+  box-shadow: 0 0 0 2px var(--ol), inset 2px 2px 0 var(--m3);
+}
+.obj-nails::before { left: 6px; }
+.obj-nails::after { right: 6px; }
+.obj-rail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0 8px;
+  border-bottom: 4px solid var(--m1);
+  box-shadow: 0 3px 0 var(--ol);
+}
+.obj-rail .pixel-score {
+  color: var(--p2) !important;
+}
+.obj-purse {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px 10px;
+  background: var(--l2);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--l3), inset 0 -3px 0 var(--l0);
+}
+.obj-purse::before {
+  /* the drawstring */
+  content: '';
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: -9px;
+  height: 6px;
+  background: var(--p1);
+  box-shadow: 0 0 0 2px var(--ol);
+}
+.obj-purse .el-label {
+  color: var(--p2);
+}
+.obj-plaques {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.obj-engraved {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 4px 8px;
+  background: var(--w0);
+  box-shadow: 0 -2px 0 var(--ol), 0 2px 0 var(--ol), -2px 0 0 var(--ol), 2px 0 0 var(--ol), inset 0 3px 0 rgba(0, 0, 0, 0.5), inset 0 -2px 0 var(--w2);
+}
+.obj-engraved .el-label {
+  color: var(--p1);
+}
+.obj-slate {
+  position: relative;
+  padding: 10px 8px 8px;
+  background: var(--s0);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), 0 0 0 6px var(--m1), 0 0 0 9px var(--ol), inset 0 3px 0 var(--s1), inset 0 -3px 0 rgba(0, 0, 0, 0.4);
+  margin: 6px 6px 8px;
+}
+.obj-maptable .el-label,
+.obj-slate .el-label,
+.obj-slate p {
+  color: var(--p1);
+}
+
+/* ---------------- the lever (next round) and the bell pull (reroll) ---------------- */
+.obj-lever {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 16px 12px 18px;
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #10240f;
+  background: #3f9f5f;
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 #6fd38a, inset 0 -4px 0 #256a3c;
+  cursor: pointer;
+  transition: transform 60ms steps(1);
+}
+.obj-lever:active:not(:disabled) {
+  transform: translateY(2px);
+}
+.obj-lever:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.obj-lever:focus-visible,
+.obj-bell:focus-visible,
+.obj-btn:focus-visible {
+  outline: 2px solid var(--gold-1);
+  outline-offset: 5px;
+}
+.obj-lever:disabled,
+.obj-bell:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.7) brightness(0.65);
+}
+.obj-lever__arm {
+  /* a brass lever that swings down when the plaque is pressed */
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 36px;
+  transform-origin: 50% 90%;
+  transform: rotate(-24deg);
+  transition: transform 120ms steps(3, end);
+}
+.obj-lever__arm::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  width: 6px;
+  height: 28px;
+  background: var(--m2);
+  box-shadow: 0 0 0 2px var(--ol), inset 2px 0 0 var(--m3);
+}
+.obj-lever__arm::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  background: #de5a5f;
+  box-shadow: 0 0 0 2px var(--ol), inset 3px 3px 0 #ffb0b8, inset -3px -3px 0 #8a2a32;
+}
+.obj-lever:active:not(:disabled) .obj-lever__arm {
+  transform: rotate(28deg);
+}
+.obj-bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px 10px;
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  color: #fff;
+  background: #6a4fd6;
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 #9d86ff, inset 0 -4px 0 #3f2c94;
+  cursor: pointer;
+}
+.obj-bell:active:not(:disabled) {
+  transform: translateY(2px);
+}
+.obj-bell:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+.obj-note {
+  text-align: center;
+  font-size: 14px;
+  color: var(--p1);
+}
+
+/* ---------------- boards (the Forge, the Brew, deals, blessings, services, the Pantry) ---------------- */
+.obj-board {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  padding: 26px 22px 20px;
+  background: repeating-linear-gradient(to bottom, var(--w2) 0 21px, var(--w1) 21px 22px, var(--w2) 22px 43px, var(--w0) 43px 44px);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--wood-hi), inset 3px 0 0 var(--w3), inset -3px 0 0 var(--w1), inset 0 -3px 0 var(--w0), 6px 9px 0 0 rgba(0, 0, 0, 0.4);
+}
+.obj-board__title {
+  position: absolute;
+  left: 50%;
+  top: -12px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.obj-board__hint {
+  max-width: 560px;
+  font-size: 14px;
+  color: var(--p1);
+  text-align: center;
+}
+.obj-board .el-panel,
+.obj-board .el-panel--dark {
+  /* the old panels inside a board are slate tablets pinned to it, sized to their content */
+  background: var(--s0);
+  box-shadow: 0 -2px 0 var(--ol), 0 2px 0 var(--ol), -2px 0 0 var(--ol), 2px 0 0 var(--ol), inset 0 3px 0 var(--s1), inset 0 -3px 0 rgba(0, 0, 0, 0.4);
+  width: fit-content;
+  max-width: 100%;
+}
+.obj-board .el-well {
+  background: var(--s0);
+  box-shadow: inset 0 3px 0 0 rgba(0, 0, 0, 0.55), inset 0 -2px 0 0 var(--s2), 0 0 0 2px var(--acc);
+}
+.obj-board .el-label {
+  color: var(--p1);
+}
+.obj-board .obj-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* old el-buttons inside the scene are wooden plaques with a brass lip */
+.shop-scene .el-btn {
+  --face: var(--w2);
+  --lit: var(--w3);
+  --lip: var(--w0);
+  --fg: #fff4e0;
+  --edge: var(--ol);
+}
+.shop-scene .el-btn--gold { --face: var(--m2); --lit: var(--m3); --lip: var(--m0); --fg: #2a1a10; }
+.shop-scene .el-btn--green { --face: #3f9f5f; --lit: #6fd38a; --lip: #256a3c; --fg: #10240f; }
+.shop-scene .el-btn--arcane { --face: #6a4fd6; --lit: #9d86ff; --lip: #3f2c94; --fg: #fff; }
+.shop-scene .el-btn--danger { --face: #a8323a; --lit: #de5a5f; --lip: #641a22; --fg: #fff; }
+.shop-scene .el-btn--ghost { --face: transparent; --lit: transparent; --lip: transparent; --edge: transparent; }
+
+/* the wooden sign of the shop name takes the shop's wood already (the --wood tokens) */
+
+/* a bought slot: the gap it leaves is just the plank */
+.slot__gap {
+  width: 72px;
+  min-height: 72px;
+}
+
+/* ---------------- phones: the bag and the map are drawers ---------------- */
+.obj-drawer {
+  width: 100%;
+}
+.obj-drawer__tab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 16px;
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--p2);
+  background: var(--l2);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--l3), inset 0 -3px 0 var(--l0);
+  cursor: pointer;
+}
+.obj-drawer__tab[data-map] {
+  background: var(--w2);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--w3), inset 0 -3px 0 var(--w0);
+}
+.obj-drawer__body {
+  margin-top: 14px;
+}
+@media (min-width: 1024px) {
+  .obj-drawer__tab { display: none; }
+  .obj-drawer__body { margin-top: 0; display: block !important; }
+}
+
+/* the minimum touch target on narrow screens */
+@media (max-width: 1023px) {
+  .shop-scene .el-btn { min-height: 44px; }
+  .shop-scene .slot { padding: 0 8px; }
+  .obj-counter__top { padding: 16px 12px 10px; gap: 8px 14px; }
+  .stage__row { padding: 0 12px; column-gap: 8px; }
+  .stage__sign { margin-top: 18px; }
+}
+
+[data-calm] .obj-sign,
+[data-calm] .obj-tag,
+[data-calm] .slot:hover .obj-tag,
+[data-calm] .obj-lever__arm {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .obj-sign, .obj-tag, .slot:hover .obj-tag { animation: none !important; }
+}
+
+/* the item inspector, drawn in a portal: a parchment tag while a shop is open (the materials are set on the body) */
+body.scene-open [data-tut-inspector] {
+  --text: #2a1a10;
+  --text-dim: #3a2a1c;
+  --text-mute: #5a4630;
+  --gold-hi: #7a4a10;
+  --gold-1: #8a5a10;
+  --arcane-hi: #4a2a9a;
+  --good: #1f6a36;
+  --bad: #9a1e28;
+  color: var(--text);
+  background: var(--p2) !important;
+  box-shadow: 0 -3px 0 var(--ink), 0 3px 0 var(--ink), -3px 0 0 var(--ink), 3px 0 0 var(--ink), inset 0 3px 0 var(--p3), inset 0 -3px 0 var(--p1), 5px 8px 0 0 rgba(0, 0, 0, 0.4) !important;
+}
+body.scene-open [data-tut-inspector] .el-well {
+  background: var(--s0);
+}
+body.scene-open [data-tut-inspector] .border-t-2 {
+  background: var(--p1) !important;
+  border-color: var(--ink);
+}
+
+/* a deal or a blessing: a scroll pinned to the board, rolled at top and bottom */
+.obj-scroll {
+  background: var(--p2);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--p3), inset 0 -3px 0 var(--p1), 4px 7px 0 0 rgba(0, 0, 0, 0.35);
+  margin-block: 10px;
+}
+.obj-scroll::before,
+.obj-scroll::after {
+  content: '';
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  height: 11px;
+  background: var(--w2);
+  box-shadow: 0 0 0 3px var(--ol), inset 0 3px 0 var(--wood-hi), inset 0 -3px 0 var(--w0);
+  pointer-events: none;
+}
+.obj-scroll::before { top: -10px; }
+.obj-scroll::after { bottom: -10px; }

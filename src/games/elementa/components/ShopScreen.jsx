@@ -1,4 +1,4 @@
-import { Children, useEffect, useRef, useState } from 'react'
+import { Children, createContext, useContext, useEffect, useRef, useState } from 'react'
 import { compactNumber } from '../utils/formatNumber.js'
 import { SIGIL_FACES } from '../data/sigils.js'
 import { AnimatePresence, motion, useDragControls } from 'framer-motion'
@@ -22,14 +22,18 @@ import PixelIcon from './PixelIcon.jsx'
 import { Hearts, ShardCount, Stat } from './RoundHUD.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
 import ShopPortrait from './visuals/ShopPortrait.jsx'
+import { BellPull, Board, Counter, Drawer, HangTag, Lever, Plaque, Pouch, Shelf, Signboard, Slate } from './visuals/scene/objects.jsx'
+import { sceneVars } from './visuals/scene/materials.js'
 import { emitRoom, eventForAction } from './visuals/room/roomBus.js'
 import RoadMap from './RoadMap.jsx'
-import { playCoin, playClick, playSuccess, playFail as playFailSound } from '../utils/sound.js'
+import { playCoin, playClick, playSuccess } from '../utils/sound.js'
+import { installRoomSounds } from './visuals/room/roomSounds.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { juicyHover } from '../utils/motionPresets.js'
 import DieToken from './DieToken.jsx'
 import BoonsList from './BoonsList.jsx'
 import { shopNameIn } from '../data/realm3.js'
+import { mix } from '../utils/color.js'
 import { ArbiterSays } from './ArbiterParts.jsx'
 import { useArbiter } from '../utils/useArbiter.js'
 import { shopTypeById, dealById, blessingById, PROPHECY, ATLAS_SERVICES, MOTE_STAGES, MOTE_FULL } from '../data/shops.js'
@@ -48,6 +52,9 @@ import { KEEPERS } from '../data/keepers.js'
  * slot's popover is open at a time (`openKey`/`onOpenChange`, lifted to
  * ShopScreen) so opening a new one closes whatever was open.
  */
+// Where a slot stands decides how it is drawn: on a wall shelf or on the counter it is an object with a hang-tag (VISUALS.md V4).
+const ShelfCtx = createContext('plain')
+
 function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, openKey, onOpenChange, size = 72, placement, showCaption = true, affordable = true, renderIcon, fresh = false }) {
   const isOpen = openKey === itemKey
   // An item that lands in the inventory after the shop is already open (just bought) plays the rarity reveal once.
@@ -89,33 +96,31 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
     />
   )
 
-  return (
-    <div className="relative flex flex-col items-center gap-2" style={{ width: showCaption ? size + 24 : size }}>
-      <PriceTag cost={cost} affordable={affordable} />
-      {dieId ? (
-        <Tooltip
-          disabled={isOpen}
-          content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} runes={item.runes} weights={item.weights} socket={item.socket} />}
-        >
-          {/* A press that turned into a hold must not also click. */}
-          <span
-            {...longPress.handlers}
-            onClickCapture={(e) => {
-              if (longPress.consumed()) {
-                e.stopPropagation()
-                e.preventDefault()
-              }
-            }}
-          >
-            {icon}
-          </span>
-        </Tooltip>
-      ) : (
-        icon
-      )}
-      {showCaption && (
-        <span className="text-center text-sm leading-tight text-[var(--text-dim)]">{caption ?? item.name}</span>
-      )}
+  const place = useContext(ShelfCtx)
+  const onObject = (place === 'shelf' || place === 'counter') && typeof cost === 'number'
+  const iconNode = dieId ? (
+    <Tooltip
+      disabled={isOpen}
+      content={<DieHoverCard elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} runes={item.runes} weights={item.weights} socket={item.socket} />}
+    >
+      {/* A press that turned into a hold must not also click. */}
+      <span
+        {...longPress.handlers}
+        onClickCapture={(e) => {
+          if (longPress.consumed()) {
+            e.stopPropagation()
+            e.preventDefault()
+          }
+        }}
+      >
+        {icon}
+      </span>
+    </Tooltip>
+  ) : (
+    icon
+  )
+  const overlays = (
+    <>
       <AnimatePresence>
         {isOpen && actions && (
           <ItemInspector
@@ -138,6 +143,29 @@ function IconSlot({ itemKey, item, caption, cost, actions, armed, onIconClick, o
       {fullOpen && (
         <DieFullModal elementId={dieId} sides={item.sides} bonus={item.bonus || 0} edition={item.edition} runes={item.runes} weights={item.weights} socket={item.socket} onClose={() => setFullOpen(false)} />
       )}
+    </>
+  )
+
+  if (onObject) {
+    // On a shelf or the counter: the item stands (on its plank), a tag with its name and price hangs under it.
+    return (
+      <div className={`slot slot--${place}`} onPointerEnter={() => emitRoom('hover')}>
+        <div className="slot__item">{iconNode}</div>
+        {place === 'shelf' && <div className="slot__plank" aria-hidden="true" />}
+        <HangTag name={caption ?? item.name} cost={cost} affordable={affordable} />
+        {overlays}
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative flex flex-col items-center gap-2" style={{ width: showCaption ? size + 24 : size }}>
+      <PriceTag cost={cost} affordable={affordable} />
+      {iconNode}
+      {showCaption && (
+        <span className="text-center text-sm leading-tight text-[var(--text-dim)]">{caption ?? item.name}</span>
+      )}
+      {overlays}
     </div>
   )
 }
@@ -148,7 +176,7 @@ function SlotGrid({ capacity, children, size = 48 }) {
   const filled = Array.isArray(children) ? children.filter(Boolean) : [children].filter(Boolean)
   const empties = Math.max(0, capacity - filled.length)
   return (
-    <div className="flex flex-wrap gap-3 p-1">
+    <div className="flex flex-wrap gap-2 p-1">
       {filled}
       {Array.from({ length: empties }).map((_, i) => (
         <div key={`empty-${i}`} className="el-well shrink-0" style={{ width: size, height: size }} />
@@ -160,7 +188,7 @@ function SlotGrid({ capacity, children, size = 48 }) {
 // The dice inventory's geometry (SlotGrid: 48px wells, 12px gaps, 4px
 // padding), used to turn a pointer position into a slot while dragging.
 const DIE_CELL = 48
-const DIE_GAP = 12
+const DIE_GAP = 8
 const GRID_PAD = 4
 
 /**
@@ -194,7 +222,7 @@ function DiceGrid({ dice, capacity, onReorder, renderDie }) {
   }
 
   return (
-    <div ref={gridRef} className="flex flex-wrap gap-3 p-1">
+    <div ref={gridRef} className="flex flex-wrap gap-2 p-1">
       {ids.map((id) => {
         const die = byId.get(id)
         if (!die) return null
@@ -290,32 +318,61 @@ const cardVariants = {
   show: { opacity: 1, y: 0, rotateY: 0, scale: 1, transition: { type: 'spring', bounce: 0.35, duration: 0.45 } },
 }
 
-function OfferShelf({ title, hint, warning, children, tut, shuffleKey }) {
+function OfferShelf({ title, hint, warning, children, tut, shuffleKey, place = 'board' }) {
   const { reducedMotion } = useGameSettings()
-  return (
-    <section data-tut={tut} className="el-panel--dark el-panel flex w-full flex-col items-center gap-5 px-5 pb-6 pt-4">
-      <div className="flex w-full items-baseline justify-between gap-3">
-        <h3 className="pixel-heading text-[10px] text-[var(--gold-hi)]">{title}</h3>
-        {hint && <span className="text-sm text-[var(--text-mute)]">{hint}</span>}
-      </div>
-      {warning && <p className="text-base text-[var(--gold-2)]">{warning}</p>}
+  // A bought item leaves a gap on the shelf until the shop restocks (VISUALS.md V4.1).
+  const kids = shuffleKey == null ? null : Children.toArray(children)
+  const seen = useRef({ key: shuffleKey, keys: [] })
+  if (kids) {
+    if (seen.current.key !== shuffleKey) seen.current = { key: shuffleKey, keys: [] }
+    for (const c of kids) if (!seen.current.keys.includes(c.key)) seen.current.keys.push(c.key)
+  }
+  const byKey = kids ? new Map(kids.map((c) => [c.key, c])) : null
+  const slots = kids && place !== 'board' ? seen.current.keys.map((k) => byKey.get(k) ?? <div key={k} className="slot__gap" aria-hidden="true" />) : kids
+  const body = (
+    <ShelfCtx.Provider value={place === 'board' ? 'counter' : place}>
       <motion.div
         key={shuffleKey}
         variants={shelfVariants}
         initial={reducedMotion || shuffleKey == null ? false : 'hidden'}
         animate="show"
-        className="flex flex-wrap justify-center gap-x-8 gap-y-12 pt-7"
-        style={{ perspective: 600 }}
+        className={place === 'counter' ? 'contents' : place === 'shelf' ? 'contents' : 'flex flex-wrap items-end justify-center gap-x-6 gap-y-8 pt-2'}
+        style={place === 'board' ? { perspective: 600 } : undefined}
       >
         {shuffleKey == null
           ? children
-          : Children.toArray(children).map((c) => (
-              <motion.div key={c.key} variants={cardVariants}>
-                {c}
-              </motion.div>
-            ))}
+          : slots.map((c) =>
+              c.key != null && byKey.has(c.key) ? (
+                <motion.div key={c.key} variants={cardVariants}>
+                  {c}
+                </motion.div>
+              ) : (
+                c
+              ),
+            )}
       </motion.div>
-    </section>
+    </ShelfCtx.Provider>
+  )
+  if (place === 'counter') {
+    return (
+      <Counter data-tut={tut} plate={title} hint={hint} warning={warning}>
+        {body}
+      </Counter>
+    )
+  }
+  if (place === 'shelf') {
+    return (
+      <div data-tut={tut} className="flex max-w-full flex-col items-center">
+        <Shelf plate={title} warning={warning}>
+          {body}
+        </Shelf>
+      </div>
+    )
+  }
+  return (
+    <Board data-tut={tut} title={title} hint={hint} warning={warning}>
+      {body}
+    </Board>
   )
 }
 
@@ -353,13 +410,12 @@ function allegianceContext(state, keeper) {
 }
 
 /** The shop's keeper and what they say this visit (they remember you). */
-// A failed buy or use: the sound, and the keeper's grumble (V3.8 room event).
+// A failed buy or use: the keeper's grumble (the 'broke' room event, which also plays the fail sound: roomSounds.js).
 function playFail() {
-  playFailSound()
   emitRoom('broke')
 }
 
-function KeeperGreeting({ state, type }) {
+function KeeperGreeting({ state, type, second = false }) {
   const { t, lang } = useLanguage()
   const [visit, setVisit] = useState(null)
   useEffect(() => {
@@ -381,30 +437,34 @@ function KeeperGreeting({ state, type }) {
   if (!visit) return null
   const { keeper, line, memory } = visit
   return (
-    <div className="flex w-full max-w-2xl items-end gap-4">
-      <div className="flex shrink-0 flex-col items-center gap-1">
-        <ShopPortrait id={keeper.id} size={72} lineLength={lineText(keeper, line, lang).length} />
-        <span className="pixel-score text-[8px] text-[var(--gold-hi)]">{keeper.name[lang]}</span>
+    <>
+      <div className="stage__keeper" data-k={second ? '2' : '1'}>
+        <ShopPortrait id={keeper.id} size={72} lineLength={lineText(keeper, line, lang).length} stage />
       </div>
       <motion.div
         key={`${line.kind}-${line.index ?? ''}`}
-        initial={{ opacity: 0, x: -8 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="el-panel relative mb-4 flex-1 px-4 py-3 text-left"
-        style={{ '--edge': type.color }}
+        initial={{ opacity: 0, y: -6 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="stage__sign"
+        data-k={second ? '2' : '1'}
       >
-        <p className="text-base leading-snug text-[var(--text)]">{lineText(keeper, line, lang)}</p>
-        <div className="mt-2 flex items-center justify-between gap-3 text-sm text-[var(--text-mute)]">
-          <span>{keeper.title[lang]}</span>
-          <span>
-            {line.kind === 'lore' && (
-              <span className="pixel-score mr-3 text-[7px] text-[var(--arcane-hi)]">{t('elementa.keepers.newLore')}</span>
-            )}
-            {t('elementa.keepers.visits').replace('{n}', memory.visits)}
-          </span>
-        </div>
+        <Signboard
+          foot={
+            <>
+              <span>
+                <b>{keeper.name[lang]}</b> · {keeper.title[lang]}
+              </span>
+              <span>
+                {line.kind === 'lore' && <span className="pixel-score mr-3 text-[7px] text-[var(--arcane-hi)]">{t('elementa.keepers.newLore')}</span>}
+                {t('elementa.keepers.visits').replace('{n}', memory.visits)}
+              </span>
+            </>
+          }
+        >
+          <p className="obj-sign__text">{lineText(keeper, line, lang)}</p>
+        </Signboard>
       </motion.div>
-    </div>
+    </>
   )
 }
 
@@ -413,29 +473,30 @@ function CampGreeting({ state, type }) {
   const { t, lang } = useLanguage()
   const keeper = KEEPERS[type.keeper]
   return (
-    <div className="flex w-full max-w-2xl items-end gap-4">
-      <div className="flex shrink-0 flex-col items-center gap-1">
-        <ShopPortrait id={keeper.id} size={72} lineLength={type.line[lang].length} />
-        <span className="pixel-score text-[8px] text-[var(--gold-hi)]">{keeper.name[lang]}</span>
+    <>
+      <div className="stage__keeper" data-k="1">
+        <ShopPortrait id={keeper.id} size={72} lineLength={type.line[lang].length} stage />
       </div>
-      <motion.div
-        initial={{ opacity: 0, x: -8 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="el-panel relative mb-4 flex-1 px-4 py-3 text-left"
-        style={{ '--edge': type.color }}
-      >
-        <p className="text-base leading-snug text-[var(--text)]">{type.line[lang]}</p>
-        <div className="mt-2 flex items-center justify-between gap-3 text-sm text-[var(--text-mute)]">
-          <span>{keeper.title[lang]}</span>
-          {state.shop.campPay > 0 && (
-            <span className="inline-flex items-center gap-1.5 text-[var(--gold-1)]">
-              <PixelIcon name="shard" size={10} />
-              {t('elementa.camp.payout').replace('{n}', state.shop.campPay)}
-            </span>
-          )}
-        </div>
+      <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} className="stage__sign" data-k="1">
+        <Signboard
+          foot={
+            <>
+              <span>
+                <b>{keeper.name[lang]}</b> · {keeper.title[lang]}
+              </span>
+              {state.shop.campPay > 0 && (
+                <span className="inline-flex items-center gap-1.5">
+                  <PixelIcon name="shard" size={10} />
+                  {t('elementa.camp.payout').replace('{n}', state.shop.campPay)}
+                </span>
+              )}
+            </>
+          }
+        >
+          <p className="obj-sign__text">{type.line[lang]}</p>
+        </Signboard>
       </motion.div>
-    </div>
+    </>
   )
 }
 
@@ -453,9 +514,8 @@ function OfferCard({ title, body, color, button, disabled, done, onClick, art })
     <motion.div
       animate={taken && !reducedMotion ? { scale: [1, 1.1, 1], y: [0, -10, 0] } : { scale: 1 }}
       transition={{ duration: 0.55, ease: 'easeOut' }}
-      className="el-panel relative flex w-56 flex-col items-center gap-3 p-4 text-center"
+      className="obj-scroll relative flex w-56 flex-col items-center gap-3 px-4 py-5 text-center"
       style={{
-        '--edge': color,
         opacity: done === false ? 0.45 : 1,
         filter: taken ? `drop-shadow(0 0 16px ${color})` : undefined,
       }}
@@ -475,7 +535,7 @@ function OfferCard({ title, body, color, button, disabled, done, onClick, art })
         </span>
       )}
       {art}
-      <span className="pixel-heading text-[9px]" style={{ color }}>
+      <span className="pixel-heading text-[9px]" style={{ color: mix(color, '#120c1a', 0.78) }}>
         {title}
       </span>
       <span className="text-base leading-snug text-[var(--text-dim)]">{body}</span>
@@ -489,6 +549,23 @@ function OfferCard({ title, body, color, button, disabled, done, onClick, art })
 export default function ShopScreen({ state, dispatch: gameDispatch }) {
   const openedAt = useRef(Date.now())
   const { t, lang } = useLanguage()
+  const { reducedMotion: calm } = useGameSettings()
+  useEffect(() => installRoomSounds(), [])
+  // The popovers (the item inspector) are drawn in a portal outside the scene, so the shop's materials are
+  // also set on the body while a shop is open: the inspector is then a parchment tag, not a dark box.
+  const shopTypeId = state.shop?.type
+  useEffect(() => {
+    if (!shopTypeId) return
+    const t0 = shopTypeById(shopTypeId)
+    const vars = sceneVars(t0.id, t0.color)
+    const body = document.body
+    Object.entries(vars).forEach(([k, v]) => body.style.setProperty(k, v))
+    body.classList.add('scene-open')
+    return () => {
+      Object.keys(vars).forEach((k) => body.style.removeProperty(k))
+      body.classList.remove('scene-open')
+    }
+  }, [shopTypeId])
   // An Arbiter has a word at every realm 3 shop (Part S).
   const arbiterShop = useArbiter(state, 'shop')
   const shop = state.shop
@@ -556,16 +633,21 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
   const diceFull = diceCount >= diceCap
 
   function buy(action) {
-    playCoin()
+    // a BUY_ action rings the coin through the room's 'buy' event (visuals/room/roomSounds.js)
+    if (!/^BUY_/.test(action.type)) playCoin()
     dispatch(action)
     setOpenKey(null)
   }
 
   return (
-    <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-6 pt-12 lg:grid-cols-[260px_1fr_240px] lg:items-start lg:gap-8">
-      {/* Left: what you own. */}
-      <aside data-tut="inventory" className="el-panel flex flex-col gap-6 p-4">
-        <RoundResult state={state} compact />
+    <div className="shop-scene" style={sceneVars(type.id, type.color)} data-calm={calm ? '' : undefined}>
+    <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-8 pt-10 lg:grid-cols-[312px_minmax(0,1fr)_262px] lg:items-start lg:gap-8">
+      {/* Left: your pouch (what you own). A drawer on a phone. */}
+      <Drawer label={t('elementa.shop.pouch')} className="order-last lg:order-none lg:self-start">
+      <Pouch data-tut="inventory" className="flex flex-col gap-5">
+        <div className="obj-ticket">
+          <RoundResult state={state} compact />
+        </div>
 
         <InventorySection label={t('elementa.shop.yourDice')} count={diceCount} cap={diceCap}>
           <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.shop.dragToReorder')}</p>
@@ -641,14 +723,12 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
                         ? () => {
                             const bought = consumableById(armedPurchase)
                             const routed = inscribe.route(bought, die, (extra) => {
-                              playCoin()
                               dispatch({ type: 'BUY_AND_APPLY_CONSUMABLE', consumableId: armedPurchase, dieId: die.id, ...extra })
                               setArmedPurchase(null)
                             })
                             if (routed === 'fail') return playFail()
                             if (routed) return playClick()
                             if (bought && !selectors.consumableTargetOk(state, bought, die)) return playFail()
-                            playCoin()
                             dispatch({ type: 'BUY_AND_APPLY_CONSUMABLE', consumableId: armedPurchase, dieId: die.id })
                             setArmedPurchase(null)
                           }
@@ -728,72 +808,96 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
         </InventorySection>
 
         <BoonsList state={state} icons />
-      </aside>
+      </Pouch>
+      </Drawer>
 
-      {/* Center: everything for sale. */}
-      <div className="flex flex-col items-center gap-6">
+      {/* Center: the room. The sign, the wall shelf, the keeper behind the counter, the counter. */}
+      <div className="flex min-w-0 flex-col items-center gap-9">
         <ShopBanner label={shopNameIn(state, type, lang)} color={type.color} />
-        <KeeperGreeting state={state} type={type} />
-        {arbiterShop && <ArbiterSays text={arbiterShop.text} tone={arbiterShop.tone} />}
-        {/* Vesper works beside Brasa past the door (EXPANSION.md K5). */}
-        {selectors.vesperHere(state) && <KeeperGreeting state={state} type={{ ...type, keeper: 'vesper', color: '#9fb8ff' }} />}
-
-        <AnimatePresence>
-          {(armedConsumable || armedPurchase) && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="el-panel flex items-center gap-4 px-4 py-2"
-              style={{ '--edge': 'var(--gold-1)' }}
-            >
-              <span className="text-base text-[var(--gold-hi)]">
-                {inscribe.graftFrom ? t('elementa.inscribe.graftTo') : t('elementa.shop.chooseDieToApply')}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setArmedConsumable(null)
-                  setArmedPurchase(null)
-                  inscribe.reset()
-                }}
-                className="el-btn el-btn--sm"
-              >
-                {t('elementa.shop.cancel')}
-                <span className="el-key">Esc</span>
-              </button>
-            </motion.div>
+        {type.items > 0 && (
+        <OfferShelf
+          place="shelf"
+          tut={type.dice > 0 ? undefined : 'offers'}
+          shuffleKey={shop.restocks || 0}
+          title={
+            type.itemKinds.length === 1
+              ? t(type.itemKinds[0] === 'relic' ? 'elementa.shop.relics' : 'elementa.shop.consumables')
+              : t('elementa.shop.relicsAndItems')
+          }
+          warning={
+            relicsFull ? t('elementa.shop.relicSlotsFull') : consumablesFull ? t('elementa.shop.consumablesFull') : null
+          }
+        >
+          {shop.itemOffers.length === 0 && (
+            <p className="text-base text-[var(--text-mute)]">{t('elementa.shop.nothingToOffer')}</p>
           )}
-        </AnimatePresence>
-
-        {/* A keeper's sigil die (EXPANSION.md P3), about one visit in four. */}
-        {shop.sigilOffer && (
-          <OfferShelf title={t('elementa.shop.sigil')} hint={`${t(`elementa.shop.sigilKeeper_${ELEMENTS[shop.sigilOffer].sigilSet}`)} ${t('elementa.shop.sigilHint')}`}>
-            {(() => {
-              const elementId = shop.sigilOffer
-              const cost = selectors.sigilCost(elementId, state.relics, shop)
-              const sigilDie = { id: `offer-${elementId}`, elementId, tierId: 'sigil', sides: 6, symbol: ELEMENTS[elementId].sigilSet && SIGIL_FACES[ELEMENTS[elementId].sigilSet][0] }
-              const fits = selectors.fitsPool(state, [...state.dice, sigilDie])
-              const item = dieDescriptor(elementId, lang)
+          {shop.itemOffers.map((offer, idx) => {
+            if (offer.kind === 'relic') {
+              const relic = relicById(offer.id)
+              const cost = selectors.relicCost(relic, state.relics, shop)
               return (
                 <IconSlot
-                  key={elementId}
-                  itemKey={`sigiloffer-${elementId}`}
-                  item={{ ...item, sides: 6 }}
-                  renderIcon={(onClick) => <DieToken die={sigilDie} size={72} onClick={onClick} title={item.name} />}
+                  key={`relic-${offer.id}`}
+                  itemKey={`relic-${offer.id}`}
+                  item={relicDescriptor(relic, lang)}
                   cost={cost}
                   affordable={state.shards >= cost}
-                  actions={[{ label: buyLabel(cost), disabled: state.shards < cost || !fits, onClick: () => buy({ type: 'BUY_SIGIL', elementId }) }]}
+                  actions={[
+                    {
+                      label: buyLabel(cost),
+                      disabled: state.shards < cost || (relicsFull && !relic.law),
+                      onClick: () => buy({ type: 'BUY_RELIC', relicId: offer.id }),
+                    },
+                  ]}
                   openKey={openKey}
                   onOpenChange={setOpenKey}
                 />
               )
-            })()}
-          </OfferShelf>
+            }
+            const def = consumableById(offer.id)
+            const cost = selectors.consumableCost(def, state.relics, shop)
+            // Keyed by the offer and how many of it came before, not by position, so a bought neighbor leaves a gap and nothing shifts.
+            const nth = shop.itemOffers.slice(0, idx).filter((o) => o.kind === offer.kind && o.id === offer.id).length
+            return (
+              <IconSlot
+                key={`consumable-${offer.id}-${nth}`}
+                itemKey={`consumableoffer-${offer.id}-${nth}`}
+                item={consumableDescriptor(def, lang)}
+                cost={cost}
+                affordable={state.shards >= cost}
+                actions={[
+                  {
+                    label: buyLabel(cost),
+                    variant: 'neutral',
+                    disabled: state.shards < cost || consumablesFull,
+                    onClick: () => buy({ type: 'BUY_CONSUMABLE', consumableId: offer.id }),
+                  },
+                  {
+                    // Use it on the spot: no inventory slot needed.
+                    label: `${t('elementa.shop.buyAndUse')} ${cost}`,
+                    disabled: state.shards < cost || (def.type === 'clone' && diceFull) || (def.type === 'spark' && shop.forgeOpen),
+                    onClick: () => {
+                      if (def.target === 'self') buy({ type: 'BUY_AND_APPLY_CONSUMABLE', consumableId: offer.id })
+                      else setArmedPurchase(offer.id)
+                    },
+                  },
+                ]}
+                openKey={openKey}
+                onOpenChange={setOpenKey}
+              />
+            )
+          })}
+        </OfferShelf>
         )}
-
+        <div className="stage">
+          <div className="stage__row">
+            <KeeperGreeting state={state} type={type} />
+            {/* Vesper works beside Brasa past the door (EXPANSION.md K5). */}
+            {selectors.vesperHere(state) && <KeeperGreeting second state={state} type={{ ...type, keeper: 'vesper', color: '#9fb8ff' }} />}
+          </div>
         {type.dice > 0 && (
         <OfferShelf
+          place="counter"
           tut="offers"
           shuffleKey={shop.restocks || 0}
           title={t('elementa.shop.buyADie')}
@@ -842,6 +946,63 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
           })}
         </OfferShelf>
         )}
+          {!(type.dice > 0) && <Counter plate={shopNameIn(state, type, lang)} />}
+        </div>
+        {arbiterShop && <ArbiterSays text={arbiterShop.text} tone={arbiterShop.tone} />}
+
+        <AnimatePresence>
+          {(armedConsumable || armedPurchase) && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              className="obj-ticket flex items-center gap-4"
+            >
+              <span className="text-base font-bold text-[var(--gold-hi)]">
+                {inscribe.graftFrom ? t('elementa.inscribe.graftTo') : t('elementa.shop.chooseDieToApply')}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setArmedConsumable(null)
+                  setArmedPurchase(null)
+                  inscribe.reset()
+                }}
+                className="el-btn el-btn--sm"
+              >
+                {t('elementa.shop.cancel')}
+                <span className="el-key">Esc</span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* A keeper's sigil die (EXPANSION.md P3), about one visit in four. */}
+        {shop.sigilOffer && (
+          <OfferShelf title={t('elementa.shop.sigil')} hint={`${t(`elementa.shop.sigilKeeper_${ELEMENTS[shop.sigilOffer].sigilSet}`)} ${t('elementa.shop.sigilHint')}`}>
+            {(() => {
+              const elementId = shop.sigilOffer
+              const cost = selectors.sigilCost(elementId, state.relics, shop)
+              const sigilDie = { id: `offer-${elementId}`, elementId, tierId: 'sigil', sides: 6, symbol: ELEMENTS[elementId].sigilSet && SIGIL_FACES[ELEMENTS[elementId].sigilSet][0] }
+              const fits = selectors.fitsPool(state, [...state.dice, sigilDie])
+              const item = dieDescriptor(elementId, lang)
+              return (
+                <IconSlot
+                  key={elementId}
+                  itemKey={`sigiloffer-${elementId}`}
+                  item={{ ...item, sides: 6 }}
+                  renderIcon={(onClick) => <DieToken die={sigilDie} size={72} onClick={onClick} title={item.name} />}
+                  cost={cost}
+                  affordable={state.shards >= cost}
+                  actions={[{ label: buyLabel(cost), disabled: state.shards < cost || !fits, onClick: () => buy({ type: 'BUY_SIGIL', elementId }) }]}
+                  openKey={openKey}
+                  onOpenChange={setOpenKey}
+                />
+              )
+            })()}
+          </OfferShelf>
+        )}
+
 
         {/* The Forge's four slots (EXPANSION.md K3): any Forge, or a Fusion Spark. */}
         {shop.forgeOpen && <ForgePanel state={state} dispatch={dispatch} />}
@@ -860,121 +1021,50 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
 
         {shop.blessings?.length > 0 && <BlessingShelf state={state} dispatch={dispatch} />}
 
-        {type.items > 0 && (
-        <OfferShelf
-          tut={type.dice > 0 ? undefined : 'offers'}
-          shuffleKey={shop.restocks || 0}
-          title={
-            type.itemKinds.length === 1
-              ? t(type.itemKinds[0] === 'relic' ? 'elementa.shop.relics' : 'elementa.shop.consumables')
-              : t('elementa.shop.relicsAndItems')
-          }
-          warning={
-            relicsFull ? t('elementa.shop.relicSlotsFull') : consumablesFull ? t('elementa.shop.consumablesFull') : null
-          }
-        >
-          {shop.itemOffers.length === 0 && (
-            <p className="text-base text-[var(--text-mute)]">{t('elementa.shop.nothingToOffer')}</p>
-          )}
-          {shop.itemOffers.map((offer, idx) => {
-            if (offer.kind === 'relic') {
-              const relic = relicById(offer.id)
-              const cost = selectors.relicCost(relic, state.relics, shop)
-              return (
-                <IconSlot
-                  key={`relic-${offer.id}`}
-                  itemKey={`relic-${offer.id}`}
-                  item={relicDescriptor(relic, lang)}
-                  cost={cost}
-                  affordable={state.shards >= cost}
-                  actions={[
-                    {
-                      label: buyLabel(cost),
-                      disabled: state.shards < cost || (relicsFull && !relic.law),
-                      onClick: () => buy({ type: 'BUY_RELIC', relicId: offer.id }),
-                    },
-                  ]}
-                  openKey={openKey}
-                  onOpenChange={setOpenKey}
-                />
-              )
-            }
-            const def = consumableById(offer.id)
-            const cost = selectors.consumableCost(def, state.relics, shop)
-            return (
-              <IconSlot
-                key={`consumable-${offer.id}-${idx}`}
-                itemKey={`consumableoffer-${offer.id}-${idx}`}
-                item={consumableDescriptor(def, lang)}
-                cost={cost}
-                affordable={state.shards >= cost}
-                actions={[
-                  {
-                    label: buyLabel(cost),
-                    variant: 'neutral',
-                    disabled: state.shards < cost || consumablesFull,
-                    onClick: () => buy({ type: 'BUY_CONSUMABLE', consumableId: offer.id }),
-                  },
-                  {
-                    // Use it on the spot: no inventory slot needed.
-                    label: `${t('elementa.shop.buyAndUse')} ${cost}`,
-                    disabled: state.shards < cost || (def.type === 'clone' && diceFull) || (def.type === 'spark' && shop.forgeOpen),
-                    onClick: () => {
-                      if (def.target === 'self') buy({ type: 'BUY_AND_APPLY_CONSUMABLE', consumableId: offer.id })
-                      else setArmedPurchase(offer.id)
-                    },
-                  },
-                ]}
-                openKey={openKey}
-                onOpenChange={setOpenKey}
-              />
-            )
-          })}
-        </OfferShelf>
-        )}
       </div>
 
-      {/* Right: run status plus the two round-transition actions. */}
-      <aside className="el-panel flex flex-col gap-5 p-4 lg:sticky lg:top-16">
-        <div className="flex items-center justify-between">
+      {/* Right: the map table. The Road on a slate, the purse, the plaques, the lever and the bell pull. A drawer on a phone. */}
+      <Drawer label={t('elementa.map.roadAhead')} map className="lg:self-start">
+      <aside className="obj-maptable obj-nails">
+        <div className="obj-rail">
           <span className="pixel-score text-[8px] uppercase tracking-widest" style={{ color: difficulty.color }}>
             {difficulty.name}
           </span>
           <Hearts lives={state.lives} maxLives={state.maxLives} size={14} />
         </div>
-        <div data-tut="shards" className="el-well flex items-center justify-between px-3 py-3">
+        <div data-tut="shards" className="obj-purse">
           <span className="el-label">{t('elementa.hud.shards')}</span>
           <ShardCount value={state.shards} size={18} className="text-lg" />
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Stat label={t('elementa.shop.round')}>{state.round}</Stat>
+        <div className="obj-plaques">
+          <Plaque label={t('elementa.shop.round')}>{state.round}</Plaque>
           {/* At camp you retry this round, so show its target. */}
-          <Stat label={camp ? t('elementa.hud.target') : t('elementa.shop.nextTarget')} accent="var(--gold-1)">
+          <Plaque label={camp ? t('elementa.hud.target') : t('elementa.shop.nextTarget')} accent="var(--gold-1)">
             {nextTarget == null ? '?' : compactNumber(camp ? state.threshold : nextTarget)}
-          </Stat>
+          </Plaque>
         </div>
 
         {!finalShop && !camp && state.map && (
           <div data-tut="map" className="flex flex-col items-center gap-2">
             <h3 className="el-label w-full">{t('elementa.map.roadAhead')}</h3>
-            <RoadMap
-              state={state}
-              fromRound={state.round}
-              toRound={state.round + 3 + (state.roadSight || 0)}
-              onPick={(nodeId) => {
-                playClick()
-                dispatch({ type: 'CHOOSE_PATH', nodeId })
-              }}
-              width={208}
-              rowHeight={58}
-              nodeSize={38}
-            />
-            <p className="min-h-[3rem] text-center text-sm leading-snug text-[var(--text-dim)]">
+            <Slate>
+              <RoadMap
+                state={state}
+                fromRound={state.round}
+                toRound={state.round + 3 + (state.roadSight || 0)}
+                onPick={(nodeId) => {
+                  playClick()
+                  dispatch({ type: 'CHOOSE_PATH', nodeId })
+                }}
+                width={184}
+                rowHeight={46}
+                nodeSize={34}
+              />
+            </Slate>
+            <p className="obj-ticket min-h-[3rem] w-full text-center text-sm leading-snug">
               {pending || choices.length === 1 ? (
                 <>
-                  <span style={{ color: shopTypeById((pending ?? choices[0]).type).color }}>
-                    {shopNameIn(state, shopTypeById((pending ?? choices[0]).type), lang)}
-                  </span>
+                  <b>{shopNameIn(state, shopTypeById((pending ?? choices[0]).type), lang)}</b>
                   {': '}
                   {shopTypeById((pending ?? choices[0]).type).blurb[lang]}
                 </>
@@ -985,27 +1075,24 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
           </div>
         )}
 
-        <button
-          type="button"
+        <Lever
           disabled={needsPick}
           onClick={() => {
             playClick()
+            emitRoom('bell')
             dispatch({ type: 'NEXT_ROUND' })
           }}
           data-tut="next"
-          className="el-btn el-btn--green el-btn--lg w-full"
         >
           {needsPick ? t('elementa.map.pickFirst') : camp ? t('elementa.roundResult.tryAgain') : convNext ? t('elementa.convergence.nextFight') : t('elementa.shop.nextRound')}
-        </button>
+        </Lever>
         {type.reroll && (
-          <button
-            type="button"
+          <BellPull
             onClick={() => {
               playCoin()
               dispatch({ type: 'REROLL_SHOP_OFFERS' })
             }}
             disabled={state.shards < rerollShopCost || shop.rerollLocked}
-            className="el-btn el-btn--arcane w-full"
             title={`${rerollShopCost} ${shardsAbbr}`}
           >
             <PixelIcon name="reroll" size={12} />
@@ -1014,10 +1101,10 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
               <PixelIcon name="shard" size={8} />
               {rerollShopCost}
             </span>
-          </button>
+          </BellPull>
         )}
         {type.reroll && (
-          <p className="-mt-3 text-center text-sm" style={{ color: state.shards < rerollShopCost || shop.rerollLocked ? 'var(--bad)' : 'var(--text-mute)' }}>
+          <p className="obj-note -mt-2" style={{ color: state.shards < rerollShopCost || shop.rerollLocked ? '#ffb0b8' : undefined }}>
             {shop.rerollLocked
               ? t('elementa.shop.rerollPlenty')
               : (state.shards < rerollShopCost ? t('elementa.shop.rerollCantAfford') : t('elementa.shop.rerollCost'))
@@ -1026,7 +1113,9 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
           </p>
         )}
       </aside>
+      </Drawer>
       {inscribe.element}
+    </div>
     </div>
   )
 }
@@ -1238,8 +1327,8 @@ function PantryShelf({ state, dispatch }) {
   const fed = state.moteFed || 0
   const stock = state.shop.moteStock || []
   return (
-    <div className="flex w-full max-w-2xl flex-col gap-5">
-      <div className="el-panel flex flex-col gap-3 px-4 py-3" style={{ '--edge': '#8a7aa8' }}>
+    <div className="flex w-full max-w-2xl flex-col items-center gap-9">
+      <div className="obj-board obj-nails !items-stretch !gap-3 !px-5 !py-4">
         <div className="flex items-center justify-between">
           <span className="el-label text-[#cdb4ff]">{t('elementa.pantry.appetite')}</span>
           <span className="pixel-score text-[10px] text-[#cdb4ff]">
@@ -1298,7 +1387,6 @@ function PantryShelf({ state, dispatch }) {
                 disabled={offer.sold || state.shards < cost}
                 button={offer.sold ? t('elementa.pantry.sold') : `${t('elementa.shop.buy')} ${cost}`}
                 onClick={() => {
-                  playCoin()
                   dispatch({ type: 'BUY_MOTE', index: i })
                 }}
               />

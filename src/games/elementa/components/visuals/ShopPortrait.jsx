@@ -1,31 +1,31 @@
 import { Suspense, lazy, useEffect, useState } from 'react'
 import KeeperSprite from '../KeeperSprite.jsx'
 
-// The shop header's keeper: the rig (a lazy chunk) with the flat sprite as
-// the fallback while it loads, so the header never jumps. The rig is a bust
-// (VISUALS.md V3.1) drawn on a 14 px grid, so it is shown at a whole number of
-// screen pixels per art pixel: 5x on a normal window, 8x on a wide one (the keeper
-// "steps forward" when there is room), and the old sprite keeps its 72 px slot.
+// The shop's keeper: the rig (a lazy chunk) with the flat sprite as the fallback while it loads, so
+// the layout never jumps. The rig is a bust drawn on a 14 px grid, shown at a whole number of screen
+// pixels per art pixel. In the shop scene (`stage`) the keeper stands behind the counter: the bottom
+// row is cropped so the counter hides the waist and the hands rest on its far edge (VISUALS.md V4.1).
 const ShopKeeper = lazy(() => import('./ShopKeeper.jsx'))
 
-function useWide() {
-  const [wide, setWide] = useState(() => typeof window !== 'undefined' && window.matchMedia?.('(min-width: 1500px)').matches)
+function useMedia(query) {
+  const [on, setOn] = useState(() => typeof window !== 'undefined' && Boolean(window.matchMedia?.(query).matches))
   useEffect(() => {
-    const mq = window.matchMedia?.('(min-width: 1500px)')
+    const mq = window.matchMedia?.(query)
     if (!mq) return
-    const on = () => setWide(mq.matches)
-    mq.addEventListener('change', on)
-    return () => mq.removeEventListener('change', on)
-  }, [])
-  return wide
+    const fn = () => setOn(mq.matches)
+    mq.addEventListener('change', fn)
+    return () => mq.removeEventListener('change', fn)
+  }, [query])
+  return on
 }
 
-export default function ShopPortrait({ id, size = 72, lineLength }) {
-  const wide = useWide()
-  const rig = wide ? 112 : 70
+export default function ShopPortrait({ id, size = 72, lineLength, stage = false }) {
+  const wide = useMedia('(min-width: 1500px)')
+  const desk = useMedia('(min-width: 1024px)')
+  const rig = stage ? (wide ? 126 : desk ? 112 : 84) : wide ? 112 : 70
   return (
-    <Suspense fallback={<KeeperSprite id={id} size={size} />}>
-      <ShopKeeper id={id} size={rig} lineLength={lineLength} />
+    <Suspense fallback={<KeeperSprite id={id} size={stage ? rig * 0.8 : size} />}>
+      <ShopKeeper id={id} size={rig} lineLength={lineLength} crop={stage ? 17 : undefined} />
     </Suspense>
   )
 }

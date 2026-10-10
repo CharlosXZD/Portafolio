@@ -92,7 +92,7 @@ export default function ForgePanel({ state, dispatch }) {
   const line = (key) => KEEPERS[keeper]?.forge?.[key]?.[lang] ?? ''
 
   return (
-    <section data-tut="forge" className="el-panel--dark el-panel flex w-full flex-col gap-5 px-5 pb-6 pt-4">
+    <section data-tut="forge" className="obj-board obj-nails flex flex-col gap-5">
       <div className="flex w-full flex-wrap items-baseline justify-between gap-3">
         <h3 className="pixel-heading text-[10px] text-[var(--gold-hi)]">{t('elementa.shop.fusionForge')}</h3>
         <span className="flex items-center gap-3 text-sm text-[var(--text-mute)]">

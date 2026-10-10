@@ -13,7 +13,7 @@ import { onRoom } from './room/roomBus.js'
  * only moves the mouth for about as long as the line takes to read.
  * On the low-end tier only the blink stays; under Reduced motion nothing moves.
  */
-export default function ShopKeeper({ id, size = 72, lineLength = 60 }) {
+export default function ShopKeeper({ id, size = 72, lineLength = 60, crop }) {
   const { reduced, quality } = useVisualEnv()
   const [talking, setTalking] = useState(false)
   const [look, setLook] = useState('center')
@@ -59,5 +59,5 @@ export default function ShopKeeper({ id, size = 72, lineLength = 60 }) {
     [reduced],
   )
 
-  return <KeeperRig id={id} size={size} talking={talking} look={look} react={beat.type} reactKey={beat.key} blinkOnly={quality === 'low'} />
+  return <KeeperRig id={id} size={size} crop={crop} talking={talking} look={look} react={beat.type} reactKey={beat.key} blinkOnly={quality === 'low'} />
 }

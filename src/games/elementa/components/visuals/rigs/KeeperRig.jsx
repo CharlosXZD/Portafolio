@@ -37,7 +37,7 @@ function runs(rows, palette, y0, skip) {
  * only the blink, so it passes `blinkOnly`). The data comes from the shipping
  * sprites (rigData.js), so a rig matches KeeperSprite at rest.
  */
-function Rig({ id = 'brasa', size, scale = 8, native = 14, talking = false, look = 'center', react = null, reactKey = 0, blinkOnly = false, className = '', style }) {
+function Rig({ id = 'brasa', size, scale = 8, native = 14, crop = 18, talking = false, look = 'center', react = null, reactKey = 0, blinkOnly = false, className = '', style }) {
   const { reduced } = useVisualEnv()
   const def = RIG_KEEPERS[id] ?? RIG_KEEPERS.brasa
   const palette = useMemo(() => ({ ...def.palette, s: mix(def.palette.c, def.palette.k, 0.35) }), [def])
@@ -77,9 +77,9 @@ function Rig({ id = 'brasa', size, scale = 8, native = 14, talking = false, look
 
   return (
     <svg
-      viewBox="0 0 14 18"
+      viewBox={`0 0 14 ${crop}`}
       width={size ?? native * scale}
-      height={((size ?? native * scale) * 18) / 14}
+      height={((size ?? native * scale) * crop) / 14}
       shapeRendering="crispEdges"
       className={`v-rig ${className}`}
       data-talking={talking && !reduced ? '' : undefined}
