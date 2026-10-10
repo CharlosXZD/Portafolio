@@ -45,6 +45,11 @@ function tone(freq, duration, { type = 'sine', gain = 0.06, delay = 0, glideTo }
   }
 }
 
+/** A very quiet tick for hovering an object in a shop (VISUALS.md V4.3), softer than a click. */
+export function playTick() {
+  tone(900, 0.02, { type: 'square', gain: 0.012 })
+}
+
 export function playClick() {
   tone(700, 0.04, { type: 'square', gain: 0.03 })
 }
