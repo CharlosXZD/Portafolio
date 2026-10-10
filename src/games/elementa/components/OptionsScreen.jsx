@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import {
@@ -78,7 +78,12 @@ function VolumeRow({ label, value, onChange, disabled = false }) {
   )
 }
 
-function Section({ title, children }) {
+// The Options table has tabs (VISUALS.md V4.4) so each page fits: every setting stays, only the page it is on changes.
+const TabCtx = createContext('general')
+
+function Section({ title, tab, children }) {
+  const current = useContext(TabCtx)
+  if (tab && tab !== current) return null
   return (
     <section className="flex flex-col gap-3">
       <h3 className="el-label">{title}</h3>
@@ -114,6 +119,7 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
   const [musicEnabled, setMusicEnabledState] = useState(getMusicEnabled)
   const [tutorialReset, setTutorialReset] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
+  const [tab, setTab] = useState('general')
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -148,7 +154,30 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
 
   return (
     <Modal title={t('elementa.options.title')} onClose={onClose} width="max-w-md" closeLabel={t('elementa.options.close')}>
-      <Section title={t('elementa.options.language')}>
+      <TabCtx.Provider value={tab}>
+      <div role="tablist" className="flex flex-wrap gap-2">
+        {[
+          ['general', t('elementa.options.tabGeneral')],
+          ['audio', t('elementa.options.audio')],
+          ['display', t('elementa.options.display')],
+          ['data', t('elementa.options.tabData')],
+        ].map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            role="tab"
+            aria-selected={tab === id}
+            onClick={() => {
+              playClick()
+              setTab(id)
+            }}
+            className={`el-btn el-btn--sm flex-1 ${tab === id ? 'el-btn--gold' : ''}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <Section title={t('elementa.options.language')} tab="general">
         <Segmented
           value={lang}
           onChange={setLang}
@@ -159,7 +188,7 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         />
       </Section>
 
-      <Section title={t('elementa.options.audio')}>
+      <Section title={t('elementa.options.audio')} tab="audio">
         <VolumeRow label={t('elementa.options.sfxVolume')} value={sfxVolume} onChange={changeSfxVolume} />
         <Toggle label={t('elementa.options.music')} checked={musicEnabled} onChange={toggleMusicEnabled} />
         <VolumeRow
@@ -178,7 +207,7 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         </a>
       </Section>
 
-      <Section title={t('elementa.options.gameplay')}>
+      <Section title={t('elementa.options.gameplay')} tab="general">
         <div className="text-base">{t('elementa.options.scoringSpeed')}</div>
         <Segmented
           value={gameSpeed}
@@ -199,7 +228,7 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.options.weatherNote')}</p>
       </Section>
 
-      <Section title={t('elementa.options.display')}>
+      <Section title={t('elementa.options.display')} tab="display">
         <div className="text-base">{t('elementa.options.textStyle')}</div>
         <Segmented
           value={display.fontStyle}
@@ -241,16 +270,16 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         <Toggle label={t('elementa.options.ledgerOpen')} checked={display.ledgerOpen} onChange={(v) => updateDisplay({ ledgerOpen: v })} />
       </Section>
 
-      <Section title={t('elementa.feedback.title')}>
+      <Section title={t('elementa.feedback.title')} tab="data">
         <p className="text-sm text-[var(--text-mute)]">{t('elementa.feedback.note')}</p>
         <FeedbackButton className="el-btn el-btn--sm w-fit" />
       </Section>
 
-      <Section title={t('elementa.backup.title')}>
+      <Section title={t('elementa.backup.title')} tab="data">
         <BackupControls />
       </Section>
 
-      <Section title={t('elementa.tutorial.title')}>
+      <Section title={t('elementa.tutorial.title')} tab="general">
         <button
           type="button"
           className="el-btn el-btn--sm"
@@ -264,7 +293,7 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         </button>
       </Section>
 
-      <Section title={t('elementa.patchNotes.title')}>
+      <Section title={t('elementa.patchNotes.title')} tab="data">
         <button
           type="button"
           className="el-btn el-btn--sm"
@@ -277,12 +306,13 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
         </button>
       </Section>
 
-      <Section title={t('elementa.options.visuals')}>
+      <Section title={t('elementa.options.visuals')} tab="display">
         <Toggle label={t('elementa.options.screenShake')} checked={screenShake} onChange={setScreenShake} />
         <Toggle label={t('elementa.options.crtEffect')} checked={crtEffect} onChange={setCrtEffect} />
         <Toggle label={t('elementa.options.reducedMotion')} checked={reducedMotion} onChange={setReducedMotion} />
       </Section>
 
+      </TabCtx.Provider>
       {showNotes && (
         <PatchNotesScreen
           onClose={() => {

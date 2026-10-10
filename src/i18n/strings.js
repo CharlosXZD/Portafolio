@@ -664,6 +664,8 @@ const strings = {
   },
   'elementa.roundResult.tryAgain': { en: 'Try again', es: 'Reintentar' },
 
+  'elementa.options.tabGeneral': { en: 'General', es: 'General' },
+  'elementa.options.tabData': { en: 'Data', es: 'Datos' },
   'elementa.shop.yourDice': { en: 'Dice', es: 'Dados' },
   'elementa.shop.pouch': { en: 'Your pouch', es: 'Tu bolsa' },
   'elementa.shop.yourRelics': { en: 'Relics', es: 'Reliquias' },
