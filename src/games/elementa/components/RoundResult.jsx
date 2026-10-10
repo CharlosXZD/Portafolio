@@ -3,6 +3,7 @@ import { compactNumber } from '../utils/formatNumber.js'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
 import AnimatedNumber from './AnimatedNumber.jsx'
+import MenuScene from './visuals/scene/MenuScene.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import { relicById } from '../data/relics.js'
 import { ELEMENTS } from '../data/elements.js'
@@ -49,15 +50,15 @@ export default function RoundResult({ state, dispatch, compact = false }) {
       ? t('elementa.roundResult.missedLostLife')
       : t('elementa.roundResult.missed')
 
-  return (
+  const card = (
     <motion.div
       initial={{ opacity: 0, y: -8, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: 'spring', bounce: 0.35, duration: 0.45 }}
-      className={`el-panel flex w-full flex-col items-center text-center ${compact ? 'gap-2 px-4 py-4' : 'max-w-md gap-6 px-8 py-10'}`}
+      className={`${compact ? 'el-panel' : 'obj-ledger'} flex w-full flex-col items-center text-center ${compact ? 'gap-2 px-4 py-4' : 'max-w-md gap-6 px-8 py-10'}`}
       style={{ '--edge': r.passed ? '#2f7a4a' : '#8a2a32' }}
     >
-      <h2 className={`pixel-heading ${compact ? 'text-[10px]' : 'text-base'}`} style={{ color: r.passed ? 'var(--good)' : 'var(--bad)' }}>
+      <h2 className={`pixel-heading ${compact ? 'text-[10px]' : 'obj-stamp text-base'}`} style={{ color: r.passed ? 'var(--good)' : 'var(--bad)' }}>
         {title}
       </h2>
       <div className="flex items-baseline gap-2">
@@ -131,4 +132,6 @@ export default function RoundResult({ state, dispatch, compact = false }) {
       )}
     </motion.div>
   )
+  // The big card is a ledger page with a stamp, in the menus' materials (VISUALS.md V4.4).
+  return compact ? card : <MenuScene>{card}</MenuScene>
 }
