@@ -1,3 +1,4 @@
+import MenuScene from './visuals/scene/MenuScene.jsx'
 import FeedbackButton from './FeedbackButton.jsx'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
@@ -37,7 +38,7 @@ function Section({ title, children, delay = 0 }) {
  * goes): the dice as they looked on the table, every item, who you met on
  * the Road, and every pact with Nix and blessing from Aeris.
  */
-export default function GameOverScreen({ state, dispatch, victory = false, ending = null, visions = false, onScene }) {
+function GameOverScreenInner({ state, dispatch, victory = false, ending = null, visions = false, onScene }) {
   const { t, lang } = useLanguage()
   // A win first plays its ending (B2), then the summary.
   const [showCards, setShowCards] = useState(victory)
@@ -64,7 +65,7 @@ export default function GameOverScreen({ state, dispatch, victory = false, endin
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: 'spring', bounce: 0.3, duration: 0.6 }}
-      className="el-panel flex w-full max-w-4xl flex-col items-center gap-7 px-6 py-8 text-center sm:px-10"
+      className="obj-grave flex w-full max-w-4xl flex-col items-center gap-7 px-6 py-10 text-center sm:px-10"
     >
       <h2
         className={victory ? 'el-logo text-xl' : 'pixel-heading text-xl'}
@@ -191,5 +192,14 @@ export default function GameOverScreen({ state, dispatch, victory = false, endin
       </div>
       {victory && <p className="text-sm text-[var(--text-mute)]">{t('elementa.gameOver.endlessHint')}</p>}
     </motion.div>
+  )
+}
+
+// The screen is a place made of the same materials as the shops (VISUALS.md V4.4).
+export default function GameOverScreen(props) {
+  return (
+    <MenuScene className="obj-grave-shadow">
+      <GameOverScreenInner {...props} />
+    </MenuScene>
   )
 }
