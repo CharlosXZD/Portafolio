@@ -47,8 +47,10 @@
   /* Body text font, switchable in Options -> Display -> Text style. Tiny5
      is the default: a chunky pixel face that stays readable at small
      sizes (Pixelify Sans, the "classic" option, gets thin and jaggy). */
-  --body-font: 'Tiny5', ui-monospace, monospace;
-  --small-font: 'Tiny5', ui-monospace, monospace;
+  /* Tiny5 lacks the Spanish letters ó, ú, ñ and ü; Pixelify Sans, a pixel face with the same
+     weight, fills in just those glyphs (the browser falls back letter by letter). */
+  --body-font: 'Tiny5', 'Pixelify Sans', ui-monospace, monospace;
+  --small-font: 'Tiny5', 'Pixelify Sans', ui-monospace, monospace;
   font-family: var(--body-font);
   color: var(--text);
   background: var(--night-0);
