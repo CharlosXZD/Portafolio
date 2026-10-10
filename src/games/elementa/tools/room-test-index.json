@@ -108,5 +108,15 @@
   "phase": "shop",
   "round": 16,
   "shop": "astral"
+ },
+ "missed": {
+  "phase": "missed",
+  "round": 1,
+  "shop": null
+ },
+ "gameover": {
+  "phase": "gameover",
+  "round": 1,
+  "shop": null
  }
 }

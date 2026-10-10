@@ -1,3 +1,4 @@
+import MenuScene from './visuals/scene/MenuScene.jsx'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -25,7 +26,7 @@ const DRAG_STEP = 28
  * Graft (K6), `choices` the source die's runes to pick from. `onConfirm`
  * gets `{ face, runeIndex }`.
  */
-export default function InscribeScreen({ die, runeId = null, choices = null, onConfirm, onCancel }) {
+function InscribeScreenInner({ die, runeId = null, choices = null, onConfirm, onCancel }) {
   const { t, lang } = useLanguage()
   const { reducedMotion } = useGameSettings()
   const faces = facesOf(die)
@@ -80,7 +81,7 @@ export default function InscribeScreen({ die, runeId = null, choices = null, onC
       aria-label={t('elementa.inscribe.title')}
       onClick={onCancel}
     >
-      <div className="el-panel flex w-full max-w-lg flex-col items-center gap-5 px-6 py-7 text-center" style={{ '--edge': rune.color }} onClick={(e) => e.stopPropagation()}>
+      <div className="obj-scroll flex w-full max-w-lg flex-col items-center gap-5 px-6 py-8 text-center" onClick={(e) => e.stopPropagation()}>
         <span className="el-label" style={{ color: rune.color }}>
           {t('elementa.inscribe.title')}
         </span>
@@ -206,5 +207,14 @@ export default function InscribeScreen({ die, runeId = null, choices = null, onC
       </div>
     </div>,
     root,
+  )
+}
+
+// The screen is a place made of the same materials as the shops (VISUALS.md V4.4).
+export default function InscribeScreen(props) {
+  return (
+    <MenuScene>
+      <InscribeScreenInner {...props} />
+    </MenuScene>
   )
 }

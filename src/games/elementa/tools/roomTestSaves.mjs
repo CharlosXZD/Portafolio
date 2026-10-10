@@ -107,6 +107,18 @@ for (const typeId of ['pantry', 'astral']) {
   }
 }
 
+
+// The menu screens that need a state: a missed round (the ledger) and a lost run (the gravestone).
+{
+  const t = found.table
+  if (t) {
+    const missed = gameReducer({ ...t, threshold: 1e12 }, { type: 'SUBMIT_ROUND' })
+    if (missed.phase === 'missed') want('missed', missed)
+    const dying = gameReducer({ ...t, lives: 1, threshold: 1e12 }, { type: 'SUBMIT_ROUND' })
+    want(dying.phase === 'gameover' ? 'gameover' : 'missed-last-life', dying)
+  }
+}
+
 mkdirSync(fileURLToPath(new URL('./room-test-saves/', import.meta.url)), { recursive: true })
 const index = {}
 for (const [key, state] of Object.entries(found)) {

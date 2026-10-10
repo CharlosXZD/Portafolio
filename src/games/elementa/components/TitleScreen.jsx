@@ -1,3 +1,4 @@
+import MenuScene from './visuals/scene/MenuScene.jsx'
 import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
@@ -169,7 +170,7 @@ function DifficultyCard({ index, profile }) {
  * seed tucked under "Advanced". Arrows, arrow keys or a swipe move through
  * them; Enter starts.
  */
-export default function TitleScreen({ slot, dispatch }) {
+function TitleScreenInner({ slot, dispatch }) {
   const { t, lang } = useLanguage()
   const { reducedMotion } = useGameSettings()
   const [profile] = useState(() => readProfile(slot))
@@ -367,5 +368,14 @@ export default function TitleScreen({ slot, dispatch }) {
         </button>
       </div>
     </motion.div>
+  )
+}
+
+// The screen is a place made of the same materials as the shops (VISUALS.md V4.4).
+export default function TitleScreen(props) {
+  return (
+    <MenuScene>
+      <TitleScreenInner {...props} />
+    </MenuScene>
   )
 }

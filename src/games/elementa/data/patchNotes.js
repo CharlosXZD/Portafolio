@@ -12,6 +12,22 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.11',
+    name: L('The menus', 'Los menús'),
+    date: null,
+    highlights: [
+      L(
+        'The menus are places too. The main menu, the file select and the file screen happen in a tavern: a hanging sign and a notice board by the hearth, your three save files as books on a desk, a cat asleep on the rug.',
+        'Los menús también son lugares. El menú principal, la selección de archivo y la pantalla del archivo ocurren en una taberna: un cartel colgante y un tablón junto a la chimenea, tus tres archivos como libros sobre una mesa, un gato dormido en la alfombra.',
+      ),
+      L(
+        '"Where you left off" is a journal beside a map table, a missed round is a ledger page with a stamp, game over is a gravestone, the Gallery is a row of display cabinets, and the Inscribe screen is a scroll. Options and Pause are small wooden tables, and Options now has tabs: General, Audio, Display and Data.',
+        '"Donde lo dejaste" es un diario junto a una mesa de mapa, una ronda fallada es una página de libro de cuentas con un sello, el fin de la partida es una lápida, la Galería es una fila de vitrinas y la pantalla de Inscribir es un pergamino. Opciones y Pausa son pequeñas mesas de madera, y Opciones ahora tiene pestañas: General, Audio, Pantalla y Datos.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.10',
     name: L('The shop is the room', 'La tienda es la sala'),
     date: null,

@@ -1,3 +1,4 @@
+import MenuScene from './visuals/scene/MenuScene.jsx'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
@@ -30,7 +31,7 @@ function Overlay({ onClose, children }) {
  * A save file's home: its progress, its run in progress (if any), and the
  * way into a new run, the gallery, and achievements.
  */
-export default function FileHub({ slot, dispatch }) {
+function FileHubInner({ slot, dispatch }) {
   const { t, lang } = useLanguage()
   const [file] = useState(() => readFile(slot))
   const [view, setView] = useState(null) // null | 'gallery' | 'achievements'
@@ -145,5 +146,14 @@ export default function FileHub({ slot, dispatch }) {
         </Overlay>
       )}
     </motion.div>
+  )
+}
+
+// The screen is a place made of the same materials as the shops (VISUALS.md V4.4).
+export default function FileHub(props) {
+  return (
+    <MenuScene>
+      <FileHubInner {...props} />
+    </MenuScene>
   )
 }
