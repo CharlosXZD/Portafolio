@@ -124,7 +124,7 @@ function Rig({ id = 'brasa', size, scale = 8, native = 14, crop = 18, talking = 
 /** One keeper by id; the Conclave is six of them side by side, as in the sprite. */
 function KeeperRig({ id = 'brasa', size, scale = 8, native = 14, ...rest }) {
   if (id === 'conclave') {
-    const small = Math.max(14, Math.round(((size ?? native * scale) * 0.55) / 14) * 14)
+    const small = Math.max(14, Math.floor(((size ?? native * scale) * 0.4) / 14) * 14)
     return (
       <span className="inline-flex items-end" style={{ gap: 2 }}>
         {CONCLAVE_IDS.map((k) => (

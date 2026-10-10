@@ -22,6 +22,7 @@ import PixelIcon from './PixelIcon.jsx'
 import { Hearts, ShardCount, Stat } from './RoundHUD.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
 import ShopPortrait from './visuals/ShopPortrait.jsx'
+import { useVisualEnv } from './visuals/VisualEnv.jsx'
 import { BellPull, Board, Counter, Drawer, HangTag, Lever, Plaque, Pouch, Shelf, Signboard, Slate } from './visuals/scene/objects.jsx'
 import { sceneVars } from './visuals/scene/materials.js'
 import { emitRoom, eventForAction } from './visuals/room/roomBus.js'
@@ -549,7 +550,9 @@ function OfferCard({ title, body, color, button, disabled, done, onClick, art })
 export default function ShopScreen({ state, dispatch: gameDispatch }) {
   const openedAt = useRef(Date.now())
   const { t, lang } = useLanguage()
-  const { reducedMotion: calm } = useGameSettings()
+  const { reducedMotion } = useGameSettings()
+  // Reduced motion and the low-end tier both still the scene's loops (the sign's sway, the tags, the lever).
+  const calm = reducedMotion || useVisualEnv().quality === 'low'
   useEffect(() => installRoomSounds(), [])
   // The popovers (the item inspector) are drawn in a portal outside the scene, so the shop's materials are
   // also set on the body while a shop is open: the inspector is then a parchment tag, not a dark box.

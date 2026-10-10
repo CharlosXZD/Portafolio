@@ -12,6 +12,30 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.10',
+    name: L('The shop is the room', 'La tienda es la sala'),
+    date: null,
+    highlights: [
+      L(
+        'Shops are no longer panels laid over a picture. The keeper stands behind a wooden counter with their line on a hanging sign, the dice stand on the counter with price tags beside them, and relics and items rest on shelves on the wall with their prices pinned under them. A bought item leaves a gap on the shelf until the shop restocks.',
+        'Las tiendas ya no son paneles sobre una imagen. El tendero está detrás de un mostrador de madera con su frase en un cartel colgante, los dados descansan sobre el mostrador con etiquetas de precio al lado, y las reliquias y objetos están en estantes de la pared con sus precios clavados debajo. Un objeto comprado deja un hueco en el estante hasta que la tienda se reabastece.',
+      ),
+      L(
+        'Your dice, relics and consumables live in a leather pouch; the Road, your Shards, the round and the target sit on a wooden map table, and the Next stop button is a lever. Every shop is made from its own materials: warm wood in the Market, green glass in the Alchemist, pale stone in the Shrine, iron and embers in the Forge.',
+        'Tus dados, reliquias y consumibles viven en una bolsa de cuero; el Camino, tus Fragmentos, la ronda y el objetivo están en una mesa de mapa de madera, y el botón de siguiente parada es una palanca. Cada tienda está hecha de sus propios materiales: madera cálida en el Mercado, vidrio verde en el Alquimista, piedra pálida en el Santuario, hierro y brasas en la Forja.',
+      ),
+      L(
+        'The Forge, the Brew, deals, blessings, services and the Pantry are boards, scrolls and slates on the same counter. Everything works as before: buying, selling, rerolling, forging, brewing, drag to reorder, the keyboard.',
+        'La Forja, la Mezcla, los tratos, las bendiciones, los servicios y la Despensa son tablones, pergaminos y pizarras sobre el mismo mostrador. Todo funciona como antes: comprar, vender, renovar, forjar, mezclar, arrastrar para reordenar, el teclado.',
+      ),
+      L(
+        'On phones the pouch and the map are drawers under the counter. Hovering, picking, buying and the lever now make the game\'s usual sounds, at the usual volume. Spanish letters like ó, ú and ñ now use a matching pixel font, and the six Laws have more distinct seals.',
+        'En el móvil la bolsa y el mapa son cajones bajo el mostrador. Pasar el cursor, elegir, comprar y la palanca ahora suenan como el resto del juego, al mismo volumen. Las letras españolas como ó, ú y ñ ahora usan una fuente de píxeles a juego, y las seis Leyes tienen sellos más distintos.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.9',
     name: L('Readable items', 'Objetos legibles'),
     date: null,

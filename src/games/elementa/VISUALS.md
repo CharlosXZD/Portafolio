@@ -203,7 +203,7 @@ Carlos reviewed V3: "they are looking good, we can advance". Answers to the V3 o
 6. **The shop interface does not match its room (new note from Carlos, "blocking progress"):** in the real game the shop's panels still look like flat squares laid on top of the new room. **That is V4's job and the biggest next piece** (below); in V3.1 only make sure the room's dim and the panels do not clash badly, and note what you see.
 7. **Dim strength:** leave as is for now; V4 will redo the panels, and the dim will be retuned then.
 
-### V4: The shop as a scene, then the menus (Ready, spec 2026-10-10)
+### V4: The shop as a scene, then the menus (V4.1 to V4.3, V4.5 and V4.6 Built 2026-10-11, Alpha 0.9.10, see `VISUALS_V4_REPORT.md`; V4.4 waits for Carlos's review)
 
 **Carlos's review (2026-10-10), from a screenshot of the real Market:** the items are clear and the keepers look good, but **the shop is still four flat dark panels laid on top of the room**: a left sidebar, a "Dice" panel, a "Relics & items" panel, a right sidebar, plus a greeting box and a row of buttons. You only see the overlay; the room is a strip at the edges. "They are still just panels on top." **This phase fixes it.** The keepers have no full body, so **their poses must look right behind the counter** (cropped by it, never floating).
 
