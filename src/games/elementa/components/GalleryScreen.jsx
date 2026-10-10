@@ -1,3 +1,4 @@
+import MenuScene from './visuals/scene/MenuScene.jsx'
 import { useMemo, useState } from 'react'
 import { sigilFaces, SYMBOL_INFO, symbolText } from '../data/sigils.js'
 import { SigilGlyph } from './DieToken.jsx'
@@ -127,10 +128,10 @@ function Detail({ entry, lang, t }) {
 /** A titled row of tiles (one rarity, one family, or everything). */
 function Group({ title, color, note, entries, selectedKey, onSelect }) {
   return (
-    <section className="flex flex-col gap-3">
+    <section className="obj-cabinet flex flex-col gap-3">
       {title && (
         <div className="flex flex-col gap-1">
-          <h3 className="el-label" style={color ? { color } : undefined}>
+          <h3 className="obj-plate w-fit" style={color ? { borderBottom: `4px solid ${color}` } : undefined}>
             {title}
           </h3>
           {note && <p className="text-sm leading-snug text-[var(--text-mute)]">{note}</p>}
@@ -173,7 +174,7 @@ function Group({ title, color, note, entries, selectedKey, onSelect }) {
 // The realm 3 rounds at which more of an Arbiter's lore is told (Part S).
 const LORE_ROUNDS = [31, 38, 45]
 
-export default function GalleryScreen({ slot, onBack, embedded = false }) {
+function GalleryScreenInner({ slot, onBack, embedded = false }) {
   const { t, lang } = useLanguage()
   const [profile] = useState(() => readProfile(slot))
   // A story scene being replayed from the Endings tab (G Q4a).
@@ -667,7 +668,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_300px]">
-          <div className="el-panel--dark el-panel flex flex-col gap-6 p-5">
+          <div className="flex flex-col gap-6">
             {groups.map((g) => (
               <Group
                 key={g.key}
@@ -680,7 +681,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
               />
             ))}
           </div>
-          <aside className="el-panel p-5 lg:sticky lg:top-4 lg:self-start">
+          <aside className="obj-journal p-5 lg:sticky lg:top-4 lg:self-start">
             <Detail entry={selected} lang={lang} t={t} />
           </aside>
         </div>
@@ -699,5 +700,14 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
         </button>
       </div>
     </motion.div>
+  )
+}
+
+// The screen is a place made of the same materials as the shops (VISUALS.md V4.4).
+export default function GalleryScreen(props) {
+  return (
+    <MenuScene>
+      <GalleryScreenInner {...props} />
+    </MenuScene>
   )
 }
