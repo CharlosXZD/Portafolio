@@ -39,7 +39,9 @@ const TEXT = {
   labels: L('Show names', 'Mostrar nombres'),
   count: L('Items drawn', 'Objetos dibujados'),
   check: L('Uniqueness check (silhouettes first, then colors)', 'Verificación de unicidad (siluetas primero, luego colores)'),
-  nearest: L('The closest pairs', 'Los pares más cercanos'),
+  nearest: L('The closest pairs across families (by silhouette)', 'Los pares más cercanos entre familias (por silueta)'),
+  across: L('Pairs across families too alike in shape and color', 'Pares de familias distintas demasiado parecidos en forma y color'),
+  within: L('Pairs inside a family too alike in color', 'Pares de una misma familia demasiado parecidos en color'),
   nameHint: L('Look at the items without names and say what each one is. Then show the names and note the ones you could not tell.', 'Mira los objetos sin nombre y di qué es cada uno. Luego muestra los nombres y anota los que no pudiste distinguir.'),
 }
 const RARITY_NAME = {
@@ -99,7 +101,10 @@ function Sprites() {
   const env = useMemo(() => ({ lang, reduced, quality, onEvent: null }), [lang, reduced, quality])
 
   const ids = SPRITE_IDS()
-  const items = useMemo(() => [...RELICS, ...CONSUMABLES].filter((i) => ids.includes(i.id)), [ids.length]) // eslint-disable-line react-hooks/exhaustive-deps
+  const only = params.get('ids')?.split(',') ?? null // ?ids=a,b,c shows just those (the V2.5.1 test set uses ?ids=test12)
+  const TEST12 = ['windfall', 'weights', 'loom_of_fate', 'prism_lens', 'bookends', 'time_capsule', 'molten_core', 'honing_oil', 'rune_echo', 'law_greed', 'totem_fire', 'const_phoenix']
+  const shown = only ? (only[0] === 'test12' ? TEST12 : only) : null
+  const items = useMemo(() => [...RELICS, ...CONSUMABLES].filter((i) => ids.includes(i.id) && (!shown || shown.includes(i.id))), [ids.length, params.get('ids')]) // eslint-disable-line react-hooks/exhaustive-deps
   const descs = useMemo(() => {
     const out = new Map()
     RELICS.forEach((r) => out.set(r.id, relicDescriptor(r, lang)))
@@ -208,6 +213,18 @@ function Sprites() {
                 </li>
               ))}
             </ul>
+            <p className="text-base text-[var(--text-dim)]" data-testid="sprite-check-summary">
+              {tx.across[lang]}: <b className="v-num">{check.across.length}</b> · {tx.within[lang]}: <b className="v-num">{check.within.length}</b>
+            </p>
+            {check.across.length > 0 && (
+              <ul className="v-log">
+                {check.across.map((p) => (
+                  <li key={p.a + p.b}>
+                    <code>{p.a}</code> / <code>{p.b}</code> shape <b className="v-num">{p.shape.toFixed(2)}</b> color <b className="v-num">{p.color.toFixed(2)}</b>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         </main>
       </div>

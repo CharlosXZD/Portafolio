@@ -1,7 +1,7 @@
 // Item sprites, consumables, part A: the one-of-a-kind tools, seals and potions (VISUALS.md V2.5.2).
 import { add, ell, line, poly, rect, rrect, sub, and, METAL, MAT, ramp } from './spriteKit.js'
 import { EL } from './bases.js'
-import { bell, cordLoop, feather, flame, gear, heart, quill, ring, star } from './shapes.js'
+import { feather, flame, heart, quill, ring, star } from './shapes.js'
 
 const GOLD = METAL.gold
 const IRON = METAL.iron
@@ -211,4 +211,3 @@ export const CONSUMABLES_A = {
     S.twinkle(26, 6, '#ffffff').glint(5, 25, '#ffe27a')
   },
 }
-export { bell, cordLoop, gear, and, sub }

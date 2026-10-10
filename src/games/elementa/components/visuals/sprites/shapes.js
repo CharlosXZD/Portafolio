@@ -1,6 +1,6 @@
 // Reusable masks for the item recipes (VISUALS.md V2.5): a gear, a star, a heart, a ring, a
 // bell, a feather, a hanging cord. They are shapes only; recipes choose the palette.
-import { add, ell, line, poly, rect, sub } from './spriteKit.js'
+import { add, ell, line, poly, sub } from './spriteKit.js'
 
 /** A ring: outer radius r, thickness t. */
 export const ring = (cx, cy, r, t = 2) => sub(ell(cx, cy, r, r), ell(cx, cy, r - t, r - t))
@@ -69,4 +69,3 @@ export const cordLoop = (cx, top, r = 3) => sub(ell(cx, top + r, r, r), ell(cx, 
 /** A thin tapering flame. */
 export const flame = (cx, bottom, w, h) => poly([[cx, bottom - h], [cx + w * 0.55, bottom - h * 0.45], [cx + w / 2, bottom - h * 0.1], [cx, bottom], [cx - w / 2, bottom - h * 0.1], [cx - w * 0.55, bottom - h * 0.45]])
 
-export { rect }

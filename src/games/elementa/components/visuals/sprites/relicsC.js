@@ -1,7 +1,7 @@
 // Item sprites, relics, part C: charms of the later rounds, clocks and the six Laws (VISUALS.md V2.5.2).
-import { add, ell, line, poly, rect, rrect, sub, METAL, MAT, ramp } from './spriteKit.js'
+import { add, ell, line, poly, rect, sub, METAL, MAT, ramp } from './spriteKit.js'
 import { EL, sealedScroll } from './bases.js'
-import { bell, cordLoop, feather, gear, quill, ring } from './shapes.js'
+import { bell, feather, gear, quill, ring } from './shapes.js'
 
 const GOLD = METAL.gold
 const IRON = METAL.iron
@@ -88,11 +88,10 @@ export const RELICS_C = {
   law_echo: law('#c8283a', (S) => S.paint(ring(16, 17, 4, 1), '#ffb0b8', { flat: true, tone: 1 }).box(15, 16, 2, 2, '#ffb0b8')),
   law_small: law('#ff4fd8', (S) => S.box(14, 15, 4, 2, '#fff4fb').box(15, 17, 2, 3, '#fff4fb').box(13, 16, 1, 1, '#fff4fb')),
   epsilon(S) {
-    // a tiny silver epsilon, the smallest number that is still a number
-    const e = add(sub(ell(16, 9.5, 8, 6.5), ell(17.5, 9.5, 4.5, 3.4)), sub(ell(16, 22, 8, 6.5), ell(17.5, 22, 4.5, 3.4)), rect(8, 14, 12, 4))
-    S.paint(sub(e, rect(16, 6, 12, 5), rect(16, 20, 12, 5)), SILVER)
-    S.paint(rect(8, 14, 10, 4), SILVER)
-    S.paint(rect(18, 5, 6, 3), SILVER).paint(rect(18, 24, 6, 3), SILVER)
+    // a tiny silver epsilon, the smallest number that is still a number: two open arcs joined by a bar
+    const top = sub(ring(17, 10, 7.5, 3), rect(19, 7, 12, 6))
+    const bottom = sub(ring(17, 22, 7.5, 3), rect(19, 19, 12, 6))
+    S.paint(add(top, bottom, rect(10, 14, 9, 4)), SILVER)
     S.glint(9, 6)
   },
   release(S) {
@@ -124,4 +123,3 @@ export const RELICS_C = {
     S.paint(line(23, 26, 23, 30, 1), BRASS, { flat: true, tone: 1 }).paint(ell(23, 29, 1.6, 1.6), BRASS)
   },
 }
-export { cordLoop, quill, rrect, SILVER, IRON, GOLD }

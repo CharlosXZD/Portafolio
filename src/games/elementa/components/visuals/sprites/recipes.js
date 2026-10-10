@@ -3,7 +3,7 @@
 // with one signature detail (style bible, ASSETS.md "Item sprite style"). Families share
 // bases (bases.js); the idle sparkle, flicker and shimmer overlays are declared here and
 // animated by ItemSprite.
-import { add, ell, line, poly, rect, rrect, sub, erode, edge, METAL, MAT, ramp } from './spriteKit.js'
+import { add, ell, line, poly, rect, rrect, sub, METAL, MAT, ramp } from './spriteKit.js'
 import { EL, coinFlat, chartDisc, flask, sealedScroll, tablet, pole } from './bases.js'
 import { REACTIONS } from '../../../data/reactions.js'
 
@@ -12,7 +12,7 @@ const IRON = METAL.iron
 
 // A Constellation takes its colors from its reaction (data/reactions.js): the bezel the
 // first element's, the stars the second's (resonance and the poker sets use their own color).
-function reactionColors(id) {
+export function reactionColors(id) {
   const r = REACTIONS.find((x) => x.id === id)
   const [a, b] = r?.elements ?? []
   const frame = a ? EL[a] : ramp(r?.color ?? '#e0a82e')
@@ -149,4 +149,3 @@ export const RECIPES = {
   },
 }
 
-export { reactionColors, edge, erode }

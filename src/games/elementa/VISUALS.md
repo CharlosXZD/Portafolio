@@ -2,7 +2,7 @@
 
 The plan for making Elementa look and move much better: item models, event backgrounds, cinematics, the map, characters and their small animations. It is built **in small phases, one at a time**, like the game itself. Each phase ends with a playable game, a Visual Lab page to look at the new work, patch notes and a report. Carlos reviews a phase before the next one is written in detail.
 
-Status: **V1 (Alpha 0.9.6), V2 (Alpha 0.9.7) and V3 (Alpha 0.9.8, 2026-10-09, see `VISUALS_V3_REPORT.md`) are Built. V4 to V8 are Proposed** (each gets a full spec after the one before it is built and reviewed). Carlos's direction (2026-10-08): **pixel art in feel, but crisp and premium, and the game must feel alive**: menus and shops most of all should feel like magical places where people actually live, not squares on a background.
+Status: **V1 (Alpha 0.9.6), V2 (Alpha 0.9.7) and V3 (Alpha 0.9.8, 2026-10-09, see `VISUALS_V3_REPORT.md`) are Built, plus V2.5 (readable item sprites) and V3.1 (fixes from Carlos's V3 review) on 2026-10-10, Alpha 0.9.9, see `VISUALS_V25_REPORT.md`. V4 to V8 are Proposed** (each gets a full spec after the one before it is built and reviewed). Carlos's direction (2026-10-08): **pixel art in feel, but crisp and premium, and the game must feel alive**: menus and shops most of all should feel like magical places where people actually live, not squares on a background.
 
 ## 0. For the agent: read this first
 
@@ -118,7 +118,7 @@ Do not build anything else in V1: no mass item models, no real-game backgrounds,
 
 Do not build backgrounds, menus, scenes, characters or the map in V2. Patch notes "Alpha 0.9.7 Item models".
 
-### V2.5: Readable items (Ready, 2026-10-10; do this before V4)
+### V2.5: Readable items (Built 2026-10-10, Alpha 0.9.9, see `VISUALS_V25_REPORT.md`; waiting for Carlos's review)
 
 **Carlos's verdict on V2:** the rooms and the look are good, but **most items look wonky and you cannot tell what they are.** They need **clearer shapes and bezels, or a simpler design.** Carlos attached five reference images of item sprites he likes. They are **style references only: do not copy or trace them, and do not use them as game assets** (read them from the paths below; do not commit them). Names of the files: `/Users/charly/.claude/uploads/28a1f7d7-17eb-4412-b834-1d8ee4ca4950/` followed by `71600530-image.jpg` (eight chunky items on a dark panel: candle, crystal, sword, chest, flame, ruby, gold bar, spiked ring), `4edc5071-image.jpg` (a sheet of small bright item icons: jars, feathers, keys, potions, food, eggs, books), `8e526807-image.jpg` (sixteen items on white: candle, split bread, key, scroll, books, ticket, bag, envelope, goblet, parcel, shell), `7f1ec447-image.jpg` (a column of fifteen spell books, each with a different rune and color), `da5aaa3e-image.jpg` (eight books in different covers).
 
@@ -192,7 +192,7 @@ Realm tints: the same room takes a light shift per realm (Elementa warm, Firmame
 
 **Do not build** in V3: the menus or the shop's interface (V4), cinematics (V5), the Road map (V6), character rigs for Pip, bosses, gods or the Arbiter (V7), or the V2 weak-spot polish.
 
-### V3.1: Fixes from Carlos's V3 review (Ready, 2026-10-10; do before V2.5)
+### V3.1: Fixes from Carlos's V3 review (Built 2026-10-10, see `VISUALS_V25_REPORT.md`)
 
 Carlos reviewed V3: "they are looking good, we can advance". Answers to the V3 open questions and two new notes:
 1. **Gallery grouping:** unseen entries are grouped **neutrally** (no rarity or family headers) so nothing is spoiled.

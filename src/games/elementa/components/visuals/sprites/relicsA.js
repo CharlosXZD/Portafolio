@@ -1,5 +1,5 @@
 // Item sprites, relics, part A: natural and elemental things (VISUALS.md V2.5.2).
-import { add, ell, line, poly, rect, rrect, sub, and, erode, METAL, MAT, ramp } from './spriteKit.js'
+import { add, ell, line, poly, rect, rrect, sub, and, METAL, MAT, ramp } from './spriteKit.js'
 import { EL } from './bases.js'
 import { cordLoop, flame, gear, ring, heart } from './shapes.js'
 
@@ -194,4 +194,3 @@ export const RELICS_A = {
   },
 }
 
-export { erode }

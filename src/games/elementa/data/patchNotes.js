@@ -12,6 +12,30 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.9',
+    name: L('Readable items', 'Objetos legibles'),
+    date: null,
+    highlights: [
+      L(
+        'Every relic and consumable is now a hand-drawn pixel sprite with a clean outline, a few flat colors and one clear detail, so you can tell what each one is at a glance: keys, hourglasses, scrolls with wax seals, star charts, stone tablets with glowing runes, totem poles, potion vials. Runes, Constellations, Totems, Transmutes and Laws each share a look so a set reads as a set.',
+        'Cada reliquia y consumible es ahora un sprite de píxeles dibujado a mano, con un contorno limpio, pocos colores planos y un detalle claro, para que sepas qué es cada uno de un vistazo: llaves, relojes de arena, pergaminos con sello de cera, cartas estelares, tablillas de piedra con runas brillantes, tótems, frascos de poción. Las Runas, Constelaciones, Tótems, Transmutaciones y Leyes comparten estilo para que un conjunto se vea como conjunto.',
+      ),
+      L(
+        'They bob gently, glint on metal and gems, flicker on flames and lift when you point at them. Reduced motion and slower devices show them still. The Gallery shows them larger, and the Visual Lab has silhouette and "name it" sheets.',
+        'Se mecen suavemente, brillan en metales y gemas, parpadean en llamas y se levantan cuando los señalas. Con Movimiento reducido y en dispositivos lentos se ven quietos. La Galería los muestra más grandes, y el Laboratorio Visual tiene hojas de siluetas y de "adivínalo".',
+      ),
+      L(
+        'Shopkeepers now have shoulders, arms and hands, and each does their own small work: Vessa stirs, Brasa taps her hammer, Nix flips a coin, the Curator reads. On wide windows they stand bigger.',
+        'Los tenderos ahora tienen hombros, brazos y manos, y cada uno hace su pequeño trabajo: Vessa remueve, Brasa golpea con su martillo, Nix lanza una moneda, el Curador lee. En ventanas anchas se ven más grandes.',
+      ),
+      L(
+        'In the Gallery, things you have not found yet are grouped together under "???" so their rarity and family stay a surprise. Boss fights take the color of their boss, and the Spanish name of the Aether Bazaar is now "Bazar del Ether".',
+        'En la Galería, lo que aún no has encontrado se agrupa bajo "???" para que su rareza y familia sigan siendo una sorpresa. Los combates contra jefes toman el color de su jefe, y el nombre en español del Bazar del Éter ahora es "Bazar del Ether".',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.8',
     name: L('Shop rooms', 'Salas de las tiendas'),
     date: null,

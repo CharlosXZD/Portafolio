@@ -1,7 +1,7 @@
 // Item sprites, relics, part B: charms, jewelry, containers and tools (VISUALS.md V2.5.2).
 import { add, ell, line, poly, rect, rrect, sub, and, METAL, MAT, ramp } from './spriteKit.js'
 import { EL, coinFace } from './bases.js'
-import { bell, cordLoop, feather, flame, gear, heart, quill, ring, star } from './shapes.js'
+import { cordLoop, feather, flame, heart, quill, ring } from './shapes.js'
 
 const GOLD = METAL.gold
 const IRON = METAL.iron
@@ -182,4 +182,3 @@ export const RELICS_B = {
     S.paint(rect(12, 3, 8, 4), MAT.wood)
   },
 }
-export { star, gear, bell, MAT, SILVER, rect, rrect, sub, ramp }

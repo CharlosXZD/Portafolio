@@ -72,7 +72,7 @@ export function sealedScroll(S, { seal = '#c8283a', paper = MAT.parch, emblem })
   S.paint(ell(5.5, 15.5, 1.1, 4), paper, { flat: true, tone: 0 })
   S.paint(ell(26.5, 15.5, 1.1, 4), paper, { flat: true, tone: 0 })
   S.box(9, 12, 14, 1, '#8a6a3c').box(9, 15, 14, 1, '#8a6a3c').box(9, 18, 10, 1, '#8a6a3c')
-  S.paint(rect(14, 7, 4, 17), ramp('#a8323a'), { flat: true, tone: 1 })
+  S.paint(rect(14, 7, 4, 17), ramp(seal), { flat: true, tone: 0 })
   S.paint(ell(16, 17, 5.2, 5.2), ramp(seal))
   if (emblem) emblem(S)
 }

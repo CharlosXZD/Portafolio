@@ -1,6 +1,6 @@
 // Item sprites, consumables, part B: the families (VISUALS.md V2.5.2, style bible rule 10):
 // transmute vials, Constellation charts, Totem poles and Rune tablets share a base each.
-import { add, ell, line, poly, rect, sub, MAT, ramp } from './spriteKit.js'
+import { add, ell, poly, rect, sub, MAT, ramp } from './spriteKit.js'
 import { EL, chartDisc, flask, pole, tablet } from './bases.js'
 import { ring, star } from './shapes.js'
 import { reactionColors } from './recipes.js'
@@ -84,4 +84,3 @@ export const CONSUMABLES_B = {
     S.paint(poly([[16, 16], [21, 23], [11, 23]]), c, { flat: true, tone: 1 })
   }),
 }
-export { line, add }
