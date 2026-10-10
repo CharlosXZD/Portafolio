@@ -1,5 +1,10 @@
 import { miniOf, silhouetteOf, sprite, W } from './spriteKit.js'
-import { RECIPES } from './recipes.js'
+import { RECIPES as FIRST } from './recipes.js'
+import { RELICS_A } from './relicsA.js'
+import { RELICS_B } from './relicsB.js'
+import { RELICS_C } from './relicsC.js'
+
+const RECIPES = { ...FIRST, ...RELICS_A, ...RELICS_B, ...RELICS_C }
 
 // The item sprite registry (VISUALS.md V2.5): a recipe becomes a cached bitmap the first
 // time it is asked for (about a millisecond), so there is no build queue and nothing to wait for.
