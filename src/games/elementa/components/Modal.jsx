@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import MenuScene from './visuals/scene/MenuScene.jsx'
 
 /**
  * Shared overlay for Pause and Options: a dimmed backdrop and one pixel
@@ -18,6 +19,7 @@ export default function Modal({ title, onClose, children, width = 'max-w-sm', cl
         onClose()
       }}
     >
+      <MenuScene className="!contents">
       <motion.div
         initial={{ opacity: 0, y: 10, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -26,7 +28,7 @@ export default function Modal({ title, onClose, children, width = 'max-w-sm', cl
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`el-panel flex w-full ${width} flex-col`}
+        className={`el-panel menu-modal flex w-full ${width} flex-col`}
       >
         <div className="el-panel--wood flex items-center justify-between px-4 py-3">
           <h2 className="pixel-heading text-xs text-[var(--gold-hi)]">{title}</h2>
@@ -41,8 +43,9 @@ export default function Modal({ title, onClose, children, width = 'max-w-sm', cl
             </button>
           )}
         </div>
-        <div className="flex max-h-[calc(100vh-9rem)] flex-col gap-5 overflow-y-auto p-5">{children}</div>
+        <div className="menu-modal__body flex max-h-[calc(100vh-11rem)] flex-col gap-5 overflow-y-auto p-5">{children}</div>
       </motion.div>
+      </MenuScene>
     </motion.div>
   )
 }

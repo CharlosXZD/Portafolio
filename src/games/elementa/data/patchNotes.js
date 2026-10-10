@@ -29,6 +29,10 @@ export const PATCH_NOTES = [
         'La Forja, la Mezcla, los tratos, las bendiciones, los servicios y la Despensa son tablones, pergaminos y pizarras sobre el mismo mostrador. Todo funciona como antes: comprar, vender, renovar, forjar, mezclar, arrastrar para reordenar, el teclado.',
       ),
       L(
+        'The main menu is a hanging sign over a notice board of plaques, the three save files are books, and Options and Pause are small wooden tables with brass sliders and switches.',
+        'El menú principal es un cartel colgante sobre un tablón de placas, los tres archivos de guardado son libros, y Opciones y Pausa son pequeñas mesas de madera con deslizadores e interruptores de latón.',
+      ),
+      L(
         'On phones the pouch and the map are drawers under the counter. Hovering, picking, buying and the lever now make the game\'s usual sounds, at the usual volume. Spanish letters like ó, ú and ñ now use a matching pixel font, and the six Laws have more distinct seals.',
         'En el móvil la bolsa y el mapa son cajones bajo el mostrador. Pasar el cursor, elegir, comprar y la palanca ahora suenan como el resto del juego, al mismo volumen. Las letras españolas como ó, ú y ñ ahora usan una fuente de píxeles a juego, y las seis Leyes tienen sellos más distintos.',
       ),

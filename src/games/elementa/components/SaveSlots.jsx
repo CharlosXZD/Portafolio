@@ -7,11 +7,12 @@ import { completion } from '../utils/profile.js'
 import { localizeDifficulty } from '../data/i18n.js'
 import ConfirmButton from './ConfirmButton.jsx'
 import BackupControls from './BackupControls.jsx'
+import MenuScene from './visuals/scene/MenuScene.jsx'
 
 function ProgressBar({ pct }) {
   return (
-    <div className="h-2.5 w-full bg-[var(--stone-0)]" style={{ boxShadow: '0 0 0 2px var(--ink)' }}>
-      <div className="h-full bg-[var(--gold-2)]" style={{ width: `${pct}%` }} />
+    <div className="obj-ribbon w-full">
+      <span style={{ width: `${pct}%` }} />
     </div>
   )
 }
@@ -29,18 +30,18 @@ function FileCard({ slot, file, onOpen, onDelete, index }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', bounce: 0.25, duration: 0.45, delay: index * 0.06 }}
-      className={`el-panel flex min-h-[240px] w-full flex-col gap-4 p-5 sm:w-64 ${empty ? 'el-panel--dark' : ''}`}
+      className={`obj-book sm:w-64 ${empty ? 'obj-book--empty' : ''}`}
     >
       <div className="flex items-center justify-between">
-        <span className="pixel-heading text-[10px] text-[var(--gold-1)]">
+        <span className="obj-plate">
           {t('elementa.files.file')} {slot + 1}
         </span>
-        {!empty && <span className="pixel-score text-[10px] text-[var(--gold-hi)]">{pct}%</span>}
+        {!empty && <span className="pixel-score text-[10px] text-[var(--p2)]">{pct}%</span>}
       </div>
 
       {empty ? (
         <>
-          <div className="el-well flex flex-1 items-center justify-center text-base text-[var(--text-mute)]">
+          <div className="obj-page flex flex-1 items-center justify-center text-base">
             {t('elementa.saveSlots.empty')}
           </div>
           <button type="button" onClick={onOpen} className="el-btn el-btn--gold">
@@ -50,7 +51,7 @@ function FileCard({ slot, file, onOpen, onDelete, index }) {
       ) : (
         <>
           <ProgressBar pct={pct} />
-          <div className="flex flex-1 flex-col gap-1 text-base text-[var(--text-dim)]">
+          <div className="obj-page flex flex-1 flex-col gap-1 text-base">
             <span>
               {t('elementa.files.wins')}: {file.profile.stats.wins} · {t('elementa.files.runs')}: {file.profile.stats.runs}
             </span>
@@ -89,8 +90,8 @@ export default function SaveSlots({ dispatch }) {
   const [files, setFiles] = useState(() => listFiles())
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex w-full max-w-4xl flex-col items-center gap-10">
-      <h2 className="pixel-heading text-xl text-[var(--gold-1)] sm:text-2xl">{t('elementa.files.title')}</h2>
+    <MenuScene><motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex w-full max-w-4xl flex-col items-center gap-10">
+      <h2 className="obj-hangsign !mt-0 !px-8 !py-3 pixel-heading text-xl text-[var(--gold-hi)] sm:text-2xl">{t('elementa.files.title')}</h2>
       <div className="flex w-full flex-col items-center gap-6 sm:flex-row sm:items-stretch sm:justify-center">
         {Array.from({ length: SAVE_SLOT_COUNT }).map((_, slot) => (
           <FileCard
@@ -125,5 +126,6 @@ export default function SaveSlots({ dispatch }) {
         {t('elementa.common.back')}
       </button>
     </motion.div>
+    </MenuScene>
   )
 }

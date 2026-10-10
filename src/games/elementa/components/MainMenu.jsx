@@ -9,6 +9,7 @@ import PatchNotesScreen from './PatchNotesScreen.jsx'
 import { LATEST_VERSION, isNewerVersion } from '../data/patchNotes.js'
 import { getSeenVersion } from '../utils/settings.js'
 import PixelIcon from './PixelIcon.jsx'
+import MenuScene from './visuals/scene/MenuScene.jsx'
 
 const ORBS = ['fire', 'water', 'earth', 'air']
 
@@ -51,19 +52,20 @@ export default function MainMenu({ dispatch }) {
   }
 
   return (
+    <MenuScene>
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-      className="flex flex-col items-center gap-12 text-center"
+      className="flex flex-col items-center gap-8 text-center"
     >
-      <div className="flex flex-col items-center gap-6">
+      <div className="obj-hangsign">
         <Logo />
         <ElementOrbs />
-        <p className="text-lg text-[var(--text-dim)]">{t('elementa.menu.tagline')}</p>
       </div>
+      <p className="obj-ticket menu-tagline">{t('elementa.menu.tagline')}</p>
 
-      <nav className="flex w-64 flex-col gap-4">
+      <nav className="obj-board obj-nails menu-board">
         <button type="button" className="el-btn el-btn--gold el-btn--lg" onClick={go(() => dispatch({ type: 'GO_TO_SLOTS' }))}>
           {t('elementa.menu.play')}
         </button>
@@ -91,5 +93,6 @@ export default function MainMenu({ dispatch }) {
         />
       )}
     </motion.div>
+    </MenuScene>
   )
 }

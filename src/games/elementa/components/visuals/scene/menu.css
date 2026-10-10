@@ -1,0 +1,193 @@
+/* The menus as objects (VISUALS.md V4.4): a hanging sign, a notice board of plaques, books for the
+   save files, a wooden tabletop for the pause and options screens. The same materials as the
+   shop scenes (scene.css); function, text and fonts are unchanged. */
+
+.menu-scene {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------------- the main menu ---------------- */
+.obj-hangsign {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 40px 18px;
+  margin-top: 46px;
+  background: repeating-linear-gradient(to bottom, var(--w2) 0 21px, var(--w1) 21px 22px, var(--w2) 22px 43px, var(--w0) 43px 44px);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--wood-hi), inset 3px 0 0 var(--w3), inset -3px 0 0 var(--w1), inset 0 -3px 0 var(--w0), 6px 9px 0 0 rgba(0, 0, 0, 0.4);
+}
+.obj-hangsign::before,
+.obj-hangsign::after {
+  /* the ropes go up out of the picture */
+  content: '';
+  position: absolute;
+  top: -60px;
+  width: 4px;
+  height: 58px;
+  background: var(--l1);
+  box-shadow: 0 0 0 2px var(--ol);
+}
+.obj-hangsign::before { left: 32px; }
+.obj-hangsign::after { right: 32px; }
+.menu-board {
+  width: min(100%, 300px);
+  padding: 30px 24px 24px;
+  gap: 16px;
+  align-items: stretch;
+}
+.menu-board .el-btn {
+  width: 100%;
+}
+.menu-tagline {
+  max-width: 360px;
+  text-align: center;
+  font-size: 18px;
+  padding: 8px 18px;
+}
+
+/* ---------------- file select: a book per save file ---------------- */
+.obj-book {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  min-height: 250px;
+  padding: 16px 16px 16px 36px;
+  background: linear-gradient(to right, var(--l0) 0 20px, var(--l1) 20px 24px, var(--l2) 24px 100%);
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--l3), inset 0 -4px 0 var(--l0), 6px 9px 0 0 rgba(0, 0, 0, 0.4);
+}
+.obj-book::before {
+  /* the stitching down the spine */
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  bottom: 12px;
+  border-left: 3px dotted var(--l3);
+  opacity: 0.6;
+}
+.obj-book::after {
+  /* a brass corner */
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 22px;
+  height: 22px;
+  background: var(--m2);
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  box-shadow: inset -3px -3px 0 var(--m0);
+}
+.obj-book--empty {
+  filter: saturate(0.6) brightness(0.9);
+}
+.obj-page {
+  --text: #2a1a10;
+  --text-dim: #4a3626;
+  --text-mute: #6a5640;
+  --gold-hi: #7a4a10;
+  --gold-1: #8a5a10;
+  color: var(--text);
+  background: var(--p2);
+  padding: 10px 12px;
+  box-shadow: 0 -2px 0 var(--ol), 0 2px 0 var(--ol), -2px 0 0 var(--ol), 2px 0 0 var(--ol), inset 0 2px 0 var(--p3), inset 0 -2px 0 var(--p1);
+}
+.obj-ribbon {
+  height: 12px;
+  background: var(--l0);
+  box-shadow: 0 0 0 2px var(--ol);
+}
+.obj-ribbon > span {
+  display: block;
+  height: 100%;
+  background: var(--m2);
+  box-shadow: inset 0 3px 0 var(--m3), inset 0 -3px 0 var(--m0);
+}
+
+/* ---------------- the table: pause, options and the other dialogs ---------------- */
+.menu-modal {
+  position: relative;
+  background: repeating-linear-gradient(to bottom, var(--w2) 0 21px, var(--w1) 21px 22px, var(--w2) 22px 43px, var(--w0) 43px 44px) !important;
+  box-shadow: 0 -3px 0 var(--ol), 0 3px 0 var(--ol), -3px 0 0 var(--ol), 3px 0 0 var(--ol), inset 0 3px 0 var(--wood-hi), inset 3px 0 0 var(--w3), inset -3px 0 0 var(--w1), inset 0 -3px 0 var(--w0), 6px 9px 0 0 rgba(0, 0, 0, 0.4) !important;
+  margin-bottom: 40px;
+}
+.menu-modal::before,
+.menu-modal::after {
+  /* two table legs */
+  content: '';
+  position: absolute;
+  bottom: -42px;
+  width: 22px;
+  height: 40px;
+  background: var(--w1);
+  box-shadow: 0 0 0 3px var(--ol), inset 4px 0 0 var(--w2);
+}
+.menu-modal::before { left: 28px; }
+.menu-modal::after { right: 28px; }
+.menu-modal .el-panel--wood {
+  background: var(--m2);
+  box-shadow: 0 3px 0 var(--ol), inset 0 3px 0 var(--m3), inset 0 -3px 0 var(--m0);
+}
+.menu-modal .el-panel--wood h2,
+.menu-modal .el-panel--wood button {
+  color: #2a1a10;
+}
+.menu-modal__body {
+  --text: #2a1a10;
+  --text-dim: #3a2a1c;
+  --text-mute: #5a4630;
+  --gold-hi: #7a4a10;
+  --gold-1: #8a5a10;
+  --arcane-hi: #4a2a9a;
+  --good: #1f6a36;
+  --bad: #9a1e28;
+  color: var(--text);
+  margin: 12px;
+  background: var(--p2);
+  box-shadow: 0 -2px 0 var(--ol), 0 2px 0 var(--ol), -2px 0 0 var(--ol), 2px 0 0 var(--ol), inset 0 2px 0 var(--p3), inset 0 -2px 0 var(--p1);
+}
+.menu-modal__body .el-label {
+  color: var(--text-mute);
+}
+.menu-modal__body .el-well,
+.menu-modal__body .el-panel {
+  background: var(--p1);
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.18), 0 0 0 2px var(--ol);
+}
+
+/* sliders are brass knobs on a groove; switches are brass levers in a slot */
+.shop-scene input[type='range'].el-range {
+  background: var(--w0);
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.6), 0 0 0 2px var(--ol);
+}
+.shop-scene input[type='range'].el-range::-webkit-slider-thumb {
+  background: var(--m2);
+  box-shadow: inset 0 3px 0 var(--m3), inset 0 -3px 0 var(--m0), 0 0 0 2px var(--ol);
+}
+.shop-scene input[type='range'].el-range::-moz-range-thumb {
+  background: var(--m2);
+  box-shadow: inset 0 3px 0 var(--m3), inset 0 -3px 0 var(--m0), 0 0 0 2px var(--ol);
+}
+.shop-scene .el-toggle {
+  background: var(--w0);
+  box-shadow: 0 0 0 2px var(--ol), inset 0 3px 0 rgba(0, 0, 0, 0.6);
+}
+.shop-scene .el-toggle::after {
+  background: var(--m2);
+  box-shadow: inset 0 2px 0 var(--m3), inset 0 -2px 0 var(--m0);
+}
+.shop-scene .el-toggle[aria-checked='true'] {
+  background: #2f7a4a;
+}
+.shop-scene .el-toggle[aria-checked='true']::after {
+  background: var(--m3);
+}
+@media (max-width: 640px) {
+  .obj-hangsign { padding: 18px 22px 14px; }
+}
