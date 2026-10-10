@@ -58,9 +58,6 @@
   animation: v-breathe var(--breathe, 4.8s) step-end infinite;
   animation-delay: 0.28s;
 }
-.v-rig__armR { transform-origin: 11.5px 13px; }
-.v-rig__armL { transform-origin: 2.5px 13px; }
-.v-rig__work { transform-origin: 11.5px 13px; }
 .v-rig[data-work='stir'] .v-rig__work { animation: v-stir 1.6s step-end infinite; }
 .v-rig[data-work='tap'] .v-rig__work { animation: v-tap 2.6s step-end infinite; }
 .v-rig[data-work='rub'] .v-rig__work { animation: v-rub 3.4s step-end infinite; }
@@ -75,17 +72,18 @@
 .v-rig__beat[data-react='hop'] .v-rig__armL { animation: v-cheer-left 0.5s step-end 1; }
 .v-rig__beat[data-react='shake'] .v-rig__armR { animation: v-shrug-right 0.6s step-end 1; }
 .v-rig__beat[data-react='shake'] .v-rig__armL { animation: v-shrug-left 0.6s step-end 1; }
-@keyframes v-stir { 0% { transform: rotate(-9deg); } 25% { transform: rotate(0deg); } 50% { transform: rotate(9deg); } 75% { transform: rotate(0deg); } }
-@keyframes v-tap { 0%, 70% { transform: rotate(0deg); } 76% { transform: rotate(-16deg); } 84% { transform: rotate(4deg); } 92% { transform: rotate(0deg); } }
-@keyframes v-rub { 0%, 60% { transform: translate(0, 0); } 70% { transform: translate(-1px, 0); } 80% { transform: translate(0, 0); } 90% { transform: translate(-1px, 0); } }
 @keyframes v-flip { 0%, 60% { transform: translateY(0); } 68% { transform: translateY(-3px); } 76% { transform: translateY(-4px); } 84% { transform: translateY(-2px); } 92% { transform: translateY(0); } }
 @keyframes v-read { 0%, 80% { transform: translateY(0); } 86% { transform: translateY(1px); } 94% { transform: translateY(0); } }
 @keyframes v-glint { 0%, 70% { opacity: 1; } 76%, 86% { opacity: 0.45; } 92% { opacity: 1; } }
-@keyframes v-raise-small { 0% { transform: rotate(-22deg); } 55% { transform: rotate(-10deg); } 80% { transform: rotate(0deg); } }
-@keyframes v-cheer { 0% { transform: rotate(-70deg); } 50% { transform: rotate(-50deg); } 80% { transform: rotate(-20deg); } }
-@keyframes v-cheer-left { 0% { transform: rotate(70deg); } 50% { transform: rotate(50deg); } 80% { transform: rotate(20deg); } }
-@keyframes v-shrug-right { 0% { transform: translateY(-1px) rotate(-14deg); } 70% { transform: translateY(-1px) rotate(-8deg); } }
-@keyframes v-shrug-left { 0% { transform: translateY(-1px) rotate(14deg); } 70% { transform: translateY(-1px) rotate(8deg); } }
+/* Arm motion moves whole art pixels along a small stepped path (a rotation of a few degrees on a 14 px figure only blurs pixels). */
+@keyframes v-stir { 0% { transform: translate(0, 0); } 25% { transform: translate(1px, 0); } 50% { transform: translate(1px, 1px); } 75% { transform: translate(0, 1px); } }
+@keyframes v-tap { 0%, 70% { transform: translate(0, 0); } 76% { transform: translate(0, -2px); } 84% { transform: translate(0, 1px); } 92% { transform: translate(0, 0); } }
+@keyframes v-rub { 0%, 60% { transform: translate(0, 0); } 70% { transform: translate(-1px, 0); } 80% { transform: translate(0, 0); } 90% { transform: translate(-1px, 0); } }
+@keyframes v-raise-small { 0% { transform: translate(0, -2px); } 55% { transform: translate(0, -1px); } 80% { transform: translate(0, 0); } }
+@keyframes v-cheer { 0% { transform: translate(0, -5px); } 50% { transform: translate(0, -3px); } 80% { transform: translate(0, -1px); } }
+@keyframes v-cheer-left { 0% { transform: translate(0, -5px); } 50% { transform: translate(0, -3px); } 80% { transform: translate(0, -1px); } }
+@keyframes v-shrug-right { 0% { transform: translate(0, -1px); } 70% { transform: translate(0, -1px); } }
+@keyframes v-shrug-left { 0% { transform: translate(0, -1px); } 70% { transform: translate(0, -1px); } }
 /* The low-end tier keeps only the blink. */
 .v-rig[data-blink-only] .v-rig__body,
 .v-rig[data-blink-only] .v-rig__armL,

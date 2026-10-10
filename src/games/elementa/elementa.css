@@ -80,7 +80,7 @@
   font-weight: 400 !important;
   letter-spacing: -0.01em;
   line-height: 1.5;
-  text-shadow: 3px 3px 0 var(--pixel-shadow-color);
+  /* no text shadow: names and headings are read against signs and boards, a hard shadow made them harder to read (V4 review) */
 }
 
 .elementa-root .pixel-score {
