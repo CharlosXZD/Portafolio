@@ -20,6 +20,7 @@ const TEXT = {
   back: L('Back to the game', 'Volver al juego'),
   itemGallery: L('Item gallery', 'Galería de objetos'),
   rooms: L('Rooms', 'Salas'),
+  itemSprites: L('Item sprites', 'Sprites de objetos'),
   intro: L(
     'Every new visual of the overhaul lives here first (VISUALS.md, phase V1). Nothing on this page is in the real game yet. The toggles below change this page only and never your saved settings.',
     'Todo lo visual nuevo vive primero aquí (VISUALS.md, fase V1). Nada de esta página está aún en el juego real. Los controles de abajo solo cambian esta página y nunca tus ajustes guardados.',
@@ -348,6 +349,9 @@ function Lab() {
             <div className="flex flex-wrap gap-2">
               <Link to="/games/elementa/visuals/items" className="el-btn el-btn--sm el-btn--gold">
                 {tx.itemGallery[lang]}
+              </Link>
+              <Link to="/games/elementa/visuals/sprites" className="el-btn el-btn--sm el-btn--gold">
+                {tx.itemSprites[lang]}
               </Link>
               <Link to="/games/elementa/visuals/rooms" className="el-btn el-btn--sm el-btn--gold">
                 {tx.rooms[lang]}
