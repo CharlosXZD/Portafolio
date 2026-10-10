@@ -38,6 +38,8 @@ export function roomFor(state) {
     const type = state.shop?.type
     return ROOM_LOADERS[type] ? { id: type, shop: true, realm, meter: type === 'pantry' ? Math.min(1, (state.moteFed || 0) / 40) : 0 } : null
   }
+  // The menus, the file select, the file hub and the title screen share the Tavern.
+  if (['menu', 'slots', 'credits', 'hub', 'title', 'runPreview'].includes(state.phase)) return { id: 'tavern', shop: true, realm }
   if (state.phase === 'crossroads') return { id: 'crossroads', realm }
   if (state.phase === 'rolling' || state.phase === 'missed') {
     return state.bossModifier ? { id: 'boss', realm, tone: stageTone(state.bossModifier.id) } : { id: 'table', realm }

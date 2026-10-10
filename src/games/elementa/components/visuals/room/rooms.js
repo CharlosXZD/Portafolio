@@ -20,6 +20,7 @@ export const ROOM_LOADERS = {
   boss: () => import('./rooms/boss.jsx'),
   table: () => import('./rooms/table.jsx'),
   unwritten: () => import('./rooms/unwritten.jsx'),
+  tavern: () => import('./rooms/tavern.jsx'),
 }
 
 const L = (en, es) => ({ en, es })
@@ -43,6 +44,7 @@ export const ROOM_INFO = {
   boss: { label: L('Boss stage', 'Escenario de jefe'), keeper: null },
   table: { label: L('The table', 'La mesa'), keeper: null },
   unwritten: { label: L('The Unwritten', 'Lo No Escrito'), keeper: null },
+  tavern: { label: L('The Tavern (menus)', 'La Taberna (menús)'), keeper: null },
 }
 
 export const ROOM_IDS = Object.keys(ROOM_LOADERS)
@@ -67,4 +69,5 @@ export const ROOM_GROUND = {
   observatory: { wall: '#121c44', ceil: '#0b1230', floor: '#1a2248' },
   pantry: { wall: '#1a1624', ceil: '#100c18', floor: '#161220' },
   camp: { wall: '#161230', ceil: '#0c0a1c', floor: '#1c1626' },
+  tavern: { wall: '#2e1c26', ceil: '#1c1018', floor: '#3b2215' },
 }
