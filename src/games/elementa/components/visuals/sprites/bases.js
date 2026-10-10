@@ -2,7 +2,7 @@
 // family reads as a family because it starts from the same base. A recipe picks a
 // base, gives it a palette and adds one signature detail. Every base paints on a
 // kit Sprite and stays inside the 3 to 28 pixel box.
-import { add, ell, erode, line, poly, rect, rrect, sub, METAL, MAT, ramp } from './spriteKit.js'
+import { add, ell, line, poly, rect, rrect, sub, METAL, MAT, ramp } from './spriteKit.js'
 import { ELEMENTS } from '../../../data/elements.js'
 
 /** Element ramps from the element's own color (section 0b: elements own their color). */
@@ -53,7 +53,7 @@ export function flask(S, { liquid, shape = 'round', glass = MAT.glass, cork = MA
     y1 = Math.max(y1, y)
   }
   const surface = Math.round(y1 - (y1 - y0) * level)
-  S.paint(sub(erode(body), rect(0, 0, 32, surface)), liquid)
+  S.paint(sub(body, rect(0, 0, 32, surface)), liquid)
   S.paint(top, cork)
 }
 
@@ -80,6 +80,8 @@ export function sealedScroll(S, { seal = '#c8283a', paper = MAT.parch, emblem })
 /** A star chart: dark disc with a metal bezel and stars joined by lines. */
 export function chartDisc(S, { frame, stars, pts, links }) {
   S.paint(ell(16, 16, 12.5, 12.5), frame)
+  // four small studs at the compass points make a star chart read as an astrolabe, not a coin
+  for (const [x, y] of [[15, 2], [15, 28], [2, 15], [28, 15]]) S.paint(rect(x, y, 3, 3), frame, { flat: true, tone: 1 })
   S.paint(ell(16, 16, 10, 10), MAT.slate, { flat: true, tone: 1 })
   S.paint(ell(16, 16, 10, 10), MAT.slate, { flat: true, tone: 0, under: true })
   for (const [a, b] of links) {

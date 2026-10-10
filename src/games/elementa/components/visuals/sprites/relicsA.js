@@ -185,13 +185,12 @@ export const RELICS_A = {
     S.paint(rect(14, 25, 4, 3), IRON)
   },
   safety_net(S) {
-    // a four-leaf clover talisman on a gold medallion
-    S.paint(ell(16, 16, 13, 13), GOLD)
-    S.paint(ell(16, 16, 10.5, 10.5), MAT.slate, { flat: true, tone: 1 })
-    for (const [x, y] of [[12, 12], [20, 12], [12, 20], [20, 20]]) S.paint(heart(x, y - 1, 8), MAT.green, { hi: false })
-    S.paint(line(16, 17, 20, 27, 1), MAT.green, { flat: true, tone: 0 })
-    S.dot(15, 15, MAT.green[3])
-    S.glint(7, 8)
+    // a four-leaf clover talisman on a gold cord
+    S.paint(cordLoop(16, 0, 3), GOLD, { flat: true, tone: 1 })
+    for (const [x, y] of [[11, 12], [21, 12], [11, 21], [21, 21]]) S.paint(heart(x, y - 1, 12), MAT.green)
+    S.paint(line(17, 18, 23, 28, 2), MAT.green, { flat: true, tone: 0 })
+    S.paint(ell(16, 16, 2.6, 2.6), GOLD)
+    S.glint(6, 8)
   },
 }
 

@@ -88,12 +88,12 @@ export const RELICS_C = {
   law_echo: law('#c8283a', (S) => S.paint(ring(16, 17, 4, 1), '#ffb0b8', { flat: true, tone: 1 }).box(15, 16, 2, 2, '#ffb0b8')),
   law_small: law('#ff4fd8', (S) => S.box(14, 15, 4, 2, '#fff4fb').box(15, 17, 2, 3, '#fff4fb').box(13, 16, 1, 1, '#fff4fb')),
   epsilon(S) {
-    // a tiny silver epsilon on a dark coin
-    S.paint(ell(16, 16, 12.5, 12.5), SILVER)
-    S.paint(ell(16, 16, 10, 10), MAT.slate, { flat: true, tone: 1 })
-    S.paint(sub(ell(17, 16, 5, 5.5), add(ell(17, 16, 3, 3.5), rect(16, 12, 8, 9))), SILVER, { flat: true, tone: 2 })
-    S.box(12, 15, 7, 2, SILVER[2])
-    S.glint(8, 8)
+    // a tiny silver epsilon, the smallest number that is still a number
+    const e = add(sub(ell(16, 9.5, 8, 6.5), ell(17.5, 9.5, 4.5, 3.4)), sub(ell(16, 22, 8, 6.5), ell(17.5, 22, 4.5, 3.4)), rect(8, 14, 12, 4))
+    S.paint(sub(e, rect(16, 6, 12, 5), rect(16, 20, 12, 5)), SILVER)
+    S.paint(rect(8, 14, 10, 4), SILVER)
+    S.paint(rect(18, 5, 6, 3), SILVER).paint(rect(18, 24, 6, 3), SILVER)
+    S.glint(9, 6)
   },
   release(S) {
     // an open brass latch beside a padlock cut cleanly in two
@@ -104,12 +104,13 @@ export const RELICS_C = {
     S.glint(5, 12)
   },
   mainspring(S) {
-    // a coiled brass spring wound tight around a tiny gear
-    S.paint(gear(16, 16, 6, 8, 2), IRON)
-    S.paint(ring(16, 16, 13, 2), BRASS)
-    S.paint(ring(16, 16, 10, 1.6), BRASS, { flat: true, tone: 2 })
-    S.paint(rect(16, 3, 8, 2), BRASS)
-    S.glint(6, 8)
+    // a coiled brass spring wound tight around a tiny gear, with its winding key
+    S.paint(gear(14, 17, 5.5, 8, 2), IRON)
+    S.paint(ring(14, 17, 11.5, 2), BRASS)
+    S.paint(ring(14, 17, 8.6, 1.6), BRASS, { flat: true, tone: 2 })
+    S.paint(rect(24, 3, 2, 6), BRASS).paint(rect(21, 2, 8, 3), BRASS)
+    S.paint(line(21, 9, 24, 7, 2), BRASS, { flat: true, tone: 1 })
+    S.glint(5, 9)
   },
   cuckoo_clock(S) {
     // a carved wooden clock house with the little bird mid-chirp

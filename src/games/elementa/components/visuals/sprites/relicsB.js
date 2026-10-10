@@ -19,13 +19,15 @@ export const RELICS_B = {
     S.dot(21, 21, IRON[3])
   },
   tide_chart(S) {
-    // a rolled sea chart tied with a strand of kelp
-    S.paint(rrect(4, 8, 24, 16, 2), MAT.paper)
-    S.paint(ell(5, 16, 2.4, 8), MAT.paper).paint(ell(27, 16, 2.4, 8), MAT.paper)
-    S.paint(ell(5, 16, 1, 3.6), MAT.paper, { flat: true, tone: 0 })
-    for (const y of [12, 16, 20]) S.dots(`9,${y} 10,${y - 1} 11,${y} 12,${y - 1} 13,${y} 14,${y - 1} 15,${y}`, EL.water[1])
-    S.paint(rect(21, 7, 3, 18), MAT.green, { flat: true, tone: 1 })
-    S.dots('20,10 25,13 20,16 25,19 20,22', MAT.green[1])
+    // a sea chart rolled up and tied with a strand of kelp
+    S.paint(line(5, 27, 26, 6, 10), MAT.paper)
+    S.paint(ell(5.5, 26.5, 5, 5), MAT.paper, { flat: true, tone: 0 })
+    S.paint(ell(26, 6, 5, 5), MAT.paper, { flat: true, tone: 2 })
+    S.paint(ring(26, 6, 4.4, 1.2), MAT.paper, { flat: true, tone: 0 })
+    S.dots('10,20 11,19 12,20 13,19 15,16 16,15 17,16 18,15', EL.water[1])
+    S.paint(line(13, 23, 20, 22, 2), MAT.green, { flat: true, tone: 1 })
+    S.paint(line(18, 8, 14, 12, 2), MAT.green, { flat: true, tone: 1 })
+    S.dots('13,25 20,24 17,9', MAT.green[1])
   },
   feather_charm(S) {
     // a white feather bound with silver thread

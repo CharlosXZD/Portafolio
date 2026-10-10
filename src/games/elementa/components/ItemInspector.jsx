@@ -9,8 +9,8 @@ import PixelSprite from './PixelSprite.jsx'
 import RichText from './RichText.jsx'
 import { useFloating, arrowStyle } from './useFloating.js'
 
-// The V2 item model, loaded on demand: a bigger idle turn for relics and consumables.
-const ItemModel = lazy(() => import('./visuals/ItemModel.jsx'))
+// The item sprite (VISUALS.md V2.5), loaded on demand: shown larger, with its idle life.
+const ItemSprite = lazy(() => import('./visuals/ItemSprite.jsx'))
 
 export const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic', abstract: 'Abstract', absolute: 'Absolute' },
@@ -85,14 +85,13 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
       {item.itemId && (
         <div className="flex justify-center px-3 pt-3">
           <span className="el-well flex items-center justify-center" style={{ width: 96, height: 96 }}>
-            {/* Until the model is built (or on a low-end device) the old sprite shows, so the well is never empty. */}
+            {/* Until the sprite chunk arrives the old sprite shows, so the well is never empty. */}
             <Suspense fallback={null}>
-              <ItemModel
+              <ItemSprite
                 itemId={item.itemId}
-                scale={3}
-                motion="turn"
+                scale={2}
+                motion="idle"
                 rarity={item.rarity}
-                priority={3}
                 fallback={item.sprite ? <PixelSprite {...item.sprite} size={72} /> : null}
               />
             </Suspense>

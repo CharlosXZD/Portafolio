@@ -6,12 +6,12 @@ import { juicyHover, juicyTap } from '../utils/motionPresets.js'
 import PixelIcon from './PixelIcon.jsx'
 import PixelSprite from './PixelSprite.jsx'
 
-// The V2 item models (VISUALS.md): cached 3D renders of every relic and
-// consumable, loaded on demand (three.js and the generators are not part of
-// the first load) and built in idle time. Until one is ready, and whenever it
-// cannot be shown (low-end device, no WebGL, a tile too small to read), the
-// flat sprite below stays.
-const ItemModel = lazy(() => import('./visuals/ItemModel.jsx'))
+// The item sprites (VISUALS.md V2.5): a hand-authored 32 by 32 pixel sprite for every
+// relic and consumable, drawn from a recipe in code. It is its own lazy chunk (the
+// recipes are not part of the first load); until it arrives the flat sprite below stays,
+// and it is instant after that (no build queue, no WebGL). V2's cached 3D models are
+// still in the Lab's Item gallery but no longer used here.
+const ItemSprite = lazy(() => import('./visuals/ItemSprite.jsx'))
 
 /**
  * The visual stand-in for a relic/consumable/die "item": a pixel tile with
@@ -86,12 +86,22 @@ export default function ItemIcon({
       {glyph}
     </span>
   )
-  // One art pixel of the model is a whole number of screen pixels; tiles under 36 are too small for it.
-  const modelScale = Math.floor((size - 2 * b - 4) / 24)
+  // One art pixel of the sprite is a whole number of screen pixels; tiles under 32 inside the frame use the 16 by 16 version.
+  const room = size - 2 * b
+  const spriteScale = Math.floor(room / 32)
+  const miniScale = Math.floor(room / 16)
   const content =
-    itemId && !iconSrc && modelScale >= 1 ? (
+    itemId && !iconSrc && (spriteScale >= 1 || miniScale >= 1) ? (
       <Suspense fallback={flat}>
-        <ItemModel itemId={itemId} scale={modelScale} motion={modelMotion ?? (isStatic ? 'still' : 'hover')} reveal={reveal} rarity={rarity} fallback={flat} />
+        <ItemSprite
+          itemId={itemId}
+          scale={spriteScale >= 1 ? spriteScale : miniScale}
+          mode={spriteScale >= 1 ? 'color' : 'mini'}
+          motion={modelMotion === 'turn' ? 'idle' : (modelMotion ?? (isStatic ? 'still' : 'hover'))}
+          reveal={reveal}
+          rarity={rarity}
+          fallback={flat}
+        />
       </Suspense>
     ) : (
       flat
