@@ -52,25 +52,59 @@ for (let n = 0; n < 40; n++) {
 // round 15 boss, record the Crossroads, step through and walk the Road to see the Firmament's shops.
 const fb = JSON.parse(readFileSync(fileURLToPath(new URL('./firmament-test-saves.json', import.meta.url)), 'utf8'))
 const ffiles = JSON.parse(fb.data['elementa-files-v2'])
-let fs = { ...ffiles[0].run, difficulty: { ...ffiles[0].run.difficulty, thresholdBase: 1, thresholdGrowth: 1 }, threshold: 1 }
 const profiles = { profile: ffiles[0].profile }
-for (let i = 0; i < 120 && fs.round <= 28; i++) {
-  if (fs.phase === 'rolling') fs = gameReducer({ ...fs, threshold: 1 }, { type: 'SUBMIT_ROUND' })
-  else if (fs.phase === 'crossroads') {
-    want('crossroads', fs)
-    fs = gameReducer(fs, { type: 'ENTER_FIRMAMENT', set: selectors.firmamentSets(fs)[0] })
-  } else if (fs.phase === 'shop' || fs.phase === 'bossReward') {
-    if (fs.phase === 'bossReward') fs = gameReducer(fs, { type: 'CHOOSE_BOSS_REWARD', dieId: fs.dice[0].id, slot: 'dice' })
-    else {
-      if (fs.realm === 'firmament') want(`fshop:${fs.shop.type}`, fs)
-      if (fs.map && !fs.map.pendingId) {
-        const choices = nextChoices(fs.map)
-        const fresh = choices.find((c) => !found[`fshop:${c.type}`]) ?? choices[0]
-        if (fresh) fs = gameReducer(fs, { type: 'CHOOSE_PATH', nodeId: fresh.id })
+// Several seeded Firmament walks, so the rarer shops (Mote's Pantry, the Astral Exchange) turn up too.
+for (let n = 0; n < 40; n++) {
+  let fs = { ...ffiles[0].run, seed: n === 0 ? ffiles[0].run.seed : `FIR${n}`, difficulty: { ...ffiles[0].run.difficulty, thresholdBase: 1, thresholdGrowth: 1 }, threshold: 1 }
+  for (let i = 0; i < 120 && fs.round <= 28; i++) {
+    if (fs.phase === 'rolling') fs = gameReducer({ ...fs, threshold: 1 }, { type: 'SUBMIT_ROUND' })
+    else if (fs.phase === 'crossroads') {
+      if (n === 0) want('crossroads', fs)
+      fs = gameReducer(fs, { type: 'ENTER_FIRMAMENT', set: selectors.firmamentSets(fs)[0] })
+    } else if (fs.phase === 'shop' || fs.phase === 'bossReward') {
+      if (fs.phase === 'bossReward') fs = gameReducer(fs, { type: 'CHOOSE_BOSS_REWARD', dieId: fs.dice[0].id, slot: 'dice' })
+      else {
+        if (fs.realm === 'firmament') want(`fshop:${fs.shop.type}`, fs)
+        if (fs.map && !fs.map.pendingId) {
+          const choices = nextChoices(fs.map)
+          const fresh = choices.find((c) => !found[`fshop:${c.type}`]) ?? choices[0]
+          if (fresh) fs = gameReducer(fs, { type: 'CHOOSE_PATH', nodeId: fresh.id })
+        }
+        fs = gameReducer(fs, { type: 'NEXT_ROUND' })
       }
+    } else break
+  }
+}
+
+
+// Shops the walks never rolled (Mote's Pantry, the Astral Exchange): re-type the next stop of a
+// Firmament run to that shop and step in, so the real reducer builds the shop.
+for (const typeId of ['pantry', 'astral']) {
+  if (found[`fshop:${typeId}`]) continue
+  let fs = { ...ffiles[0].run, difficulty: { ...ffiles[0].run.difficulty, thresholdBase: 1, thresholdGrowth: 1 }, threshold: 1 }
+  for (let i = 0; i < 120; i++) {
+    if (fs.phase === 'rolling') fs = gameReducer({ ...fs, threshold: 1 }, { type: 'SUBMIT_ROUND' })
+    else if (fs.phase === 'crossroads') fs = gameReducer(fs, { type: 'ENTER_FIRMAMENT', set: selectors.firmamentSets(fs)[0] })
+    else if (fs.phase === 'bossReward') fs = gameReducer(fs, { type: 'CHOOSE_BOSS_REWARD', dieId: fs.dice[0].id, slot: 'dice' })
+    else if (fs.phase === 'shop' && fs.realm === 'firmament') {
+      const map = JSON.parse(JSON.stringify(fs.map))
+      const choice = nextChoices(map)[0]
+      const walk = (o) => {
+        if (o && typeof o === 'object') {
+          if (o.id === choice.id && 'type' in o) o.type = typeId
+          Object.values(o).forEach(walk)
+        }
+      }
+      walk(map)
+      fs = gameReducer({ ...fs, map }, { type: 'CHOOSE_PATH', nodeId: choice.id })
       fs = gameReducer(fs, { type: 'NEXT_ROUND' })
-    }
-  } else break
+      while (fs.phase === 'rolling') fs = gameReducer({ ...fs, threshold: 1 }, { type: 'SUBMIT_ROUND' })
+      if (fs.phase === 'bossReward') fs = gameReducer(fs, { type: 'CHOOSE_BOSS_REWARD', dieId: fs.dice[0].id, slot: 'dice' })
+      if (fs.phase === 'shop' && fs.shop.type === typeId) want(`fshop:${typeId}`, fs)
+      break
+    } else if (fs.phase === 'shop') fs = gameReducer(fs, { type: 'NEXT_ROUND' })
+    else break
+  }
 }
 
 mkdirSync(fileURLToPath(new URL('./room-test-saves/', import.meta.url)), { recursive: true })

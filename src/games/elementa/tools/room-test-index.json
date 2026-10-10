@@ -98,5 +98,15 @@
   "phase": "shop",
   "round": 27,
   "shop": "cartography"
+ },
+ "fshop:pantry": {
+  "phase": "shop",
+  "round": 16,
+  "shop": "pantry"
+ },
+ "fshop:astral": {
+  "phase": "shop",
+  "round": 16,
+  "shop": "astral"
  }
 }
