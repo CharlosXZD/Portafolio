@@ -7,7 +7,7 @@ import { Bubbles, Flame, Sway, Twinkles } from '../props.jsx'
 const SKY = ['#120d24', '#1f1535', '#34203f', '#4f2944', '#733545', '#9c4a43', '#c46a45']
 const STARS = [[30, 28, 0.2, true], [44, 34, 1.1], [58, 30, 2], [70, 40, 0.6], [36, 46, 1.6], [76, 30, 2.4, true], [64, 52, 0.9]]
 
-function Back() {
+function Back({ shop }) {
   return (
     <>
       <rect width="320" height="128" fill="#2e1c26" />
@@ -15,11 +15,16 @@ function Back() {
       <Beam />
       <Window x={27} y={25} w={58} h={54} sky={SKY} />
       <Plant x={30} y={72} />
+      {!shop && (
+        <>
       <Shelf x={104} y={64} w={122} />
       <Books x={108} y={64} />
       <Jar x={128} y={52} />
       <Jar x={146} y={52} fill="#ffe27a" level={0.2} />
       <Candle x={198} y={64} />
+
+        </>
+      )}
       <Notice x={236} y={24} />
       <Herbs x={176} y={14} />
       <Herbs x={64} y={10} c="#a6e57a" len={10} />

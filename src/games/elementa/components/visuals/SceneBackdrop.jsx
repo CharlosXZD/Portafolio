@@ -52,7 +52,7 @@ export default function SceneBackdrop({ state, scene }) {
   return (
     <Fallback key={room.id} fallback={old}>
       <Suspense fallback={old}>
-        <RoomStage roomId={room.id} realm={room.realm} tone={room.tone} meter={room.meter} dim={room.id === 'crossroads' ? 1.7 : room.shop ? 0.6 : 1} />
+        <RoomStage roomId={room.id} realm={room.realm} tone={room.tone} meter={room.meter} shop={room.shop} pullback={room.shop} dim={room.id === 'crossroads' ? 1.7 : room.shop ? 0.6 : 1} />
       </Suspense>
     </Fallback>
   )

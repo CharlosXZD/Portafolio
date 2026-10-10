@@ -3,10 +3,12 @@ import { Barrel, Crate, Floor, Herbs, Jar, Planks, Pulse, Sack, Shelf, Sway, Wat
 // The Pantry (Mote): a dim larder of jars and sacks. A small watching Void
 // sits in the dark corner; it brightens as Mote's meter fills (the stage's
 // `void` var, 0 to 1, set by the shop).
-function Back({ meter = 0 }) {
+function Back({ meter = 0, shop }) {
   return (
     <>
       <Planks a="#1a1624" b="#1e1a2a" line="#100c18" hi="#2a2438" />
+      {!shop && (
+        <>
       <Shelf x={16} y={40} w={104} board="#3a2e4a" hi="#5a4a7a" bracket="#241c32" />
       <Jar x={22} y={26} fill="#8a7aa8" />
       <Jar x={38} y={26} fill="#6fd38a" />
@@ -17,6 +19,9 @@ function Back({ meter = 0 }) {
       <Jar x={22} y={66} fill="#b88cff" h={14} />
       <Jar x={42} y={66} fill="#ff9a3a" h={14} />
       <Jar x={62} y={66} fill="#8a7aa8" h={14} />
+
+        </>
+      )}
       <Floor a="#161220" b="#120e1a" line="#221c30" joint="#08060e" />
       <Sack x={130} y={108} />
       <Sack x={150} y={112} c="#8a7a5c" />

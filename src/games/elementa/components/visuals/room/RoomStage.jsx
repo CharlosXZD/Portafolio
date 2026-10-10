@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { useVisualEnv } from '../VisualEnv.jsx'
 import KeeperRig from '../rigs/KeeperRig.jsx'
 import { seeded } from './props.jsx'
-import { ROOM_LOADERS } from './rooms.js'
+import { ROOM_GROUND, ROOM_LOADERS } from './rooms.js'
 import './rooms.css'
 
 const W = 320
@@ -92,13 +92,13 @@ function Tint({ realm, calm }) {
   )
 }
 
-function RoomArt({ room, calm, realm, keeper, tone, meter }) {
+function RoomArt({ room, calm, realm, keeper, tone, meter, shop }) {
   const { Back, Ambient, Front, motes } = room
   const lights = typeof room.lights === 'function' ? room.lights(tone, meter) : room.lights
   return (
     <>
       <svg className="r-layer" viewBox={`0 0 ${W} ${H}`} width={W} height={H} shapeRendering="crispEdges" aria-hidden="true">
-        <Back realm={realm} tone={tone} meter={meter} />
+        <Back realm={realm} tone={tone} meter={meter} shop={shop} />
       </svg>
       <Lights lights={lights ?? []} calm={calm} />
       {!calm && Ambient && (
@@ -131,7 +131,7 @@ function RoomArt({ room, calm, realm, keeper, tone, meter }) {
  * Reduced motion switches every loop off; the low-end tier draws only the
  * static layers.
  */
-export default function RoomStage({ roomId, realm = 'elementa', tone, meter = 0, framed = false, dim = 1, keeper = null, onCount }) {
+export default function RoomStage({ roomId, realm = 'elementa', tone, meter = 0, shop = false, pullback = false, framed = false, dim = 1, keeper = null, onCount }) {
   const { reduced, quality } = useVisualEnv()
   const calm = quality === 'low'
   const rootRef = useRef(null)
@@ -161,10 +161,15 @@ export default function RoomStage({ roomId, realm = 'elementa', tone, meter = 0,
     left = Math.max(0, (box.w - W * scale) / 2)
   }
   else {
-    scale = box.w >= 700 ? Math.ceil(Math.max(box.w / W, box.h / H)) : box.h / H
+    // A shop pulls the camera back: the picture is drawn smaller and the wall and floor carry on beside it.
+    scale = pullback && box.w >= 700 ? Math.max(2, Math.floor(Math.min(box.w / W, box.h / H) * 0.8)) : box.w >= 700 ? Math.ceil(Math.max(box.w / W, box.h / H)) : box.h / H
     left = (box.w - W * scale) / 2
     top = (box.h - H * scale) / 2
   }
+  const ground = pullback && !framed ? ROOM_GROUND[roomId] : null
+  const groundStyle = ground
+    ? { background: `linear-gradient(to bottom, ${ground.ceil} 0 ${top}px, ${ground.wall} ${top}px ${top + 124 * scale}px, ${ground.floor} ${top + 124 * scale}px 100%)` }
+    : null
 
   // Tell the Lab how many animations the room is running (after it has mounted).
   useEffect(() => {
@@ -181,12 +186,12 @@ export default function RoomStage({ roomId, realm = 'elementa', tone, meter = 0,
       data-framed={framed ? '' : undefined}
       data-reduced={reduced ? '' : undefined}
       data-calm={calm ? '' : undefined}
-      style={framed ? { height: H * scale } : undefined}
+      style={framed ? { height: H * scale } : groundStyle ?? undefined}
       aria-hidden={framed ? undefined : 'true'}
     >
-      <div className="r-stage" style={{ transform: `translate(${left}px, ${top}px) scale(${scale})` }}>
+      <div className="r-stage" data-pullback={ground ? '' : undefined} style={{ transform: `translate(${left}px, ${top}px) scale(${scale})` }}>
         <Suspense fallback={null}>
-          <RoomLoaded Room={Room} calm={calm} realm={realm} keeper={keeper} tone={tone} meter={meter} />
+          <RoomLoaded Room={Room} calm={calm} realm={realm} keeper={keeper} tone={tone} meter={meter} shop={shop} />
         </Suspense>
         {dim > 0 && <div className="r-dim" style={{ '--dim-core': 0.5 * dim, '--dim-mid': 0.32 * dim, '--dim-top': framed ? 0 : 0.3 * dim, opacity: 1 }} />}
       </div>
@@ -195,6 +200,6 @@ export default function RoomStage({ roomId, realm = 'elementa', tone, meter = 0,
 }
 
 // A room module exports its art as the default export of a lazy chunk; this wrapper reads it.
-function RoomLoaded({ Room, calm, realm, keeper, tone, meter }) {
-  return <Room>{(room) => <RoomArt room={room} calm={calm} realm={realm} keeper={keeper} tone={tone} meter={meter} />}</Room>
+function RoomLoaded({ Room, calm, realm, keeper, tone, meter, shop }) {
+  return <Room>{(room) => <RoomArt room={room} calm={calm} realm={realm} keeper={keeper} tone={tone} meter={meter} shop={shop} />}</Room>
 }

@@ -635,6 +635,9 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
   const diceCount = selectors.poolSize(state.dice)
   const diceFull = diceCount >= diceCap
 
+  // Boards (the Forge, the Brew, deals, blessings, services, the Pantry, a sigil offer) stand beside the keeper, not below the counter.
+  const hasBoards = Boolean(shop.sigilOffer || shop.forgeOpen || type.upgrades || type.brew || type.services || type.pantry || shop.deals?.length > 0 || shop.blessings?.length > 0)
+
   function buy(action) {
     // a BUY_ action rings the coin through the room's 'buy' event (visuals/room/roomSounds.js)
     if (!/^BUY_/.test(action.type)) playCoin()
@@ -644,14 +647,10 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
 
   return (
     <div className="shop-scene" style={sceneVars(type.id, type.color)} data-calm={calm ? '' : undefined}>
-    <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-8 pt-10 lg:grid-cols-[312px_minmax(0,1fr)_262px] lg:items-start lg:gap-8">
+    <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-8 pt-10 lg:grid-cols-[264px_minmax(0,1fr)_226px] lg:items-start lg:gap-6">
       {/* Left: your pouch (what you own). A drawer on a phone. */}
       <Drawer label={t('elementa.shop.pouch')} className="order-last lg:order-none lg:self-start">
       <Pouch data-tut="inventory" className="flex flex-col gap-5">
-        <div className="obj-ticket">
-          <RoundResult state={state} compact />
-        </div>
-
         <InventorySection label={t('elementa.shop.yourDice')} count={diceCount} cap={diceCap}>
           <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.shop.dragToReorder')}</p>
           <DiceGrid
@@ -814,9 +813,16 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
       </Pouch>
       </Drawer>
 
-      {/* Center: the room. The sign, the wall shelf, the keeper behind the counter, the counter. */}
-      <div className="flex min-w-0 flex-col items-center gap-9">
+      {/* Center: the room. The sign, the wall shelf, the keeper behind the counter and the counter; boards (the Forge and the rest) stand beside them. */}
+      <div className="flex min-w-0 flex-col items-center gap-5 lg:self-start">
+        <div className="flex w-full flex-col items-center gap-4 lg:flex-row lg:items-start lg:justify-center">
+          <div className="obj-ticket w-full max-w-[230px] lg:order-first lg:w-[210px] lg:shrink-0">
+            <RoundResult state={state} compact />
+          </div>
         <ShopBanner label={shopNameIn(state, type, lang)} color={type.color} />
+        </div>
+        <div className={hasBoards ? 'grid w-full gap-6 lg:grid-cols-[minmax(0,350px)_minmax(0,1fr)] lg:items-start' : 'flex w-full flex-col items-center gap-5'}>
+          <div className="flex min-w-0 flex-col items-center gap-5">
         {type.items > 0 && (
         <OfferShelf
           place="shelf"
@@ -952,7 +958,8 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
           {!(type.dice > 0) && <Counter plate={shopNameIn(state, type, lang)} />}
         </div>
         {arbiterShop && <ArbiterSays text={arbiterShop.text} tone={arbiterShop.tone} />}
-
+            {!hasBoards && (
+              <>
         <AnimatePresence>
           {(armedConsumable || armedPurchase) && (
             <motion.div
@@ -1024,6 +1031,85 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
 
         {shop.blessings?.length > 0 && <BlessingShelf state={state} dispatch={dispatch} />}
 
+              </>
+            )}
+          </div>
+          {hasBoards && (
+            <div className="flex min-w-0 flex-col items-center gap-6">
+        <AnimatePresence>
+          {(armedConsumable || armedPurchase) && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              className="obj-ticket flex items-center gap-4"
+            >
+              <span className="text-base font-bold text-[var(--gold-hi)]">
+                {inscribe.graftFrom ? t('elementa.inscribe.graftTo') : t('elementa.shop.chooseDieToApply')}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setArmedConsumable(null)
+                  setArmedPurchase(null)
+                  inscribe.reset()
+                }}
+                className="el-btn el-btn--sm"
+              >
+                {t('elementa.shop.cancel')}
+                <span className="el-key">Esc</span>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* A keeper's sigil die (EXPANSION.md P3), about one visit in four. */}
+        {shop.sigilOffer && (
+          <OfferShelf title={t('elementa.shop.sigil')} hint={`${t(`elementa.shop.sigilKeeper_${ELEMENTS[shop.sigilOffer].sigilSet}`)} ${t('elementa.shop.sigilHint')}`}>
+            {(() => {
+              const elementId = shop.sigilOffer
+              const cost = selectors.sigilCost(elementId, state.relics, shop)
+              const sigilDie = { id: `offer-${elementId}`, elementId, tierId: 'sigil', sides: 6, symbol: ELEMENTS[elementId].sigilSet && SIGIL_FACES[ELEMENTS[elementId].sigilSet][0] }
+              const fits = selectors.fitsPool(state, [...state.dice, sigilDie])
+              const item = dieDescriptor(elementId, lang)
+              return (
+                <IconSlot
+                  key={elementId}
+                  itemKey={`sigiloffer-${elementId}`}
+                  item={{ ...item, sides: 6 }}
+                  renderIcon={(onClick) => <DieToken die={sigilDie} size={72} onClick={onClick} title={item.name} />}
+                  cost={cost}
+                  affordable={state.shards >= cost}
+                  actions={[{ label: buyLabel(cost), disabled: state.shards < cost || !fits, onClick: () => buy({ type: 'BUY_SIGIL', elementId }) }]}
+                  openKey={openKey}
+                  onOpenChange={setOpenKey}
+                />
+              )
+            })()}
+          </OfferShelf>
+        )}
+
+
+        {/* The Forge's four slots (EXPANSION.md K3): any Forge, or a Fusion Spark. */}
+        {shop.forgeOpen && <ForgePanel state={state} dispatch={dispatch} />}
+
+        {type.upgrades && (
+          <UpgradeShelf state={state} dispatch={dispatch} openKey={openKey} setOpenKey={setOpenKey} buy={buy} />
+        )}
+
+        {type.brew && <BrewShelf state={state} dispatch={dispatch} />}
+
+        {type.services && <ServiceShelf state={state} dispatch={dispatch} />}
+
+        {type.pantry && <PantryShelf state={state} dispatch={dispatch} />}
+
+        {shop.deals?.length > 0 && <DealShelf state={state} dispatch={dispatch} />}
+
+        {shop.blessings?.length > 0 && <BlessingShelf state={state} dispatch={dispatch} />}
+
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Right: the map table. The Road on a slate, the purse, the plaques, the lever and the bell pull. A drawer on a phone. */}
@@ -1059,9 +1145,9 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
                   playClick()
                   dispatch({ type: 'CHOOSE_PATH', nodeId })
                 }}
-                width={184}
-                rowHeight={46}
-                nodeSize={34}
+                width={168}
+                rowHeight={42}
+                nodeSize={30}
               />
             </Slate>
             <p className="obj-ticket min-h-[3rem] w-full text-center text-sm leading-snug">

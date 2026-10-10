@@ -47,3 +47,24 @@ export const ROOM_INFO = {
 
 export const ROOM_IDS = Object.keys(ROOM_LOADERS)
 export const REALMS = ['elementa', 'firmament', 'empyrean', 'pleroma', 'meridian']
+
+/**
+ * What the room is made of beyond its 320 by 180 picture (VISUALS.md V4 fixes): the wall, ceiling and
+ * floor colors, so the stage can be drawn smaller ("the camera pulled back") and the wall and floor
+ * simply carry on at the same height on both sides. The picture fades into them at its edges.
+ */
+export const ROOM_GROUND = {
+  market: { wall: '#2e1c26', ceil: '#1c1018', floor: '#3b2215' },
+  forge: { wall: '#3a2c34', ceil: '#1d1218', floor: '#2a1c20' },
+  alchemist: { wall: '#1e2a2a', ceil: '#101a1a', floor: '#1b2420' },
+  vault: { wall: '#2c2a44', ceil: '#16142a', floor: '#26233a' },
+  blackmarket: { wall: '#17142a', ceil: '#0b0916', floor: '#110f20' },
+  shrine: { wall: '#3a4a6a', ceil: '#202c48', floor: '#33425e' },
+  bazaar: { wall: '#2a1f4a', ceil: '#150f2c', floor: '#2a2048' },
+  astral: { wall: '#140e32', ceil: '#0a0820', floor: '#1a1236' },
+  cartography: { wall: '#2a2a30', ceil: '#1c2a36', floor: '#26262e' },
+  clockwork: { wall: '#2a2218', ceil: '#1c160e', floor: '#241d12' },
+  observatory: { wall: '#121c44', ceil: '#0b1230', floor: '#1a2248' },
+  pantry: { wall: '#1a1624', ceil: '#100c18', floor: '#161220' },
+  camp: { wall: '#161230', ceil: '#0c0a1c', floor: '#1c1626' },
+}

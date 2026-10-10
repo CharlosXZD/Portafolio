@@ -149,3 +149,11 @@
 .r-erase { animation: r-erase var(--dur, 14s) step-end infinite; animation-delay: var(--delay, 0s); }
 .r-root[data-reduced] .r-draw,
 .r-root[data-reduced] .r-erase { animation: none; opacity: 1; }
+
+/* a pulled-back stage fades into the wall and floor that carry on beside it */
+.r-stage[data-pullback] {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 100%);
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}

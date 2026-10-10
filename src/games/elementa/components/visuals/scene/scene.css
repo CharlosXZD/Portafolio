@@ -128,7 +128,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 12px;
+  padding: 0 7px;
 }
 .slot__item {
   position: relative;
@@ -217,6 +217,7 @@
 
 /* ---------------- the stage: the keeper behind the counter, the greeting sign ---------------- */
 .stage {
+  container-type: inline-size;
   position: relative;
   z-index: 1;
   display: flex;
@@ -707,3 +708,13 @@ body.scene-open [data-tut-inspector] .border-t-2 {
 }
 .obj-scroll::before { top: -10px; }
 .obj-scroll::after { bottom: -10px; }
+
+/* a narrow stage (the boards stand beside it): the sign stays beside the keeper, a little smaller */
+@container (max-width: 470px) {
+  .stage__row { padding: 0 6px; column-gap: 8px; }
+  .stage__sign { margin-top: 14px; margin-bottom: 8px; }
+  .obj-sign { padding: 8px 10px 7px; }
+  .obj-sign__text { font-size: 15px; line-height: 1.2; }
+  .obj-sign__foot { font-size: 12px; margin-top: 5px; padding-top: 3px; flex-wrap: wrap; gap: 2px 8px; }
+}
+.obj-counter__top { gap: 8px 18px; }

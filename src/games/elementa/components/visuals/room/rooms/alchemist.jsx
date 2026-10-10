@@ -2,12 +2,14 @@ import { Beam, Bottle, Bubbles, Cauldron, Floor, Herbs, Jar, Owl, Planks, Pulse,
 
 // The Alchemist (Vessa): a green-lit workroom. A cauldron that bubbles, shelves
 // of bottles, a stuffed owl, hanging herbs and flasks that shift color.
-function Back() {
+function Back({ shop }) {
   return (
     <>
       <Planks a="#1e2a2a" b="#22302f" line="#142020" hi="#2e403e" />
       <Beam a="#2a1c14" hi="#4a3424" />
       <Window x={236} y={22} w={44} h={50} sky={['#0c1a1c', '#12302e', '#1d4a40', '#2e7a62']} frame="#4a3424" sill="#5a4030" id="alch" />
+      {!shop && (
+        <>
       <Shelf x={20} y={44} w={92} />
       <Bottle x={26} y={30} fill="#3d8fe5" />
       <Bottle x={38} y={30} fill="#d95a8a" h={16} />
@@ -19,6 +21,9 @@ function Back() {
       <Bottle x={44} y={64} fill="#6fd38a" h={14} />
       <Jar x={60} y={66} fill="#5fb0d6" />
       <Owl x={92} y={64} />
+
+        </>
+      )}
       <Floor a="#1b2420" b="#171f1c" line="#26332d" joint="#0c1210" />
       <Table x={196} y={106} w={52} h={26} top="#5a4030" leg="#3a281c" />
       <Bottle x={206} y={92} fill="#d95a8a" />
