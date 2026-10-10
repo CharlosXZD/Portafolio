@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import { mix } from '../utils/color.js'
+import { bossColor } from '../data/bossModifiers.js'
 
 /**
  * Placeholder boss portraits (GDD §26): a symmetric 12x12 pixel creature
@@ -8,44 +9,6 @@ import { mix } from '../utils/color.js'
  * a hand-drawn portrait replaces it. Ermal gets a sleepy face, naturally.
  */
 const G = 12
-const COLORS = {
-  calm_winds: '#9fe8e0',
-  grounded: '#8a6a3d',
-  iron_grip: '#9aa0a6',
-  drought: '#e0b060',
-  tax_collector: '#f2c94c',
-  scatter: '#b28df2',
-  ermal: '#5fd38a',
-  null_zone: '#5b5f7a',
-  gravity_well: '#6a4fd6',
-  the_pillar: '#c8b6ff',
-  frostbite: '#7dd3fc',
-  eclipse: '#2b2b33',
-  silence: '#8a8fa0',
-  primordial: '#ff5a5a',
-  // The gods of the Primordial path's gauntlet (B1).
-  gaea: '#b8894a',
-  ognen: '#ff5a1a',
-  varuna: '#2f7fe0',
-  zephyr: '#dff3ff',
-  // The Wardens of the Firmament (EXPANSION.md H2).
-  dawn: '#ffe27a',
-  umbra: '#4a3a78',
-  clockwork: '#c9a46b',
-  expanse: '#5a7cff',
-  maelstrom: '#ff3fa4',
-  hollow: '#6b5a8a',
-  // The Rewriters of realm 3 (EXPANSION.md R2).
-  axiom: '#ffe9a0',
-  zero: '#9a9ab0',
-  infinity: '#8ad0ff',
-  observer: '#ff9ad0',
-  floating: '#d8d8f0',
-  deadlock: '#c9a46b',
-  // The Convergence (T3, T4).
-  pip: '#b88cff',
-  you: '#f4f0fa',
-}
 
 function rng(seedStr) {
   let h = 2166136261
@@ -100,7 +63,7 @@ function build(id) {
 }
 
 function BossAvatar({ id, size = 48, unknown = false }) {
-  const color = COLORS[id] ?? '#ff5a5a'
+  const color = bossColor(id)
   const palette = unknown
     ? { k: '#120c1a', a: '#3a3048', b: '#2a2338' }
     : { k: '#120c1a', a: mix(color, '#ffffff', 0.15), b: mix(color, '#120c1a', 0.35) }

@@ -188,7 +188,7 @@ export default function RoomStage({ roomId, realm = 'elementa', tone, meter = 0,
         <Suspense fallback={null}>
           <RoomLoaded Room={Room} calm={calm} realm={realm} keeper={keeper} tone={tone} meter={meter} />
         </Suspense>
-        {dim > 0 && <div className="r-dim" style={{ '--dim-core': 0.5 * dim, '--dim-mid': 0.32 * dim, opacity: 1 }} />}
+        {dim > 0 && <div className="r-dim" style={{ '--dim-core': 0.5 * dim, '--dim-mid': 0.32 * dim, '--dim-top': framed ? 0 : 0.3 * dim, opacity: 1 }} />}
       </div>
     </div>
   )

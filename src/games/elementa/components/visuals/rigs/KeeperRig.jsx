@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react'
 import { useVisualEnv } from '../VisualEnv.jsx'
-import { BODY_ROWS, CONCLAVE_IDS, RIG_KEEPERS } from './rigData.js'
+import { ARM_ROWS, CONCLAVE_IDS, FACE_ROWS, KEEPER_PROPS, RIG_KEEPERS, TORSO_ROWS } from './rigData.js'
+import { mix } from '../../../utils/color.js'
 import './rig.css'
 
 // Draws a grid of characters as merged runs of <rect>, skipping cells for which `skip` is true.
@@ -22,7 +23,10 @@ function runs(rows, palette, y0, skip) {
 }
 
 /**
- * A keeper as stacked SVG layers (VISUALS.md V1 spike 3, V3.4): chest, head,
+ * A keeper as stacked SVG layers (VISUALS.md V1 spike 3, V3.4, V3.1): a bust
+ * of neck, shoulders, torso and two arms with hands (the right one holds a
+ * small prop and does the keeper's work: stirring, tapping, flipping a coin,
+ * reading), under the head, headpiece,
  * headpiece, accent (the flame hair, the halo, the horns), eyes, eyelids,
  * closed and open mouth. Idle breathing (the head settles one art pixel), a
  * blink every few seconds, a talking mouth while `talking`, eyes that glance
@@ -36,14 +40,20 @@ function runs(rows, palette, y0, skip) {
 function Rig({ id = 'brasa', size, scale = 8, native = 14, talking = false, look = 'center', react = null, reactKey = 0, blinkOnly = false, className = '', style }) {
   const { reduced } = useVisualEnv()
   const def = RIG_KEEPERS[id] ?? RIG_KEEPERS.brasa
-  const { palette } = def
+  const palette = useMemo(() => ({ ...def.palette, s: mix(def.palette.c, def.palette.k, 0.35) }), [def])
   const layers = useMemo(() => {
-    const body = BODY_ROWS(def.mouth)
+    const face = FACE_ROWS(def.mouth)
     const isMouth = (x, y) => y === 8 && x >= 3 && x <= 10
-    const faceRows = body.slice(0, 5).map((row, i) => (i === 1 ? row.replace(/[we]/g, 'a') : i === 3 ? '..kaaaaaaaaak.' : row))
+    const faceRows = face.slice(0, 5).map((row, i) => (i === 1 ? row.replace(/[we]/g, 'a') : i === 3 ? '..kaaaaaaaaak.' : row))
     const accent = def.quirk === 'flame' || def.quirk === 'halo' || def.quirk === 'horns'
+    const prop = KEEPER_PROPS[id] ?? KEEPER_PROPS.tobb
     return {
-      chest: runs(body.slice(5), palette, 10),
+      work: prop.work,
+      chin: runs([face[5]], palette, 10),
+      torso: runs(TORSO_ROWS, palette, 11),
+      armL: runs(ARM_ROWS.left, palette, 13),
+      armR: runs(ARM_ROWS.right, palette, 13),
+      prop: prop.props.map(([x, y, w, h, fill], i) => <rect key={i} x={x} y={y} width={w} height={h} fill={fill} />),
       hat: runs(def.head, palette, 0, accent ? (x, y, ch) => ch === 'c' : undefined),
       accent: accent ? runs(def.head.map((r) => r.replace(/[^c]/g, '.')), palette, 0) : null,
       face: runs(faceRows, palette, 5),
@@ -63,26 +73,38 @@ function Rig({ id = 'brasa', size, scale = 8, native = 14, talking = false, look
         <rect key="o2" x="6" y="9" width="2" height="1.02" fill={palette.e === '#120c1a' ? '#5a2a22' : palette.k} />,
       ],
     }
-  }, [def, palette])
+  }, [def, palette, id])
 
   return (
     <svg
-      viewBox="0 0 14 14"
+      viewBox="0 0 14 18"
       width={size ?? native * scale}
-      height={size ?? native * scale}
+      height={((size ?? native * scale) * 18) / 14}
       shapeRendering="crispEdges"
       className={`v-rig ${className}`}
       data-talking={talking && !reduced ? '' : undefined}
       data-look={look}
       data-quirk={def.quirk}
+      data-work={layers.work}
       data-reduced={reduced ? '' : undefined}
       data-blink-only={blinkOnly ? '' : undefined}
       style={style}
       role="img"
       aria-label={id}
     >
-      <g>{layers.chest}</g>
       <g key={reactKey} className="v-rig__beat" data-react={react && !reduced ? react : undefined}>
+        <g className="v-rig__body">
+          <g>{layers.chin}</g>
+          <g>{layers.torso}</g>
+          <g className="v-rig__armL">{layers.armL}</g>
+          <g className="v-rig__armR">
+            <g className="v-rig__work">
+              {layers.armR}
+              {layers.work !== 'read' && <g className="v-rig__prop">{layers.prop}</g>}
+            </g>
+          </g>
+          {layers.work === 'read' && <g className="v-rig__prop">{layers.prop}</g>}
+        </g>
         <g className="v-rig__nod">
           <g className="v-rig__head">
             <g>{layers.face}</g>
@@ -102,7 +124,7 @@ function Rig({ id = 'brasa', size, scale = 8, native = 14, talking = false, look
 /** One keeper by id; the Conclave is six of them side by side, as in the sprite. */
 function KeeperRig({ id = 'brasa', size, scale = 8, native = 14, ...rest }) {
   if (id === 'conclave') {
-    const small = Math.round((size ?? native * scale) * 0.55)
+    const small = Math.max(14, Math.round(((size ?? native * scale) * 0.55) / 14) * 14)
     return (
       <span className="inline-flex items-end" style={{ gap: 2 }}>
         {CONCLAVE_IDS.map((k) => (

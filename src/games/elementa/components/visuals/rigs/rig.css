@@ -53,7 +53,45 @@
 .v-rig[data-quirk='horns'] .v-rig__accent {
   animation: v-horns 6s step-end infinite;
 }
+/* ---------- The body (V3.1): breathing shoulders and the arms' work ---------- */
+.v-rig__body {
+  animation: v-breathe var(--breathe, 4.8s) step-end infinite;
+  animation-delay: 0.28s;
+}
+.v-rig__armR { transform-origin: 11.5px 13px; }
+.v-rig__armL { transform-origin: 2.5px 13px; }
+.v-rig__work { transform-origin: 11.5px 13px; }
+.v-rig[data-work='stir'] .v-rig__work { animation: v-stir 1.6s step-end infinite; }
+.v-rig[data-work='tap'] .v-rig__work { animation: v-tap 2.6s step-end infinite; }
+.v-rig[data-work='rub'] .v-rig__work { animation: v-rub 3.4s step-end infinite; }
+.v-rig[data-work='flip'] .v-rig__prop { animation: v-flip 2.2s step-end infinite; }
+.v-rig[data-work='read'] .v-rig__prop { animation: v-read 5s step-end infinite; }
+.v-rig[data-work='tick'] .v-rig__prop { animation: v-glint 2s step-end infinite; }
+.v-rig[data-work='glint'] .v-rig__prop { animation: v-glint 3.2s step-end infinite; }
+.v-rig[data-work='scroll'] .v-rig__work { animation: v-read 4.4s step-end infinite; }
+/* Reaction beats use the arms too: a raised hand when you pick or sell, both arms up when you buy, a shrug when you cannot afford it. */
+.v-rig__beat[data-react='nod'] .v-rig__armR { animation: v-raise-small 0.66s step-end 1; }
+.v-rig__beat[data-react='hop'] .v-rig__armR { animation: v-cheer 0.5s step-end 1; }
+.v-rig__beat[data-react='hop'] .v-rig__armL { animation: v-cheer-left 0.5s step-end 1; }
+.v-rig__beat[data-react='shake'] .v-rig__armR { animation: v-shrug-right 0.6s step-end 1; }
+.v-rig__beat[data-react='shake'] .v-rig__armL { animation: v-shrug-left 0.6s step-end 1; }
+@keyframes v-stir { 0% { transform: rotate(-9deg); } 25% { transform: rotate(0deg); } 50% { transform: rotate(9deg); } 75% { transform: rotate(0deg); } }
+@keyframes v-tap { 0%, 70% { transform: rotate(0deg); } 76% { transform: rotate(-16deg); } 84% { transform: rotate(4deg); } 92% { transform: rotate(0deg); } }
+@keyframes v-rub { 0%, 60% { transform: translate(0, 0); } 70% { transform: translate(-1px, 0); } 80% { transform: translate(0, 0); } 90% { transform: translate(-1px, 0); } }
+@keyframes v-flip { 0%, 60% { transform: translateY(0); } 68% { transform: translateY(-3px); } 76% { transform: translateY(-4px); } 84% { transform: translateY(-2px); } 92% { transform: translateY(0); } }
+@keyframes v-read { 0%, 80% { transform: translateY(0); } 86% { transform: translateY(1px); } 94% { transform: translateY(0); } }
+@keyframes v-glint { 0%, 70% { opacity: 1; } 76%, 86% { opacity: 0.45; } 92% { opacity: 1; } }
+@keyframes v-raise-small { 0% { transform: rotate(-22deg); } 55% { transform: rotate(-10deg); } 80% { transform: rotate(0deg); } }
+@keyframes v-cheer { 0% { transform: rotate(-70deg); } 50% { transform: rotate(-50deg); } 80% { transform: rotate(-20deg); } }
+@keyframes v-cheer-left { 0% { transform: rotate(70deg); } 50% { transform: rotate(50deg); } 80% { transform: rotate(20deg); } }
+@keyframes v-shrug-right { 0% { transform: translateY(-1px) rotate(-14deg); } 70% { transform: translateY(-1px) rotate(-8deg); } }
+@keyframes v-shrug-left { 0% { transform: translateY(-1px) rotate(14deg); } 70% { transform: translateY(-1px) rotate(8deg); } }
 /* The low-end tier keeps only the blink. */
+.v-rig[data-blink-only] .v-rig__body,
+.v-rig[data-blink-only] .v-rig__armL,
+.v-rig[data-blink-only] .v-rig__armR,
+.v-rig[data-blink-only] .v-rig__work,
+.v-rig[data-blink-only] .v-rig__prop,
 .v-rig[data-blink-only] .v-rig__head,
 .v-rig[data-blink-only] .v-rig__hat,
 .v-rig[data-blink-only] .v-rig__accent {

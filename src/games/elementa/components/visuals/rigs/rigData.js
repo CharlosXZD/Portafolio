@@ -65,18 +65,51 @@ export const RIG_KEEPERS = {
   },
 }
 
-// Rows 5 to 13 are the same for every keeper except the mouth row (8).
-export const BODY_ROWS = (mouth) => [
+// Rows 5 to 10 (the face down to the chin) are the same for every keeper except the mouth row (8).
+export const FACE_ROWS = (mouth) => [
   '.kkaaaaaaaakk.',
   '..kaweaaweaak.',
   '..kaaaaaaaaak.',
   mouth,
   '..kbaaaaaabk..',
   '...kbbbbbbk...',
-  '..kcccccccck..',
-  '.kcccccccccck.',
-  '.kkkkkkkkkkkk.',
 ]
+
+// The body under the head (V3.1): neck, shoulders and torso, rows 11 to 17 of an 14 by 18 bust.
+// c is the keeper's garment color, s its shade, d its detail color (the collar mark).
+export const TORSO_ROWS = [
+  '....kbbbbk....',
+  '..kkccddcckk..',
+  '.kcccccccccck.',
+  '..kcccccccck..',
+  '..kssssssssk..',
+  '..kcccccccck..',
+  '..kkkkkkkkkk..',
+]
+
+// The two arms, one grid each over the same 14 columns (rows 13 to 17): an upper arm at the
+// side, a forearm that bends in, and a hand (a) in front of the chest.
+export const ARM_ROWS = {
+  left: ['kcc...........', 'kcc...........', '.kcck.........', '..kaak........', '..kkkk........'],
+  right: ['...........cck', '...........cck', '.........kcck.', '........kaak..', '........kkkk..'],
+}
+
+// What each keeper does with their right hand (rects x, y, w, h, color) and how it moves.
+// `work`: stir (a spoon swirls), tap (a hammer), flip (a coin), read (a ledger), tick (a watch),
+// glint (a gem or star that pulses), rub (hands rub), scroll (a chart is unrolled).
+export const KEEPER_PROPS = {
+  tobb: { work: 'rub', props: [[10, 14, 2, 2, '#ffd166'], [10, 14, 2, 1, '#fff4d6']] },
+  vessa: { work: 'stir', props: [[12, 9, 1, 6, '#8a5a34'], [11, 8, 3, 2, '#bff0e6'], [11, 8, 1, 1, '#ffffff']] },
+  curator: { work: 'read', props: [[4, 14, 6, 3, '#4a3a8a'], [4, 14, 6, 1, '#c8b6ff'], [6, 15, 2, 1, '#ffe9a0']] },
+  brasa: { work: 'tap', props: [[12, 10, 1, 6, '#8a5a34'], [10, 9, 4, 2, '#9aa0a8'], [10, 9, 4, 1, '#d4d8de']] },
+  nix: { work: 'flip', props: [[10, 12, 2, 2, '#ffd166'], [10, 12, 1, 1, '#fff4d6']] },
+  aeris: { work: 'glint', props: [[6, 14, 2, 2, '#ffffff'], [5, 15, 4, 1, '#9fd8ff']] },
+  atlas: { work: 'scroll', props: [[8, 14, 5, 2, '#f2e6c8'], [8, 14, 1, 2, '#c49a74'], [12, 14, 1, 2, '#c49a74']] },
+  horologist: { work: 'tick', props: [[10, 12, 3, 3, '#c9a46b'], [11, 13, 1, 1, '#fff4d6'], [11, 12, 1, 1, '#120c1a']] },
+  mote: { work: 'glint', props: [[10, 13, 2, 2, '#ff4fd8']] },
+  seren: { work: 'glint', props: [[10, 12, 2, 2, '#ffe9a0'], [9, 13, 4, 1, '#ffe9a0'], [10, 11, 2, 4, '#ffe9a0']] },
+  vesper: { work: 'glint', props: [[10, 12, 3, 3, '#9fb8ff'], [11, 13, 1, 1, '#ffffff']] },
+}
 
 // The Aether Bazaar's host is every keeper side by side.
 export const CONCLAVE_IDS = ['tobb', 'vessa', 'curator', 'brasa', 'nix', 'aeris']

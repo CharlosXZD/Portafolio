@@ -260,3 +260,45 @@ export function isBossRound(round, difficulty) {
   if (difficulty?.allRoundsBoss) return round > 0
   return round > 0 && round % 5 === 0
 }
+
+// Each boss, god, Warden and Rewriter has a color (the avatar, and the boss stage room's tone, VISUALS.md V3.1).
+export const BOSS_COLORS = {
+  calm_winds: '#9fe8e0',
+  grounded: '#8a6a3d',
+  iron_grip: '#9aa0a6',
+  drought: '#e0b060',
+  tax_collector: '#f2c94c',
+  scatter: '#b28df2',
+  ermal: '#5fd38a',
+  null_zone: '#5b5f7a',
+  gravity_well: '#6a4fd6',
+  the_pillar: '#c8b6ff',
+  frostbite: '#7dd3fc',
+  eclipse: '#2b2b33',
+  silence: '#8a8fa0',
+  primordial: '#ff5a5a',
+  // The gods of the Primordial path's gauntlet (B1).
+  gaea: '#b8894a',
+  ognen: '#ff5a1a',
+  varuna: '#2f7fe0',
+  zephyr: '#dff3ff',
+  // The Wardens of the Firmament (EXPANSION.md H2).
+  dawn: '#ffe27a',
+  umbra: '#4a3a78',
+  clockwork: '#c9a46b',
+  expanse: '#5a7cff',
+  maelstrom: '#ff3fa4',
+  hollow: '#6b5a8a',
+  // The Rewriters of realm 3 (EXPANSION.md R2).
+  axiom: '#ffe9a0',
+  zero: '#9a9ab0',
+  infinity: '#8ad0ff',
+  observer: '#ff9ad0',
+  floating: '#d8d8f0',
+  deadlock: '#c9a46b',
+  // The Convergence (T3, T4).
+  pip: '#b88cff',
+  you: '#f4f0fa',
+}
+
+export const bossColor = (id) => BOSS_COLORS[id] ?? '#ff5a5a'

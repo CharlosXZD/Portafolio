@@ -368,7 +368,7 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
     return []
   }, [tab, lang, seen, t, profile])
 
-  const groups = useMemo(() => {
+  const groupsRaw = useMemo(() => {
     if (!['dice', 'relics', 'consumables'].includes(tab)) return [{ key: 'all', entries }]
     const lockedEntries = entries.filter((e) => e.locked)
     const unlocks = lockedEntries.length
@@ -424,6 +424,20 @@ export default function GalleryScreen({ slot, onBack, embedded = false }) {
       .filter((g) => g.entries.length > 0)
       .concat(unlocks)
   }, [tab, sort, entries, lang, t])
+
+  // Unseen entries are grouped neutrally (VISUALS.md V3.1): under a rarity or family
+  // header they would give away what they are, so they share one "???" group at the end.
+  const groups = useMemo(() => {
+    if (!['dice', 'relics', 'consumables'].includes(tab) || sort === 'name') return groupsRaw
+    const unseen = []
+    const out = groupsRaw
+      .map((g) => (g.key === 'unlocks' ? g : { ...g, entries: g.entries.filter((e) => (e.seen ? true : (unseen.push(e), false))) }))
+      .filter((g) => g.entries.length > 0)
+    if (unseen.length === 0) return out
+    unseen.sort((a, b) => String(a.key).localeCompare(String(b.key)))
+    const unlocks = out.filter((g) => g.key === 'unlocks')
+    return [...out.filter((g) => g.key !== 'unlocks'), { key: 'unseen', title: '???', entries: unseen }, ...unlocks]
+  }, [groupsRaw, tab, sort])
 
   const selected = entries.find((e) => e.key === selectedKey) ?? null
 

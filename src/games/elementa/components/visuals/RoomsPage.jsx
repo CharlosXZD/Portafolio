@@ -7,6 +7,7 @@ import { KEEPERS } from '../../data/keepers.js'
 import { VisualEnv } from './VisualEnv.jsx'
 import { useFps } from './useFps.js'
 import RoomStage from './room/RoomStage.jsx'
+import KeeperRig from './rigs/KeeperRig.jsx'
 import { ROOM_IDS, ROOM_INFO, REALMS } from './room/rooms.js'
 import { ROOM_EVENTS, emitRoom, onRoom } from './room/roomBus.js'
 import '../../elementa.css'
@@ -212,6 +213,17 @@ function Rooms() {
                 </li>
               ))}
             </ul>
+          </section>
+          <section className="el-panel el-panel--dark flex flex-col gap-3 p-4">
+            <h2 className="el-label">{lang === 'es' ? 'Los guardianes' : 'The keepers'}</h2>
+            <div className="flex flex-wrap items-end gap-6">
+              {['tobb', 'vessa', 'curator', 'brasa', 'nix', 'aeris', 'atlas', 'horologist', 'seren', 'mote', 'vesper'].map((id) => (
+                <div key={id} className="flex flex-col items-center gap-1">
+                  <KeeperRig id={id} size={84} talking={talking} look={look} react={beat.type} reactKey={beat.key} />
+                  <span className="pixel-score text-[8px] text-[var(--gold-hi)]">{KEEPERS[id]?.name?.[lang] ?? id}</span>
+                </div>
+              ))}
+            </div>
           </section>
         </main>
       </div>

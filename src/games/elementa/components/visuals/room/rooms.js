@@ -32,7 +32,7 @@ export const ROOM_INFO = {
   vault: { label: L('Relic Vault', 'Bóveda de Reliquias'), keeper: 'curator', shop: 'vault' },
   blackmarket: { label: L('Black Market', 'Mercado Negro'), keeper: 'nix', shop: 'blackmarket' },
   shrine: { label: L('Shrine', 'Santuario'), keeper: 'aeris', shop: 'shrine' },
-  bazaar: { label: L('Aether Bazaar', 'Bazar del Éter'), keeper: 'conclave', shop: 'bazaar' },
+  bazaar: { label: L('Aether Bazaar', 'Bazar del Ether'), keeper: 'conclave', shop: 'bazaar' },
   astral: { label: L('Astral Exchange', 'Intercambio Astral'), keeper: 'conclave', shop: 'astral' },
   cartography: { label: L('Cartography', 'Cartografía'), keeper: 'atlas', shop: 'cartography' },
   clockwork: { label: L('Clockwork', 'Mecanismo'), keeper: 'horologist', shop: 'clockwork' },

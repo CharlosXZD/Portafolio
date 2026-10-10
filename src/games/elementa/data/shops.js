@@ -108,7 +108,7 @@ export const SHOP_TYPES = {
   bazaar: {
     id: 'bazaar',
     keeper: 'conclave',
-    name: L('Aether Bazaar', 'Bazar del Éter'),
+    name: L('Aether Bazaar', 'Bazar del Ether'),
     blurb: L(
       'Legendary. Every shop in one, 25% off, with rarer stock.',
       'Legendaria. Todas las tiendas en una, 25% menos, con mercancía más rara.',

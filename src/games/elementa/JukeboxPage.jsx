@@ -28,7 +28,7 @@ const WHERE = {
   shop_forge: L('Forge (Brasa)', 'Forja (Brasa)'),
   shop_blackmarket: L('Black Market (Nix)', 'Mercado Negro (Nix)'),
   shop_shrine: L('Shrine (Aeris)', 'Santuario (Aeris)'),
-  shop_bazaar: L('Aether Bazaar (every keeper)', 'Bazar del Éter (todos los guardianes)'),
+  shop_bazaar: L('Aether Bazaar (every keeper)', 'Bazar del Ether (todos los guardianes)'),
   scene_crossroads: L('Story: the Crossroads', 'Historia: la Encrucijada'),
   scene_firmament: L('Story: the visions and the Firmament', 'Historia: las visiones y el Firmamento'),
   shop_vesper: L('A Forge past the door (Vesper and Brasa)', 'Una Forja más allá de la puerta (Vesper y Brasa)'),
