@@ -1,3 +1,5 @@
+import MenuScene from './visuals/scene/MenuScene.jsx'
+import { Slate } from './visuals/scene/objects.jsx'
 import { useEffect, useState } from 'react'
 import { compactNumber } from '../utils/formatNumber.js'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -88,7 +90,7 @@ function RoundStrip({ state }) {
  * resuming a saved run. Left: stakes and progress. Center: the dice, relics
  * and consumables, each inspectable. Right: the Road, boons, and bosses.
  */
-export default function RunPreview({ state, dispatch }) {
+function RunPreviewInner({ state, dispatch }) {
   const { lang, t } = useLanguage()
   const [open, setOpen] = useState(null)
   const difficulty = localizeDifficulty(state.difficulty, lang)
@@ -144,7 +146,7 @@ export default function RunPreview({ state, dispatch }) {
 
       <div className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-[280px_1fr_280px] lg:items-start">
         {/* Left: stakes and progress. */}
-        <aside className="el-panel flex flex-col gap-5 p-4">
+        <aside className="obj-journal flex flex-col gap-5">
           <div className="flex items-center justify-between gap-3">
             <span className="pixel-score text-[9px] uppercase tracking-widest" style={{ color: difficulty.color }}>
               {difficulty.name}
@@ -176,7 +178,7 @@ export default function RunPreview({ state, dispatch }) {
         </aside>
 
         {/* Center: what you carry. */}
-        <section className="el-panel--dark el-panel flex flex-col items-center gap-8 px-5 py-8">
+        <section className="obj-pouch flex flex-col items-center gap-8 px-5 !pt-10 pb-8">
           <Shelf label={t('elementa.runPreview.diceLoadout')} empty={state.dice.length === 0}>
             {state.dice.map((die) => {
               const base = dieDescriptor(die.elementId, lang)
@@ -211,7 +213,7 @@ export default function RunPreview({ state, dispatch }) {
         </section>
 
         {/* Right: the Road, boons, and the bosses behind you. */}
-        <aside className="el-panel flex flex-col gap-5 p-4">
+        <aside className="obj-maptable obj-nails">
           {stop && (
             <div className="el-well flex items-center gap-3 px-3 py-2" title={stop.blurb[lang]}>
               <KeeperSprite id={stop.keeper} size={28} />
@@ -226,7 +228,9 @@ export default function RunPreview({ state, dispatch }) {
           {state.map && (
             <div className="flex flex-col items-center gap-2">
               <h3 className="el-label w-full">{t('elementa.map.roadAhead')}</h3>
-              <RoadMap state={state} fromRound={state.round} toRound={state.round + 3} width={240} rowHeight={56} nodeSize={36} />
+              <Slate>
+                <RoadMap state={state} fromRound={state.round} toRound={state.round + 3} width={220} rowHeight={52} nodeSize={34} />
+              </Slate>
             </div>
           )}
           <BoonsList state={state} icons />
@@ -265,5 +269,14 @@ export default function RunPreview({ state, dispatch }) {
         </button>
       </div>
     </motion.div>
+  )
+}
+
+// The screen is a place made of the same materials as the shops (VISUALS.md V4.4).
+export default function RunPreview(props) {
+  return (
+    <MenuScene>
+      <RunPreviewInner {...props} />
+    </MenuScene>
   )
 }
