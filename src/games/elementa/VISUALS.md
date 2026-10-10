@@ -118,6 +118,35 @@ Do not build anything else in V1: no mass item models, no real-game backgrounds,
 
 Do not build backgrounds, menus, scenes, characters or the map in V2. Patch notes "Alpha 0.9.7 Item models".
 
+### V2.5: Readable items (Ready, 2026-10-10; do this before V4)
+
+**Carlos's verdict on V2:** the rooms and the look are good, but **most items look wonky and you cannot tell what they are.** They need **clearer shapes and bezels, or a simpler design.** Carlos attached five reference images of item sprites he likes. They are **style references only: do not copy or trace them, and do not use them as game assets** (read them from the paths below; do not commit them). Names of the files: `/Users/charly/.claude/uploads/28a1f7d7-17eb-4412-b834-1d8ee4ca4950/` followed by `71600530-image.jpg` (eight chunky items on a dark panel: candle, crystal, sword, chest, flame, ruby, gold bar, spiked ring), `4edc5071-image.jpg` (a sheet of small bright item icons: jars, feathers, keys, potions, food, eggs, books), `8e526807-image.jpg` (sixteen items on white: candle, split bread, key, scroll, books, ticket, bag, envelope, goblet, parcel, shell), `7f1ec447-image.jpg` (a column of fifteen spell books, each with a different rune and color), `da5aaa3e-image.jpg` (eight books in different covers).
+
+**Why V2 reads wonky (diagnosis).** The V2 pipeline renders a small 3D model at 24 by 24 and shrinks it with a toon ramp. At that size a 3D model loses its silhouette: edges are soft, details are 1 pixel, and a rotating object has no single "icon pose". Carlos's references work because each is a **drawn icon with one strong silhouette, a clean dark outline, 3 to 4 flat tones, one highlight and one signature detail**, in a single readable pose.
+
+**The decision (Carlos approved the diagnosis in spirit; this is Claude's spec): items become hand-authored pixel-art sprites defined in code**, not rendered 3D. This is still code art: each item is a small **palette-indexed bitmap in a data file** (like `PixelIcon`), drawn by the agent, rendered crisp at integer scales. The idle life comes from **2D motion** (a gentle bob, a glint sweeping across, a shimmer, a flicker), not from rotating a model. The 3D pipeline and atlas stay available (Item gallery, the swap rule, V1 spikes) but stop being the default for relics, consumables, runes and the rest. Keep the registry swap rule: a hand-drawn PNG still replaces any item.
+
+**The style bible (write it down in `ASSETS.md` as "Item sprite style" and follow it for every item):**
+1. **Size 32 by 32** (not 24), drawn on a 32 grid, shown at x2, x3 or x4. Keep a 1 px transparent margin. (A 16 by 16 mini version is derived by a documented rule for the Gallery's small tiles, or drawn by hand for the ones that need it.)
+2. **One silhouette, readable in solid black.** Before coloring, every item must be recognizable as a flat black shape at 32 px. Test it: the Lab shows every item as a silhouette beside the colored one, and Carlos judges. If two items share a silhouette, change one.
+3. **A colored dark outline, 1 px**, never pure black (a darker shade of the item's main color), with a 1 px **soft drop shadow** at the lower right.
+4. **Three or four tones per material** (dark, mid, light, highlight), flat, no dithering inside an object, and **one bright highlight** at the upper left. Light always comes from the upper left.
+5. **Clear bezels and frames:** anything with a frame, rim or gem setting has a clean, even bezel of one tone; no noisy edges.
+6. **One signature detail** (a flame, a drop, a gear, an eye) at most 4 by 4 pixels, centered on the object, never a collection of tiny marks.
+7. **Simple beats detailed.** Prefer the plainest drawing that says what it is (a key is a key; a book is a book with a cover mark). Remove detail until a stranger can name it.
+8. **Consistent pose and perspective:** front view for most objects; a 3/4 top view for books, chests and boxes, as in the references. No rotation poses.
+9. **Elements own their color** (section 0b): a Fire item leans red-orange, Water blue, Earth tan and brown, Air pale gray-white; Neutral items use the gold and stone palette. **Rarity** shows as a **soft glow and a small corner pip**, never a recolor of the body, and trims stay metallic (Carlos, 2026-10-09).
+10. **A family look so a set reads as a set:** all Runes are a stone tablet with a glowing glyph (the colors of the rune's effect); all Constellations a star chart on a dark disc with the sign in the reaction's colors; all Totems a carved pole in the family's color; all Laws a scroll with a seal; consumables of the same type share a base shape and differ in color and a small mark; potions are a flask shape with a colored liquid.
+
+**What to build.**
+- **V2.5.1 The style bible and a test set of 12 items** (the 6 weak ones from V2: Windfall, Weights, Loom of Fate, Prism Lens, Bookends, Time Capsule, plus 6 others across relics, consumables, runes and Laws) as hand-authored 32 by 32 sprites. Put them in the Lab's Item gallery next to the old versions and their silhouettes. **Stop and report with screenshots here** if you are unsure of the direction; otherwise continue.
+- **V2.5.2 All remaining items** (the 115) in the same style, from the `itemConcept` text and the element, in the item table `data/itemModels.js` (kind `bitmap`), by family, committing after each family. Reuse shared base shapes (flask, tablet, scroll, pole, pouch, coin, ring, crown) with per-item palettes and one detail each, then hand-tune the ones that need it.
+- **V2.5.3 Idle motion in 2D:** bob (2 px, stepped, 3 to 5 s), glint sweep on metals and gems, a shimmer or flicker where it fits (a flame item flickers, a potion's liquid shifts a pixel), hover lifts and rocks the sprite, the buy reveal keeps its rarity ring. All transform and opacity, one shared ticker, static under Reduced motion, still frame on the low-end tier.
+- **V2.5.4 Uniqueness and legibility checks:** keep the uniqueness script (now on silhouettes first, then colors), add the **silhouette sheet** page, and a **"name it" sheet** (all items at x2 with no labels, then with labels) so Carlos can quiz himself on which items still read poorly.
+- **V2.5.5 Keep what works:** where V2 is cached 3D, the idle-time build queue and the old fallback sprite are no longer needed for these items (bitmaps are instant); remove dead paths only if safe, otherwise leave and note. The first-load budget must not grow; the bitmaps are small data, loaded with the shop (target: under 40 kB gzip for the whole set).
+
+Verify and report as in V2 (screenshots of every family in the Lab and in the real game: the shop shelf, the inventory strip, the inspector, the Gallery, desktop and phone, EN and ES, Reduced motion), the skills used, the list of items you are unsure about, and open questions. Patch notes "Alpha 0.9.9 Readable items".
+
 ### V3: Shop rooms and event backgrounds (Ready, spec 2026-10-09)
 
 **Carlos's V2 answers, applied from V3 on (2026-10-09):** (1) trims stay metallic and the rarity color goes in the glow only (elements own their color); (2) each Constellation model takes its colors from its reaction in `data/reactions.js`; (3) sidebar items move on hover only; (4) the polish pass on the V2 weak spots (Windfall, Weights, Loom of Fate, Prism Lens, Bookends, Time Capsule) is its own small job after V4, **but fix points 1 and 2 as part of V3's first commit**; (5) unseen Gallery items show the dark model silhouette instead of "?" (build it in V3).
@@ -163,7 +192,20 @@ Realm tints: the same room takes a light shift per realm (Elementa warm, Firmame
 
 **Do not build** in V3: the menus or the shop's interface (V4), cinematics (V5), the Road map (V6), character rigs for Pip, bosses, gods or the Arbiter (V7), or the V2 weak-spot polish.
 
+### V3.1: Fixes from Carlos's V3 review (Ready, 2026-10-10; do before V2.5)
+
+Carlos reviewed V3: "they are looking good, we can advance". Answers to the V3 open questions and two new notes:
+1. **Gallery grouping:** unseen entries are grouped **neutrally** (no rarity or family headers) so nothing is spoiled.
+2. **The missing uppercase "É":** the Spanish name of the Aether Bazaar uses **"Ether"** (Carlos's choice; "Bazar del Ether"), avoiding the glyph. Check every other uppercase pixel-font string for characters the font lacks and fix them the same way.
+3. **Boss colors:** add a `color` (and a stage color) to each boss, god and Warden in `data/bossModifiers.js` and use it for the boss stage rooms. (A small data change in the engine area; keep it minimal.)
+4. **The keeper stands inside the room** in the real game on wide windows (the header portrait remains on narrow screens).
+5. **Keepers need a body (new note from Carlos):** today a keeper rig is only a head floating in the room, which looks odd. Redraw the 12 rigs as a **head, neck and upper body (a bust or three-quarter figure)** with shoulders and arms/hands that can do the small actions (stirring, polishing, reading, holding a ledger, tending the forge) and reactions, using each keeper's existing palette and head so they are recognizably the same person. They sit behind the counter, so the legs are hidden. Keep the idle breathe, blink, mouth and reaction beats.
+6. **The shop interface does not match its room (new note from Carlos, "blocking progress"):** in the real game the shop's panels still look like flat squares laid on top of the new room. **That is V4's job and the biggest next piece** (below); in V3.1 only make sure the room's dim and the panels do not clash badly, and note what you see.
+7. **Dim strength:** leave as is for now; V4 will redo the panels, and the dim will be retuned then.
+
 ### V4: Menus and shop interfaces (Proposed)
+
+**Carlos's note (2026-10-10): the shop menus do not match the room behind them. The panels are "just set on top" instead of belonging to it. This is the priority of V4:** the shop UI must become part of the room: shelves, counters and signboards made of the room's own materials (wood, stone, brass, parchment per shop) holding the same items and buttons, so a shop reads as one scene.
 
 Overhaul the **interfaces themselves**: the main menu, file select, options, pause, run preview, the shop's item shelves, price tags, the buy, sell and forge interactions, the Inscribe screen, the Gallery, the Road screen frame, round results. Replace "squares on a background" with a coherent premium system: panels with material and depth, shelves and counters instead of grids, real hover and press states, animated transitions, sound hooks. Keep every function and keyboard path working.
 
