@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react'
 import MenuScene from './visuals/scene/MenuScene.jsx'
 import { useMemo, useState } from 'react'
 import { sigilFaces, SYMBOL_INFO, symbolText } from '../data/sigils.js'
@@ -703,10 +704,17 @@ function GalleryScreenInner({ slot, onBack, embedded = false }) {
   )
 }
 
-// The screen is a place made of the same materials as the shops (VISUALS.md V4.4).
+const RoomStage = lazy(() => import('./visuals/room/RoomStage.jsx'))
+
+// The screen is a place made of the same materials as the shops (VISUALS.md V4.4), and it stands in the Library (V4.7).
 export default function GalleryScreen(props) {
   return (
     <MenuScene>
+      {!props.embedded && (
+        <Suspense fallback={null}>
+          <RoomStage roomId="library" shop pullback dim={0.7} />
+        </Suspense>
+      )}
       <GalleryScreenInner {...props} />
     </MenuScene>
   )

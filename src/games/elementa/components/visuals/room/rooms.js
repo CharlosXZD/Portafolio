@@ -21,6 +21,8 @@ export const ROOM_LOADERS = {
   table: () => import('./rooms/table.jsx'),
   unwritten: () => import('./rooms/unwritten.jsx'),
   tavern: () => import('./rooms/tavern.jsx'),
+  library: () => import('./rooms/library.jsx'),
+  graveyard: () => import('./rooms/graveyard.jsx'),
 }
 
 const L = (en, es) => ({ en, es })
@@ -45,6 +47,8 @@ export const ROOM_INFO = {
   table: { label: L('The table', 'La mesa'), keeper: null },
   unwritten: { label: L('The Unwritten', 'Lo No Escrito'), keeper: null },
   tavern: { label: L('The Tavern (menus)', 'La Taberna (menús)'), keeper: null },
+  library: { label: L('The Library (Gallery)', 'La Biblioteca (Galería)'), keeper: null },
+  graveyard: { label: L('The Graveyard (game over)', 'El Cementerio (fin de partida)'), keeper: null },
 }
 
 export const ROOM_IDS = Object.keys(ROOM_LOADERS)
@@ -70,4 +74,6 @@ export const ROOM_GROUND = {
   pantry: { wall: '#1a1624', ceil: '#100c18', floor: '#161220' },
   camp: { wall: '#161230', ceil: '#0c0a1c', floor: '#1c1626' },
   tavern: { wall: '#2e1c26', ceil: '#1c1018', floor: '#3b2215' },
+  library: { wall: '#241a2e', ceil: '#16101e', floor: '#2a1c1c' },
+  graveyard: { wall: '#1b1636', ceil: '#0c0a18', floor: '#1a2a22' },
 }

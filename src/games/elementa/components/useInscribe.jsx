@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { runesOf } from '../data/runes.js'
 import { selectors } from '../engine/gameReducer.js'
-import InscribeScreen from './InscribeScreen.jsx'
+import InscribeScreen from './InscribeLazy.jsx'
 
 /**
  * The two die items that need more than a click on a die (EXPANSION.md K3b,

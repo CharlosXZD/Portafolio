@@ -1,4 +1,5 @@
 import MenuScene from './visuals/scene/MenuScene.jsx'
+import { mix } from '../utils/color.js'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -82,10 +83,10 @@ function InscribeScreenInner({ die, runeId = null, choices = null, onConfirm, on
       onClick={onCancel}
     >
       <div className="obj-scroll flex w-full max-w-lg flex-col items-center gap-5 px-6 py-8 text-center" onClick={(e) => e.stopPropagation()}>
-        <span className="el-label" style={{ color: rune.color }}>
+        <span className="el-label" style={{ color: mix(rune.color, '#120c1a', 0.7) }}>
           {t('elementa.inscribe.title')}
         </span>
-        <h2 className="pixel-heading text-sm" style={{ color: rune.color }}>
+        <h2 className="pixel-heading text-sm" style={{ color: mix(rune.color, '#120c1a', 0.7) }}>
           {rune.name[lang]}
         </h2>
         {choices && choices.length > 1 && (
@@ -186,7 +187,7 @@ function InscribeScreenInner({ die, runeId = null, choices = null, onConfirm, on
           })}
         </div>
 
-        <p className="min-h-[1.5rem] text-sm" style={{ color: onFace.length ? '#ffd166' : 'var(--text-mute)' }}>
+        <p className="min-h-[1.5rem] text-sm" style={{ color: onFace.length ? 'var(--gold-1)' : 'var(--text-mute)' }}>
           {onFace.length === 0
             ? t('elementa.inscribe.free').replace('{n}', faceLabel(die.elementId, face))
             : stacks

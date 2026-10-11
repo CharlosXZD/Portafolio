@@ -109,6 +109,11 @@
   "round": 16,
   "shop": "astral"
  },
+ "inscribe": {
+  "phase": "shop",
+  "round": 1,
+  "shop": "market"
+ },
  "missed": {
   "phase": "missed",
   "round": 1,

@@ -12,6 +12,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { gameReducer, initialState, selectors } from '../engine/gameReducer.js'
 import { nextChoices } from '../engine/map.js'
+import { consumableById } from '../data/consumables.js'
 import { emptyProfile } from '../utils/saveManager.js'
 
 const found = {}
@@ -107,6 +108,9 @@ for (const typeId of ['pantry', 'astral']) {
   }
 }
 
+
+// The Inscribe scroll: a Market with a Rune of Echo in the bag.
+if (found['shop:market']) want('inscribe', { ...found['shop:market'], consumables: [{ ...consumableById('rune_echo'), instanceId: 'test-rune-echo' }] })
 
 // The menu screens that need a state: a missed round (the ledger) and a lost run (the gravestone).
 {

@@ -4,7 +4,7 @@ import { playClick } from '../utils/sound.js'
 import ConfirmButton from './ConfirmButton.jsx'
 import OptionsScreen from './OptionsScreen.jsx'
 import Modal from './Modal.jsx'
-import GalleryScreen from './GalleryScreen.jsx'
+import GalleryScreen from './GalleryLazy.jsx'
 import FeedbackButton from './FeedbackButton.jsx'
 
 /**

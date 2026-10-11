@@ -40,6 +40,7 @@ export function roomFor(state) {
   }
   // The menus, the file select, the file hub and the title screen share the Tavern.
   if (['menu', 'slots', 'credits', 'hub', 'title', 'runPreview'].includes(state.phase)) return { id: 'tavern', shop: true, realm }
+  if (state.phase === 'gameover') return { id: 'graveyard', shop: true, realm }
   if (state.phase === 'crossroads') return { id: 'crossroads', realm }
   if (state.phase === 'rolling' || state.phase === 'missed') {
     return state.bossModifier ? { id: 'boss', realm, tone: stageTone(state.bossModifier.id) } : { id: 'table', realm }

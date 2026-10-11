@@ -8,7 +8,7 @@ import { completion } from '../utils/profile.js'
 import { localizeDifficulty } from '../data/i18n.js'
 import { dieDescriptor } from '../data/itemDescriptors.js'
 import ConfirmButton from './ConfirmButton.jsx'
-import GalleryScreen from './GalleryScreen.jsx'
+import GalleryScreen from './GalleryLazy.jsx'
 import AchievementsList from './AchievementsList.jsx'
 import ItemIcon from './ItemIcon.jsx'
 import { Stat } from './RoundHUD.jsx'
@@ -51,16 +51,17 @@ function FileHubInner({ slot, dispatch }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
-      className="el-panel flex w-full max-w-lg flex-col gap-6 px-8 py-8"
+      className="obj-spread flex w-full max-w-3xl flex-col md:flex-row"
     >
+      <div className="obj-page obj-page--left flex flex-1 flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="pixel-heading text-base text-[var(--gold-1)]">
+        <h2 className="pixel-heading text-base text-[var(--text)]">
           {t('elementa.files.file')} {slot + 1}
         </h2>
         <span className="pixel-score text-xs text-[var(--gold-hi)]">{pct}%</span>
       </div>
-      <div className="h-3 w-full bg-[var(--stone-0)]" style={{ boxShadow: '0 0 0 2px var(--ink)' }}>
-        <div className="h-full bg-[var(--gold-2)]" style={{ width: `${pct}%` }} />
+      <div className="obj-ribbon w-full">
+        <span style={{ width: `${pct}%` }} />
       </div>
 
       <div className="grid grid-cols-3 gap-3">
@@ -70,7 +71,8 @@ function FileHubInner({ slot, dispatch }) {
           {stats.bestCast.toLocaleString()}
         </Stat>
       </div>
-
+      </div>
+      <div className="obj-page obj-page--right flex flex-1 flex-col gap-6">
       {run ? (
         <div className="el-well flex flex-col gap-3 p-4">
           <div className="flex items-center justify-between">
@@ -128,6 +130,7 @@ function FileHubInner({ slot, dispatch }) {
       <button type="button" className="el-btn el-btn--ghost" onClick={go({ type: 'GO_TO_SLOTS' })}>
         {t('elementa.files.changeFile')}
       </button>
+      </div>
 
       {view === 'gallery' && (
         <Overlay onClose={() => setView(null)}>
