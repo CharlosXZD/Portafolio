@@ -1,88 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
-import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { TUTORIAL_GROUPS } from '../data/tutorial.js'
 import { readTutorial, markTutorialSeen, turnTutorialOff } from '../utils/tutorial.js'
 import { playClick } from '../utils/sound.js'
+import CharacterRig from './visuals/rigs/CharacterRig.jsx'
 
-// Pip, the guide: a small arcane wisp, 14x14, with a blink frame.
-const PIP_OPEN = [
-  '......k.......',
-  '.....kck......',
-  '.....kcak.....',
-  '....kcaak.....',
-  '...kkcaaakk...',
-  '..kcaaaaaaak..',
-  '.kcaaaaaaaaabk',
-  '.kaawaaaawaabk',
-  '.kaaeaaaaeaabk',
-  '.kaaaaaaaaaabk',
-  '.kaaaaddaaaabk',
-  '..kbaaaaaabk..',
-  '...kbbbbbbk...',
-  '....kkkkkk....',
-]
-const PIP_BLINK = PIP_OPEN.map((row, y) =>
-  y === 7 ? '.kaaaaaaaaaabk' : y === 8 ? '.kaadaaaadaabk' : row,
-)
-const PIP_PALETTE = {
-  k: '#120c1a',
-  a: '#8f6bff',
-  b: '#5a41c0',
-  c: '#ffd166',
-  w: '#ffffff',
-  e: '#120c1a',
-  d: '#2a1a55',
-}
-
-/** Pip at rest: the pixel sprite alone, no motion of its own (the cinematics move it frame by frame). */
-export function PipSprite({ size = 70, blink = false, glow = true, ...rest }) {
-  const rows = blink ? PIP_BLINK : PIP_OPEN
-  const rects = []
-  rows.forEach((row, y) => {
-    for (let x = 0; x < row.length; x++) {
-      const fill = PIP_PALETTE[row[x]]
-      if (fill) rects.push(<rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill={fill} />)
-    }
-  })
-  return (
-    <svg
-      viewBox="0 0 14 14"
-      width={size}
-      height={size}
-      shapeRendering="crispEdges"
-      aria-hidden="true"
-      style={glow ? { filter: 'drop-shadow(0 0 12px #8f6bff99)' } : undefined}
-      {...rest}
-    >
-      {rects}
-    </svg>
-  )
-}
-
-export function Pip({ size = 70 }) {
-  const { reducedMotion } = useGameSettings()
-  const [blink, setBlink] = useState(false)
-
-  useEffect(() => {
-    if (reducedMotion) return
-    const id = setInterval(() => {
-      setBlink(true)
-      setTimeout(() => setBlink(false), 140)
-    }, 2800)
-    return () => clearInterval(id)
-  }, [reducedMotion])
-
-  return (
-    <motion.span
-      style={{ display: 'inline-flex', lineHeight: 0 }}
-      animate={reducedMotion ? undefined : { y: [0, -6, 0] }}
-      transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-    >
-      <PipSprite size={size} blink={blink} />
-    </motion.span>
-  )
+/**
+ * Pip, the guide: the V7 rig (idle float, blink, sparkle, talking, and the reactions tip, cheer,
+ * worry and curious). `reactKey` replays `react`. Reduced motion and the low-end tier show one pose.
+ */
+export function Pip({ size = 70, react = null, reactKey = 0, talking = false }) {
+  return <CharacterRig id="pip" size={size} react={react} reactKey={reactKey} talking={talking} />
 }
 
 /** Tracks an element's on-screen rect while a step points at it. */
@@ -245,7 +174,7 @@ export default function Tutorial({ state, onActiveChange, paused = false }) {
             }`}
           >
             <div className="shrink-0">
-              <Pip size={70} />
+              <Pip size={70} react="tip" reactKey={`${active.group.id}-${active.index}`} />
             </div>
             <motion.div
               key={`${active.group.id}-${active.index}`}

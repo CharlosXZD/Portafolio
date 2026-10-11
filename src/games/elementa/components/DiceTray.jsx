@@ -26,7 +26,7 @@ import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import AnimatedNumber from './AnimatedNumber.jsx'
 import TargetBar from './TargetBar.jsx'
 import PixelIcon from './PixelIcon.jsx'
-import BossAvatar from './BossAvatar.jsx'
+import CharacterRig from './visuals/rigs/CharacterRig.jsx'
 import { Pip } from './Tutorial.jsx'
 import { tideLocks } from '../engine/gods.js'
 import { readProfile } from '../utils/profile.js'
@@ -573,7 +573,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
                 className="el-panel flex w-full items-center gap-4 px-4 py-3"
                 style={{ background: '#3a0f18', '--edge': '#ff5a5a' }}
               >
-                <BossAvatar id={boss.id} size={48} />
+                <CharacterRig id={boss.id} size={48} react="enter" reactKey={bossTitle} />
                 <span className="el-chip shrink-0 bg-[#ff5a5a] text-[var(--ink)]">
                   {stageLabel ??
                     (boss.tier === 6
@@ -620,7 +620,7 @@ export default function DiceTray({ state, dispatch, availableRerolls, paused = f
             {arbiterSays && !revealing && (state.rerollsUsed === 0 || arbiterSays.kind) && <ArbiterSays text={arbiterSays.text} tone={arbiterSays.tone} />}
             {pipSays && (
               <div className="el-panel flex items-center gap-3 px-4 py-2 text-left" style={{ '--edge': '#c8b6ff' }}>
-                <Pip size={36} />
+                <Pip size={36} react="tip" reactKey={pipSays} talking />
                 <span className="text-base text-[var(--text)]">{pipSays}</span>
               </div>
             )}

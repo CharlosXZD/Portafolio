@@ -8,7 +8,7 @@ import { selectors } from '../engine/gameReducer.js'
 import { playClick, playCoin } from '../utils/sound.js'
 import DieSprite from './DieSprite.jsx'
 import PixelSprite from './PixelSprite.jsx'
-import BossAvatar from './BossAvatar.jsx'
+import CharacterRig from './visuals/rigs/CharacterRig.jsx'
 import DieToken from './DieToken.jsx'
 
 const DIE_COLORS = { top: '#9a7cf0', bottom: '#6a4fd6', rim: '#d6c8ff', shade: '#2f2168', facet: '#5a41c0' }
@@ -53,7 +53,7 @@ export default function BossReward({ state, dispatch }) {
       className="mx-auto flex w-full max-w-4xl flex-col items-center gap-8 pt-10 text-center"
     >
       <div className="flex flex-col items-center gap-3">
-        {boss && <BossAvatar id={boss.id} size={72} />}
+        {boss && <CharacterRig id={boss.id} size={72} react="defeat" reactKey={boss.id} />}
         <h2 className="pixel-heading text-lg text-[var(--gold-1)]">{t('elementa.bossReward.title')}</h2>
         <p className="text-lg text-[var(--text-dim)]">
           {boss ? t('elementa.bossReward.subtitle').replace('{boss}', boss.name) : ''}

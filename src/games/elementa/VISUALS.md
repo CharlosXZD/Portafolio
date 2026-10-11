@@ -258,7 +258,7 @@ Carlos (2026-10-11): execute the whole plan first (V5, V6, V7, V8), then fix sma
 - **Verify and report:** the Lab gets a **Maps** page (all realms, long and short Roads, boss rows, fog, a walk animation) and test saves at several rounds; screenshots at desktop and phone, EN and ES, Reduced motion; first-load budget impact (lazy the full-screen map if needed). Patch notes "Alpha 0.9.13 The Road".
 - **Do not build:** cinematics (V5), characters (V7).
 
-### V7: Characters and small animations (Ready after V5, spec 2026-10-11)
+### V7: Characters and small animations (Built 2026-10-11, Alpha 0.9.14, see `VISUALS_V7_REPORT.md`; waiting for Carlos's review)
 
 **Goal.** Rigs and expressions for every character that has none, so cinematics, shops and the table feel alive. Same system as the keeper rigs (`components/visuals/rigs/`, `rigData.js`: layered SVG, palette per character, a bust with neck, shoulders and arms, stepped whole-pixel motion, **no rotation of tiny parts**).
 

@@ -94,7 +94,7 @@ export const DIRECTIONS = {
   pip_before: {
     backdrop: 'code',
     fx: ['motes'],
-    pages: [{ cam: 'push', hits: [70], char: { scale: 1.5 } }, { cam: 'shake', hits: [20, 60], char: { scale: 1.7 } }],
+    pages: [{ cam: 'push', hits: [70, 130], char: { scale: 1.25 } }],
   },
   pip_after: {
     backdrop: 'night',

@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { compactNumber } from '../utils/formatNumber.js'
 import { AnimatePresence } from 'framer-motion'
 import { useLanguage } from '../../../i18n/LanguageContext.jsx'
+import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import AnimatedNumber from './AnimatedNumber.jsx'
 import ItemIcon from './ItemIcon.jsx'
 import ItemInspector from './ItemInspector.jsx'
@@ -19,6 +20,19 @@ import { useTriggerPulses } from '../utils/useTriggerPulses.js'
 
 export function Hearts({ lives, maxLives, size = 14 }) {
   const { lang } = useLanguage()
+  const { reducedMotion } = useGameSettings()
+  // The heart that was just lost shakes and shrinks in four steps (V7), then rests as an empty one.
+  const prev = useRef(lives)
+  const [lost, setLost] = useState(null)
+  useEffect(() => {
+    if (lives < prev.current && !reducedMotion) {
+      setLost(lives)
+      const id = setTimeout(() => setLost(null), 480)
+      prev.current = lives
+      return () => clearTimeout(id)
+    }
+    prev.current = lives
+  }, [lives, reducedMotion])
   return (
     <div
       className="flex items-center gap-1"
@@ -26,7 +40,9 @@ export function Hearts({ lives, maxLives, size = 14 }) {
       aria-label={lang === 'es' ? `${lives} de ${maxLives} vidas` : `${lives} of ${maxLives} lives`}
     >
       {Array.from({ length: maxLives }).map((_, i) => (
-        <PixelIcon key={i} name={i < lives ? 'heart' : 'heartEmpty'} size={size} />
+        <span key={i} className={lost === i ? 'el-heart-lost' : undefined} style={{ display: 'inline-flex', lineHeight: 0 }}>
+          <PixelIcon name={i < lives ? 'heart' : 'heartEmpty'} size={size} />
+        </span>
       ))}
     </div>
   )

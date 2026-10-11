@@ -13,6 +13,7 @@ const ItemGalleryPage = lazy(() => import('./games/elementa/components/visuals/I
 const ItemSpritesPage = lazy(() => import('./games/elementa/components/visuals/ItemSpritesPage.jsx'))
 const RoomsPage = lazy(() => import('./games/elementa/components/visuals/RoomsPage.jsx'))
 const ScenesPage = lazy(() => import('./games/elementa/components/visuals/ScenesPage.jsx'))
+const CharactersPage = lazy(() => import('./games/elementa/components/visuals/CharactersPage.jsx'))
 const MapsPage = lazy(() => import('./games/elementa/components/visuals/map/MapsPage.jsx'))
 
 function App() {
@@ -33,6 +34,14 @@ function App() {
         element={
           <Suspense fallback={null}>
             <MapsPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/games/elementa/visuals/characters"
+        element={
+          <Suspense fallback={null}>
+            <CharactersPage />
           </Suspense>
         }
       />

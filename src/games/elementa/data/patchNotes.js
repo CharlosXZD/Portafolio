@@ -12,6 +12,22 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.14',
+    name: L('Characters', 'Personajes'),
+    date: null,
+    highlights: [
+      L(
+        'The characters are alive. Pip floats, sparkles, blinks and reacts (a tip when it speaks, a hop of joy, a worried shake). The Arbiter\'s open hand rises when he warns and glows when he favors you. The four gods, the Primordial (whose aspect shifts through fire, water, earth and air) and You each have their own pixel body, and every boss gets a stage entrance, a flinch when hit and a slump when defeated.',
+        'Los personajes tienen vida. Pip flota, brilla, parpadea y reacciona (un gesto al hablar, un salto de alegría, un temblor de preocupación). La mano abierta del Árbitro se alza cuando advierte y brilla cuando te favorece. Los cuatro dioses, el Primordial (cuyo aspecto pasa por fuego, agua, tierra y aire) y Tú tienen cada uno su propio cuerpo de píxeles, y cada jefe tiene una entrada, un respingo al recibir un golpe y un desplome al ser derrotado.',
+      ),
+      L(
+        'They appear in the story scenes, on the table when a boss arrives, after you beat a boss, in Pip\'s tips and in the Arbiter\'s lines. Losing a life now makes the lost heart jump and shake. Reduced motion and slow devices show a single still pose.',
+        'Aparecen en las escenas de historia, en la mesa cuando llega un jefe, tras vencerlo, en los consejos de Pip y en las frases del Árbitro. Perder una vida ahora hace saltar y temblar al corazón perdido. Movimiento reducido y los dispositivos lentos muestran una sola pose fija.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.13',
     name: L('The Road', 'El Camino'),
     date: null,

@@ -47,9 +47,9 @@ export default function StoryComposition({ scene, direction, layout }) {
       </div>
       <div style={{ position: 'absolute', inset: 0, transform: `translate(${cam.x}px, ${cam.y}px) scale(${cam.scale})`, transformOrigin: '50% 60%' }}>
         {direction.piece?.kind === 'mirror' && (
-          <Character portrait={page.portrait} color="#7ad8ff" t={t} pageIndex={index} opts={dir.char} flip tint="hue-rotate(160deg) saturate(1.4)" x0={Math.round(Math.sin(t / 9) * 6) + 190} />
+          <Character portrait={page.portrait} color="#7ad8ff" t={t} pageIndex={index} opts={dir.char} hits={dir.hits} flip tint="hue-rotate(160deg) saturate(1.4)" x0={Math.round(Math.sin(t / 9) * 6) + 190} />
         )}
-        <Character portrait={page.portrait} prev={prev} color={color} t={t} pageIndex={index} opts={dir.char} x0={direction.piece?.kind === 'mirror' ? -190 : 0} />
+        <Character portrait={page.portrait} prev={prev} color={color} t={t} pageIndex={index} opts={dir.char} hits={dir.hits} talking={frame < slot.typeEnd} x0={direction.piece?.kind === 'mirror' ? -190 : 0} />
       </div>
       <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at center, transparent 50%, ${mix(INK, color, 0.1)}f0 100%)` }} />
       <div style={{ position: 'absolute', inset: 0, background: INK, opacity: dip }} />

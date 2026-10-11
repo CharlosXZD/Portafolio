@@ -863,6 +863,18 @@
 }
 
 
+/* A lost life (V7): the heart that just emptied jumps, shakes and settles in whole steps. */
+@keyframes el-heart-lost {
+  0% { transform: translate(0, -3px) scale(1.35); filter: brightness(2.2) saturate(0.4); }
+  25% { transform: translate(-2px, -1px) scale(1.2); filter: none; }
+  50% { transform: translate(2px, 0) scale(1.1); }
+  75% { transform: translate(-1px, 1px) scale(1); }
+  100% { transform: none; }
+}
+.el-heart-lost {
+  animation: el-heart-lost 420ms steps(4, end) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .elementa-root * {
     animation-duration: 0.01ms !important;
