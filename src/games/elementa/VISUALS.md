@@ -247,7 +247,7 @@ Carlos (2026-10-11): execute the whole plan first (V5, V6, V7, V8), then fix sma
 - **Verify:** the Visual Lab gets a **Scenes** page (play any scene, EN and ES, Reduced motion and low-tier toggles, a scrubber, a frame-time readout). Play every scene in the real game from test saves (extend `tools/*TestSaves.mjs` with a "play scene X" save) and record screenshots of three frames per scene. Report numbers and what you did not verify. Patch notes "Alpha 0.9.12 Cinematics". Run `improve-animations`; Carlos runs `/review-animations`.
 - **Do not build:** the map (V6), new character rigs for Pip, bosses, gods or the Arbiter (V7; use what exists, make the character slot swappable so V7 drops in), or the items iteration.
 
-### V6: The Map (Ready, spec 2026-10-11)
+### V6: The Map (Built 2026-10-11, see `VISUALS_V6_REPORT.md`; spec 2026-10-11)
 
 **Goal.** A new layout and visuals for the Road (`components/RoadMap.jsx`, used in the shop's map table, `RunInfo`, `RunPreview`, and the "Pick a stop" flow). **The data model (`engine/map.js`) and rules do not change.**
 

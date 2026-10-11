@@ -189,14 +189,16 @@ export default function RunInfo({ state, onClose, initialTab = 'run' }) {
 
         {tab === 'run' ? null : tab === 'map' ? (
           <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center">
-            <div className="el-panel max-h-[70vh] overflow-y-auto p-4">
+            {/* The whole Road as a map you can drag and zoom (V6). */}
+            <div className="w-full max-w-md" style={{ height: 'min(72vh, 680px)' }}>
               <RoadMap
                 state={state}
                 fromRound={1}
                 toRound={Math.max(state.map.layers.length, state.round + 1)}
-                width={300}
-                rowHeight={64}
-                nodeSize={42}
+                width={340}
+                rowHeight={104}
+                nodeSize={56}
+                variant="panel"
                 scrollToCurrent
               />
             </div>

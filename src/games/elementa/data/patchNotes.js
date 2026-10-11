@@ -12,6 +12,26 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.13',
+    name: L('The Road', 'El Camino'),
+    date: null,
+    highlights: [
+      L(
+        'The Road is a map now. Shops are signs on parchment joined by inked trails, boss rounds have a banner, the road you walked is gold, what you can pick glows, and what lies beyond your sight sits in fog. A little traveler with a lantern stands where you are, and when you pick a stop a ghost of them walks the trail to it.',
+        'El Camino ahora es un mapa. Las tiendas son letreros sobre pergamino unidos por senderos de tinta, las rondas de jefe tienen un estandarte, el camino recorrido es dorado, lo que puedes elegir brilla y lo que queda fuera de tu vista está entre la niebla. Un viajero con linterna está donde tú estás, y al elegir una parada su fantasma camina el sendero hasta ella.',
+      ),
+      L(
+        'Every realm has its own paper and a drawn gate: warm parchment for Elementa, a star chart for the Firmament, a grid for the Empyrean, dissolving ink for the Pleroma, a split sheet for the Meridian and a blank page for the Unwritten. You can zoom and drag the big map (wheel, drag, pinch, arrows, plus and minus), center on yourself, move between stops with the keyboard, and hover or focus a stop to see its name, what it sells and its state. Stops are 44 px targets on phones.',
+        'Cada reino tiene su propio papel y una puerta dibujada: pergamino cálido para Elementa, un mapa estelar para el Firmamento, una cuadrícula para el Empíreo, tinta que se disuelve para el Pleroma, una hoja partida para el Meridiano y una página en blanco para Lo No Escrito. Puedes acercar y arrastrar el mapa grande (rueda, arrastre, pellizco, flechas, más y menos), centrarte en ti, moverte entre paradas con el teclado y pasar el cursor o enfocar una parada para ver su nombre, qué vende y su estado. Las paradas miden 44 px en teléfonos.',
+      ),
+      L(
+        'The map table in every shop has a button to open the big map. Choosing a stop, Atlas\'s Redraw, Add a path and Peek, Prophecy and Cartography work exactly as before.',
+        'La mesa de mapa de cada tienda tiene un botón para abrir el mapa grande. Elegir una parada, Redibujar, Añadir un camino y Vistazo de Atlas, la Profecía y la Cartografía funcionan igual que antes.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.11',
     name: L('The menus', 'Los menús'),
     date: null,

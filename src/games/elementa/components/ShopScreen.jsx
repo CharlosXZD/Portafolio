@@ -1148,6 +1148,7 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
                 width={168}
                 rowHeight={42}
                 nodeSize={30}
+                expandable
               />
             </Slate>
             <p className="obj-ticket min-h-[3rem] w-full text-center text-sm leading-snug">

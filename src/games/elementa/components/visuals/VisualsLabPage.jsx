@@ -19,6 +19,7 @@ const TEXT = {
   title: L('Visual Lab', 'Laboratorio Visual'),
   back: L('Back to the game', 'Volver al juego'),
   itemGallery: L('Item gallery', 'Galería de objetos'),
+  maps: L('Maps', 'Mapas'),
   rooms: L('Rooms', 'Salas'),
   itemSprites: L('Item sprites', 'Sprites de objetos'),
   intro: L(
@@ -355,6 +356,9 @@ function Lab() {
               </Link>
               <Link to="/games/elementa/visuals/rooms" className="el-btn el-btn--sm el-btn--gold">
                 {tx.rooms[lang]}
+              </Link>
+              <Link to="/games/elementa/visuals/maps" className="el-btn el-btn--sm el-btn--gold">
+                {tx.maps[lang]}
               </Link>
               <Link to="/games/elementa" className="el-btn el-btn--sm">
                 {tx.back[lang]}

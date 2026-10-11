@@ -12,12 +12,21 @@ const VisualsLabPage = lazy(() => import('./games/elementa/components/visuals/Vi
 const ItemGalleryPage = lazy(() => import('./games/elementa/components/visuals/ItemGalleryPage.jsx'))
 const ItemSpritesPage = lazy(() => import('./games/elementa/components/visuals/ItemSpritesPage.jsx'))
 const RoomsPage = lazy(() => import('./games/elementa/components/visuals/RoomsPage.jsx'))
+const MapsPage = lazy(() => import('./games/elementa/components/visuals/map/MapsPage.jsx'))
 
 function App() {
   return (
     <Routes>
       <Route path="/games/elementa" element={<ElementaGame />} />
       <Route path="/games/elementa/jukebox" element={<JukeboxPage />} />
+      <Route
+        path="/games/elementa/visuals/maps"
+        element={
+          <Suspense fallback={null}>
+            <MapsPage />
+          </Suspense>
+        }
+      />
       <Route
         path="/games/elementa/visuals/rooms"
         element={
