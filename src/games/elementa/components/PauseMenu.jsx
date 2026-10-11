@@ -21,7 +21,7 @@ export default function PauseMenu({ slot, dispatch, onResume }) {
   useEffect(() => {
     if (!showGallery) return
     function onKey(e) {
-      if (e.key !== 'Escape') return
+      if (e.key !== 'Escape' || document.querySelector('[data-story-scene]')) return
       e.stopImmediatePropagation()
       setShowGallery(false)
     }

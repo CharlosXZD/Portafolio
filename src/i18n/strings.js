@@ -368,6 +368,7 @@ const strings = {
   'elementa.options.reactionsFull': { en: 'Full', es: 'Completa' },
   'elementa.options.reactionsOff': { en: 'Hidden', es: 'Oculta' },
   'elementa.options.glows': { en: 'Reaction glows between dice', es: 'Brillo de reacción entre dados' },
+  'elementa.options.introAnimation': { en: 'Intro animation', es: 'Animación de inicio' },
   'elementa.options.keyHints': { en: 'Keyboard hints', es: 'Pistas de teclado' },
   'elementa.options.ledgerOpen': { en: 'Cast ledger expanded', es: 'Cuenta del hechizo expandida' },
   'elementa.options.liveTotal': { en: 'Show live total before casting', es: 'Mostrar el total antes de lanzar' },

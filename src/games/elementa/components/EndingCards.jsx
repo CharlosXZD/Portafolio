@@ -7,7 +7,8 @@ import { ENDINGS, endingById } from '../data/endings.js'
 import { ELEMENTS } from '../data/elements.js'
 import BossAvatar from './BossAvatar.jsx'
 import PixelIcon from './PixelIcon.jsx'
-import StoryScene from './StoryScene.jsx'
+import StorySceneHost from './StorySceneHost.jsx'
+import EndingStill from './EndingStill.jsx'
 
 /** One card: a pixel placeholder portrait, a title, a few lines. */
 export function EndingCard({ art, title, text, color, label, small = false }) {
@@ -58,6 +59,7 @@ export default function EndingCards({ ending, visions = false, onDone, onScene }
   const cards = [
     ...[endingById(ending) ?? ENDINGS[0]].map((e) => ({
       key: e.id,
+      ending: e,
       label: t('elementa.ending.label'),
       title: e.name[lang],
       text: e.text[lang],
@@ -87,7 +89,7 @@ export default function EndingCards({ ending, visions = false, onDone, onScene }
   const card = cards[index]
   if (scenes.length > 0) {
     return (
-      <StoryScene
+      <StorySceneHost
         key={scenes[0]}
         id={scenes[0]}
         onDone={() => {
@@ -108,7 +110,11 @@ export default function EndingCards({ ending, visions = false, onDone, onScene }
           transition={{ type: 'spring', bounce: 0.25, duration: 0.5 }}
           className="flex w-full justify-center"
         >
-          <EndingCard label={card.label} title={card.title} text={card.text} color={card.color} art={card.art} />
+          <EndingStill
+            ending={card.ending}
+            label={card.label}
+            fallback={<EndingCard label={card.label} title={card.title} text={card.text} color={card.color} art={card.art} />}
+          />
         </motion.div>
       </AnimatePresence>
       <div className="flex items-center gap-3">

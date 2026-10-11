@@ -33,7 +33,7 @@ import { REWRITERS } from '../data/realm3.js'
 import { PIP_BOSS, YOU_BOSS } from '../data/convergence.js'
 import { keeperMemory } from '../utils/keepers.js'
 import { SCENES, SCENE_IDS } from '../data/story.js'
-import StoryScene from './StoryScene.jsx'
+import StorySceneHost from './StorySceneHost.jsx'
 
 const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic', abstract: 'Abstract', absolute: 'Absolute' },
@@ -628,7 +628,7 @@ function GalleryScreenInner({ slot, onBack, embedded = false }) {
             {!(profile.scenes || []).length && <p className="text-base text-[var(--text-mute)]">{t('elementa.gallery.storyNone')}</p>}
           </div>
         </section>
-        {replay && <StoryScene id={replay} onDone={() => setReplay(null)} />}
+        {replay && <StorySceneHost id={replay} onDone={() => setReplay(null)} />}
         </div>
       ) : tab === 'loadouts' ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">

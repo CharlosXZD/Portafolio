@@ -36,6 +36,31 @@ const PIP_PALETTE = {
   d: '#2a1a55',
 }
 
+/** Pip at rest: the pixel sprite alone, no motion of its own (the cinematics move it frame by frame). */
+export function PipSprite({ size = 70, blink = false, glow = true, ...rest }) {
+  const rows = blink ? PIP_BLINK : PIP_OPEN
+  const rects = []
+  rows.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      const fill = PIP_PALETTE[row[x]]
+      if (fill) rects.push(<rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill={fill} />)
+    }
+  })
+  return (
+    <svg
+      viewBox="0 0 14 14"
+      width={size}
+      height={size}
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+      style={glow ? { filter: 'drop-shadow(0 0 12px #8f6bff99)' } : undefined}
+      {...rest}
+    >
+      {rects}
+    </svg>
+  )
+}
+
 export function Pip({ size = 70 }) {
   const { reducedMotion } = useGameSettings()
   const [blink, setBlink] = useState(false)
@@ -49,27 +74,14 @@ export function Pip({ size = 70 }) {
     return () => clearInterval(id)
   }, [reducedMotion])
 
-  const rows = blink ? PIP_BLINK : PIP_OPEN
-  const rects = []
-  rows.forEach((row, y) => {
-    for (let x = 0; x < row.length; x++) {
-      const fill = PIP_PALETTE[row[x]]
-      if (fill) rects.push(<rect key={`${x}-${y}`} x={x} y={y} width="1.02" height="1.02" fill={fill} />)
-    }
-  })
   return (
-    <motion.svg
-      viewBox="0 0 14 14"
-      width={size}
-      height={size}
-      shapeRendering="crispEdges"
-      aria-hidden="true"
+    <motion.span
+      style={{ display: 'inline-flex', lineHeight: 0 }}
       animate={reducedMotion ? undefined : { y: [0, -6, 0] }}
       transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-      style={{ filter: 'drop-shadow(0 0 12px #8f6bff99)' }}
     >
-      {rects}
-    </motion.svg>
+      <PipSprite size={size} blink={blink} />
+    </motion.span>
   )
 }
 

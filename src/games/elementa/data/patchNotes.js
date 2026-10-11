@@ -32,6 +32,26 @@ export const PATCH_NOTES = [
   },
   {
     stage: 'Alpha',
+    version: '0.9.12',
+    name: L('Cinematics', 'Cinemáticas'),
+    date: null,
+    highlights: [
+      L(
+        'Story scenes are staged now. Every one of the 37 scenes (the Primordial, the four gods, the Crossroads, the door, the Wardens, the Rewriters, Pip, You, the true ending) plays as a short film in pixel art: a backdrop in the scene\'s own color, a camera that pushes, pans or shakes, embers, snow, stars, ink or glitches in the air, and the speaker standing in their own light. The words still type in under the picture, in your language, and the controls are the same: Enter moves on, Esc skips, and the first Enter shows the whole page at once.',
+        'Las escenas de historia ahora están dirigidas. Cada una de las 37 escenas (el Primordial, los cuatro dioses, la Encrucijada, la puerta, los Custodios, los Reescritores, Pip, Tú, el final verdadero) se reproduce como un pequeño corto en pixel art: un fondo del color de la escena, una cámara que avanza, se desplaza o tiembla, brasas, nieve, estrellas, tinta o fallos en el aire, y quien habla de pie en su propia luz. El texto sigue escribiéndose bajo la imagen, en tu idioma, y los controles son los mismos: Enter avanza, Esc salta, y el primer Enter muestra toda la página de golpe.',
+      ),
+      L(
+        'The hero scenes have their own direction: the Primordial with the four elements circling it, each god in front of its own sigil, the door that opens in the crossing, Pip swelling up before its fight, the mirror before You, and the white bloom of the true ending. The 17 endings are short stills with a slow push.',
+        'Las escenas principales tienen dirección propia: el Primordial con los cuatro elementos girando a su alrededor, cada dios frente a su propio sigilo, la puerta que se abre al cruzar, Pip hinchándose antes de su pelea, el espejo antes de Tú y el resplandor blanco del final verdadero. Los 17 finales son imágenes breves con un empuje lento.',
+      ),
+      L(
+        'The game opens with an intro: the logo reveal, the four elements and the tagline, once per visit. Skip it with a click, Enter or Esc, or turn it off in Options, Display, Intro animation. With Reduced motion the scenes show still shots with all the text at once, and on a slow device the old typed scenes are used.',
+        'El juego abre con una introducción: el logo, los cuatro elementos y el lema, una vez por visita. Sáltala con un clic, Enter o Esc, o desactívala en Opciones, Pantalla, Animación de inicio. Con Movimiento reducido las escenas muestran imágenes fijas con todo el texto a la vez, y en un dispositivo lento se usan las escenas escritas de antes.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.11',
     name: L('The menus', 'Los menús'),
     date: null,

@@ -14,6 +14,7 @@ import { gameReducer, initialState, selectors } from '../engine/gameReducer.js'
 import { nextChoices } from '../engine/map.js'
 import { consumableById } from '../data/consumables.js'
 import { emptyProfile } from '../utils/saveManager.js'
+import { SCENE_IDS } from '../data/story.js'
 
 const found = {}
 const want = (key, state) => {
@@ -123,11 +124,18 @@ if (found['shop:market']) want('inscribe', { ...found['shop:market'], consumable
   }
 }
 
+// The story scenes (V5): `scene-gallery` has every scene already seen, so each one replays from the Gallery's
+// Endings tab; `scene-crossing` is a Firmament shop that plays the crossing scene on Continue.
+if (found.table) want('scene:gallery', found.table)
+if (found['fshop:market']) want('scene:crossing', found['fshop:market'])
+
 mkdirSync(fileURLToPath(new URL('./room-test-saves/', import.meta.url)), { recursive: true })
 const index = {}
 for (const [key, state] of Object.entries(found)) {
   const run = { ...state, shards: 400, threshold: 1 }
-  const files = { 0: { createdAt: Date.now(), updatedAt: Date.now(), profile: { ...(key === 'crossroads' || key.startsWith('fshop') ? profiles.profile : emptyProfile()), stats: { runs: 1, wins: 0, bestCast: 0, bestRound: run.round } }, run } }
+  const base = key === 'crossroads' || key.startsWith('fshop') || key === 'scene:crossing' ? profiles.profile : emptyProfile()
+  const scenes = key === 'scene:gallery' ? SCENE_IDS : key === 'scene:crossing' ? SCENE_IDS.filter((id) => id !== 'crossing') : base.scenes
+  const files = { 0: { createdAt: Date.now(), updatedAt: Date.now(), profile: { ...base, ...(scenes ? { scenes } : {}), stats: { runs: 1, wins: 0, bestCast: 0, bestRound: run.round } }, run } }
   const backup = {
     format: 'elementa-backup',
     version: 1,
@@ -138,6 +146,8 @@ for (const [key, state] of Object.entries(found)) {
       'elementa-music-enabled': 'false',
       'elementa-music-volume': '0',
       'elementa-sfx-volume': '0',
+      // No opening animation over the test saves (V5).
+      'elementa-display': JSON.stringify({ introAnimation: false }),
     },
   }
   const name = key.replace(':', '-')

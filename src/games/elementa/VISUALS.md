@@ -230,7 +230,7 @@ Carlos reviewed V3: "they are looking good, we can advance". Answers to the V3 o
 
 **Do not build** in V4: cinematics (V5), the Road map's own visuals (V6, though the shop's map-table object shows the existing map component as is), character rigs for Pip, bosses, gods or the Arbiter (V7), the item redraw (Later).
 
-### V5: Cinematics (Ready, spec 2026-10-11)
+### V5: Cinematics (Built 2026-10-11, Alpha 0.9.12, see `VISUALS_V5_REPORT.md`; waiting for Carlos's review)
 
 Carlos (2026-10-11): execute the whole plan first (V5, V6, V7, V8), then fix small things. The V1 title card is the proof the pipeline works (real logo, fonts, tagline and icons).
 

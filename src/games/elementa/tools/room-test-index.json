@@ -123,5 +123,15 @@
   "phase": "gameover",
   "round": 1,
   "shop": null
+ },
+ "scene:gallery": {
+  "phase": "rolling",
+  "round": 1,
+  "shop": null
+ },
+ "scene:crossing": {
+  "phase": "shop",
+  "round": 15,
+  "shop": "market"
  }
 }

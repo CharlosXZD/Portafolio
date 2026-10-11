@@ -53,7 +53,8 @@ import BossReward from './components/BossReward.jsx'
 import RunInfo from './components/RunInfo.jsx'
 import Toasts from './components/Toasts.jsx'
 import Crossroads from './components/Crossroads.jsx'
-import StoryScene from './components/StoryScene.jsx'
+import StorySceneHost, { preloadCinematics } from './components/StorySceneHost.jsx'
+import IntroHost from './components/IntroHost.jsx'
 import { FourthWallPrompt, WeatherPrompt } from './components/ArbiterParts.jsx'
 import { useWeather } from './utils/useWeather.js'
 import { useFourthWall } from './utils/useFourthWall.js'
@@ -127,6 +128,12 @@ function ElementaGameInner() {
     setSeenScenes(slot == null ? [] : readProfile(slot).scenes || [])
   }, [slot])
   const story = slot == null ? null : sceneFor(state, seenScenes)
+  // Fetch the cinematic chunk once a file is open, in idle time, so the first scene starts at once (VISUALS.md V5).
+  useEffect(() => {
+    if (slot == null || navigator.connection?.saveData) return
+    const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 1500))
+    idle(() => preloadCinematics())
+  }, [slot])
   // What a feedback message can say about the run (T8); kept in memory only.
   useEffect(() => {
     setFeedbackContext(state.seed ? state : null)
@@ -509,7 +516,9 @@ function ElementaGameInner() {
 
       {inRun && <Tutorial state={state} paused={paused || showRunInfo || Boolean(story)} onActiveChange={setTutorialActive} />}
 
-      {story && !askFourthWall && <StoryScene key={story} id={story} onDone={() => finishScene(story)} />}
+      <IntroHost />
+
+      {story && !askFourthWall && <StorySceneHost key={story} id={story} onDone={() => finishScene(story)} />}
       {askFourthWall && <FourthWallPrompt onChoose={chooseFourthWall} />}
       {askWeather && !story && <WeatherPrompt onChoose={chooseWeather} />}
 

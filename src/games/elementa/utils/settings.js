@@ -133,6 +133,8 @@ export const DISPLAY_DEFAULTS = {
   fontStyle: 'pixel', // 'pixel' | 'classic' | 'clean'
   reactions: 'compact', // 'compact' | 'full' | 'off'
   glows: true,
+  // The opening animation (logo reveal, element orbs, tagline), once per session (VISUALS.md V5).
+  introAnimation: true,
   keyHints: true,
   ledgerOpen: true,
   // How a die rolls: 'tumble' (hops and turns, EXPANSION.md E6) or

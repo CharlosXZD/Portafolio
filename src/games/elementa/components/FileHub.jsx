@@ -17,7 +17,8 @@ import { Stat } from './RoundHUD.jsx'
 function Overlay({ onClose, children }) {
   useEffect(() => {
     function onKey(e) {
-      if (e.key !== 'Escape') return
+      // A story scene replayed from the gallery owns Escape while it is open.
+      if (e.key !== 'Escape' || document.querySelector('[data-story-scene]')) return
       e.stopImmediatePropagation()
       onClose()
     }
