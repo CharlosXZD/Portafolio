@@ -1512,7 +1512,7 @@ Shrine's Prophecy tells you which boss is coming, so you can buy toward its coun
 These are places where the code and the text disagree. Tell me which way to go. Items 1, 2, 4, 5 and 8 were checked against the code again on 2026-10-12 and still hold.
 
 1. **Wildfire does nothing.** Its effect (20% chance an explosion spreads to another Fire-family die) is never read by the scoring engine. Needs implementing, or a new effect.
-2. **Aether says "Capped at one per run" but nothing enforces it.** You can own several (buy one, forge one, or Mirror Shard it).
+2. ~~Aether says "Capped at one per run" but nothing enforces it.~~ **Resolved in v0.9.17:** Aether follows the same rule as the Mythic dice (`holdsKind`): it cannot be bought, forged or copied (Mirror Shard, Shadow Twin, Chisel) while one is held. A pool that already held two keeps both; Entropy's recipe still takes the Aether it holds.
 3. ~~Aether only appears in the shop after you have owned all four triple fusions.~~ **Resolved in v0.4 (B6):** Aether is locked behind the recipe (beat Primordial once on the file) for both the Forge and the shop. The shop still also needs all four triples owned this run.
 4. **Earth relics only count pure Earth,** while Water relics count the whole Water family. Bedrock, Groundswell and Fossil ignore Steel, Mud, Crystal and the Earth triples. Make them family-wide?
 5. **Two taglines promise more than the code does:** Lightning's "chained explosions re-check the set bonus mid-roll" and Ice's "locked faces count toward sets" describe nothing extra (every die already counts toward sets). Either give them those abilities or reword them.

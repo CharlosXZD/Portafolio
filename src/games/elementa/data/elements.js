@@ -1078,8 +1078,8 @@ export const ENTROPY_ID = 'entropy'
 /** A Mythic die or Entropy: one of each kind per run (H3). */
 export const isMythic = (elementId) => ELEMENTS[elementId]?.tier === TIERS.MYTHIC
 
-/** Dice limited to one per run: the Mythic dice, and the Quasar (I1). */
-export const isOnePerRun = (elementId) => isMythic(elementId) || elementId === 'quasar'
+/** Dice limited to one per run: the Mythic dice, the Quasar (I1) and Aether (its tagline says so; v0.9.17). A pool that already holds two keeps both. */
+export const isOnePerRun = (elementId) => isMythic(elementId) || elementId === 'quasar' || elementId === 'aether'
 
 /** Dice that can grow past d20 in the Firmament: every die (M2). */
 // Since v0.8.2 (EXPANSION.md M2) every die can grow past d20 in the Firmament

@@ -292,4 +292,19 @@ const enter = (extra = {}) => {
   eq('a realm 3 save from before the door now reaches it at round 45', [r3.phase, r3.ending], ['crossroads', 'realm3_neutral_2'])
 }
 
+// ---- Aether is one per run (v0.9.17) ----
+{
+  const aeth = (id) => ({ ...run.dice[0], id, elementId: 'aether', held: false, locked: false })
+  const base = { ...run, phase: 'shop', recipes: [...(run.recipes ?? []), 'aether'], shards: 500, shop: { ...(run.shop ?? {}), forgeOpen: true, type: 'forge' } }
+  const one = { ...base, dice: [aeth('a1'), ...run.dice.slice(1, 4)] }
+  const two = { ...base, dice: [aeth('a1'), aeth('a2'), ...run.dice.slice(2, 4)] }
+  eq('holding one Aether blocks buying another', R.gameReducer({ ...one, shop: { ...one.shop, buyableElements: ['aether'] } }, { type: 'BUY_DIE', elementId: 'aether' }).dice.filter((d) => d.elementId === 'aether').length, 1)
+  const four = ['fire', 'water', 'earth', 'air'].map((e, i) => ({ ...run.dice[0], id: 'e' + i, elementId: e, held: false, locked: false }))
+  const canForge = (dice) => R.selectors.forgeableRecipes({ ...base, dice }).find((r) => r.fusionElementId === 'aether')?.canForge
+  eq('Aether forges from the four elements, but not while one is held', [canForge(four), canForge([aeth('a1'), ...four])], [true, false])
+  eq('Aether cannot be copied (Mirror Shard, Shadow Twin, Chisel)', R.selectors.holdsKind(one.dice, 'aether'), true)
+  eq('an old save that holds two keeps both', R.gameReducer({ phase: 'title' }, { type: 'LOAD_RUN', save: two, slot: 0 }).dice.filter((d) => d.elementId === 'aether').length, 2)
+  eq('with none, Aether can still be forged from its four elements', R.selectors.holdsKind(run.dice, 'aether'), false)
+}
+
 console.log(fails ? `${fails} FAILED` : 'all ok')
