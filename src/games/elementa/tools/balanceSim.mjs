@@ -255,7 +255,7 @@ if (process.argv.includes('rush')) {
   const { thresholdForRound } = await import('../engine/scoring.js')
   const { relicById } = await import('../data/relics.js')
   const { tierById } = await import('../data/diceTiers.js')
-  const { rushFights, RUSH_BASE, RUSH_WARDEN_FACTORS, PIP_FRACTION } = await import('../data/convergence.js')
+  const { rushFights, RUSH_BASE, rushFactor, rushTargetFor, RUSH_TARGET_RATIO } = await import('../data/convergence.js')
   const { REWRITER_TARGET } = await import('../data/realm3.js')
   const { bossById, GOD_TRIALS, PRIMORDIAL } = await import('../data/bossModifiers.js')
   const POOL = ['air', 'lightning', 'crystal', 'storm', 'magma', 'steel', 'earth', 'fire', 'ice', 'monsoon']
@@ -270,23 +270,28 @@ if (process.argv.includes('rush')) {
     return gameReducer(st, { type: 'REROLL_UNHELD' })
   }
   const median = (a) => [...a].sort((x, y) => x - y)[Math.floor(a.length / 2)]
-  const fights = rushFights().filter((id) => id !== 'you')
-  console.log('Rush targets on', diffId, '(', runs, 'casts per cell; best cast of the run = the best of the plain casts )')
+  // the four gods are one block in the Rush; the sim plays each trial's rule on its own
+  const fights = rushFights().filter((id) => id !== 'you').flatMap((id) => (id === 'gods' ? GOD_TRIALS.map((g) => g.id) : [id]))
+  console.log('Rush targets on', diffId, '(', runs, 'casts per cell; best cast of the run = the best of the first 40 plain casts )')
+  const suggest = {}
   for (const kind of ['good', 'great']) {
-    const plain = Array.from({ length: runs }, (_, k) => score(playRound(build(kind, k, null))))
+    const plain = Array.from({ length: 40 }, (_, k) => score(playRound(build(kind, k, null))))
     const best = Math.max(...plain)
     console.log('\n' + kind + ' build: best cast', best, ', round 45 target', thresholdForRound(R, DIFFICULTIES_BY_ID(diffId)))
-    console.log('fight        target      median cast under the rule   median / target')
+    console.log('fight        factor      target   median cast under the rule   median / target   pass%   factor for ' + RUSH_TARGET_RATIO)
     fights.forEach((id) => {
-      const wi = WARDENS.indexOf(id)
-      const boss = id === 'primordial' ? PRIMORDIAL : id === 'gods' ? GOD_TRIALS[0] : id === 'pip' ? null : bossById(id)
-      const factor = id === 'pip' ? PIP_FRACTION / RUSH_BASE : id === 'primordial' ? 1 : id === 'gods' ? GOD_TRIALS[0].target : wi !== -1 ? RUSH_WARDEN_FACTORS[wi % 3] : REWRITER_TARGET[id] ?? 1
-      const target = Math.round(best * RUSH_BASE * factor)
+      const god = GOD_TRIALS.find((g) => g.id === id)
+      const boss = id === 'primordial' ? PRIMORDIAL : god ?? (id === 'pip' ? null : bossById(id))
+      const factor = id === 'pip' ? 0.1 / RUSH_BASE : rushFactor(id)  // (the Axiom's target is flat: see RUSH_FLAT)
+      const target = rushTargetFor(id, best, thresholdForRound(R, DIFFICULTIES_BY_ID(diffId)))
       const casts = Array.from({ length: runs }, (_, k) => { const st = playRound(build(kind, k, boss)); return score(st) / (id === 'infinity' ? selectors.effectiveThreshold({ ...st, threshold: 1 }) : 1) })
       const m = median(casts)
-      console.log(id.padEnd(12), String(target).padStart(12), String(Math.round(m)).padStart(18), (m / target).toFixed(2).padStart(18))
+      const want = id === 'axiom' ? m / (RUSH_TARGET_RATIO * thresholdForRound(R, DIFFICULTIES_BY_ID(diffId))) : m / (best * RUSH_BASE * RUSH_TARGET_RATIO)
+      if (kind === 'good') suggest[id] = want
+      console.log(id.padEnd(12), factor.toFixed(4).padStart(8), String(target).padStart(12), String(Math.round(m)).padStart(18), (m / target).toFixed(2).padStart(18), String(Math.round((100 * casts.filter((c) => c >= target).length) / casts.length)).padStart(6), want.toFixed(4).padStart(20))
     })
   }
+  if (process.env.CALIB) console.log('\nsuggested factors (good build):', JSON.stringify(Object.fromEntries(Object.entries(suggest).map(([k, v]) => [k, Math.round(v * 10000) / 10000]))))
   process.exit(0)
 }
 

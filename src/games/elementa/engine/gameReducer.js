@@ -96,9 +96,7 @@ import { firmamentEnding } from '../data/endings.js'
 import { LEVEL_CAP, LEVELABLE } from '../data/constellations.js'
 import { isPokerId, pokerFaces, JOKER_CAP } from '../data/poker.js'
 import {
-  RUSH_BASE,
-  RUSH_WARDEN_FACTORS,
-  PIP_FRACTION,
+  rushTargetFor,
   PIP_BOSS,
   YOU_BOSS,
   DUEL_EXCHANGES,
@@ -2550,18 +2548,10 @@ function rushBest(state) {
 }
 
 /** The fights in the Rush that are Wardens, in order (Set I then Set II). */
-const RUSH_WARDENS = ['dawn', 'clockwork', 'expanse', 'umbra', 'maelstrom', 'hollow']
 
-/** A Convergence fight's target (T2, T3): 0.6 of the best cast of the run so far, times the boss's own factor. */
+/** A Convergence fight's target (T2, T3): 0.6 of the best cast of the run so far, times the fight's own factor (v0.9.17). */
 function convTarget(state, id, stage = 0) {
-  const best = rushBest(state)
-  if (id === 'pip') return Math.max(1, Math.round(best * PIP_FRACTION))
-  const base = best * RUSH_BASE
-  if (id === 'gods') return Math.max(1, Math.round(base * GOD_TRIALS[stage].target))
-  const warden = RUSH_WARDENS.indexOf(id)
-  if (warden !== -1) return Math.max(1, Math.round(base * RUSH_WARDEN_FACTORS[warden % 3]))
-  if (rewriterById(id)) return Math.max(1, Math.round(base * (REWRITER_TARGET[id] ?? 1)))
-  return Math.max(1, Math.round(base))
+  return rushTargetFor(id === 'gods' ? GOD_TRIALS[stage].id : id, rushBest(state), thresholdForRound(REALM3_END, state.difficulty))
 }
 
 /** The boss object for a Rush fight, by id. */
@@ -4047,7 +4037,8 @@ function reduce(state, action) {
     // is kept; the boss reward and a first Market with Tobb come first,
     // then round 16.
     case 'ENTER_FIRMAMENT': {
-      if (state.phase !== 'crossroads' || !firmamentSets(state).includes(action.set)) return state
+      // Only Elementa's door leads here: the doors after round 30 and round 45 lead on (R1, T1), never back.
+      if (state.phase !== 'crossroads' || state.realm === 'firmament' || state.realm3 || !firmamentSets(state).includes(action.set)) return state
       const path = state.path ?? 'neutral'
       const chronicle = state.chronicle ?? { bosses: [], shops: [] }
       const next = {

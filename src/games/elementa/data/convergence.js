@@ -15,8 +15,37 @@ export const ARRIVAL_STARDUST = 2
 
 /** A Rush fight's target is this much of the best cast of the run so far, times the boss's own factor (Default). */
 export const RUSH_BASE = 0.6
-/** Wardens come in sets of three: the factor by order within a set (the Firmament's own 1, 1.1, 1.25). */
-export const RUSH_WARDEN_FACTORS = [1, 1.1, 1.25]
+/** The Rush's aim (Default): a good build's median cast is this many times a fight's target, for every boss (tools/balanceSim.mjs rush). */
+export const RUSH_TARGET_RATIO = 1.15
+/**
+ * Each Rush fight's own factor on the base (0.6 of the run's best cast). They were first the
+ * Firmament's and realm 3's own factors, which were calibrated against round 35 to 45's targets and not
+ * against a base made from the best cast; v0.9.17 re-derived them from the simulation.
+ */
+export const RUSH_FACTOR = {
+  primordial: 0.92,
+  gaea: 0.97, ognen: 1, varuna: 1.03, zephyr: 0.98,
+  dawn: 1, clockwork: 1, expanse: 0.92, umbra: 0.73, maelstrom: 0.77,
+  // The Hollow seals every relic: a build that lives on relics scores about a twenty-fifth of its normal cast,
+  // so in the Rush its target is lowered to match (the relief; the seal stays, it is the fight's whole idea).
+  hollow: 0.04,
+  zero: 0.99, floating: 0.99, infinity: 1.02, observer: 1.02, deadlock: 1.02,
+}
+export const rushFactor = (id) => RUSH_FACTOR[id] ?? 1
+/**
+ * Fights whose score does not grow with the build's best cast, so their target is a fraction of round 45's
+ * own target and not of the best cast (the Axiom adds Base and Mult: a build that multiplies well, and so
+ * has a huge best cast, would face a target it can never reach).
+ */
+export const RUSH_FLAT = { axiom: 0.00009 }
+
+/** A Rush fight's target, given the run's best cast (already at least round 45's target) and round 45's target. */
+export function rushTargetFor(id, best, round45) {
+  if (id === 'pip') return Math.max(1, Math.round(best * PIP_FRACTION))
+  if (RUSH_FLAT[id] != null) return Math.max(1, Math.round(round45 * RUSH_FLAT[id]))
+  return Math.max(1, Math.round(best * RUSH_BASE * rushFactor(id)))
+}
+
 /** Pip's target, as a fraction of the best cast of the run (Default): the easiest fight in the game. */
 export const PIP_FRACTION = 0.1
 
