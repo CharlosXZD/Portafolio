@@ -899,7 +899,7 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
         </OfferShelf>
         )}
         <div className="stage">
-          <div className="stage__row">
+          <div className="stage__row" data-conclave={type.keeper === 'conclave' ? '' : undefined}>
             <KeeperGreeting state={state} type={type} />
             {/* Vesper works beside Brasa past the door (EXPANSION.md K5). */}
             {selectors.vesperHere(state) && <KeeperGreeting second state={state} type={{ ...type, keeper: 'vesper', color: '#9fb8ff' }} />}

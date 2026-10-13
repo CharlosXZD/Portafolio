@@ -3,6 +3,7 @@ import PixelBackdrop from '../PixelBackdrop.jsx'
 import { realm3For } from '../../data/realm3.js'
 import { bossColor } from '../../data/bossModifiers.js'
 import { mix } from '../../utils/color.js'
+import { guard } from '../../utils/forceFail.js'
 import { ROOM_LOADERS } from './room/rooms.js'
 
 // The game's backdrop (VISUALS.md V3.3). A shop, the table, a boss fight, the
@@ -10,7 +11,7 @@ import { ROOM_LOADERS } from './room/rooms.js'
 // menus) keeps the old PixelBackdrop, which is also the fallback while a
 // room's chunk loads and if it ever fails to load. The room art is a lazy
 // chunk, so none of it is in the main bundle.
-const RoomStage = lazy(() => import('./room/RoomStage.jsx'))
+const RoomStage = lazy(guard('rooms', () => import('./room/RoomStage.jsx')))
 
 class Fallback extends Component {
   state = { failed: false }

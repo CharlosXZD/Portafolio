@@ -1,9 +1,10 @@
-import { memo, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
+import { memo, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { mix } from '../../../utils/color.js'
 import BossAvatar from '../../BossAvatar.jsx'
 import { ArbiterHand } from '../../ArbiterHand.jsx'
 import { useVisualEnv } from '../VisualEnv.jsx'
 import { CHAR_SPRITES } from './charData.js'
+import { findImageOverride } from '../../../data/visualRegistry.js'
 import { STEP, poseAt } from './charPose.js'
 
 // One rig for every character that had none (VISUALS.md V7). It has three bodies behind one
@@ -110,6 +111,15 @@ function CharacterRig({ id, size = 112, t, react = null, reactKey = 0, reactAt: 
     if (!driven && react && started.current.key !== reactKey) started.current = { key: reactKey, at: getStep() * STEP }
   }, [driven, react, reactKey])
   const reactAt = driven ? (reactAtProp ?? 0) : started.current.at
+  // The swap rule: a file named `rig.<id>` in public/elementa/visuals/ (png, webp or svg) replaces the body.
+  const [swap, setSwap] = useState(null)
+  useEffect(() => {
+    let live = true
+    findImageOverride(`rig.${id}`).then((u) => live && setSwap(u))
+    return () => {
+      live = false
+    }
+  }, [id])
   const kind = rigKind(id)
   const def = kind === 'sprite' ? CHAR_SPRITES[id] : null
   const pose = useMemo(() => poseAt(def, { t: time, react, reactAt, talking, still }), [def, time, react, reactAt, talking, still])
@@ -133,7 +143,7 @@ function CharacterRig({ id, size = 112, t, react = null, reactKey = 0, reactAt: 
         ...style,
       }}
     >
-      {kind === 'sprite' ? <Sprite def={def} pose={pose} size={size} /> : kind === 'arbiter' ? <ArbiterHand size={size} /> : <BossAvatar id={id} size={size} />}
+      {swap ? <img src={swap} alt="" width={size} height={size} style={{ imageRendering: 'pixelated', objectFit: 'contain' }} /> : kind === 'sprite' ? <Sprite def={def} pose={pose} size={size} /> : kind === 'arbiter' ? <ArbiterHand size={size} /> : <BossAvatar id={id} size={size} />}
     </span>
   )
 }

@@ -1,5 +1,5 @@
 import ErrorBoundary from './components/ErrorBoundary.jsx'
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { gameReducer, initialState, selectors } from './engine/gameReducer.js'
 import RoundHUD from './components/RoundHUD.jsx'
 import DiceTray from './components/DiceTray.jsx'
@@ -531,11 +531,28 @@ function ElementaGameInner() {
   )
 }
 
+// The visual style (VISUALS.md V8.0): the overhauled game, or the old component tree recovered into
+// components/legacy/ (a lazy chunk that loads only when Legacy is chosen). Switching remounts the
+// game on its main menu; a run in progress is autosaved and can be continued in either style.
+const LegacyGameInner = lazy(() => import('./components/legacy/LegacyGame.jsx').then((m) => ({ default: m.LegacyGameInner })))
+
+function StyleSwitch() {
+  const { visualStyle } = useGameSettings()
+  if (visualStyle === 'legacy') {
+    return (
+      <Suspense fallback={<div className="elementa-root min-h-screen w-full" style={{ background: 'var(--night-0)' }} />}>
+        <LegacyGameInner />
+      </Suspense>
+    )
+  }
+  return <ElementaGameInner />
+}
+
 export default function ElementaGame() {
   return (
     <GameSettingsProvider>
       <ErrorBoundary>
-        <ElementaGameInner />
+        <StyleSwitch />
       </ErrorBoundary>
     </GameSettingsProvider>
   )

@@ -21,6 +21,8 @@ import { readProfile, completion, isDeckUnlocked, knowsRecipe, crossedDoor, TOTA
 import ItemIcon from './ItemIcon.jsx'
 import PixelIcon from './PixelIcon.jsx'
 import BossAvatar from './BossAvatar.jsx'
+import CharacterRig from './visuals/rigs/CharacterRig.jsx'
+import KeeperRig from './visuals/rigs/KeeperRig.jsx'
 import AchievementsList from './AchievementsList.jsx'
 import KeeperSprite from './KeeperSprite.jsx'
 import FamilyTags from './FamilyTag.jsx'
@@ -291,7 +293,8 @@ function GalleryScreenInner({ slot, onBack, embedded = false }) {
               <BossAvatar id={b.id} size={48} unknown={!isSeen} />
             </span>
           ),
-          art: <BossAvatar id={b.id} size={72} />,
+          // Seen bosses idle in the V7 rig on their page (spoiler-free: unseen ones stay a silhouette tile).
+          art: <CharacterRig id={b.id} size={72} />,
           item: { name: b.name, description: b.description },
           extra: <div className="text-base text-[#ff9a9a]">{when}</div>,
           hint: t('elementa.gallery.bossHint'),
@@ -314,7 +317,7 @@ function GalleryScreenInner({ slot, onBack, embedded = false }) {
               </span>
             </span>
           ),
-          art: <KeeperSprite id={id} size={72} />,
+          art: <KeeperRig id={id} size={72} />,
           item: { name: k.name[lang], description: k.title[lang] },
           extra: (
             <div className="flex flex-col gap-2">
@@ -346,7 +349,7 @@ function GalleryScreenInner({ slot, onBack, embedded = false }) {
               <KeeperSprite id="arbiter" size={48} />
             </span>
           ),
-          art: <KeeperSprite id="arbiter" size={72} />,
+          art: <CharacterRig id="arbiter" size={72} />,
           item: { name: ARBITER.article[lang].replace(/^./, (c) => c.toUpperCase()), description: t('elementa.gallery.arbiterNote') },
           extra: (
             <div className="flex flex-col gap-2">

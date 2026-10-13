@@ -12,6 +12,7 @@ const KEYS = {
   screenShake: 'elementa-screen-shake',
   display: 'elementa-display',
   seenVersion: 'elementa-seen-version',
+  visualStyle: 'elementa-visual-style',
 }
 
 function readNumber(key, fallback) {
@@ -158,4 +159,17 @@ export function getDisplay() {
 }
 export function setDisplay(v) {
   write(KEYS.display, JSON.stringify(v))
+}
+
+// The visual style (VISUALS.md V8.0): 'new' is the overhauled look, 'legacy' the game as it looked
+// before the overhaul (components/legacy/). Same rules and saves either way.
+export function getVisualStyle() {
+  try {
+    return window.localStorage.getItem(KEYS.visualStyle) === 'legacy' ? 'legacy' : 'new'
+  } catch {
+    return 'new'
+  }
+}
+export function setVisualStyle(v) {
+  write(KEYS.visualStyle, v === 'legacy' ? 'legacy' : 'new')
 }

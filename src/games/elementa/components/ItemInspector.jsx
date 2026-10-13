@@ -1,4 +1,6 @@
 import { Suspense, lazy, useEffect } from 'react'
+import { guard } from '../utils/forceFail.js'
+import LazyBoundary from './LazyBoundary.jsx'
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { RARITY_GLOW } from '../data/relics.js'
@@ -10,7 +12,7 @@ import RichText from './RichText.jsx'
 import { useFloating, arrowStyle } from './useFloating.js'
 
 // The item sprite (VISUALS.md V2.5), loaded on demand: shown larger, with its idle life.
-const ItemSprite = lazy(() => import('./visuals/ItemSprite.jsx'))
+const ItemSprite = lazy(guard('items', () => import('./visuals/ItemSprite.jsx')))
 
 export const RARITY_LABEL = {
   en: { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', divine: 'Divine', mythic: 'Mythic', abstract: 'Abstract', absolute: 'Absolute' },
@@ -86,15 +88,17 @@ export default function ItemInspector({ item, onClose, actions = [], placement =
         <div className="flex justify-center px-3 pt-3">
           <span className="el-well flex items-center justify-center" style={{ width: 96, height: 96 }}>
             {/* Until the sprite chunk arrives the old sprite shows, so the well is never empty. */}
-            <Suspense fallback={null}>
-              <ItemSprite
-                itemId={item.itemId}
-                scale={2}
-                motion="idle"
-                rarity={item.rarity}
-                fallback={item.sprite ? <PixelSprite {...item.sprite} size={72} /> : null}
-              />
-            </Suspense>
+            <LazyBoundary fallback={item.sprite ? <PixelSprite {...item.sprite} size={72} /> : null}>
+              <Suspense fallback={null}>
+                <ItemSprite
+                  itemId={item.itemId}
+                  scale={2}
+                  motion="idle"
+                  rarity={item.rarity}
+                  fallback={item.sprite ? <PixelSprite {...item.sprite} size={72} /> : null}
+                />
+              </Suspense>
+            </LazyBoundary>
           </span>
         </div>
       )}

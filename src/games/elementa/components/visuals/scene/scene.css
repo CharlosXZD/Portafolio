@@ -255,6 +255,23 @@
 }
 .stage__sign[data-k='1'] { grid-row: 1; }
 .stage__sign[data-k='2'] { grid-row: 2; }
+/* The Conclave (Aether Bazaar, Astral Exchange) is six keepers in a row: it gets the whole width of
+   the stage, and the greeting sign sits under it at full width instead of being squeezed beside it (V8.1). */
+.stage__row[data-conclave] {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  row-gap: 6px;
+}
+.stage__row[data-conclave] .stage__keeper { grid-column: 1; grid-row: 1; }
+.stage__row[data-conclave] .stage__sign {
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  margin-top: 0;
+}
+@container (max-width: 330px) {
+  .stage__row[data-conclave] .stage__keeper > span > svg { width: 34px; height: auto; }
+}
 
 /* the hanging greeting sign */
 .obj-sign {

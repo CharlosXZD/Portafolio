@@ -1,4 +1,6 @@
 import { Suspense, lazy } from 'react'
+import { guard } from '../utils/forceFail.js'
+import LazyBoundary from './LazyBoundary.jsx'
 import { motion } from 'framer-motion'
 import { RARITY_GLOW } from '../data/relics.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
@@ -11,7 +13,7 @@ import PixelSprite from './PixelSprite.jsx'
 // recipes are not part of the first load); until it arrives the flat sprite below stays,
 // and it is instant after that (no build queue, no WebGL). V2's cached 3D models are
 // still in the Lab's Item gallery but no longer used here.
-const ItemSprite = lazy(() => import('./visuals/ItemSprite.jsx'))
+const ItemSprite = lazy(guard('items', () => import('./visuals/ItemSprite.jsx')))
 
 /**
  * The visual stand-in for a relic/consumable/die "item": a pixel tile with
@@ -92,6 +94,7 @@ export default function ItemIcon({
   const miniScale = Math.floor(room / 16)
   const content =
     itemId && !iconSrc && (spriteScale >= 1 || miniScale >= 1) ? (
+      <LazyBoundary fallback={flat}>
       <Suspense fallback={flat}>
         <ItemSprite
           itemId={itemId}
@@ -103,6 +106,7 @@ export default function ItemIcon({
           fallback={flat}
         />
       </Suspense>
+      </LazyBoundary>
     ) : (
       flat
     )

@@ -112,6 +112,8 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
     setScreenShake,
     display,
     updateDisplay,
+    visualStyle,
+    setVisualStyle,
   } = useGameSettings()
 
   const [sfxVolume, setSfxVolumeState] = useState(getSfxVolume)
@@ -229,6 +231,16 @@ export default function OptionsScreen({ onClose, onNotesSeen }) {
       </Section>
 
       <Section title={t('elementa.options.display')} tab="display">
+        <div className="text-base">{t('elementa.options.visualStyle')}</div>
+        <Segmented
+          value={visualStyle}
+          onChange={(v) => setVisualStyle(v)}
+          options={[
+            { value: 'new', label: t('elementa.options.styleNew') },
+            { value: 'legacy', label: t('elementa.options.styleLegacy') },
+          ]}
+        />
+        <p className="-mt-1 text-sm text-[var(--text-mute)]">{t('elementa.options.styleNote')}</p>
         <div className="text-base">{t('elementa.options.textStyle')}</div>
         <Segmented
           value={display.fontStyle}

@@ -23,6 +23,7 @@ const TEXT = {
   maps: L('Maps', 'Mapas'),
   scenes: L('Scenes', 'Escenas'),
   characters: L('Characters', 'Personajes'),
+  fallbacks: L('Fallbacks', 'Respaldos'),
   itemSprites: L('Item sprites', 'Sprites de objetos'),
   intro: L(
     'Every new visual of the overhaul lives here first (VISUALS.md, phase V1). Nothing on this page is in the real game yet. The toggles below change this page only and never your saved settings.',
@@ -367,6 +368,9 @@ function Lab() {
               </Link>
               <Link to="/games/elementa/visuals/characters" className="el-btn el-btn--sm el-btn--gold">
                 {tx.characters[lang]}
+              </Link>
+              <Link to="/games/elementa/visuals/fallbacks" className="el-btn el-btn--sm el-btn--gold">
+                {tx.fallbacks[lang]}
               </Link>
               <Link to="/games/elementa" className="el-btn el-btn--sm">
                 {tx.back[lang]}

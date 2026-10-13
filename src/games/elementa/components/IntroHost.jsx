@@ -1,4 +1,5 @@
 import { Suspense, lazy, useState } from 'react'
+import { guard } from '../utils/forceFail.js'
 import { useGameSettings } from '../utils/gameSettingsContext.jsx'
 import { CinematicBoundary } from './StorySceneHost.jsx'
 import { useVisualEnv } from './visuals/VisualEnv.jsx'
@@ -6,7 +7,7 @@ import { useVisualEnv } from './visuals/VisualEnv.jsx'
 // The game's opening animation (VISUALS.md V5): once per browser session, over the
 // main menu, skippable, off with Options -> Display -> Intro animation. It never
 // plays on the low-end tier or with Reduced motion, and it loads on demand.
-const IntroPlayer = lazy(() => import('./visuals/cinematic/IntroPlayer.jsx'))
+const IntroPlayer = lazy(guard('cinematic', () => import('./visuals/cinematic/IntroPlayer.jsx')))
 const KEY = 'elementa-intro-seen'
 
 function seenThisSession() {

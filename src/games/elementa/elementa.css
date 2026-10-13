@@ -863,6 +863,15 @@
 }
 
 
+/* Visual style: Legacy (V8.0) keeps the type of the game before the overhaul: Tiny5 alone and the hard text shadow. */
+.elementa-root[data-visual-style='legacy'] {
+  --body-font: 'Tiny5', ui-monospace, monospace;
+  --small-font: 'Tiny5', ui-monospace, monospace;
+}
+.elementa-root[data-visual-style='legacy'] .pixel-heading {
+  text-shadow: 3px 3px 0 var(--pixel-shadow-color);
+}
+
 /* A lost life (V7): the heart that just emptied jumps, shakes and settles in whole steps. */
 @keyframes el-heart-lost {
   0% { transform: translate(0, -3px) scale(1.35); filter: brightness(2.2) saturate(0.4); }

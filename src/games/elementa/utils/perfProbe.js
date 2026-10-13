@@ -37,7 +37,20 @@ export function probeFrameRate(ms = 450) {
  * 'high' or 'low', decided once. A hidden tab never produces frames, so the
  * probe gives up after a short timeout and trusts the hardware hint instead.
  */
+// A forced tier (VISUALS.md V8.3): `?quality=low` or `?quality=high` in the address, or the Lab's
+// Fallbacks page, which stores it under 'elementa-force-quality'. Never set in a normal session.
+function forcedQuality() {
+  try {
+    const q = new URLSearchParams(window.location.search).get('quality') ?? window.localStorage.getItem('elementa-force-quality')
+    return q === 'low' || q === 'high' ? q : null
+  } catch {
+    return null
+  }
+}
+
 export function getVisualQuality() {
+  const forced = forcedQuality()
+  if (forced) return Promise.resolve(forced)
   if (cached) return Promise.resolve(cached)
   if (pending) return pending
   pending = Promise.race([

@@ -1,5 +1,6 @@
 import { Component, Suspense, lazy } from 'react'
 import StoryScene from './StoryScene.jsx'
+import { guard } from '../utils/forceFail.js'
 import { useVisualEnv } from './visuals/VisualEnv.jsx'
 
 // The one door into story scenes (VISUALS.md V5). It plays the cinematic scene
@@ -9,7 +10,7 @@ import { useVisualEnv } from './visuals/VisualEnv.jsx'
 // still shots (CinematicScene.jsx). The Remotion chunk is never in the first
 // load: `preloadCinematics` fetches it during an earlier screen.
 
-const load = () => import('./visuals/cinematic/CinematicScene.jsx')
+const load = guard('cinematic', () => import('./visuals/cinematic/CinematicScene.jsx'))
 const CinematicScene = lazy(load)
 
 let preloaded = false

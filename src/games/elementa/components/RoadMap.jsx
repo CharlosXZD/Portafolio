@@ -1,13 +1,16 @@
 import { Suspense, lazy, useCallback, useState } from 'react'
+import { guard } from '../utils/forceFail.js'
+import LazyBoundary from './LazyBoundary.jsx'
+import RoadList from './RoadList.jsx'
 
 // The map's drawing is its own chunk (VISUALS.md V6), so the first screen's JavaScript does not grow.
 // It is asked for as soon as this file loads, so it is nearly always there before the first shop
 // opens; until then the slate shows an empty sheet of the right size. The full-screen map loads
 // the first time someone opens it.
-const loadCanvas = () => import('./visuals/map/MapCanvas.jsx')
+const loadCanvas = guard('map', () => import('./visuals/map/MapCanvas.jsx'))
 const MapCanvas = lazy(loadCanvas)
-loadCanvas()
-const MapFull = lazy(() => import('./visuals/map/MapFull.jsx'))
+loadCanvas().catch(() => {})
+const MapFull = lazy(guard('map', () => import('./visuals/map/MapFull.jsx')))
 
 /**
  * The Road (GDD §28, drawn as a map since V6). Rows are the shops you visit after each round, drawn
@@ -26,13 +29,17 @@ export default function RoadMap({ expandable = false, variant = 'compact', onPic
   const openFull = useCallback(() => setOpen(true), [])
   return (
     <>
+      <LazyBoundary fallback={<RoadList state={rest.state} onPick={onPick} />}>
       <Suspense fallback={<div aria-hidden="true" style={{ width: rest.width ?? 220, height: Math.max(1, (rest.toRound - rest.fromRound + 1) * (rest.rowHeight ?? 64)), background: 'rgba(0,0,0,0.18)' }} />}>
         <MapCanvas {...rest} variant={variant} onPick={onPick} onOpenFull={variant === 'compact' && expandable ? openFull : null} />
       </Suspense>
+      </LazyBoundary>
       {open && (
-        <Suspense fallback={null}>
-          <MapFull state={rest.state} onPick={onPick} onClose={close} />
-        </Suspense>
+        <LazyBoundary onError={close}>
+          <Suspense fallback={null}>
+            <MapFull state={rest.state} onPick={onPick} onClose={close} />
+          </Suspense>
+        </LazyBoundary>
       )}
     </>
   )

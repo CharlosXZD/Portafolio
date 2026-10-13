@@ -29,8 +29,10 @@ function Back() {
 function Ware({ x, y, c }) {
   return (
     <>
-      <rect x={x} y={y} width="6" height="6" fill={c} />
-      <rect x={x} y={y} width="6" height="1" fill="#ffffff" opacity="0.5" />
+      <rect x={x - 1} y={y - 1} width="12" height="12" fill="#0a0820" opacity="0.6" />
+      <rect x={x} y={y} width="10" height="10" fill={c} />
+      <rect x={x} y={y} width="10" height="2" fill="#ffffff" opacity="0.5" />
+      <rect x={x + 4} y={y + 4} width="2" height="2" fill="#120c1a" opacity="0.4" />
     </>
   )
 }

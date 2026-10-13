@@ -10,6 +10,8 @@ import {
   setScreenShake as persistScreenShake,
   getDisplay,
   setDisplay as persistDisplay,
+  getVisualStyle,
+  setVisualStyle as persistVisualStyle,
 } from './settings.js'
 
 // The two visual settings (CRT filter, reduced motion) are read by
@@ -28,6 +30,7 @@ export function GameSettingsProvider({ children }) {
   const [gameSpeed, setGameSpeedState] = useState(getGameSpeed)
   const [screenShake, setScreenShakeState] = useState(getScreenShake)
   const [display, setDisplayState] = useState(getDisplay)
+  const [visualStyle, setVisualStyleState] = useState(getVisualStyle)
 
   const value = useMemo(() => {
     function setCrtEffect(v) {
@@ -41,6 +44,10 @@ export function GameSettingsProvider({ children }) {
     function setGameSpeed(v) {
       persistGameSpeed(v)
       setGameSpeedState(v)
+    }
+    function setVisualStyle(v) {
+      persistVisualStyle(v)
+      setVisualStyleState(v === 'legacy' ? 'legacy' : 'new')
     }
     function setScreenShake(v) {
       persistScreenShake(v)
@@ -65,8 +72,10 @@ export function GameSettingsProvider({ children }) {
       setGameSpeed,
       screenShake,
       setScreenShake,
+      visualStyle,
+      setVisualStyle,
     }
-  }, [crtEffect, reducedMotion, gameSpeed, screenShake, display])
+  }, [crtEffect, reducedMotion, gameSpeed, screenShake, display, visualStyle])
 
   return <GameSettingsContext.Provider value={value}>{children}</GameSettingsContext.Provider>
 }
