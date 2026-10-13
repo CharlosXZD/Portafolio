@@ -1,10 +1,10 @@
 # Elementa content reference
 
-Everything in the game as of 2026-10-04 (Alpha v0.8.6 "Sigils" in development), pulled straight from the data files so it matches the code. Tables for dice, relics, reactions, keywords and short descriptions were regenerated from the data on that date; names are the current ones (Light, Darkness, Time, Space, Chaos, Void for the base elements; Luminance, Obscurity, Tempus, Ouranos, Hundun, Abyss for the Mythic dice; Nadir for Darkness + Void).
+Everything in the game as of 2026-10-12 (Alpha v0.9.17 "Rush retune" in development), checked against the data files so it matches the code (`node src/games/elementa/tools/contentCheck.mjs` reads the data and says which lines this file is missing). Names are the current ones (Light, Darkness, Time, Space, Chaos, Void for the base elements; Luminance, Obscurity, Tempus, Ouranos, Hundun, Abyss for the Mythic dice; Nadir for Darkness + Void).
 
 > This file describes only what is in the game right now. Planned changes live in `EXPANSION.md`; ideas without a home yet live in `IDEAS.md`.
 
-Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reactions · 6. Characters (Pip, keepers, bosses, Wardens) · 7a. The three paths and the endings · 7b. The Firmament · 7. Shops and the Road · 8. Loadouts, difficulties, achievements · 9. Lore · 10. Synergy map · 11. Counters: bosses vs builds · 12. Known issues found while compiling this
+Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reactions · 6. Characters (Pip, keepers, bosses, Wardens) · 7a. The three paths and the endings · 7b. The Firmament · 7c. Realm 3 · 7d. An Arbiter · 7e. The Convergence · 7. Shops and the Road · 8. Loadouts, difficulties, achievements · 9. Lore · 10. Synergy map · 11. Counters: bosses vs builds · 12. Known issues found while compiling this · 13. How the game looks
 
 ---
 
@@ -106,7 +106,7 @@ Contents: 1. Core rules · 2. Dice · 3. Relics · 4. Consumables · 5. Reaction
 
 **The Primordial die** (Divine, d20): lent on the Primordial path for round 15 only, outside the dice cap, never sold. Every Aether mechanic, plus the ability of each god defeated in the gauntlet, without the drawback.
 
-**The Aether recipe is secret.** Until you beat Primordial once on a save file, Aether can't be forged and never appears in a shop; the Gallery reads "Recipe unknown: beat Primordial". The first win teaches it (a "New recipe" toast), and the Curator mentions it on your next Vault visit. The Avatar loadout still starts with Aether.
+**The Aether recipe is secret.** Until you beat Primordial once on a save file, Aether can't be forged and never appears in a shop; the Gallery reads "Recipe unknown: beat Primordial". The first win teaches it (a "New recipe" toast), and the Curator mentions it on your next Vault visit.
 
 ### The Firmament's dice (v0.7, reworked in v0.8)
 Every die from Elementa still shows up in the Firmament's shops.
@@ -346,7 +346,7 @@ Shown when you click a die (table, shop, inventory). At most two short sentences
 
 ---
 
-## 3. Relics (60 total, 6 of them Laws)
+## 3. Relics (62 total: 6 Laws, and Epsilon and Release, which only the Rewriters give, see §7c)
 
 ### Fire family
 | Relic | Rarity | Price | Effect |
@@ -681,6 +681,12 @@ Each keeper remembers you per save file. Tiers: stranger (visits 1 to 3), regula
   2. The Primordial whispers to anyone who listens. I listened once. That is how I learned what a life is worth.
   3. Tobb thinks the Roads are safe. The Roads were built by the Fragments. Before they were Fragments.
   4. If the Primordial reforms, every deal ever made comes due at once. I plan to be elsewhere.
+- **Path and pact lines** (after her blessing and a betrayal, or when you lean one way):
+- **betrayal:** She blessed you? How sweet. Let's find out how much that blessing is worth to you.
+- **claimed:** She won't come for you anymore. Only I will. Isn't that nice?
+- **more:** Back again. Good. The Primordial remembers everyone who helps it.
+- **leanPrimordial:** You hear it too, don't you? It has been calling you home.
+- **leanSplit:** Still clinging to the pieces? The Split never lasts, Caster.
 
 ### Aeris, voice of the shrine
 - **First meeting:** Rest, Caster. I am Aeris. The wind brings me the whispers of the Fragments, and I bring them to you.
@@ -697,6 +703,11 @@ Each keeper remembers you per save file. Tiers: stranger (visits 1 to 3), regula
   2. The Casters did not want to break it. They broke it because its dream was ending everything else.
   3. Pip remembers that dream. Ask it someday. It won't answer, but it will glow.
   4. Each run you walk is a prayer. Each Fragment you defeat keeps the world split, and so, alive.
+- **Path and shadow lines:**
+- **strange:** Something is strange about you. My blessings will cost you Shards now.
+- **shadow:** You carry a shadow. I can still help, for a price.
+- **leanSplit:** The pieces hold because of Casters like you. Thank you.
+- **leanPrimordial:** Your dice hum with something very old. Be careful what you help become whole.
 
 ### The Wanderers, every keeper, one crossroads
 - **First meeting:** Tobb: "Surprise! Once in a long while all of us set up at the same crossroads." Vessa: "It was my idea." Nix: "It was not."
@@ -1084,11 +1095,102 @@ Placeholders: `{hour}`, `{timezone}`, `{os}`, `{browser}`, `{language}`, `{scree
 | deadlock | It is {hour}, and you will not hold more than one thing. Try holding your breath instead. | Son las {hour}, y no sostendrás más de una cosa. Mejor prueba a contener la respiración. |  |
 | deadlock | {wins} wins and still only one hand. How do you manage? | {wins} victorias y aún una sola mano. ¿Cómo lo logras? |  |
 
+### Device and weather lines (T7)
+
+Shown only with the second and third permissions. Placeholders: `{temperature}`, `{weather}`, `{rain}`, `{daylight}`, `{city}`, `{sunset}`, `{moon}`, `{battery}`, `{cores}`, `{memory}`, `{connection}`, `{input}`, `{window}`, `{ratio}`, `{orientation}`, `{theme}`, `{languages}`, `{arrived}`, `{firstVisit}`, `{lastVisit}`, `{weekday}`, `{season}`, `{hour}`, `{minutes}`. A line whose value is unavailable is skipped; a bluff is an invented joke, shown with a wink (` ;)`).
+
+| Who | English | Spanish | Bluff |
+|---|---|---|---|
+| Arbiter | It is {temperature} where you are, and {weather}. I like a tidy sky. | Hay {temperature} donde estás, y está {weather}. Me gusta un cielo ordenado. |  |
+| Arbiter | Is it {rain} in {city}? Do not mind me. I only notice. | ¿Está {rain} en {city}? No me hagas caso. Solo me fijo. |  |
+| Arbiter | It is {daylight} in {city}. I do not sleep, but I understand those who do. | Es {daylight} en {city}. Yo no duermo, pero entiendo a quienes sí. |  |
+| Arbiter | The sun goes down at {sunset} today. Plan your last cast accordingly. | El sol se pone a las {sunset} hoy. Planea tu última tirada en consecuencia. |  |
+| Arbiter | The moon is {moon} tonight. It has no opinion on your dice. I have several. | La luna está {moon} esta noche. No tiene opinión sobre tus dados. Yo tengo varias. |  |
+| Arbiter | Your battery is at {battery}. A cautious Arbiter would suggest a charger. | Tu batería está en {battery}. Un Árbitro prudente sugeriría un cargador. |  |
+| Arbiter | {cores} cores in that machine of yours, and you spend them on dice. Admirable. | {cores} núcleos en esa máquina tuya, y los gastas en dados. Admirable. |  |
+| Arbiter | About {memory} GB of memory in there, and I am the one who remembers. | Unos {memory} GB de memoria ahí dentro, y yo soy quien recuerda. |  |
+| Arbiter | Your connection calls itself {connection}. I am patient, but I notice. | Tu conexión se dice {connection}. Soy paciente, pero me fijo. |  |
+| Arbiter | A {input} device. I could tell by the way you hold the dice. | Un dispositivo {input}. Lo noté por cómo sostienes los dados. |  |
+| Arbiter | Your window is {window}, at a pixel ratio of {ratio}. Everything fits. For now. | Tu ventana mide {window}, con una proporción de píxeles de {ratio}. Todo cabe. Por ahora. |  |
+| Arbiter | You hold the page {orientation}. I would have chosen otherwise, but I have no hands. | Sostienes la página en {orientation}. Yo habría elegido otra, pero no tengo manos. |  |
+| Arbiter | Your system prefers the {theme} theme. It suits the game. | Tu sistema prefiere el tema {theme}. Le sienta bien al juego. |  |
+| Arbiter | You read {languages}. I will pick whichever is kinder to you. | Lees {languages}. Elegiré la que sea más amable contigo. |  |
+| Arbiter | You came here from {arrived}. I hope the road was short. | Llegaste aquí desde {arrived}. Espero que el camino haya sido corto. |  |
+| Arbiter | You first sat at this file on {firstVisit}. I remember. I always do. | Te sentaste por primera vez en este archivo el {firstVisit}. Lo recuerdo. Siempre lo hago. |  |
+| Arbiter | Last time on this file: {lastVisit}. You came back. They usually do. | La última vez en este archivo: {lastVisit}. Volviste. Suelen hacerlo. |  |
+| Arbiter | A {weekday}, and you are here. I would call that a choice. | Un {weekday}, y estás aquí. Yo lo llamaría una elección. |  |
+| Arbiter | It is {season} where you are. Everything turns, even the dice. | Es {season} donde estás. Todo gira, hasta los dados. |  |
+| Arbiter | {weekday}, {hour}, {minutes} minutes in. This is a ritual. | {weekday}, {hour}, {minutes} minutos de sesión. Esto es un ritual. |  |
+| Arbiter | {city}, {temperature}, {weather}. I know more about you than your neighbors do. It is not much. | {city}, {temperature}, {weather}. Sé más de ti que tus vecinos. No es mucho. |  |
+| Arbiter | I can see your wallpaper. It is very you. | Puedo ver tu fondo de pantalla. Es muy tuyo. | yes |
+| Arbiter | I counted the tabs you have open. It is a number. It is a lot of tabs. | Conté las pestañas que tienes abiertas. Es un número. Son muchas pestañas. | yes |
+| Arbiter | I know your lucky number. It is whichever one you did not roll. | Sé tu número de la suerte. Es el que no sacaste. | yes |
+| Arbiter | I looked in your fridge. You are out of milk. | Miré en tu refrigerador. Se te acabó la leche. | yes |
+| axiom | It is {temperature} outside, and {weather}. A fine variable. | Hay {temperature} afuera, y está {weather}. Una buena variable. |  |
+| zero | {battery}. Not zero, yet. | {battery}. Todavía no es cero. |  |
+| infinity | {cores} cores, and still not enough for me. | {cores} núcleos, y aun así no me alcanzan. |  |
+| observer | I watched the {moon} moon watch you. | Vi cómo la luna {moon} te miraba. |  |
+| floating | {memory} GB, rounded down. | {memory} GB, redondeados hacia abajo. |  |
+| deadlock | A {input} device, one finger, one die. How fitting. | Un dispositivo {input}, un dedo, un dado. Qué apropiado. |  |
+
+### What the Gallery says about him
+
+Three lines, each unlocked by how deep the file has gone in realm 3:
+
+1. Unarmed, and a little bored. An Arbiter does not fight; he simply does not allow it.
+2. He keeps no list. He remembers. The difference matters to him.
+3. He says he is an Arbiter, not the Arbiter. He does not say how many there are.
+
+---
+
 ## 7e. The Convergence (v0.9.5, drafts)
 
 After round 45 every path reaches **the Unwritten**, the blank page the Split was written on. Anyone who arrives may enter, and gets a secret achievement, a completion mark on the loadout, a Gallery card and +2 Stardust at the start of every later run. Resting at the door ends the run with the realm 3 ending as before. The fights, one boss at a time:
 
-1. **The Rush** (14 fights): the Primordial; the four gods as one block of four stages (no shop inside it); the six Wardens (Set I then Set II); the six Rewriters (Set I then Set II). Each fight's target is **0.6 x the best cast of the run so far** times the boss's own factor (Primordial 1; the gods their gauntlet factors 0.7, 0.9, 1.1, 1.4; Wardens 1, 1.1, 1.25 by order in a set; Rewriters their calibrated factors). A **Market sits between fights** on every difficulty except Cataclysm. Each boss keeps its rules and gets one new callback line. Losing a fight costs a life; there is no camp.
+1. **The Rush** (14 fights): the Primordial; the four gods as one block of four stages (no shop inside it); the six Wardens (Set I then Set II); the six Rewriters (Set I then Set II). Each fight's target is **0.6 x the best cast of the run so far** (never less than round 45's own target) **times that fight's own factor** (the table below, re-derived from the simulation in v0.9.17 so a good build's median cast lands at about 1.15 times each target). A **Market sits between fights** on every difficulty except Cataclysm. Each boss keeps its rules and gets one new callback line. Losing a fight costs a life; there is no camp.
+
+| Fight | Factor on 0.6 x best cast | Note |
+|---|---|---|
+| The Primordial | 0.92 |  |
+| Gaea (god, stage) | 0.97 |  |
+| Ognen (god, stage) | 1 |  |
+| Varuna (god, stage) | 1.03 |  |
+| Zephyr (god, stage) | 0.98 |  |
+| The Dawn | 1 |  |
+| The Clockwork | 1 |  |
+| The Expanse | 0.92 |  |
+| The Umbra | 0.73 |  |
+| The Maelstrom | 0.77 |  |
+| The Hollow | 0.04 | Lowered: its seal on every relic leaves a relic-built pool about a twenty-fifth of its cast. |
+| The Axiom | (flat) | Flat: 0.00009 of round 45's own target (not of the best cast), because Base + Mult cannot follow a multiplying best cast. |
+| Zero | 0.99 |  |
+| Floating Point | 0.99 |  |
+| Infinity | 1.02 | Its rule also scales the target as usual. |
+| The Observer | 1.02 |  |
+| Deadlock | 1.02 |  |
+
+Realm 3's own Rewriter targets (rounds 35, 40 and 45) are unchanged; only the Rush uses these factors. The Hollow still seals every relic and bans consumables in the Rush, which is why its target is so low: it asks for a good cast from dice alone.
+
+**What each Rush boss says** (shown above the table as the fight starts):
+
+| Fight | Its callback line |
+|---|---|
+| primordial | You again. I remember the first dream. You were smaller then. |
+| gods | Four of us, one after another. We have been waiting to be asked back. |
+| dawn | I was the first morning. Do you remember being asked to look? |
+| clockwork | Tick. You are late, and also early. Both are true here. |
+| expanse | So far you have come. Look how far there still is. |
+| umbra | The dark does not mind being visited twice. |
+| maelstrom | Everything is the same as before, only rearranged. |
+| hollow | There is still room in here. There is always room. |
+| axiom | I state it; therefore it is. I stated that you would return. |
+| zero | ... |
+| floating | Approximately you. Approximately here. |
+| infinity | and then, and then, and then, and then you came back |
+| observer | I am only here if you look. You looked. How kind. |
+| deadlock | One at a time, please. Even now. Especially now. |
+| pip | Pip is the final boss. Pip has always been the final boss. (Pip has not.) |
+
 2. **Pip** (a bluff): it repeats your very first cast of the run, target 0.1 of your best cast. Afterwards it says its master is You.
 3. **You** (the ghost duel): a race of up to 6 exchanges against a ghost build; first to 3 x the ghost's reference cast (the median of 7 seeded casts) wins; you cast first; the ghost's score is rolled from its build through the real engine and one ghost cast counts for at most 50% of the goal. After six exchanges the higher total wins, a tie goes to the ghost. The ghost announces one move before each exchange (two from the 4th); it lands on your first reroll or your cast, so a held die is safe. It never destroys a die and never keeps a relic. A loss costs a life and starts the duel again.
 
@@ -1109,31 +1211,25 @@ After round 45 every path reaches **the Unwritten**, the blank page the Split wa
 
 **Beating yourself** is the true ending ("Beat Yourself"); the winning build is saved as `profile.ghost` and is the Inferno ghost from then on.
 
+**What the ghost says** (one line at the start, and one after an exchange depending on who is ahead):
+
+| When | English |
+|---|---|
+| open | Cast first. I am in no hurry. I am you. |
+| open | I know every die you hold. I picked them with you. |
+| open | Let us see who wins an argument with themselves. |
+| ahead | I am ahead. You would have been, too. |
+| ahead | Careful. I have your habits. |
+| behind | You are ahead. I would not have trusted that. |
+| behind | Hm. You are better than I remember. |
+
 ### The Cataclysm ghost
 
 Dice: Monad (d50), Singularity (d40), Undivisible (d20), Obscurity (d50), Parity (d40), Luminance (d40), Oblivion (d40), Ouranos (d40), Ice (d30), Greater Sigil of Aeris (sigil). Relics: Aether Crown, Heart of the Circle, Heart of the Forge, Crown of Ages, Chain Break. Law: Law of Echo. Its median cast is about two and a half times the round-45 target on Cataclysm. Holding all sixteen of these at once, at any size, is the secret achievement **Theoretical Best**.
 
 ### The loadout chain
 
-| Loadout | Starting dice | Opens after winning with | Tagline |
-|---|---|---|---|
-| **Stonecaller** | Earth, Earth, Earth | (open from the start) | Steady stone. No risk, no tricks. |
-| **Tidecaller** | Water, Water, Water | Stonecaller | Free locks that feed your rerolls. |
-| **Tempest** | Air, Air, Air | Tidecaller | Sets from the very first roll. |
-| **Pyromancer** | Fire, Fire, Fire | Tempest | All explosion, no safety net. |
-| **Wanderer** | Earth, Water, Fire, Air | Pyromancer | One of every element. Fuse anything. |
-| **Forgeborn** | Earth, Fire, Steel | Wanderer | Starts with Steel: fire without the fizzle. |
-| **Stormchaser** | Fire, Air, Lightning | Forgeborn | Chain explosions straight into sets. |
-| **Gambler** | Poker Die, Poker Die, Poker Die, Poker Die, Joker | Stormchaser | Four poker dice and a Joker. Make hands. |
-| **Climate** | Magma, Storm, Monsoon | Gambler | Weather as a weapon: the three climate phenomena. |
-| **Geologist** | Mud, Crystal, Obsidian | Climate | Earth's patient fusions. |
-| **Tidal** | Ice, Steam, Water | Geologist | Everything water can become. |
-| **Arcanist** | Mirror, Beacon, Conduit | Tidal | No element, all neighbors. |
-| **Hoarder** | Gilded, Bullion, Earth | Arcanist | Money first, dice later. |
-| **Twin Flame** | Fire, Lightning, Magma | Hoarder | Fire and everything that burns. |
-| **Lottery** | 3 drawn at random from the Elementa shop pool | Twin Flame | Whatever the universe hands you. |
-
-The Lottery draws three different dice with the run's seed, never gods, Mythic, Absolute, sigil or number dice, at the starting size. Avatar was removed.
+See §8: fifteen loadouts, each opened by winning with the one before it. The Lottery draws three different dice with the run's seed, never gods, Mythic, Absolute, sigil or number dice, at the starting size.
 
 ### Achievements (all secret)
 
@@ -1225,27 +1321,34 @@ With the first permission (device details): CPU cores, memory, connection, input
 
 ## 8. Loadouts, difficulties, achievements
 
-### Loadouts (each unlocks by winning with the previous one; see 7e for the full chain and the new ones)
-| Loadout | Starting dice | Tagline |
-|---|---|---|
-| **Stonecaller** | Earth, Earth, Earth | Steady stone. No risk, no tricks. |
-| **Tidecaller** | Water, Water, Water | Free locks that feed your rerolls. |
-| **Tempest** | Air, Air, Air | Sets from the very first roll. |
-| **Pyromancer** | Fire, Fire, Fire | All explosion, no safety net. |
-| **Wanderer** | Earth, Water, Fire, Air | One of every element. Fuse anything. |
-| **Forgeborn** | Earth, Fire, Steel | Starts with Steel: fire without the fizzle. |
-| **Stormchaser** | Fire, Air, Lightning | Chain explosions straight into sets. |
-| **Gambler** | Poker, Poker, Poker, Poker, Joker | Four poker dice and a Joker. Make hands. (Opens after Stormchaser.) |
+### Loadouts (fifteen, each opens by winning with the one before it)
+| Loadout | Starting dice | Opens after winning with | Tagline |
+|---|---|---|---|
+| **Stonecaller** | Earth, Earth, Earth | (open from the start) | Steady stone. No risk, no tricks. |
+| **Tidecaller** | Water, Water, Water | Stonecaller | Free locks that feed your rerolls. |
+| **Tempest** | Air, Air, Air | Tidecaller | Sets from the very first roll. |
+| **Pyromancer** | Fire, Fire, Fire | Tempest | All explosion, no safety net. |
+| **Wanderer** | Earth, Water, Fire, Air | Pyromancer | One of every element. Fuse anything. |
+| **Forgeborn** | Earth, Fire, Steel | Wanderer | Starts with Steel: fire without the fizzle. |
+| **Stormchaser** | Fire, Air, Lightning | Forgeborn | Chain explosions straight into sets. |
+| **Gambler** | Poker Die, Poker Die, Poker Die, Poker Die, Joker | Stormchaser | Four poker dice and a Joker. Make hands. |
+| **Climate** | Magma, Storm, Monsoon | Gambler | Weather as a weapon: the three climate phenomena. |
+| **Geologist** | Mud, Crystal, Obsidian | Climate | Earth's patient fusions. |
+| **Tidal** | Ice, Steam, Water | Geologist | Everything water can become. |
+| **Arcanist** | Mirror, Beacon, Conduit | Tidal | No element, all neighbors. |
+| **Hoarder** | Gilded, Bullion, Earth | Arcanist | Money first, dice later. |
+| **Twin Flame** | Fire, Lightning, Magma | Hoarder | Fire and everything that burns. |
+| **Lottery** | 3 drawn at random from the Elementa shop pool | Twin Flame | Whatever the universe hands you. |
 
 ### Difficulties (each unlocks by winning the previous one)
-Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
+Targets follow the curve in §1 (round 1 is 14 on Ember), times the difficulty's target multiplier.
 
-| Difficulty | Lives | Target x | Rerolls | Dice cap | Every round a boss |
-|---|---|---|---|---|---|
-| **Ember** | 3 | 1 | 3 | 10 | No |
-| **Blaze** | 3 | 2 | 3 | 10 | No |
-| **Inferno** | 3 | 2 | 2 | 4 | No |
-| **Cataclysm** | 3 | 3 | 2 | 4 | Yes |
+| Difficulty | Lives | Target x | Rerolls | Dice cap | Every round a boss | Tagline |
+|---|---|---|---|---|---|---|
+| **Ember** | 3 | 1 | 3 | 10 | No | The base run. No twists. |
+| **Blaze** | 3 | 2 | 3 | 10 | No | Ember, but every target is doubled. |
+| **Inferno** | 3 | 2 | 2 | 4 | No | Blaze, but 1 fewer reroll and a 4-die pool cap. |
+| **Cataclysm** | 3 | 3 | 2 | 4 | Yes | Inferno, but every round is a boss round and targets triple. |
 
 ### Achievements (72, 22 public and 50 secret; secret ones show as ??? until earned and do not count toward completion)
 - **First Spark**: Clear your first round.
@@ -1361,7 +1464,7 @@ Targets are 8 x 1.45^(round - 1), times the difficulty's target multiplier.
 - **Secret reactions** are specific fusion pairs (table in §5). Ascension (Aether beside any fusion, +10 Base, +3 Mult) is the biggest.
 
 ### Fusion
-- Fusion Crucible (fusion dice x1.5), Fusion Catalyst (forging -2 Shards), Fusion Spark (open the Forge anywhere), Aether Dust (pure die becomes a random double containing its element), Forge and Bazaar shops, and the Avatar, Forgeborn and Stormchaser loadouts.
+- Fusion Crucible (fusion dice x1.5), Fusion Catalyst (forging -2 Shards), Fusion Spark (open the Forge anywhere), Aether Dust (pure die becomes a random double containing its element), Forge and Bazaar shops, and the Forgeborn and Stormchaser loadouts.
 - Prism Lens (+0.5 Mult per distinct element) rewards many different dice, which fusion builds naturally get.
 
 ### Economy
@@ -1406,7 +1509,7 @@ Shrine's Prophecy tells you which boss is coming, so you can buy toward its coun
 
 ## 12. Known issues found while compiling this
 
-These are places where the code and the text disagree. Tell me which way to go.
+These are places where the code and the text disagree. Tell me which way to go. Items 1, 2, 4, 5 and 8 were checked against the code again on 2026-10-12 and still hold.
 
 1. **Wildfire does nothing.** Its effect (20% chance an explosion spreads to another Fire-family die) is never read by the scoring engine. Needs implementing, or a new effect.
 2. **Aether says "Capped at one per run" but nothing enforces it.** You can own several (buy one, forge one, or Mirror Shard it).
@@ -1418,3 +1521,18 @@ These are places where the code and the text disagree. Tell me which way to go.
 8. **A new relic took the name "Spring Tide".** The v0.8.1 spec called it "Undertow", but Undertow already exists (a Water relic that rerolls a die on lock). The new one (+2 Mult per locked Water die) was renamed; tell me if you would rather rename the old one.
 9. **The Void die (id `nil`) and Singularity react even though they score nothing.** Seven of the 27 Firmament reactions name the Void, and without this a lone Void die could never trigger any of them. A Darkness-eaten or swallowed die still does not react.
 10. **Nadir zeroes both neighbors, so it hardly ever reacts.** Its neighbors score 0, and a reaction needs both dice to score. It can still react across a ring (Continuum, Ley Line) or at range (Space).
+
+---
+
+## 13. How the game looks (v0.9.6 to v0.9.14)
+
+The look is code: pixel art drawn from small grids and layered SVG, with no image files needed. Any piece can be replaced by a hand-drawn file with the right name in `public/elementa/visuals/` (the swap rule, `ASSETS.md` section 8). Everything below follows Reduced motion (still poses, no drifting parts) and the low-end tier (still rooms and sprites); `VISUALS.md` holds the plan and `VISUALS_V1_REPORT.md` to `VISUALS_V7_REPORT.md` the build notes.
+
+- **The Visual Lab** (Options, next to the Jukebox): the pages where each part of the look is judged, in English and Spanish, with Reduced motion and quality switches. Pages: the main Lab (rigs, title card, quality), the item gallery, item sprites, rooms, maps, scenes, characters and fallbacks.
+- **Items (v0.9.9):** every relic, consumable, rune, Constellation, Totem and Law is a 32 by 32 pixel sprite drawn in code, one recipe per item, with the same upper-left light, a colored outline and a drop shadow. Runes are tablets, Constellations star charts, Totems poles, Transmutes vials, Laws sealed scrolls. They bob, glint and flicker gently and lift when pointed at. The Gallery groups what you have not found under "???" so rarity and family stay hidden.
+- **Shops (v0.9.8, v0.9.10):** each shop is a room where its keeper lives (Brasa's forge with sparks, Vessa's cauldron, the Curator's cases, Nix's alley, Aeris's temple, Vesper's corner of the Forge, Mote's pantry), tinted by realm (warm in Elementa, cold violet in the Firmament, gridded in the Empyrean, dissolving in the Pleroma, swinging in the Meridian). The keeper stands behind a counter with their line on a hanging sign; dice stand on the counter with price tags, relics and consumables rest on wall shelves with a gap left after a purchase, your pool is a leather pouch, the Road and your purse sit on a map table with a lever for the next stop and a bell pull for the reroll. Each shop has its own set of materials. On phones the pouch and the map are drawers under the counter. Buying, selling, rerolling, forging, brewing, hotkeys and drag and drop work as before; hover, pick, buy and the lever play the game's usual sounds.
+- **Keepers and characters (v0.9.8, v0.9.14):** every keeper is a layered rig that breathes, blinks and talks, nods when you pick, hops when you buy and grumbles when you cannot afford. Pip floats, sparkles and reacts (a tip, a hop of joy, a worried shake); the Arbiter's open hand rises on a warning and glows on favor; the four gods, the Primordial (its aspect shifts through fire, water, earth and air) and You each have their own pixel body; every boss has a stage entrance, a flinch when hit and a slump when defeated. They appear in story scenes, on the table when a boss arrives, after a boss falls, in Pip's tips and the Arbiter's lines. Losing a life makes the lost heart jump and shake.
+- **Menus (v0.9.11):** the main menu, file select and file screen are a tavern (a hanging sign, a notice board, three save files as books on a desk, a cat on the rug); "Where you left off" is a journal beside a map table, a missed round is a ledger page with a stamp, game over is a gravestone in a graveyard, the file screen is an open book, the Gallery is a library of display cabinets, Inscribe is a scroll. Options and Pause are small wooden tables; Options has the tabs General, Audio, Display and Data.
+- **Cinematics (v0.9.12):** each of the 37 story scenes plays as a short pixel-art film (a backdrop in the scene's color, a camera that pushes, pans or shakes, drifting embers, snow, stars, ink or glitches, the speaker in their own light) with the words typing in underneath; Enter moves on, Esc skips. The hero scenes (the Primordial with the four elements circling it, each god before its sigil, the door, Pip swelling before its fight, the mirror before You, the white bloom of the true ending) have their own direction; the 17 endings are short stills with a slow push. The game opens with an intro (the logo reveal, the four elements and the tagline) once per visit, skippable and optional (Options, Display, Intro animation). With Reduced motion scenes are still shots with the text at once; on a slow device the old typed scenes play.
+- **The Road (v0.9.13):** a map on parchment with inked trails, a sign for each shop type, a banner on boss rounds, the walked road in gold, what you can pick glowing and what lies past your sight in fog; a lantern traveler stands on your stop and a ghost of them walks the trail to the stop you pick. Each realm has its own paper and a drawn gate (parchment, star chart, grid, dissolving ink, split sheet, blank page). The shop's map table shows the next rows with a button for the big map; the big map zooms and pans (wheel, drag, pinch, arrows, plus and minus), centers on you, moves between stops by keyboard and shows a tooltip with the shop's name, what it sells and its state. Stops are 44 px targets on phones. Choosing a stop, Atlas's services, Prophecy and Cartography are unchanged.
+

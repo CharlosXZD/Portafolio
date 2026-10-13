@@ -12,6 +12,26 @@ const L = (en, es) => ({ en, es })
 export const PATCH_NOTES = [
   {
     stage: 'Alpha',
+    version: '0.9.17',
+    name: L('Rush retune', 'Ajuste de la Carrera'),
+    date: null,
+    highlights: [
+      L(
+        'The Rush is balanced boss by boss. Before, Floating Point and Deadlock were nearly free, the Hollow was nearly impossible for a build full of relics, and a few others sat well above or below the rest. Now each fight has its own target, set from many simulated runs, so a good build clears every one of them with a little to spare.',
+        'La Carrera está equilibrada jefe por jefe. Antes, Punto Flotante y Deadlock eran casi gratis, el Vacío era casi imposible para una build llena de reliquias, y otros quedaban muy por encima o por debajo del resto. Ahora cada combate tiene su propio objetivo, calculado con muchas partidas simuladas, así que una buena build supera todos con un poco de margen.',
+      ),
+      L(
+        'The Hollow still seals every relic, but in the Rush its target is lowered to match what dice alone can do. The Axiom, which adds Base and Mult, no longer asks for more just because your best cast was huge. Realm 3\'s own Rewriters are unchanged.',
+        'El Vacío sigue sellando todas las reliquias, pero en la Carrera su objetivo baja a lo que se puede lograr solo con dados. El Axioma, que suma Base y Mult, ya no pide más solo porque tu mejor tirada fue enorme. Los Reescritores del reino 3 no cambian.',
+      ),
+      L(
+        'Small fixes: the door after the Firmament and the door after realm 3 can no longer be walked back into the Firmament.',
+        'Arreglos pequeños: la puerta tras el Firmamento y la puerta tras el reino 3 ya no pueden llevarte de vuelta al Firmamento.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.14',
     name: L('Characters', 'Personajes'),
     date: null,
