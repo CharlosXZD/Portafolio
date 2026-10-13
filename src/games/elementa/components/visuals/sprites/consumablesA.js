@@ -126,13 +126,12 @@ export const CONSUMABLES_A = {
     S.twinkle(16, 16, '#ffffff')
   },
   sand_hourglass(S) {
-    // a tall hourglass of pale gold sand with one bulb already empty
-    S.paint(rect(8, 2, 16, 3), BRASS).paint(rect(8, 27, 16, 3), BRASS)
-    S.paint(rect(9, 5, 2, 22), BRASS, { flat: true, tone: 0 }).paint(rect(21, 5, 2, 22), BRASS, { flat: true, tone: 0 })
-    S.paint(add(poly([[11, 5], [21, 5], [16, 15]]), poly([[16, 15], [11, 27], [21, 27]])), MAT.glass)
-    S.paint(poly([[16, 19], [20, 26], [12, 26]]), ramp('#f0d480'))
-    S.dots('16,15 16,16 16,17', '#f0d480')
-    S.shimmer(14, 25, 4, '#fff6c8')
+    // a round-bulbed hourglass of pale gold sand, brass caps, no frame: one bulb already empty
+    S.paint(rect(7, 1, 18, 3), BRASS).paint(rect(7, 28, 18, 3), BRASS)
+    S.paint(add(ell(16, 9, 7, 5.6), ell(16, 23, 7, 5.6), rect(15, 13, 2, 6)), MAT.glass)
+    S.paint(ell(16, 25, 5.4, 3.4), ramp('#f0d480'))
+    S.dots('16,14 16,15 16,16 16,17', '#f0d480')
+    S.shimmer(14, 24, 4, '#fff6c8')
   },
   pocket_watch(S) {
     // a chained pocket watch whose hands never move

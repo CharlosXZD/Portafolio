@@ -63,7 +63,7 @@ export const CONSUMABLES_B = {
     S.paint(poly([[16, 8], [21, 15], [20, 22], [16, 24], [12, 22], [11, 15]]), c, { flat: true, tone: 1 })
     S.paint(poly([[16, 14], [18, 19], [16, 22], [14, 19]]), MAT.stone, { flat: true, tone: 0 })
   }),
-  rune_anchor: rune('#78a8ff', (S, c) => {
+  rune_anchor: rune('#b8c0d0', (S, c) => {
     g(S, c[2], [[15, 9, 2, 12], [12, 11, 8, 2], [11, 19, 3, 1], [18, 19, 3, 1], [12, 20, 2, 1], [18, 20, 2, 1], [13, 21, 6, 1]])
     S.paint(ring(16, 9, 2.4, 1), c, { flat: true, tone: 2 })
   }),

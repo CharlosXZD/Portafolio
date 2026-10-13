@@ -131,16 +131,13 @@ export const RELICS_B = {
     S.twinkle(24, 22, '#ffffff')
   },
   heat(S) {
-    // a glowing bellows: two wooden boards, a pleated leather body and an iron nozzle
-    S.paint(poly([[3, 14], [20, 14], [20, 18], [3, 26]]), MAT.leather)
-    S.paint(poly([[3, 5], [20, 12], [20, 15], [3, 12]]), MAT.leather)
-    S.paint(poly([[3, 3], [21, 11], [21, 14], [3, 9]]), MAT.wood)
-    S.paint(poly([[3, 27], [21, 17], [21, 20], [3, 31]]), MAT.wood)
-    for (const x of [7, 11, 15]) S.paint(line(x, 11 + (x - 7) * 0.2, x, 18 - (x - 7) * 0.4, 1), MAT.darkwood, { flat: true, tone: 0 })
-    S.paint(poly([[21, 13], [28, 15], [28, 18], [21, 17]]), IRON)
-    S.paint(flame(29, 15, 4, 7), MAT.flame)
-    S.paint(rect(1, 6, 3, 22), MAT.darkwood)
-    S.flicker(29, 8, '#ffc24a').flicker(30, 11, '#fff4c8')
+    // a thermometer of red-hot glass: the mercury high in the tube, sparks off the top
+    S.paint(rrect(12, 3, 8, 20, 3), MAT.glass)
+    S.paint(rect(14, 7, 4, 17), MAT.flame, { flat: true, tone: 1 })
+    S.paint(ell(16, 25, 7, 6), MAT.flame)
+    for (const y of [8, 12, 16, 20]) S.box(22, y, y % 8 === 0 ? 5 : 3, 1, IRON[2])
+    S.dots('13,6 14,5', '#fff4c8')
+    S.flicker(16, 2, '#ffc24a').flicker(18, 0, '#fff4c8')
   },
   gust(S) {
     // a small paper fan with a swirl painted on it

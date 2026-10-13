@@ -2,6 +2,7 @@
 // family reads as a family because it starts from the same base. A recipe picks a
 // base, gives it a palette and adds one signature detail. Every base paints on a
 // kit Sprite and stays inside the 3 to 28 pixel box.
+import { mix } from '../../../utils/color.js'
 import { add, ell, line, poly, rect, rrect, sub, METAL, MAT, ramp } from './spriteKit.js'
 import { ELEMENTS } from '../../../data/elements.js'
 
@@ -85,8 +86,10 @@ export function chartDisc(S, { frame, stars, pts, links }) {
   S.paint(ell(16, 16, 12.5, 12.5), frame)
   // four small studs at the compass points make a star chart read as an astrolabe, not a coin
   for (const [x, y] of [[15, 2], [15, 28], [2, 15], [28, 15]]) S.paint(rect(x, y, 3, 3), frame, { flat: true, tone: 1 })
-  S.paint(ell(16, 16, 10, 10), MAT.slate, { flat: true, tone: 1 })
-  S.paint(ell(16, 16, 10, 10), MAT.slate, { flat: true, tone: 0, under: true })
+  // The chart's sky is tinted by its stars' color, so two charts that share a frame element still differ (V8.4).
+  const sky = ramp(mix('#262a44', stars[0], 0.34))
+  S.paint(ell(16, 16, 10, 10), sky, { flat: true, tone: 1 })
+  S.paint(ell(16, 16, 10, 10), sky, { flat: true, tone: 0, under: true })
   for (const [a, b] of links) {
     const [x0, y0] = pts[a]
     const [x1, y1] = pts[b]

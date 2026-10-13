@@ -125,8 +125,33 @@ export function dieIconY(tier) {
   return tier === 'd3' ? 0.61 : dieNumberY(tier)
 }
 
-function DieSprite({ tier = 'd6', size = 96, top, bottom, rim, shade, facet, ringColor = null }) {
+// The sprite is drawn once per tier and palette into an SVG string and shown as a single <img>
+// (a data URI), so a die costs one DOM node instead of about a hundred <rect>s (VISUALS.md V8.5).
+const uriCache = new Map()
+function dieUri(tier, colors) {
+  const key = `${tier}|${colors[OUTLINE]}|${colors[RIM]}|${colors[SHADE]}|${colors[FACET]}|${colors[BODY_TOP]}|${colors[BODY_BOTTOM]}|${colors[RING]}`
+  const hit = uriCache.get(key)
+  if (hit) return hit
   const { grid } = classify(tier)
+  let body = ''
+  for (let y = 0; y < G; y++) {
+    let x = 0
+    while (x < G) {
+      const c = grid[y][x]
+      let end = x + 1
+      while (end < G && grid[y][end] === c) end++
+      const fill = colors[c]
+      if (c !== OUT && fill) body += `<rect x="${x}" y="${y}" width="${end - x}" height="1.02" fill="${fill}"/>`
+      x = end
+    }
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${G} ${G}" shape-rendering="crispEdges">${body}</svg>`
+  const uri = `data:image/svg+xml,${encodeURIComponent(svg)}`
+  uriCache.set(key, uri)
+  return uri
+}
+
+function DieSprite({ tier = 'd6', size = 96, top, bottom, rim, shade, facet, ringColor = null }) {
   const colors = {
     [OUTLINE]: '#120c1a',
     [RIM]: rim,
@@ -136,30 +161,7 @@ function DieSprite({ tier = 'd6', size = 96, top, bottom, rim, shade, facet, rin
     [BODY_BOTTOM]: bottom,
     [RING]: ringColor,
   }
-  const rects = []
-  for (let y = 0; y < G; y++) {
-    let x = 0
-    while (x < G) {
-      const c = grid[y][x]
-      let end = x + 1
-      while (end < G && grid[y][end] === c) end++
-      const fill = colors[c]
-      if (c !== OUT && fill) rects.push(<rect key={`${y}-${x}`} x={x} y={y} width={end - x} height="1.02" fill={fill} />)
-      x = end
-    }
-  }
-  return (
-    <svg
-      viewBox={`0 0 ${G} ${G}`}
-      width={size}
-      height={size}
-      shapeRendering="crispEdges"
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0"
-    >
-      {rects}
-    </svg>
-  )
+  return <img src={dieUri(tier, colors)} width={size} height={size} alt="" aria-hidden="true" draggable={false} className="pointer-events-none absolute inset-0" style={{ imageRendering: 'pixelated' }} />
 }
 
 export default memo(DieSprite)

@@ -15,9 +15,12 @@ const IRON = METAL.iron
 export function reactionColors(id) {
   const r = REACTIONS.find((x) => x.id === id)
   const [a, b] = r?.elements ?? []
-  const frame = a ? EL[a] : ramp(r?.color ?? '#e0a82e')
-  const star = b ? EL[b] : ramp(r?.color ?? '#ffd86a')
-  return { frame, stars: [star[0], star[2], star[3], '#ffffff'] }
+  // The poker sets have no elements: each gets its own color so they do not read as one (V8.4).
+  const SET = { pair: '#e0a82e', three_kind: '#b070ff', straight: '#58c8e0' }
+  const frame = a ? EL[a] : ramp(SET[id] ?? r?.color ?? '#e0a82e')
+  const star = b ? EL[b] : ramp(SET[id] ? '#ffffff' : (r?.color ?? '#ffd86a'))
+  // Brighter stars than the frame, so two Constellations that share an element still differ at a glance.
+  return { frame, stars: [star[1], star[3], '#ffffff', star[2]] }
 }
 
 export const RECIPES = {

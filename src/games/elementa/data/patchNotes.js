@@ -32,6 +32,38 @@ export const PATCH_NOTES = [
   },
   {
     stage: 'Alpha',
+    version: '0.9.16',
+    name: L('Legacy visuals', 'Visuales clásicos'),
+    date: null,
+    highlights: [
+      L(
+        'Options, Display now has "Visual style": New or Legacy. Legacy is the game as it looked before the visual overhaul: the old pixel backdrops, the original shop panels and keeper portraits, the first item icons, the old menus and Road, typed story scenes with no intro, and the first boss faces and Pip. The rules, your saves and every feature are the same in both, including the Forge\'s four slots, the Arbiter, the Rush and the Convergence. Switching takes you back to the main menu (a run in progress is saved and can be continued in either style).',
+        'En Opciones, Pantalla ahora hay "Estilo visual": Nuevo o Clásico. Clásico es el juego como se veía antes de la renovación visual: los fondos de píxeles de antes, los paneles de tienda y retratos de guardianes originales, los primeros iconos de objetos, los menús y el Camino de antes, escenas de historia escritas sin introducción, y los primeros rostros de jefe y Pip. Las reglas, tus partidas y todas las funciones son las mismas en ambos, incluidas las cuatro ranuras de la Forja, el Árbitro, la Carrera y la Convergencia. Al cambiar vuelves al menú principal (una partida en curso se guarda y se puede continuar en cualquiera de los dos estilos).',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
+    version: '0.9.15',
+    name: L('Polish', 'Pulido'),
+    date: null,
+    highlights: [
+      L(
+        'The Aether Bazaar and the Astral Exchange are fixed. The Conclave\'s six keepers took the whole row and squeezed their greeting into a sliver; now they stand in a row and the sign sits under them at full width. The Bazaar has bigger stalls with striped awnings, a chandelier and larger floating wares, and the Astral Exchange\'s wares are easier to see.',
+        'El Bazar del Ether y el Intercambio Astral están arreglados. Los seis guardianes del Cónclave ocupaban toda la fila y apretaban su saludo en una rendija; ahora están en fila y el cartel queda debajo, a todo el ancho. El Bazar tiene puestos más grandes con toldos a rayas, una araña de luces y mercancías flotantes mayores, y las del Intercambio Astral se ven mejor.',
+      ),
+      L(
+        'Redrawn items: Safety Net is a rope net in a gold hoop (it was a clover, like Lucky Charm), Heat is a thermometer, the Hourglass has round bulbs and no frame, and every Constellation now has its own colors. Boss and keeper pages in the Gallery show the animated characters. If a piece of the new visuals cannot load, the screen falls back to the plain version (the Road becomes a list of stops, a keeper a flat portrait, an item its icon) instead of breaking.',
+        'Objetos redibujados: la Red de Seguridad es una red de cuerda en un aro dorado (era un trébol, como el Amuleto de la Suerte), el Calor es un termómetro, el Reloj de Arena tiene bulbos redondos y no tiene marco, y cada Constelación tiene ahora sus propios colores. Las páginas de jefes y guardianes de la Galería muestran a los personajes animados. Si una parte de los visuales nuevos no puede cargar, la pantalla vuelve a la versión sencilla (el Camino pasa a ser una lista de paradas, un guardián un retrato plano, un objeto su icono) en lugar de romperse.',
+      ),
+      L(
+        'Lighter and easier on phones: dice cost a fraction of the page they did (a full shop uses less than half the elements), small buttons are 40 px tall on touch screens, and nothing scrolls sideways at phone, tablet or desktop widths.',
+        'Más ligero y más cómodo en teléfonos: los dados ocupan una fracción de la página que ocupaban (una tienda llena usa menos de la mitad de elementos), los botones pequeños miden 40 px en pantallas táctiles y nada se desplaza de lado en anchos de teléfono, tableta o escritorio.',
+      ),
+    ],
+  },
+  {
+    stage: 'Alpha',
     version: '0.9.14',
     name: L('Characters', 'Personajes'),
     date: null,

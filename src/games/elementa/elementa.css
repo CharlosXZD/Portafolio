@@ -281,6 +281,18 @@
   font-size: 8px;
 }
 
+/* Tap targets on phones and touch screens (V8.5): the small buttons grow to 40 px. */
+@media (pointer: coarse), (max-width: 640px) {
+  .elementa-root .el-btn--sm {
+    min-height: 40px;
+  }
+  .elementa-root .map-open,
+  .elementa-root .map-btn {
+    min-width: 40px;
+    min-height: 40px;
+  }
+}
+
 /* Keyboard hint inside a button, e.g. [R]. */
 .elementa-root .el-key {
   display: inline-block;
