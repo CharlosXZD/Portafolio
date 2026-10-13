@@ -733,9 +733,9 @@ From EXPANSION.md Part T (T1 to T9). Not built: anything from `IDEAS.md`. All te
 - **Verification.** `tools/convergenceTest.mjs` (98 checks): the door on every path, the Rush's order and each target, gods as one block, a Market between fights and none on Cataclysm, losing a fight, Pip's first cast and callback, each ghost per difficulty, each move, the race, a win, a loss and rematch, ties, the saved ghost and best build, the loadout chain, Avatar's removal, the Lottery's draws, the achievements, the arrival Stardust, the feedback link and prefill, old saves. `tools/arbiterTest.mjs` (privacy: no other file in the Arbiter's code uses the network or storage; weather.js has one host, no cookie, one storage write, no request without permission or before the position is answered; one request for two askers; coordinates rounded). Old-seed replays are identical to the commit before this step. Browser pass, muted: the door, the shop before Pip, Pip's scene, banner and echo, the duel (announced move, both totals, the last exchange), the true ending scene and card, the saved ghost and achievements, the pause menu's feedback button and the prefilled form.
 - **Version:** Alpha v0.9.5.
 
-## 49. Alpha v0.9.6 to v0.9.14: the visual overhaul (implemented)
+## 49. Alpha v0.9.6 to v0.9.16: the visual overhaul (implemented)
 
-Presentation only: no rule, price, target or save field changed. Plan: `VISUALS.md`; build notes and numbers: `VISUALS_V1_REPORT.md` to `VISUALS_V7_REPORT.md`; the look as it is now: `CONTENT.md` section 13; swapping any piece for hand-drawn art by file name: `ASSETS.md` section 8.
+Presentation only: no rule, price, target or save field changed. Plan: `VISUALS.md`; build notes and numbers: `VISUALS_V1_REPORT.md` to `VISUALS_V8_REPORT.md`; the look as it is now: `CONTENT.md` section 13; swapping any piece for hand-drawn art by file name: `ASSETS.md` section 8.
 
 - **0.9.6 Visual foundations (V1):** the Visual Lab, a lived-in Market, tests of a title card, 3D items and a layered keeper rig; the registry of ids (`data/visualRegistry.js`) behind the swap rule.
 - **0.9.7 Item models (V2)** then **0.9.9 Readable items (V2.5):** every relic and consumable first as a small 3D object, then as a hand-authored 32 by 32 code-drawn sprite per item (the 3D pipeline stays in the repo for later).
@@ -745,8 +745,10 @@ Presentation only: no rule, price, target or save field changed. Plan: `VISUALS.
 - **0.9.12 Cinematics (V5):** 37 story scenes staged as pixel-art films, 17 ending stills, the intro, an Options switch (Intro animation); Reduced motion shows stills and slow devices the old typed scenes (`components/visuals/cinematic/`, `data/sceneDirections.js`).
 - **0.9.13 The Road (V6):** the Road as a parchment map with realm papers, gates, signs, banners, fog, a lantern traveler and a ghost that walks the trail, zoom and pan, tooltips, keyboard navigation, 44 px targets (`components/visuals/map/`, `tools/mapTest.mjs`, 49 checks). The map's engine (`engine/map.js`) and every rule are untouched.
 - **0.9.14 Characters (V7):** rigs for Pip, the Arbiter, the four gods, the Primordial, You and every boss, with idle, blink, talk and reactions.
+- **0.9.15 Polish (V8):** the Conclave shops' stage fixed (the six keepers on one row, their sign under them), redrawn Safety Net, Heat and Hourglass, distinct Constellation and Rune colors, rigs on the Gallery's character pages, a plain fallback for every lazy part (`LazyBoundary`, the Lab's Fallbacks page), dice drawn as one image each (a full shop is under 4,000 DOM nodes), 40 px small buttons on touch screens.
+- **0.9.16 Legacy visuals (V8.0):** Options > Display > Visual style (New or Legacy, `elementa-visual-style`): Legacy is the pre-overhaul component tree (commit `4c7ad36`) recovered into `components/legacy/`, a lazy chunk, running on the same engine, data and saves, so every rule and feature is the same in both.
 - **Constraints kept by every phase:** code art only (no generated images), Reduced motion and the low-end tier show still poses, the first load grows as little as possible (the heavy pieces are lazy chunks), every string has English and Spanish, and old saves load.
-- **Version:** Alpha v0.9.14 (the polish pass, V8, comes after).
+- **Version:** the visual overhaul ends at Alpha v0.9.16; the latest build is Alpha v0.9.17.
 
 ## 50. Alpha v0.9.17 "Rush retune": a target per Rush boss (implemented)
 

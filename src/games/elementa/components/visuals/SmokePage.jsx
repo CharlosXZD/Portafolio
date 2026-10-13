@@ -27,19 +27,12 @@ const save = (s) => localStorage.setItem(KEY, JSON.stringify(s))
 
 function buildQueue(subset) {
   const q = []
-  // ?quick runs phone and desktop only, and Reduced motion on the new style.
+  // ?quick runs phone and desktop only (and Reduced motion on the new style only).
   const quick = typeof location !== 'undefined' && location.search.includes('quick')
   for (const style of STYLES) for (const w of quick ? [375, 1024] : WIDTHS) for (const s of SAVES) q.push({ save: s, style, w, reduced: false })
-  if (quick) {
-    for (const s of SAVES) q.push({ save: s, style: 'new', w: 1024, reduced: true })
-    // The forced fallbacks (V8.3): the low-end tier, Instant speed, and every lazy part failing at once.
-    for (const s of SAVES) q.push({ save: s, style: 'new', w: 1024, reduced: false, extra: 'low' })
-    for (const s of SAVES) q.push({ save: s, style: 'new', w: 1024, reduced: false, extra: 'instant' })
-    for (const s of SAVES) q.push({ save: s, style: 'new', w: 1024, reduced: false, extra: 'fail' })
-    return subset ? q.filter((j) => j.save === subset) : q
-  }
-  // Reduced motion at 1024, both styles.
-  for (const style of STYLES) for (const s of SAVES) q.push({ save: s, style, w: 1024, reduced: true })
+  for (const style of quick ? ['new'] : STYLES) for (const s of SAVES) q.push({ save: s, style, w: 1024, reduced: true })
+  // The forced fallbacks (V8.3): the low-end tier, Instant speed, and every lazy part failing at once.
+  for (const extra of ['low', 'instant', 'fail']) for (const s of SAVES) q.push({ save: s, style: 'new', w: 1024, reduced: false, extra })
   return subset ? q.filter((j) => j.save === subset) : q
 }
 

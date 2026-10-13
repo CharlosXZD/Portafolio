@@ -552,7 +552,8 @@ export default function ShopScreen({ state, dispatch: gameDispatch }) {
   const { t, lang } = useLanguage()
   const { reducedMotion } = useGameSettings()
   // Reduced motion and the low-end tier both still the scene's loops (the sign's sway, the tags, the lever).
-  const calm = reducedMotion || useVisualEnv().quality === 'low'
+  const { quality } = useVisualEnv()
+  const calm = reducedMotion || quality === 'low'
   useEffect(() => installRoomSounds(), [])
   // The popovers (the item inspector) are drawn in a portal outside the scene, so the shop's materials are
   // also set on the body while a shop is open: the inspector is then a parchment tag, not a dark box.
