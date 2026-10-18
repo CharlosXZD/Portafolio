@@ -515,10 +515,10 @@ export const projects = [
 
 export const comingSoonProjects = [
   {
-    title: 'Lucklike',
+    title: 'Ohmstead',
     tagline: {
-      en: 'A game currently in development and the next project on deck. Details soon.',
-      es: 'Un videojuego actualmente en desarrollo y el siguiente proyecto en la fila. Detalles pronto.',
+      en: 'An isometric factory game about building electronics, from raw ore to a working computer. Currently in design.',
+      es: 'Un juego de fábricas isométrico sobre construir electrónica, desde el mineral hasta una computadora funcional. Actualmente en diseño.',
     },
   },
 ]
