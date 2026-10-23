@@ -124,6 +124,7 @@ const strings = {
   'langToast.dismiss': { en: 'Dismiss', es: 'Cerrar' },
 
   'resume.file': { en: '/Carlos_de_la_Pena_Resume.pdf', es: '/Carlos_de_la_Pena_Resume_ES.pdf' },
+  'resume.downloadName': { en: 'Carlos_A_De_la_Peña_Resume.pdf', es: 'Carlos_A_De_la_Peña_CV.pdf' },
   'resume.download': { en: 'Download Resume (PDF)', es: 'Descargar Currículum (PDF)' },
   'resume.education': { en: 'Education', es: 'Educación' },
   'resume.experience': { en: 'Experience', es: 'Experiencia' },

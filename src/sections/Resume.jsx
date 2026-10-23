@@ -48,7 +48,7 @@ function Resume() {
           <p className="max-w-md text-neutral-600 dark:text-neutral-400">{t('resume.blurb')}</p>
           <a
             href={t('resume.file')}
-            download
+            download={t('resume.downloadName')}
             className="pressable inline-flex shrink-0 items-center gap-2 rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
             <DownloadIcon className="h-4 w-4" />

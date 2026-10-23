@@ -62,7 +62,7 @@ function Hero() {
             </a>
             <a
               href={t('resume.file')}
-              download
+              download={t('resume.downloadName')}
               className="pressable inline-flex items-center rounded-full px-5 py-3 text-sm font-medium text-neutral-700 ring-1 ring-neutral-200 transition-colors ring-inset hover:bg-neutral-50 dark:text-neutral-300 dark:ring-neutral-800 dark:hover:bg-neutral-900"
             >
               {t('hero.ctaResume')}

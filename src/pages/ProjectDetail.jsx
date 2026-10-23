@@ -387,7 +387,7 @@ function ProjectDetail() {
               </Link>
               <a
                 href={t('resume.file')}
-                download
+                download={t('resume.downloadName')}
                 className="pressable inline-flex items-center rounded-full px-5 py-3 text-sm font-medium ring-1 ring-white/25 transition-colors ring-inset hover:bg-white/10 dark:ring-neutral-900/20 dark:hover:bg-neutral-900/5"
               >
                 {t('hero.ctaResume')}
