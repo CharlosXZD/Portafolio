@@ -56,6 +56,10 @@ function About() {
               <a href="tel:+17345104024" className="hover:text-brand-600 dark:hover:text-brand-400">
                 +1 (734) 510-4024
               </a>
+              <span className="mx-1.5 text-neutral-300 dark:text-neutral-700">·</span>
+              <a href="tel:+525547926088" className="hover:text-brand-600 dark:hover:text-brand-400">
+                +52 55 4792 6088
+              </a>
             </dd>
           </div>
         </dl>
