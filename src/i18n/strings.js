@@ -6,7 +6,7 @@ const strings = {
 
   'hero.eyebrow': {
     en: 'Computer & Electrical Engineering · University of Michigan–Dearborn',
-    es: 'Ingeniería Computacional y Eléctrica · Universidad de Michigan–Dearborn',
+    es: 'Ingeniería en Computación y Eléctrica · Universidad de Michigan–Dearborn',
   },
   'hero.heading': {
     en: 'I build products end to end, from firmware to frontend.',
@@ -27,7 +27,7 @@ const strings = {
   },
   'about.bio': {
     en: "I'm a dual-degree BSE Computer Engineering & Electrical Engineering student at the University of Michigan–Dearborn. I've shipped a live e-commerce platform end-to-end, co-founded and led development on a cross-platform tutoring startup, built embedded systems projects like a CAD-designed, Arduino-driven autonomous robot, and I design and build my own games, from a 45-round roguelite to a deterministic factory simulation. I like working across the stack, from firmware to frontend, and I use AI tools like Claude Code as part of how I build.",
-    es: 'Soy estudiante de doble carrera en Ingeniería Computacional e Ingeniería Eléctrica en la Universidad de Michigan–Dearborn. He desarrollado de principio a fin una plataforma de comercio electrónico en producción, cofundé y lideré el desarrollo de una startup de tutorías multiplataforma, construí proyectos de sistemas embebidos como un robot autónomo diseñado en CAD y controlado con Arduino, y diseño y construyo mis propios juegos, desde un roguelite de 45 rondas hasta una simulación de fábrica determinista. Me gusta trabajar en todo el stack, desde el firmware hasta el frontend, y uso herramientas de IA como Claude Code como parte de mi forma de construir.',
+    es: 'Soy estudiante de doble carrera en Ingeniería en Computación e Ingeniería Eléctrica en la Universidad de Michigan–Dearborn. He desarrollado de principio a fin una plataforma de comercio electrónico en producción, cofundé y lideré el desarrollo de una startup de tutorías multiplataforma, construí proyectos de sistemas embebidos como un robot autónomo diseñado en CAD y controlado con Arduino, y diseño y construyo mis propios juegos, desde un roguelite de 45 rondas hasta una simulación de fábrica determinista. Me gusta trabajar en todo el stack, desde el firmware hasta el frontend, y uso herramientas de IA como Claude Code como parte de mi forma de construir.',
   },
   'about.email': { en: 'Email', es: 'Correo' },
   'about.phone': { en: 'Phone', es: 'Teléfono' },
@@ -113,7 +113,7 @@ const strings = {
   },
   'resume.blurb': {
     en: 'BSE Computer Engineering & Electrical Engineering, University of Michigan–Dearborn (expected May 2029).',
-    es: 'Ingeniería Computacional e Ingeniería Eléctrica, Universidad de Michigan–Dearborn (graduación esperada en mayo de 2029).',
+    es: 'Ingeniería en Computación e Ingeniería Eléctrica, Universidad de Michigan–Dearborn (graduación esperada en mayo de 2029).',
   },
   'resume.file': { en: '/Carlos_de_la_Pena_Resume.pdf', es: '/Carlos_de_la_Pena_Resume_ES.pdf' },
   'resume.download': { en: 'Download Resume (PDF)', es: 'Descargar Currículum (PDF)' },

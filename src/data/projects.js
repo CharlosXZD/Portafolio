@@ -73,7 +73,7 @@ export const projects = [
         image: '/screenshots/tiger-price-checkout.png',
       },
       {
-        eyebrow: { en: 'FULFILLMENT', es: 'CUMPLIMIENTO' },
+        eyebrow: { en: 'FULFILLMENT', es: 'ENTREGA' },
         headline: { en: 'An order pipeline, not a spinner.', es: 'Un flujo de pedido, no solo una rueda de carga.' },
         body: {
           en: 'Every order moves through a real multi-step pipeline (payment, stock validation, order creation) with status the customer can actually follow.',

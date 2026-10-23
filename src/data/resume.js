@@ -2,7 +2,7 @@ export const education = {
   school: { en: 'University of Michigan–Dearborn', es: 'Universidad de Michigan–Dearborn' },
   degree: {
     en: 'BSE Computer Engineering & BSE Electrical Engineering (Dual Degree)',
-    es: 'Ingeniería Computacional e Ingeniería Eléctrica (Doble Titulación)',
+    es: 'Ingeniería en Computación e Ingeniería Eléctrica (Doble Titulación)',
   },
   period: { en: 'Expected May 2029', es: 'Graduación esperada en mayo de 2029' },
   meta: { en: 'Cumulative GPA: 3.38/4.0', es: 'Promedio acumulado: 3.38/4.0' },
