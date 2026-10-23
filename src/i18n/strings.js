@@ -115,6 +115,13 @@ const strings = {
     en: 'BSE Computer Engineering & Electrical Engineering, University of Michigan–Dearborn (expected May 2029).',
     es: 'Ingeniería en Computación e Ingeniería Eléctrica, Universidad de Michigan–Dearborn (graduación esperada en mayo de 2029).',
   },
+  'langToast.message': {
+    en: 'We switched the site to English based on your browser.',
+    es: 'Cambiamos el sitio a español según el idioma de tu navegador.',
+  },
+  'langToast.switch': { en: 'Switch to Spanish', es: 'Cambiar a inglés' },
+  'langToast.dismiss': { en: 'Dismiss', es: 'Cerrar' },
+
   'resume.file': { en: '/Carlos_de_la_Pena_Resume.pdf', es: '/Carlos_de_la_Pena_Resume_ES.pdf' },
   'resume.download': { en: 'Download Resume (PDF)', es: 'Descargar Currículum (PDF)' },
   'resume.education': { en: 'Education', es: 'Educación' },

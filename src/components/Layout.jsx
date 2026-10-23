@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import Navbar from './Navbar.jsx'
 import Footer from './Footer.jsx'
 import ScrollToTop from './ScrollToTop.jsx'
+import LanguageToast from './LanguageToast.jsx'
 
 function Layout() {
   const { pathname } = useLocation()
@@ -21,6 +22,7 @@ function Layout() {
         <Outlet />
       </motion.main>
       <Footer />
+      <LanguageToast />
     </div>
   )
 }
