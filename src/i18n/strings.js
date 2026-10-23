@@ -41,7 +41,7 @@ const strings = {
   'about.skills.figma': { en: 'Figma (learning)', es: 'Figma (aprendiendo)' },
   'about.skills.spokenLanguages': { en: 'Spoken Languages', es: 'Idiomas' },
   'about.skills.pcRepair': { en: 'PC assembly & repair', es: 'Ensamblaje y reparación de PC' },
-  'about.skills.windowsOs': { en: 'Windows OS', es: 'Sistema Windows' },
+  'about.skills.windowsOs': { en: 'Windows & macOS', es: 'Windows y macOS' },
   'about.skills.embeddedSystems': {
     en: 'Embedded systems (Arduino)',
     es: 'Sistemas embebidos (Arduino)',
