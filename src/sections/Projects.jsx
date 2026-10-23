@@ -100,14 +100,31 @@ function Projects() {
 
       {comingSoonProjects.map((project) => (
         <Reveal key={project.title} className="mt-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 rounded-3xl px-7 py-5 ring-1 ring-neutral-200 ring-inset sm:px-8 dark:ring-neutral-800">
-            <p className="text-neutral-600 dark:text-neutral-400">
-              <span className="font-semibold text-neutral-900 dark:text-white">{project.title}</span>
-              {'. '}
-              {pick(project.tagline)}
-            </p>
+          <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 rounded-3xl px-7 py-6 ring-1 ring-neutral-200 ring-inset sm:px-8 dark:ring-neutral-800">
+            <div className="max-w-3xl">
+              <p className="text-neutral-600 dark:text-neutral-400">
+                <span className="font-semibold text-neutral-900 dark:text-white">{project.title}</span>
+                {'. '}
+                {pick(project.tagline)}
+              </p>
+              {project.tech && (
+                <p className="mt-3 text-sm text-neutral-500">{project.tech.join(' · ')}</p>
+              )}
+              {project.facts && (
+                <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3">
+                  {project.facts.map((fact) => (
+                    <div key={fact.value}>
+                      <dt className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+                        {fact.value}
+                      </dt>
+                      <dd className="text-xs text-neutral-500">{pick(fact.label)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </div>
             <span className="text-eyebrow text-neutral-400 dark:text-neutral-500">
-              {t('projects.comingSoon')}
+              {project.status ? pick(project.status) : t('projects.comingSoon')}
             </span>
           </div>
         </Reveal>

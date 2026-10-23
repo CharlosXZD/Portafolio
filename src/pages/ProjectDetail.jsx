@@ -248,7 +248,11 @@ function ProjectDetail() {
           <SectionLabel>{t('projectDetail.byTheNumbers')}</SectionLabel>
           <dl
             className={`mt-6 grid grid-cols-1 gap-x-6 gap-y-8 border-t border-neutral-200 pt-8 dark:border-neutral-800 ${
-              project.stats.length > 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'
+              project.stats.length > 3
+                ? 'sm:grid-cols-2 lg:grid-cols-4'
+                : project.stats.length > 2
+                  ? 'sm:grid-cols-3'
+                  : 'sm:grid-cols-2'
             }`}
           >
             {project.stats.map((stat, i) => (
@@ -382,7 +386,7 @@ function ProjectDetail() {
                 {t('projectDetail.ctaContact')}
               </Link>
               <a
-                href="/Carlos_de_la_Pena_Resume.pdf"
+                href={t('resume.file')}
                 download
                 className="pressable inline-flex items-center rounded-full px-5 py-3 text-sm font-medium ring-1 ring-white/25 transition-colors ring-inset hover:bg-white/10 dark:ring-neutral-900/20 dark:hover:bg-neutral-900/5"
               >

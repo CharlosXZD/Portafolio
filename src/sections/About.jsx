@@ -8,11 +8,11 @@ function About() {
   const skills = [
     {
       label: t('about.skills.languagesFrameworks'),
-      items: ['JavaScript', 'React', 'Vite', 'Tailwind CSS', 'Framer Motion', 'HTML & CSS', 'Dart (Flutter)', 'C++ (Arduino)'],
+      items: ['JavaScript', 'React', 'Vite', 'Tailwind CSS', 'Framer Motion', 'HTML & CSS', 'Dart (Flutter)', 'C++ (Arduino)', 'SQLite'],
     },
     {
       label: t('about.skills.toolsPlatforms'),
-      items: ['Firebase', 'Stripe', 'Git/GitHub', 'Canvas & Web Audio APIs', 'Arduino IDE', 'CAD (3D Modeling)'],
+      items: ['Firebase', 'Stripe', 'Git/GitHub', 'PixiJS', 'Three.js', 'Canvas & Web Audio APIs', 'Node.js testing', 'Arduino IDE', 'CAD (3D Modeling)'],
     },
     {
       label: t('about.skills.aiDesign'),

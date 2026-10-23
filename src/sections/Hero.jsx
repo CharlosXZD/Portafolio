@@ -61,7 +61,7 @@ function Hero() {
               <ArrowDownIcon className="h-4 w-4" />
             </a>
             <a
-              href="/Carlos_de_la_Pena_Resume.pdf"
+              href={t('resume.file')}
               download
               className="pressable inline-flex items-center rounded-full px-5 py-3 text-sm font-medium text-neutral-700 ring-1 ring-neutral-200 transition-colors ring-inset hover:bg-neutral-50 dark:text-neutral-300 dark:ring-neutral-800 dark:hover:bg-neutral-900"
             >

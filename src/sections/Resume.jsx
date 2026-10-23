@@ -47,7 +47,7 @@ function Resume() {
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
           <p className="max-w-md text-neutral-600 dark:text-neutral-400">{t('resume.blurb')}</p>
           <a
-            href="/Carlos_de_la_Pena_Resume.pdf"
+            href={t('resume.file')}
             download
             className="pressable inline-flex shrink-0 items-center gap-2 rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
           >
@@ -139,7 +139,7 @@ function Resume() {
         <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-600">
           {t('resume.sideProjects')}
         </span>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sideProjects.map((project) => (
             <Link
               key={pick(project.title)}

@@ -76,10 +76,22 @@ export const sideProjects = [
     link: '/projects/elementa',
   },
   {
+    title: 'Ohmstead',
+    role: { en: 'Solo Game Designer & Developer', es: 'Diseñador y Desarrollador de Juego' },
+    period: { en: '2026 · In development', es: '2026 · En desarrollo' },
+    link: '/#projects',
+  },
+  {
     title: 'Tootor',
     role: { en: 'Co-Founder & Lead Developer', es: 'Cofundador y Desarrollador Principal' },
     period: { en: 'Jan 2025 – Jun 2025', es: 'Ene 2025 – Jun 2025' },
     link: '/projects/tootor',
+  },
+  {
+    title: 'Project Wellness',
+    role: { en: 'Solo Developer', es: 'Desarrollador en Solitario' },
+    period: { en: 'Flutter · Local-first', es: 'Flutter · Sin nube' },
+    link: '/projects/project-wellness',
   },
   {
     title: { en: 'Line-Following Robot', es: 'Robot Sigue-Líneas' },
