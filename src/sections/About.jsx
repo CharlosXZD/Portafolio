@@ -8,7 +8,7 @@ function About() {
   const skills = [
     {
       label: t('about.skills.languagesFrameworks'),
-      items: ['JavaScript', 'React', 'Vite', 'Tailwind CSS', 'Framer Motion', 'HTML & CSS', 'Dart (Flutter)', 'C (coursework)', 'C++ (Arduino)', 'SQLite'],
+      items: ['JavaScript', 'React', 'Vite', 'Tailwind CSS', 'Framer Motion', 'HTML & CSS', 'Dart (Flutter)', t('about.skills.cCourse'), 'C++ (Arduino)', 'SQLite'],
     },
     {
       label: t('about.skills.toolsPlatforms'),

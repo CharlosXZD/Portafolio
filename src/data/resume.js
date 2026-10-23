@@ -7,8 +7,8 @@ export const education = {
   period: { en: 'Expected May 2029', es: 'Graduación esperada en mayo de 2029' },
   meta: { en: 'Cumulative GPA: 3.38/4.0', es: 'Promedio acumulado: 3.38/4.0' },
   coursework: {
-    en: 'Relevant coursework: Digital Systems, Computer Methods in ECE (C), Differential Equations with Linear Algebra, Calculus I & II, General Physics I & II, Intro to Engineering & Design',
-    es: 'Cursos relevantes: Sistemas Digitales, Métodos Computacionales en ECE (C), Ecuaciones Diferenciales con Álgebra Lineal, Cálculo I y II, Física General I y II, Introducción a la Ingeniería y Diseño',
+    en: 'Relevant coursework: Digital Systems, Computer Methods (C), Differential Equations with Linear Algebra, Calculus I & II, General Physics I & II, Intro to Engineering & Design',
+    es: 'Cursos relevantes: Sistemas Digitales, Métodos Computacionales (C), Ecuaciones Diferenciales con Álgebra Lineal, Cálculo I y II, Física General I y II, Introducción a la Ingeniería y Diseño',
   },
 }
 

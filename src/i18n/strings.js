@@ -38,6 +38,7 @@ const strings = {
   'about.skills.toolsPlatforms': { en: 'Tools & Platforms', es: 'Herramientas y Plataformas' },
   'about.skills.hardwareSystems': { en: 'Hardware & Systems', es: 'Hardware y Sistemas' },
   'about.skills.aiDesign': { en: 'AI & Design Tools', es: 'IA y Herramientas de Diseño' },
+  'about.skills.cCourse': { en: 'C (coursework)', es: 'C (en curso)' },
   'about.skills.figma': { en: 'Figma (learning)', es: 'Figma (aprendiendo)' },
   'about.skills.spokenLanguages': { en: 'Spoken Languages', es: 'Idiomas' },
   'about.skills.pcRepair': { en: 'PC assembly & repair', es: 'Ensamblaje y reparación de PC' },
