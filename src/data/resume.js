@@ -20,14 +20,14 @@ export const experience = [
     location: { en: 'Remote', es: 'Remoto' },
     bullets: {
       en: [
-        'Architected and built a full e-commerce platform from the ground up using React, Vite, and CSS',
+        'Architected and built a full marketplace platform from the ground up: storefront plus vendor, warehouse, courier, and admin apps (React, TypeScript, Vite)',
         'Integrated Firebase for back-end services: real-time database, authentication, and inventory management',
-        'Implemented Stripe payment processing for secure, end-to-end online transactions',
+        'Integrated Stripe payments and server-enforced order cancellation windows; pre-launch and production ready',
       ],
       es: [
-        'Diseñé y construí una plataforma de comercio electrónico completa desde cero usando React, Vite y CSS',
+        'Diseñé y construí desde cero una plataforma de marketplace completa: escaparate y apps de proveedor, almacén, repartidor y administración (React, TypeScript, Vite)',
         'Integré Firebase para servicios de back-end: base de datos en tiempo real, autenticación y gestión de inventario',
-        'Implementé el procesamiento de pagos con Stripe para transacciones en línea seguras de principio a fin',
+        'Integré pagos con Stripe y ventanas de cancelación de pedidos aplicadas desde el servidor; listo para producción, aún sin lanzar',
       ],
     },
     link: '/projects/tiger-price',

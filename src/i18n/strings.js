@@ -13,8 +13,8 @@ const strings = {
     es: 'Construyo productos de principio a fin, del firmware al frontend.',
   },
   'hero.subtitle': {
-    en: "Hi, I'm Carlos de la Peña. I've shipped a live e-commerce platform solo, co-founded a tutoring startup, built an autonomous robot that ranked first in its lab section, and designed and built two games from scratch: a playable roguelite and an electronics factory simulator.",
-    es: 'Hola, soy Carlos de la Peña. He lanzado en solitario una plataforma de e-commerce en producción, cofundé una startup de tutorías, construí un robot autónomo que quedó en primer lugar de su sección de laboratorio y diseñé y construí desde cero dos juegos: un roguelite jugable y un simulador de fábrica de electrónica.',
+    en: "Hi, I'm Carlos de la Peña. I've built a full marketplace platform solo, pre-launch and production ready, co-founded a tutoring startup, built an autonomous robot that ranked first in its lab section, and designed and built two games from scratch: a playable roguelite and an electronics factory simulator.",
+    es: 'Hola, soy Carlos de la Peña. Construí en solitario una plataforma de marketplace completa, lista para producción y aún sin lanzar, cofundé una startup de tutorías, construí un robot autónomo que quedó en primer lugar de su sección de laboratorio y diseñé y construí desde cero dos juegos: un roguelite jugable y un simulador de fábrica de electrónica.',
   },
   'hero.ctaWork': { en: 'See my work', es: 'Ver mi trabajo' },
   'hero.ctaResume': { en: 'Download résumé', es: 'Descargar CV' },
@@ -26,8 +26,8 @@ const strings = {
     es: 'Un ingeniero al que le gusta todo el stack.',
   },
   'about.bio': {
-    en: "I'm a dual-degree BSE Computer Engineering & Electrical Engineering student at the University of Michigan–Dearborn. I've shipped a live e-commerce platform end-to-end, co-founded and led development on a cross-platform tutoring startup, built embedded systems projects like a CAD-designed, Arduino-driven autonomous robot, and I design and build my own games, from a 45-round roguelite to a deterministic factory simulation. I like working across the stack, from firmware to frontend, and I use AI tools like Claude Code as part of how I build.",
-    es: 'Soy estudiante de doble carrera en Ingeniería en Computación e Ingeniería Eléctrica en la Universidad de Michigan–Dearborn. He desarrollado de principio a fin una plataforma de comercio electrónico en producción, cofundé y lideré el desarrollo de una startup de tutorías multiplataforma, construí proyectos de sistemas embebidos como un robot autónomo diseñado en CAD y controlado con Arduino, y diseño y construyo mis propios juegos, desde un roguelite de 45 rondas hasta una simulación de fábrica determinista. Me gusta trabajar en todo el stack, desde el firmware hasta el frontend, y uso herramientas de IA como Claude Code como parte de mi forma de construir.',
+    en: "I'm a dual-degree BSE Computer Engineering & Electrical Engineering student at the University of Michigan–Dearborn. I've built a full marketplace platform end-to-end, pre-launch and production ready, co-founded and led development on a cross-platform tutoring startup, built embedded systems projects like a CAD-designed, Arduino-driven autonomous robot, and I design and build my own games, from a 45-round roguelite to a deterministic factory simulation. I like working across the stack, from firmware to frontend, and I use AI tools like Claude Code as part of how I build.",
+    es: 'Soy estudiante de doble carrera en Ingeniería en Computación e Ingeniería Eléctrica en la Universidad de Michigan–Dearborn. He construido de principio a fin una plataforma de marketplace, lista para producción y aún sin lanzar, cofundé y lideré el desarrollo de una startup de tutorías multiplataforma, construí proyectos de sistemas embebidos como un robot autónomo diseñado en CAD y controlado con Arduino, y diseño y construyo mis propios juegos, desde un roguelite de 45 rondas hasta una simulación de fábrica determinista. Me gusta trabajar en todo el stack, desde el firmware hasta el frontend, y uso herramientas de IA como Claude Code como parte de mi forma de construir.',
   },
   'about.email': { en: 'Email', es: 'Correo' },
   'about.phone': { en: 'Phone', es: 'Teléfono' },
@@ -53,8 +53,8 @@ const strings = {
 
   'projects.eyebrow': { en: 'Selected work', es: 'Trabajo destacado' },
   'projects.heading': {
-    en: 'Real products, built and shipped.',
-    es: 'Productos reales, construidos y lanzados.',
+    en: 'Real products, built end to end.',
+    es: 'Productos reales, construidos de principio a fin.',
   },
   'projects.viewCaseStudy': { en: 'View project', es: 'Ver proyecto' },
   'projects.comingSoon': { en: 'Coming soon', es: 'Próximamente' },
@@ -351,8 +351,8 @@ const strings = {
   'nav.play': { en: 'Play', es: 'Jugar' },
   'game.eyebrow': { en: 'Playable now · Browser game', es: 'Jugable ya · Juego en navegador' },
   'game.tagline': {
-    en: 'An elemental dice roguelite I designed and built: 140+ dice, 62 relics, three story paths, and nine endings. Runs in your browser, no install.',
-    es: 'Un roguelite de dados elementales que diseñé y programé: más de 140 dados, 62 reliquias, tres caminos narrativos y nueve finales. Corre en tu navegador, sin instalar nada.',
+    en: 'An elemental dice roguelite I designed and built: 89 dice, 62 relics, three story paths, and 17 endings. Runs in your browser, no install.',
+    es: 'Un roguelite de dados elementales que diseñé y programé: 89 dados, 62 reliquias, tres caminos narrativos y 17 finales. Corre en tu navegador, sin instalar nada.',
   },
   'game.play': { en: 'Play Elementa', es: 'Jugar Elementa' },
   'game.tech': { en: 'React · Framer Motion · Procedural pixel art and music', es: 'React · Framer Motion · Pixel art y música procedurales' },
