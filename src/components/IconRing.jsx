@@ -22,10 +22,15 @@ const icons = [
   },
   {
     label: 'Elementa',
-    color: '#1b1636',
+    color: '#4a33b5',
     mark: '/icons/elementa-mark.png',
     // Pixel art: sample with nearest-neighbor so it stays crisp, not blurry.
     pixel: true,
+  },
+  {
+    label: 'Ohmstead',
+    color: '#1c1208',
+    mark: '/icons/ohmstead-mark.png',
   },
 ]
 

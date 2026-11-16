@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /old/
 
 Sitemap: https://cdlp.dev/sitemap.xml

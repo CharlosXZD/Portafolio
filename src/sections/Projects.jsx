@@ -100,7 +100,9 @@ function Projects() {
 
       {comingSoonProjects.map((project) => (
         <Reveal key={project.title} className="mt-5">
-          <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-3 rounded-3xl px-7 py-6 ring-1 ring-neutral-200 ring-inset sm:px-8 dark:ring-neutral-800">
+          <Link
+            to={project.slug ? `/projects/${project.slug}` : '#'}
+            className="pressable group flex flex-wrap items-start justify-between gap-x-6 gap-y-3 rounded-3xl px-7 py-6 ring-1 ring-neutral-200 transition-colors ring-inset hover:bg-neutral-50 sm:px-8 dark:ring-neutral-800 dark:hover:bg-neutral-900">
             <div className="max-w-3xl">
               <p className="text-neutral-600 dark:text-neutral-400">
                 <span className="font-semibold text-neutral-900 dark:text-white">{project.title}</span>
@@ -126,7 +128,7 @@ function Projects() {
             <span className="text-eyebrow text-neutral-400 dark:text-neutral-500">
               {project.status ? pick(project.status) : t('projects.comingSoon')}
             </span>
-          </div>
+          </Link>
         </Reveal>
       ))}
     </section>

@@ -43,6 +43,25 @@ function ElementaGlyph() {
   )
 }
 
+// Ohmstead has no logo yet: its tile is an isometric block on a belt
+function OhmsteadGlyph() {
+  return (
+    <svg viewBox="0 0 100 100" className="h-full w-full p-[14%]" aria-hidden="true">
+      <g transform="translate(50 50) scale(1.12) translate(-50 -52)">
+        <path d="M50 14 L86 34 L50 54 L14 34 Z" fill="#ffd9a0" />
+        <path d="M14 34 L50 54 L50 90 L14 70 Z" fill="#e9962f" />
+        <path d="M86 34 L50 54 L50 90 L86 70 Z" fill="#b8651a" />
+        <path d="M50 24 L72 34 L50 44 L28 34 Z" fill="#3a1d00" />
+        <path d="M50 27 L66 34 L50 41 L34 34 Z" fill="#5a3210" />
+        <circle cx="50" cy="34" r="5.6" fill="#5be3ff" opacity="0.28" />
+        <circle cx="50" cy="34" r="3.4" fill="#7ff0ff" />
+        <path d="M20 44 L44 56 L44 60 L20 48 Z" fill="#7a3f0b" />
+        <path d="M20 52 L44 64 L44 68 L20 56 Z" fill="#7a3f0b" />
+      </g>
+    </svg>
+  )
+}
+
 // A project's logo as an app-icon tile, in its own brand color
 function BrandTile({ project, className = '', shadow = true }) {
   const { color, tile, mark, background, glyph } = project.brand
@@ -66,6 +85,8 @@ function BrandTile({ project, className = '', shadow = true }) {
         />
       ) : glyph === 'elementa' ? (
         <ElementaGlyph />
+      ) : glyph === 'ohmstead' ? (
+        <OhmsteadGlyph />
       ) : (
         <RobotGlyph />
       )}

@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout.jsx'
 import Home from './pages/Home.jsx'
 import ProjectDetail from './pages/ProjectDetail.jsx'
+import ProjectDetailOld from './pages/old/ProjectDetailOld.jsx'
 import NotFound from './pages/NotFound.jsx'
 import ElementaGame from './games/elementa/ElementaGame.jsx'
 import JukeboxPage from './games/elementa/JukeboxPage.jsx'
@@ -98,6 +99,7 @@ function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/projects/:slug" element={<ProjectDetail />} />
+        <Route path="/old/projects/:slug" element={<ProjectDetailOld />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

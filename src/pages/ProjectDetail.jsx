@@ -10,6 +10,7 @@ import { useLanguage } from '../i18n/LanguageContext.jsx'
 import { projects } from '../data/projects.js'
 import { brandWash } from '../utils/brand.js'
 import NotFound from './NotFound.jsx'
+import Showcase from '../components/showcase/Showcase.jsx'
 
 const Robot3D = lazy(() => import('../components/Robot3D.jsx'))
 
@@ -141,7 +142,11 @@ function ProjectDetail() {
   })
 
   return (
-    <article className="mx-auto max-w-6xl px-6 pb-24 pt-10 sm:pt-14">
+    <article className={project.story ? 'pb-24' : 'mx-auto max-w-6xl px-6 pb-24 pt-10 sm:pt-14'}>
+      {project.story ? (
+        <Showcase project={project} />
+      ) : (
+        <>
       <Link
         to="/#projects"
         className="inline-flex items-center gap-1.5 text-sm text-neutral-500 transition-colors hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white"
@@ -366,6 +371,10 @@ function ProjectDetail() {
         )}
       </section>
 
+        </>
+      )}
+
+      <div className={project.story ? 'mx-auto max-w-6xl px-6' : ''}>
       {/* Close the loop: an invitation to talk, then somewhere to go next */}
       <Reveal className="mt-24">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
@@ -416,6 +425,7 @@ function ProjectDetail() {
           </Link>
         </div>
       </Reveal>
+      </div>
     </article>
   )
 }
