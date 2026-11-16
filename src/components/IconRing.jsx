@@ -22,14 +22,16 @@ const icons = [
   },
   {
     label: 'Elementa',
-    color: '#4a33b5',
+    color: '#c3b2f7',
+    light: true,
     mark: '/icons/elementa-mark.png',
     // Pixel art: sample with nearest-neighbor so it stays crisp, not blurry.
     pixel: true,
   },
   {
     label: 'Ohmstead',
-    color: '#1c1208',
+    color: '#ffbe73',
+    light: true,
     mark: '/icons/ohmstead-mark.png',
   },
 ]
@@ -67,7 +69,13 @@ function IconCard({ icon, angle }) {
     <Float speed={2} rotationIntensity={0.15} floatIntensity={0.7}>
       <group position={[x, 0, z]} rotation={[0, angle, 0]}>
         <RoundedBox args={[cardSize, cardSize, cardDepth]} radius={cardRadius} smoothness={4}>
-          <meshStandardMaterial color={icon.color} roughness={0.4} metalness={0.3} />
+          <meshStandardMaterial
+            color={icon.color}
+            roughness={0.45}
+            metalness={icon.light ? 0.02 : 0.3}
+            emissive={icon.light ? icon.color : '#000000'}
+            emissiveIntensity={icon.light ? 0.35 : 0}
+          />
         </RoundedBox>
 
         {/* real background artwork for icons that have one (e.g. Project Wellness's bars) */}

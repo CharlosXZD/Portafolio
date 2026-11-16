@@ -5,7 +5,7 @@ import BrandTile from '../components/BrandTile.jsx'
 import GameCard from '../components/GameCard.jsx'
 import { brandWash } from '../utils/brand.js'
 import { useLanguage } from '../i18n/LanguageContext.jsx'
-import { projects, comingSoonProjects } from '../data/projects.js'
+import { projects } from '../data/projects.js'
 
 function ArrowRightIcon(props) {
   return (
@@ -75,7 +75,7 @@ function ProjectCard({ project, featured = false }) {
 }
 
 function Projects() {
-  const { t, pick } = useLanguage()
+  const { t } = useLanguage()
   const [featured, ...rest] = projects.filter((p) => !p.hideFromGrid)
 
   return (
@@ -86,7 +86,7 @@ function Projects() {
         <ProjectCard project={featured} featured />
       </Reveal>
 
-      <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
         {rest.map((project, i) => (
           <Reveal key={project.slug} delay={i * 0.06}>
             <ProjectCard project={project} />
@@ -98,39 +98,6 @@ function Projects() {
         <GameCard />
       </Reveal>
 
-      {comingSoonProjects.map((project) => (
-        <Reveal key={project.title} className="mt-5">
-          <Link
-            to={project.slug ? `/projects/${project.slug}` : '#'}
-            className="pressable group flex flex-wrap items-start justify-between gap-x-6 gap-y-3 rounded-3xl px-7 py-6 ring-1 ring-neutral-200 transition-colors ring-inset hover:bg-neutral-50 sm:px-8 dark:ring-neutral-800 dark:hover:bg-neutral-900">
-            <div className="max-w-3xl">
-              <p className="text-neutral-600 dark:text-neutral-400">
-                <span className="font-semibold text-neutral-900 dark:text-white">{project.title}</span>
-                {'. '}
-                {pick(project.tagline)}
-              </p>
-              {project.tech && (
-                <p className="mt-3 text-sm text-neutral-500">{project.tech.join(' · ')}</p>
-              )}
-              {project.facts && (
-                <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3">
-                  {project.facts.map((fact) => (
-                    <div key={fact.value}>
-                      <dt className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
-                        {fact.value}
-                      </dt>
-                      <dd className="text-xs text-neutral-500">{pick(fact.label)}</dd>
-                    </div>
-                  ))}
-                </dl>
-              )}
-            </div>
-            <span className="text-eyebrow text-neutral-400 dark:text-neutral-500">
-              {project.status ? pick(project.status) : t('projects.comingSoon')}
-            </span>
-          </Link>
-        </Reveal>
-      ))}
     </section>
   )
 }

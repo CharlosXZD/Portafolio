@@ -424,7 +424,7 @@ export const projects = [
     },
     brand: {
       color: '#6a4fd6',
-      tile: '#4a33b5',
+      tile: '#c3b2f7',
       glyph: 'elementa',
     },
     screenType: 'browser',

@@ -783,7 +783,7 @@ export const projects = [
     },
     brand: {
       color: '#6a4fd6',
-      tile: '#4a33b5',
+      tile: '#c3b2f7',
       glyph: 'elementa',
     },
     stage: { bg: '#0b0816' },
@@ -1042,7 +1042,6 @@ export const projects = [
   },
   {
     slug: 'ohmstead',
-    hideFromGrid: true,
     title: 'Ohmstead',
     role: { en: 'Solo Game Designer & Developer', es: 'Diseñador y Desarrollador de Juego en Solitario' },
     period: { en: '2026 · In development', es: '2026 · En desarrollo' },
@@ -1053,7 +1052,7 @@ export const projects = [
     tech: ['PixiJS', 'JavaScript', 'Node tests'],
     team: { en: 'Solo', es: 'En solitario' },
     platform: { en: 'Web', es: 'Web' },
-    brand: { color: '#e9962f', tile: '#1c1208', glyph: 'ohmstead' },
+    brand: { color: '#e9962f', tile: '#ffbe73', glyph: 'ohmstead' },
     stage: { bg: '#100b05' },
     glance: {
       different: { en: 'A deterministic factory simulation, tested like software, with power, fluids and heat.', es: 'Una simulación de fábrica determinista, probada como software, con energía, fluidos y calor.' },
